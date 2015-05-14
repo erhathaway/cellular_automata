@@ -1,6 +1,6 @@
 # cellular_automata
 
-Generate cellular automata plot maker thing 
+Cellular automata plot maker thing 
 
   Note:
   
@@ -8,5 +8,9 @@ Generate cellular automata plot maker thing
     
     2. Only matplotlib is currently enabled (HDF5 will be integrated shortly)
     
-    3. Automata are curruently limited to one dimension
+    3. Automaton are curruently limited to one dimension (the rows on the plot)
+    
+  Resources:
+    
+    1. http://mathworld.wolfram.com/CellularAutomaton.html
 
