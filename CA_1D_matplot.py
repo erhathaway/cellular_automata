@@ -5,23 +5,23 @@ import itertools
 ##############################################################################
 #Initial Condition Variables:
 ##############################################################################
-cell_number =100 # number of cells - ~150 - 200 should be max (~300 is when fine detail starts to emerge)
-cellY = 1.0-float((1.0/(2.0*cell_number))) # vertical placement of first cell row
-positionC ={}
-generations = 220  # # or "Fit"
-rule_input = 110
-cell_states_input = 2 # example: 2 states = 0,1
-rule_type_input = "Wolfram" #"Custom" or "Wolfram"
-neighbors_input = 7
-dimensions = 2
+cell_number =100 # number of cells - Note: ~150 - 200 should be max (~300 is when fine detail starts to emerge)
+cell_y = 1.0-float((1.0/(2.0*cell_number))) # vertical placement of first cell row
+position_c ={}
+generations = 220  # number of generates to iterate over - Note: int or "Fit"
+rule_input = 110 # Wolfram based rule for determining cell behavior
+number_cell_states = 2 # number of cell states. For example: 2 states = cell can be 0 or 1
+rule_type_input = "Wolfram" #"Custom" or "Wolfram" - currently only wolfram is enabled
+neighbors_input = 7 # feature is not enabled
+dimensions = 1 # only supports 1 dimenision for now- aka Flatland 
 
 ##############################################################################
 #Initial System Calculations:
 ##############################################################################
 
 #Generate a list of possible cell states from states variable
-def cell_states():
-    return range(0,cell_states_input)
+def get_cell_states():
+    return range(0,number_cell_states)
 
 #Generate number of neighbors for cell
 def neighbors():
@@ -32,10 +32,10 @@ def neighbors():
         return neighbors_input
 
 #Generate a list of possible rule states from rule variable
-def binseq(cell_states_list, neighbors_calc):
+def binseq(cell_states, neighbors_calc):
 
     #convert cell_states to a string
-    state = ''.join(map(str, cell_states_list))
+    state = ''.join(map(str, cell_states))
 
     # generate cartesian product for {0,1} and repeat it for k places
     li = (''.join(x) for x in itertools.product(state, repeat=neighbors_calc+1))
@@ -61,22 +61,22 @@ def print_initial_conditions():
     print "******************Input Conditions******************"
     print "Number of Generations: " + str(generations)
     print "Number of Cells / Generation: " + str(cell_number)
-    print "Cell States: " + str(cell_states_input)
+    print "Cell States: " + str(number_cell_states)
     print "Neighbors: " + str(neighbors_input)
     print "Rule Type Input: " + str(rule_type_input)
     print "Rule Input: " + str(rule_input)
 
-cell_states_list = cell_states()
+cell_states = get_cell_states()
 neighbors_calc = neighbors()
-statesList = binseq(cell_states_list, neighbors_calc)
+states_list = binseq(cell_states, neighbors_calc)
 
 def print_calculated_conditions():
     print "******************Initial System Data******************"
-    print "Cell States: " + str(cell_states_list)
+    print "Cell States: " + str(cell_states)
     print "Neighbors: " + str(neighbors_calc)
-    print "Possible States:" + str(statesList)
-    print "Actual State Count: " + str(len(statesList))
-    print "Expected State Count:" + str((cell_states_input)**(neighbors_calc+1))
+    print "Possible States:" + str(states_list)
+    print "Actual State Count: " + str(len(states_list))
+    print "Expected State Count:" + str((number_cell_states)**(neighbors_calc+1))
 
 print print_initial_conditions()
 print print_calculated_conditions()
@@ -89,8 +89,8 @@ print print_calculated_conditions()
 def rule_bin():
     if rule_type_input.lower() == "wolfram":
         rule = str(np.binary_repr(rule_input))
-    if len(rule)<len(statesList):
-        for x in range(len(statesList)-len(rule)):
+    if len(rule)<len(states_list):
+        for x in range(len(states_list)-len(rule)):
             rule = "0" + rule
 
     #flip number around (which is what wolfram does)
@@ -104,7 +104,7 @@ def rule_dic():
     rule = rule_bin()
     rules = {}
     j=0
-    for i in statesList:
+    for i in states_list:
         rules[i] = int(rule[j])
         j+=1
     return rules
@@ -113,11 +113,11 @@ def rule_dic():
 rule_dictionary=rule_dic()
 
 #Print CA Rules
-def print_CA_rule():
+def print_ca_rule():
     print "Binary Representation of Rule: " + str(rule_bin())
     print "Rule Dictionary (Rule: Corresponding State): " + str(rule_dictionary)
 
-print_CA_rule()
+print_ca_rule()
 
 ##############################################################################
 #Calculate First Generation of Cells
@@ -139,15 +139,15 @@ print "First Generation Cell State Dictionary (Cell#:State): " + str(cell_state_
 #Calculate Cell Rule Dictionary
 ##############################################################################
 #Calculate Cell Neighbors - ONLY WORKS FOR TWO NEIGHBORS
-def neighbours(cellN,dic):
-    left_cell = cellN-1
-    right_cell= cellN+1
-    middle_cell = cellN
+def neighbours(cell_n,dic):
+    left_cell = cell_n-1
+    right_cell= cell_n+1
+    middle_cell = cell_n
 
     #conditions for if a cell is beyond the end of the dictionary
-    if cellN == 0:
+    if cell_n == 0:
         left_cell = len(dic)-1
-    elif cellN >= len(dic)-1:
+    elif cell_n >= len(dic)-1:
         right_cell = 0
 
     cell_pos_list = (left_cell, middle_cell, right_cell)
@@ -184,7 +184,7 @@ def draw_generation():
         elif cell_state_dictionary[i] == 1:
             state_color = 'b'
         x = float(1.0/n*i+(1.0/(2.0*n)))
-        y = float(cellY)
+        y = float(cell_y)
 
 
         circle=plt.Circle([x, y], radius=float((1.0/(2.0*n))), color=state_color, linewidth=0, ls='solid')
@@ -216,5 +216,5 @@ while gen_counter < generations:
         cell_rule_dictionary = cell_rule_dic()
     draw_generation()
     gen_counter += 1
-    cellY -= float((1.0/(1.0*cell_number)))
+    cell_y -= float((1.0/(1.0*cell_number)))
 plt.show()
