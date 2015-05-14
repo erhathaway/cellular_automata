@@ -1,8 +1,8 @@
 # cellular_automata
 
-Cellular automata plot maker thing 
+#### Cellular automata plot maker thing 
 
-  Note:
+  ##### Note:
   
     1. Only Wolfram style rule input is currently enabled
     
@@ -10,7 +10,7 @@ Cellular automata plot maker thing
     
     3. Automaton are curruently limited to one dimension (the rows on the plot)
     
-  Resources:
+  ##### Resources:
     
-    1. http://mathworld.wolfram.com/CellularAutomaton.html
+  [Wolfram Celllular Automaton](http://mathworld.wolfram.com/CellularAutomaton.html)
 
