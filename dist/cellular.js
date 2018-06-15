@@ -1,60 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (factory());
+  (global.cellular = factory());
 }(this, (function () { 'use strict';
-
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-
-    return obj;
-  }
-
-  function _objectSpread(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
-      var ownKeys = Object.keys(source);
-
-      if (typeof Object.getOwnPropertySymbols === 'function') {
-        ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-          return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-        }));
-      }
-
-      ownKeys.forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    }
-
-    return target;
-  }
-
-  function _taggedTemplateLiteral(strings, raw) {
-    if (!raw) {
-      raw = strings.slice(0);
-    }
-
-    return Object.freeze(Object.defineProperties(strings, {
-      raw: {
-        value: Object.freeze(raw)
-      }
-    }));
-  }
-
-  var a = 1;
-  var b = {
-    x: 1,
-    y: 2
-  };
 
   function memoize(fn) {
     var cache = {};
@@ -1274,34 +1222,45 @@
       sheet = _createEmotion.sheet,
       caches = _createEmotion.caches;
 
-  function _templateObject() {
-    var data = _taggedTemplateLiteral(["\n    background-color: rebeccapurple;\n    height: 100px;\n    width: 200px;\n  "]);
+  const className = css`
+  background-color: yellow;
+  height: 100px;
+  width: 200px;
+`;
+  const app = {
+    $cell: true,
+    id: "menu",
+    class: className
+  };
 
-    _templateObject = function _templateObject() {
-      return data;
-    };
+  const className$1 = css`
+  background-color: lightcyan;
+  height: 50%;
+  width: 90%;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+`;
+  const app$1 = {
+    $cell: true,
+    class: className$1
+  };
 
-    return data;
-  }
-  var app = (function () {
-    var app = document.getElementById('root');
-    var myStyle = css(_templateObject());
-    app.classList.add(myStyle);
-  });
+  const className$2 = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+`;
+  const app$2 = {
+    $cell: true,
+    class: className$2,
+    $type: "div",
+    $components: [app$1, app]
+  };
 
-  // const app = () => {
-  //   const app = document.getElementById('root')
-  //   const myStyle = css`
-  //     background-color: rebeccapurple;
-  //     height: 10px;
-  //     width: 200px;
-  //   `;
-  //
-  //   app.classList.add(myStyle)
-  // }
-
-  console.log(a, JSON.stringify(_objectSpread({}, b)));
-  app();
+  return app$2;
 
 })));
 //# sourceMappingURL=cellular.js.map
