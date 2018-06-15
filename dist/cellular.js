@@ -1290,29 +1290,33 @@
   width: 90%;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  overflow-y: scroll;
 `;
   const generationClassName = css`
   display: flex;
   width: 100%;
-  height: 10px;
 `;
 
   const firstGeneration = cellCount => [...new Array(cellCount)].map(() => Math.round(Math.random()));
 
-  const Cell = state => ({
-    $type: 'div',
-    style: `
-    background-color: ${state === 0 ? "transparent" : "black"};
-    height: 10px;
-    width: 10px;
-  `
-  });
+  function Cell(state) {
+    return {
+      $type: 'div',
+      style: `
+      background-color: ${state === 0 ? "transparent" : "black"};
+      height: ${this._cellDimension}px;
+      width: ${this._cellDimension}px;
+    `
+    };
+  }
 
-  const Generation = generation => ({
-    $type: 'div',
-    class: generationClassName,
-    $components: generation.map(Cell)
-  });
+  function Generation(generation) {
+    return {
+      $type: 'div',
+      class: generationClassName,
+      $components: generation.map(this._cellComponent)
+    };
+  }
 
   const app$1 = {
     $cell: true,
@@ -1320,6 +1324,16 @@
     _ruleObject: ruleObject(110),
     _cellCount: 100,
     _gen: undefined,
+    _cellDimension: 10,
+    _sizeHandler: function (e) {
+      const {
+        height,
+        width
+      } = this.getBoundingClientRect();
+      this._cellDimension = width / this._cellCount;
+    },
+    _cellComponent: Cell,
+    _generationCompnent: Generation,
     onclick: function () {
       const lastGen = this._gen.slice(-1)[0];
 
@@ -1329,9 +1343,12 @@
     },
     $components: undefined,
     $update: function () {
-      this.$components = this._gen.map(Generation);
+      this.$components = this._gen.map(this._generationCompnent);
     },
     $init: function () {
+      this._sizeHandler();
+
+      this.sizeObserver = window.addEventListener("resize", this._sizeHandler);
       this._gen = [firstGeneration(this._cellCount)];
     }
   };
