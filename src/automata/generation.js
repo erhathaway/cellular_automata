@@ -4,7 +4,6 @@ const NEIGHBORS = [
   { name: 'rightNeighboor', value: (index, arr) => arr[index+1], bitShift: value => value },
 ];
 
-
 const nextGeneration = (currentGeneration, ruleObject) =>
   currentGeneration.map((val, index, arr) => {
     const neighborhoodState = NEIGHBORS.reduce((acc, { value, bitShift }) => {

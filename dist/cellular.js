@@ -1233,6 +1233,57 @@
     class: className
   };
 
+  const neighborhoodRule = (ruleNumber, neighborhood) => {
+    /* example:
+      If rule = 110 and neighborhood = 7 (seven being the largest index - since there are 8 total),
+      we want to mask the 6 earlier neighborhoods and
+      see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
+    */
+    const mask = 2 ** neighborhood;
+    return (ruleNumber & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+  };
+
+  const ruleObject = ruleNumber => {
+    /* returns an object
+      the keys are the neighborhood index
+      the value is a state (1 or 0)
+    */
+    const neighborhodVarieties = [...Array(8).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+
+    return neighborhodVarieties.reduce((acc, state) => {
+      acc[state] = neighborhoodRule(ruleNumber, state);
+      return acc;
+    }, {});
+  };
+
+  const NEIGHBORS = [{
+    name: 'leftNeighboor',
+    value: (index, arr) => arr[index - 1],
+    bitShift: value => value << 2
+  }, {
+    name: 'cell',
+    value: (index, arr) => arr[index],
+    bitShift: value => value << 1
+  }, {
+    name: 'rightNeighboor',
+    value: (index, arr) => arr[index + 1],
+    bitShift: value => value
+  }];
+
+  const nextGeneration = (currentGeneration, ruleObject) => currentGeneration.map((val, index, arr) => {
+    const neighborhoodState = NEIGHBORS.reduce((acc, {
+      value,
+      bitShift
+    }) => {
+      const v = value(index, arr);
+      return acc | bitShift(v);
+    }, 0);
+    return ruleObject[neighborhoodState];
+  });
+  // const r = ruleObject(110)
+  //
+  // nextGeneration(testGeneration, r)
+
   const className$1 = css`
   background-color: lightcyan;
   height: 50%;
@@ -1240,9 +1291,49 @@
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 `;
+  const generationClassName = css`
+  display: flex;
+  width: 100%;
+  height: 10px;
+`;
+
+  const firstGeneration = cellCount => [...new Array(cellCount)].map(() => Math.round(Math.random()));
+
+  const Cell = state => ({
+    $type: 'div',
+    style: `
+    background-color: ${state === 0 ? "transparent" : "black"};
+    height: 10px;
+    width: 10px;
+  `
+  });
+
+  const Generation = generation => ({
+    $type: 'div',
+    class: generationClassName,
+    $components: generation.map(Cell)
+  });
+
   const app$1 = {
     $cell: true,
-    class: className$1
+    class: className$1,
+    _ruleObject: ruleObject(110),
+    _cellCount: 100,
+    _gen: undefined,
+    onclick: function () {
+      const lastGen = this._gen.slice(-1)[0];
+
+      const nextGen = nextGeneration(lastGen, this._ruleObject);
+
+      this._gen.push(nextGen);
+    },
+    $components: undefined,
+    $update: function () {
+      this.$components = this._gen.map(Generation);
+    },
+    $init: function () {
+      this._gen = [firstGeneration(this._cellCount)];
+    }
   };
 
   const className$2 = css`
