@@ -6,8 +6,9 @@ const className = css`
   height: 50%;
   width: 90%;
   border-radius: 3px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  overflow-y: scroll;
+  // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow: #000000b8 3px 4px 18px 1px;
+  overflow-y: auto;
 `;
 
 const generationClassName = css`
@@ -26,6 +27,7 @@ function Cell(state) {
       background-color: ${state === 0 ? "transparent" : "black"};
       height: ${this._cellDimension}px;
       width: ${this._cellDimension}px;
+      border-radius: ${this._cellDimension/2}px;
     `
   }
 }
