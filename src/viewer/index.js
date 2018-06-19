@@ -27,7 +27,7 @@ function Cell(state) {
       background-color: ${state === 0 ? "transparent" : "black"};
       height: ${this._cellDimension}px;
       width: ${this._cellDimension}px;
-      border-radius: ${this._cellDimension/2}px;
+      // border-radius: ${this._cellDimension/2}px;
     `
   }
 }
