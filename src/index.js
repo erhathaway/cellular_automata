@@ -7,8 +7,11 @@ import {MDCTextField} from '@material/textfield';
 import menu from './menu';
 import viewer from './viewer';
 import sceneTabs from './sceneTabs';
+import playButton from './playButton';
+import shareButton from './shareButton';
+import fullScreenButton from './fullScreenButton';
 
-import './styles.scss'
+import './styles.scss';
 
 
 const className = css`
@@ -29,7 +32,7 @@ const app = {
     const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
     const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
   },
-  $components: [sceneTabs, viewer, menu],
+  $components: [sceneTabs, playButton, shareButton, fullScreenButton, viewer, menu],
 }
 
 export default app;

@@ -4503,10 +4503,79 @@
     $update: function () {
       this._updateComponents();
     },
-    $init: function () {
-      this._updateComponents();
-    },
     $components: [tab('View'), tab('Explore')]
+  };
+
+  
+
+  const icon = iconName => ({
+    $type: 'span',
+    class: 'mdc-fab__icon material-icons',
+    $text: iconName
+  });
+
+  const app$3 = {
+    $cell: true,
+    $type: 'button',
+    class: 'mdc-fab',
+    id: 'play-button',
+    _active: false,
+    _iconName: 'play_arrow',
+    onclick: function () {
+      this._active = !this._active;
+    },
+    _updateIcon: function () {
+      if (this._active) {
+        this._iconName = 'pause';
+      } else {
+        this._iconName = 'play_arrow';
+      }
+
+      this.$components = [icon(this._iconName)];
+    },
+    $update: function () {
+      this._updateIcon();
+    },
+    $components: [icon('play_arrow')],
+    $init: function () {
+      const fabRipple = new MDCRipple(document.querySelector('.mdc-fab'));
+
+      this._updateIcon();
+    }
+  };
+
+  
+
+  const app$4 = {
+    $cell: true,
+    $type: 'button',
+    class: 'mdc-icon-button material-icons',
+    id: 'share-button',
+    $text: 'share',
+    onclick: function () {
+      console.log('sharing');
+    },
+    $init: function () {
+      const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+      iconButtonRipple.unbounded = true;
+    }
+  };
+
+  
+
+  const app$5 = {
+    $cell: true,
+    $type: 'button',
+    class: 'mdc-icon-button material-icons',
+    id: 'fullscreen-button',
+    $text: 'fullscreen',
+    onclick: function () {
+      console.log('fullscreen');
+    },
+    $init: function () {
+      const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+      iconButtonRipple.unbounded = true;
+    }
   };
 
   
@@ -4519,7 +4588,7 @@
   height: 100vh;
   width: 100%;
 `;
-  const app$3 = {
+  const app$6 = {
     $cell: true,
     class: className$2,
     $type: "div",
@@ -4528,10 +4597,10 @@
       const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$2, app$1, app]
+    $components: [app$2, app$3, app$4, app$5, app$1, app]
   };
 
-  return app$3;
+  return app$6;
 
 })));
 //# sourceMappingURL=cellular.js.map
