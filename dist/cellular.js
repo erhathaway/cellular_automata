@@ -4457,6 +4457,60 @@
 
   
 
+  const tabHTML = `
+  {{tabName}}
+  <span class="mdc-tab__indicator"></span>
+`;
+
+  const tab = function (tabName) {
+    return {
+      $type: 'a',
+      id: `${tabName}-tab`,
+      class: 'mdc-tab',
+      $text: tabName,
+      _tabName: tabName,
+      onclick: function () {
+        this._setActiveTab(this._tabName);
+      },
+      $html: Handlebars.compile(tabHTML)({
+        tabName
+      }),
+      $init: function () {
+        this._updateActiveState();
+      },
+      _updateActiveState: function () {
+        if (this._activeTab === this._tabName) {
+          const classes = this.classList.add('mdc-tab--active');
+        } else {
+          this.classList.remove('mdc-tab--active');
+        }
+      }
+    };
+  };
+
+  const app$2 = {
+    $cell: true,
+    $type: 'nav',
+    class: 'mdc-tab-bar',
+    _activeTab: 'View',
+    _setActiveTab: function (tabName) {
+      this._activeTab = tabName;
+    },
+    id: "sceneTabs",
+    _updateComponents: function () {
+      this.$components.forEach(c => c._updateActiveState());
+    },
+    $update: function () {
+      this._updateComponents();
+    },
+    $init: function () {
+      this._updateComponents();
+    },
+    $components: [tab('View'), tab('Explore')]
+  };
+
+  
+
   const className$2 = css`
   display: flex;
   flex-direction: column;
@@ -4465,7 +4519,7 @@
   height: 100vh;
   width: 100%;
 `;
-  const app$2 = {
+  const app$3 = {
     $cell: true,
     class: className$2,
     $type: "div",
@@ -4474,10 +4528,10 @@
       const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$1, app]
+    $components: [app$2, app$1, app]
   };
 
-  return app$2;
+  return app$3;
 
 })));
 //# sourceMappingURL=cellular.js.map

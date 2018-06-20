@@ -6,6 +6,7 @@ import {MDCTextField} from '@material/textfield';
 
 import menu from './menu';
 import viewer from './viewer';
+import sceneTabs from './sceneTabs';
 
 import './styles.scss'
 
@@ -28,7 +29,7 @@ const app = {
     const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
     const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
   },
-  $components: [viewer, menu],
+  $components: [sceneTabs, viewer, menu],
 }
 
 export default app;
