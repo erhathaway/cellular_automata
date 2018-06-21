@@ -10,6 +10,7 @@ import sceneTabs from './sceneTabs';
 import playButton from './playButton';
 import shareButton from './shareButton';
 import fullScreenButton from './fullScreenButton';
+import drawer from './drawer';
 
 import './styles.scss';
 
@@ -19,14 +20,17 @@ const rootClassName = css`
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: 100vh;
+  // height: 100vh;
+  height: 100%;
   width: 100%;
+  // overflow-y: hidden;
 `;
 
 const bodyClassName = css`
   display: flex;
+  flex-grow: 1;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   justify-content: space-between;
 `;
 
@@ -48,7 +52,7 @@ const rightMenuClassName = css`
 
 const leftMenu = {
   class: leftMenuClassName,
-  $components: [viewer, menu],
+  $components: [drawer],
 
 };
 
@@ -59,7 +63,7 @@ const rightMenu = {
 
 const body = {
   class: bodyClassName,
-  $components: [leftMenu, rightMenu],
+  $components: [leftMenu, rightMenu, viewer],
 };
 
 const app = {

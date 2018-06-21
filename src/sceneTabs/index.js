@@ -8,8 +8,8 @@ const tabHTML = `
 
 const tab = function(tabName) { return {
   $type: 'a',
-  id: `${tabName}-tab`,
-  class: 'mdc-tab',
+  id: `${tabName}-scene-tab`,
+  class: 'mdc-tab scene-tab',
   $text: tabName,
   _tabName: tabName,
   onclick: function() { this._setActiveTab(this._tabName) },

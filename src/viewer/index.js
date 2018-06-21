@@ -3,12 +3,16 @@ import { ruleObject, nextGeneration } from '../automata';
 
 const className = css`
   background-color: lightcyan;
-  height: 50%;
-  width: 90%;
+  position: absolute;
+  z-index: -1;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
   border-radius: 3px;
   // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   box-shadow: #000000b8 3px 4px 18px 1px;
-  overflow-y: auto;
+  // overflow-y: auto;
 `;
 
 const generationClassName = css`
@@ -59,11 +63,15 @@ const app = {
     this._gen.push(nextGen)
   },
   $components: undefined,
-  $update: function() { this.$components = this._gen.map(this._generationCompnent) },
+  $update: function() {
+    this.$components = this._gen.map(this._generationCompnent)
+  },
   $init: function() {
     this._sizeHandler();
-    this.sizeObserver = window.addEventListener("resize", this._sizeHandler)
+    // this.sizeObserver = window.addEventListener("resize", this._sizeHandler)
     this._gen = [firstGeneration(this._cellCount)]
+    const arr = new Array(40).fill(null)
+    arr.forEach(this.onclick)
   }
 }
 

@@ -1,1 +1,14 @@
 @import "@material/tabs/mdc-tabs";
+
+#View-scene-tab {
+  border-bottom-left-radius: 45px;
+}
+
+#Explore-scene-tab {
+  border-bottom-right-radius: 45px;
+}
+
+.scene-tab {
+  text-shadow: -1px 0 5px white, 0 1px 5px white, 1px 0 5px white, 0 -1px 5px white;
+  background-color: rgba(205, 205, 205, 1);
+}
