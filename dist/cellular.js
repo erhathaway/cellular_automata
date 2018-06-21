@@ -4580,7 +4580,7 @@
 
   
 
-  const className$2 = css`
+  const rootClassName = css`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -4588,16 +4588,49 @@
   height: 100vh;
   width: 100%;
 `;
+  const bodyClassName = css`
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  justify-content: space-between;
+`;
+  const leftMenuClassName = css`
+
+`;
+  const rightMenuClassName = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 60px;
+
+  > * {
+    margin-bottom: 30px;
+  }
+`;
+  const leftMenu = {
+    class: leftMenuClassName,
+    $components: [app$1, app]
+  };
+  const rightMenu = {
+    class: rightMenuClassName,
+    $components: [app$3, app$4, app$5]
+  };
+  const body = {
+    class: bodyClassName,
+    $components: [leftMenu, rightMenu]
+  };
   const app$6 = {
+    id: "root",
     $cell: true,
-    class: className$2,
+    class: rootClassName,
     $type: "div",
     $init: () => {
       const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
       const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$2, app$3, app$4, app$5, app$1, app]
+    $components: [app$2, body]
   };
 
   return app$6;

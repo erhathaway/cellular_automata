@@ -1417,6 +1417,3 @@
     transform: translateX(calc(-4% - 0%)) translateY(-50%) scale(0.923); }
   100% {
     transform: translateX(calc(0 - 0%)) translateY(-50%) scale(0.923); } }
-
-.color {
-  background-color: blue; }
