@@ -11,7 +11,7 @@ import playButton from './playButton';
 import shareButton from './shareButton';
 import fullScreenButton from './fullScreenButton';
 import drawer from './drawer';
-
+ 
 import './styles.scss';
 
 

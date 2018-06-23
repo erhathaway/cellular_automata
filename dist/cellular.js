@@ -4322,11 +4322,98 @@
     }
   }
 
-  const className = css`
-  background-color: yellow;
-  height: 100px;
-  width: 200px;
-`;
+  
+
+  const validations = [{
+    validate: v => v >= 0 && v <= 255,
+    error: 'Must be between 0 to 255'
+  }, {
+    validate: v => v % 1 === 0,
+    error: 'Must be a whole number'
+  }];
+  const input = {
+    $type: 'input',
+    id: 'menu-rule-selection__input',
+    class: 'mdc-text-field__input',
+    required: true,
+    value: 110,
+    type: 'number',
+    min: 0,
+    max: 255,
+    _setValidationState: function (e) {
+      const value = e.target.value;
+      const errors = validations.reduce((acc, v) => {
+        const isValid = v.validate(value);
+
+        if (isValid === false) {
+          acc.push(v.error);
+        }
+
+        return acc;
+      }, []);
+
+      if (errors.length > 0) {
+        const msg = errors[0];
+        e.target.setCustomValidity(msg);
+
+        this._setHelperText(msg);
+      } else {
+        this._removeHelperText();
+      }
+    },
+    $init: function () {
+      this.addEventListener('input', this._setValidationState);
+    }
+  };
+  const label = {
+    $type: 'label',
+    class: 'mdc-floating-label',
+    for: 'my-text-field',
+    $text: 'Rule'
+  };
+  const ripple = {
+    $type: 'div',
+    class: 'mdc-line-ripple'
+  };
+  const helper = {
+    $type: 'p',
+    id: 'menu-rule-selection__helper-text',
+    class: 'mdc-text-field-helper-text',
+    'aria-hidden': 'true'
+  };
+  const container = {
+    $type: 'div',
+    id: "menu-rule-selection__container",
+    class: "mdc-text-field",
+    $components: [input, label, ripple]
+  };
+  const app = {
+    $cell: true,
+    $type: 'div',
+    id: 'menu-rule-selection',
+    $components: [container, helper],
+    _helperTextAdapter: undefined,
+    _helperTextFoundation: undefined,
+    _setHelperText: function (text) {
+      this._helperTextAdapter.setContent(text);
+
+      this._helperTextFoundation.setPersistent(true);
+
+      this._helperTextFoundation.setValidity(false);
+    },
+    _removeHelperText: function () {
+      this._helperTextAdapter.setContent('');
+
+      this._helperTextFoundation.setValidity(true);
+
+      this._helperTextFoundation.setPersistent(false);
+    },
+    $init: function () {
+      const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
+      this._helperTextAdapter = helperText.foundation_.adapter_;
+      this._helperTextFoundation = helperText.foundation_;
+    }
+  };
 
   const neighborhoodRule = (ruleNumber, neighborhood) => {
     /* example:
@@ -4379,7 +4466,7 @@
   //
   // nextGeneration(testGeneration, r)
 
-  const className$1 = css`
+  const className = css`
   background-color: lightcyan;
   position: absolute;
   z-index: -1;
@@ -4421,7 +4508,7 @@
 
   const app$1 = {
     $cell: true,
-    class: className$1,
+    class: className,
     _ruleObject: ruleObject(110),
     _cellCount: 100,
     _gen: undefined,
@@ -4578,8 +4665,6 @@
       iconButtonRipple.unbounded = true;
     }
   };
-
-  
 
   /**
    * Copyright 2016 Google Inc. All Rights Reserved.
@@ -5259,13 +5344,16 @@
    * limitations under the License.
    */
 
+  
+
   const header = {
     $type: 'header',
     class: 'mdc-drawer__header'
   };
   const contents = {
     $type: 'nav',
-    class: 'mdc-drawer__content'
+    class: 'mdc-drawer__content',
+    $components: [app]
   };
   const drawerContainer = {
     $type: 'nav',
