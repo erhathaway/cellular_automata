@@ -11,7 +11,7 @@ import playButton from './playButton';
 import shareButton from './shareButton';
 import fullScreenButton from './fullScreenButton';
 import drawer from './drawer';
- 
+
 import './styles.scss';
 
 
@@ -72,9 +72,9 @@ const app = {
   class: rootClassName,
   $type: "div",
   $init: () => {
-    const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
-    const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
-    const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
+    // const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
+    // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
+    // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
   },
   $components: [sceneTabs, body],
 }

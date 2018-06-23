@@ -13,7 +13,7 @@ const selectorStyle = css`
   width: 100%;
   height: 30px;
   border: 1px solid rgba(0, 0, 0, 0.42);
-  margin: 5px;
+  margin-right: 10px;
   border-radius: 1px;
 `;
 
@@ -37,7 +37,8 @@ const selectorContainer = {
 
 const label = {
   $type: 'label',
-  class: 'mdc-floating-label',
+  class: 'mdc-floating-label mdc-floating-label--float-above',
+  style: 'margin-bottom: 10px; color: rgba(0, 0, 0, 0.6);',
   for: 'menu-dimension-selection__container',
   $text: 'Dimension',
 };
@@ -50,15 +51,14 @@ const ripple = {
 const helper = {
   $type: 'p',
   id: 'menu-dimension-selection__helper-text',
-  // class: 'mdc-text-field-helper-text',
   'aria-hidden': 'true',
 };
 
 const container = {
   $type: 'div',
   id: "menu-dimension-selection__container",
-  // class: "mdc-text-field",
-  $components: [label, selectorContainer, ripple],
+  style: 'position: relative;',
+  $components: [selectorContainer, label, ripple],
 };
 
 const app = {

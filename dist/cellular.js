@@ -4324,95 +4324,102 @@
 
   
 
-  const validations = [{
-    validate: v => v >= 0 && v <= 255,
-    error: 'Must be between 0 to 255'
-  }, {
-    validate: v => v % 1 === 0,
-    error: 'Must be a whole number'
-  }];
-  const input = {
-    $type: 'input',
-    id: 'menu-rule-selection__input',
-    class: 'mdc-text-field__input',
-    required: true,
-    value: 110,
-    type: 'number',
-    min: 0,
-    max: 255,
-    _setValidationState: function (e) {
-      const value = e.target.value;
-      const errors = validations.reduce((acc, v) => {
-        const isValid = v.validate(value);
+  const createApp = inputName => {
+    const validations = [{
+      validate: v => v >= 0 && v <= 255,
+      error: 'Must be between 0 to 255'
+    }, {
+      validate: v => v % 1 === 0,
+      error: 'Must be a whole number'
+    }];
+    const input = {
+      $type: 'input',
+      id: `menu-rule-${inputName}__input`,
+      class: 'mdc-text-field__input',
+      required: true,
+      value: 110,
+      type: 'number',
+      min: 0,
+      max: 255,
+      _setValidationState: function (e) {
+        const value = e.target.value;
+        const errors = validations.reduce((acc, v) => {
+          const isValid = v.validate(value);
 
-        if (isValid === false) {
-          acc.push(v.error);
+          if (isValid === false) {
+            acc.push(v.error);
+          }
+
+          return acc;
+        }, []);
+
+        if (errors.length > 0) {
+          const msg = errors[0];
+          e.target.setCustomValidity(msg);
+
+          this._setHelperText(msg);
+        } else {
+          this._removeHelperText();
         }
-
-        return acc;
-      }, []);
-
-      if (errors.length > 0) {
-        const msg = errors[0];
-        e.target.setCustomValidity(msg);
-
-        this._setHelperText(msg);
-      } else {
-        this._removeHelperText();
+      },
+      $init: function () {
+        this.addEventListener('input', this._setValidationState);
       }
-    },
-    $init: function () {
-      this.addEventListener('input', this._setValidationState);
-    }
-  };
-  const label = {
-    $type: 'label',
-    class: 'mdc-floating-label',
-    for: 'my-text-field',
-    $text: 'Rule'
-  };
-  const ripple = {
-    $type: 'div',
-    class: 'mdc-line-ripple'
-  };
-  const helper = {
-    $type: 'p',
-    id: 'menu-rule-selection__helper-text',
-    class: 'mdc-text-field-helper-text',
-    'aria-hidden': 'true'
-  };
-  const container = {
-    $type: 'div',
-    id: "menu-rule-selection__container",
-    class: "mdc-text-field",
-    $components: [input, label, ripple]
-  };
-  const app = {
-    $cell: true,
-    $type: 'div',
-    id: 'menu-rule-selection',
-    $components: [container, helper],
-    _helperTextAdapter: undefined,
-    _helperTextFoundation: undefined,
-    _setHelperText: function (text) {
-      this._helperTextAdapter.setContent(text);
+    };
+    const label = {
+      $type: 'label',
+      class: 'mdc-floating-label',
+      for: 'my-text-field',
+      $text: inputName
+    };
+    const ripple = {
+      $type: 'div',
+      id: `menu-rule-${inputName}__line_ripple`,
+      class: 'mdc-line-ripple'
+    };
+    const helper = {
+      $type: 'p',
+      id: `menu-rule-${inputName}__helper-text`,
+      class: 'mdc-text-field-helper-text',
+      'aria-hidden': 'true'
+    };
+    const container = {
+      $type: 'div',
+      id: `menu-rule-${inputName}__container`,
+      class: "mdc-text-field",
+      $components: [input, label, ripple]
+    };
+    const app = {
+      $cell: true,
+      $type: 'div',
+      id: `menu-rule-${inputName}`,
+      class: 'menu-input-selection',
+      $components: [container, helper],
+      _helperTextAdapter: undefined,
+      _helperTextFoundation: undefined,
+      _setHelperText: function (text) {
+        this._helperTextAdapter.setContent(text);
 
-      this._helperTextFoundation.setPersistent(true);
+        this._helperTextFoundation.setPersistent(true);
 
-      this._helperTextFoundation.setValidity(false);
-    },
-    _removeHelperText: function () {
-      this._helperTextAdapter.setContent('');
+        this._helperTextFoundation.setValidity(false);
+      },
+      _removeHelperText: function () {
+        this._helperTextAdapter.setContent('');
 
-      this._helperTextFoundation.setValidity(true);
+        this._helperTextFoundation.setValidity(true);
 
-      this._helperTextFoundation.setPersistent(false);
-    },
-    $init: function () {
-      const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
-      this._helperTextAdapter = helperText.foundation_.adapter_;
-      this._helperTextFoundation = helperText.foundation_;
-    }
+        this._helperTextFoundation.setPersistent(false);
+      },
+      $init: function () {
+        const helperText = new MDCTextFieldHelperText(document.querySelector(`#menu-rule-${inputName}__helper-text`));
+        this._helperTextAdapter = helperText.foundation_.adapter_;
+        this._helperTextFoundation = helperText.foundation_;
+        const lineRipple = new MDCLineRipple(document.querySelector(`#menu-rule-${inputName}__line_ripple`));
+        const textField = new MDCTextField(document.querySelector(`#menu-rule-${inputName}__container`));
+      }
+    };
+    return app;
   };
 
   
@@ -4421,7 +4428,7 @@
   width: 100%;
   height: 30px;
   border: 1px solid rgba(0, 0, 0, 0.42);
-  margin: 5px;
+  margin-right: 10px;
   border-radius: 1px;
 `;
   const selectorContainerStyle = css`
@@ -4441,27 +4448,28 @@
     class: selectorContainerStyle,
     $components: [selector('1D'), selector('2D')]
   };
-  const label$1 = {
+  const label = {
     $type: 'label',
-    class: 'mdc-floating-label',
+    class: 'mdc-floating-label mdc-floating-label--float-above',
+    style: 'margin-bottom: 10px; color: rgba(0, 0, 0, 0.6);',
     for: 'menu-dimension-selection__container',
     $text: 'Dimension'
   };
-  const ripple$1 = {
+  const ripple = {
     $type: 'div',
     class: 'mdc-line-ripple'
   };
-  const container$1 = {
+  const container = {
     $type: 'div',
     id: "menu-dimension-selection__container",
-    // class: "mdc-text-field",
-    $components: [label$1, selectorContainer, ripple$1]
+    style: 'position: relative;',
+    $components: [selectorContainer, label, ripple]
   };
-  const app$1 = {
+  const app = {
     $cell: true,
     $type: 'div',
     id: 'menu-dimension-selection',
-    $components: [container$1]
+    $components: [container]
   };
 
   const neighborhoodRule = (ruleNumber, neighborhood) => {
@@ -4555,7 +4563,7 @@
     };
   }
 
-  const app$2 = {
+  const app$1 = {
     $cell: true,
     class: className,
     _ruleObject: ruleObject(110),
@@ -4625,7 +4633,7 @@
     };
   };
 
-  const app$3 = {
+  const app$2 = {
     $cell: true,
     $type: 'nav',
     class: 'mdc-tab-bar',
@@ -4651,7 +4659,7 @@
     $text: iconName
   });
 
-  const app$4 = {
+  const app$3 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-fab',
@@ -4683,7 +4691,7 @@
 
   
 
-  const app$5 = {
+  const app$4 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -4700,7 +4708,7 @@
 
   
 
-  const app$6 = {
+  const app$5 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -5402,14 +5410,14 @@
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [app, app$1]
+    $components: [createApp('Rule'), app, createApp('Other')]
   };
   const drawerContainer = {
     $type: 'nav',
     class: 'mdc-drawer__drawer',
     $components: [header, contents]
   };
-  const app$7 = {
+  const app$6 = {
     $cell: true,
     $type: 'aside',
     class: 'mdc-drawer mdc-drawer--temporary',
@@ -5466,30 +5474,29 @@
 `;
   const leftMenu = {
     class: leftMenuClassName,
-    $components: [app$7]
+    $components: [app$6]
   };
   const rightMenu = {
     class: rightMenuClassName,
-    $components: [app$4, app$5, app$6]
+    $components: [app$3, app$4, app$5]
   };
   const body = {
     class: bodyClassName,
-    $components: [leftMenu, rightMenu, app$2]
+    $components: [leftMenu, rightMenu, app$1]
   };
-  const app$8 = {
+  const app$7 = {
     id: "root",
     $cell: true,
     class: rootClassName,
     $type: "div",
-    $init: () => {
-      const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
-      const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
-      const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
+    $init: () => {// const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
+      // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
+      // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$3, body]
+    $components: [app$2, body]
   };
 
-  return app$8;
+  return app$7;
 
 })));
 //# sourceMappingURL=cellular.js.map
