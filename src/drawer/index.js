@@ -1,8 +1,7 @@
 import { MDCTemporaryDrawer } from '@material/drawer';
 
 import './styles.scss';
-import { ruleSelection } from '../menu';
-
+import { ruleSelection, dimensionSelection } from '../menu';
 
 const header = {
   $type: 'header',
@@ -12,7 +11,7 @@ const header = {
 const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
-  $components: [ruleSelection],
+  $components: [ruleSelection, dimensionSelection],
 };
 
 const drawerContainer = {

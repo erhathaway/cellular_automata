@@ -4415,6 +4415,55 @@
     }
   };
 
+  
+
+  const selectorStyle = css`
+  width: 100%;
+  height: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.42);
+  margin: 5px;
+  border-radius: 1px;
+`;
+  const selectorContainerStyle = css`
+  display: flex;
+  width: 200px;
+`;
+
+  const selector = name => ({
+    $type: 'div',
+    id: `menu-dimension-selection__selector-${name}`,
+    class: selectorStyle
+  });
+
+  const selectorContainer = {
+    $type: 'div',
+    id: 'menu-dimension-selection__container',
+    class: selectorContainerStyle,
+    $components: [selector('1D'), selector('2D')]
+  };
+  const label$1 = {
+    $type: 'label',
+    class: 'mdc-floating-label',
+    for: 'menu-dimension-selection__container',
+    $text: 'Dimension'
+  };
+  const ripple$1 = {
+    $type: 'div',
+    class: 'mdc-line-ripple'
+  };
+  const container$1 = {
+    $type: 'div',
+    id: "menu-dimension-selection__container",
+    // class: "mdc-text-field",
+    $components: [label$1, selectorContainer, ripple$1]
+  };
+  const app$1 = {
+    $cell: true,
+    $type: 'div',
+    id: 'menu-dimension-selection',
+    $components: [container$1]
+  };
+
   const neighborhoodRule = (ruleNumber, neighborhood) => {
     /* example:
       If rule = 110 and neighborhood = 7 (seven being the largest index - since there are 8 total),
@@ -4506,7 +4555,7 @@
     };
   }
 
-  const app$1 = {
+  const app$2 = {
     $cell: true,
     class: className,
     _ruleObject: ruleObject(110),
@@ -4576,7 +4625,7 @@
     };
   };
 
-  const app$2 = {
+  const app$3 = {
     $cell: true,
     $type: 'nav',
     class: 'mdc-tab-bar',
@@ -4602,7 +4651,7 @@
     $text: iconName
   });
 
-  const app$3 = {
+  const app$4 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-fab',
@@ -4634,7 +4683,7 @@
 
   
 
-  const app$4 = {
+  const app$5 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -4651,7 +4700,7 @@
 
   
 
-  const app$5 = {
+  const app$6 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -5353,14 +5402,14 @@
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [app]
+    $components: [app, app$1]
   };
   const drawerContainer = {
     $type: 'nav',
     class: 'mdc-drawer__drawer',
     $components: [header, contents]
   };
-  const app$6 = {
+  const app$7 = {
     $cell: true,
     $type: 'aside',
     class: 'mdc-drawer mdc-drawer--temporary',
@@ -5417,17 +5466,17 @@
 `;
   const leftMenu = {
     class: leftMenuClassName,
-    $components: [app$6]
+    $components: [app$7]
   };
   const rightMenu = {
     class: rightMenuClassName,
-    $components: [app$3, app$4, app$5]
+    $components: [app$4, app$5, app$6]
   };
   const body = {
     class: bodyClassName,
-    $components: [leftMenu, rightMenu, app$1]
+    $components: [leftMenu, rightMenu, app$2]
   };
-  const app$7 = {
+  const app$8 = {
     id: "root",
     $cell: true,
     class: rootClassName,
@@ -5437,10 +5486,10 @@
       const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$2, body]
+    $components: [app$3, body]
   };
 
-  return app$7;
+  return app$8;
 
 })));
 //# sourceMappingURL=cellular.js.map
