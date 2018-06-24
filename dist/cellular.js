@@ -2863,7 +2863,6 @@
     const selectorStyles = css`
     width: 80px;
     height: 40px;
-    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15);
     border-width: 0px;
     outline: none;
     box-shadow: rgba(0, 0, 0, 0.15) 5px 3px 4px 1px;
@@ -2872,7 +2871,8 @@
 
   `;
     const activeSelectorStyle = css`
-    background-color: #FFC107;
+    // background-color: #FFC107;
+    background-color: rgba(255, 193, 7, 0.38);
     box-shadow: rgba(0, 0, 0, 0.15) 5px 3px 4px 1px inset;
   `;
 
@@ -2889,54 +2889,22 @@
       id: `menu-${inputName}__selector-${name}`,
       $text: name,
       class: selectorStyles,
-      _handleSelect: function (e) {
-        console.log(e.target);
+      _checkSelected: function () {
+        if (this._value === name) {
+          this.classList.add(activeSelectorStyle);
+        } else {
+          this.classList.remove(activeSelectorStyle);
+        }
+      },
+      _handleClick: function () {
+        this._setValue(name);
       },
       $init: function () {
-        this.addEventListener('click', this._handleSelect);
-      }
-    }); // const inputStyles = css`
-    //   border: none;
-    //   outline: none;
-    //   font-size: 16px;
-    //   width: 100%;
-    //   padding: 11px;
-    //   border-radius: 12px;
-    //   margin-left: -11px;
-    //   text-align: center;
-    //   padding-top: 14px;
-    // `
-    // const input = {
-    //   $type: 'input',
-    //   id: `menu-${inputName}__input`,
-    //   class: inputStyles,
-    //   required: true,
-    //   value: 110,
-    //   type: 'number',
-    //   min: 0,
-    //   max: 255,
-    //   _setValidationState: function(e) {
-    //     const value = e.target.value;
-    //     const errors = validations.reduce((acc, v) => {
-    //       const isValid = v.validate(value)
-    //       if (isValid === false) { acc.push(v.error) }
-    //       return acc;
-    //     }, [])
-    //
-    //     if (errors.length > 0) {
-    //       const msg = errors[0];
-    //       e.target.setCustomValidity(msg)
-    //       this._setHelperText(msg)
-    //     } else {
-    //       this._removeHelperText()
-    //       this._setValue(value);
-    //     }
-    //   },
-    //   $init: function() {
-    //     this.addEventListener('input', this._setValidationState);
-    //   }
-    // };
+        this._subscribeToUpdates(this._checkSelected);
 
+        this.addEventListener('click', this._handleClick);
+      }
+    });
 
     const labelStyles = css`
     font-size: 14px;
@@ -2951,8 +2919,7 @@
       $text: inputName
     };
     const inputContainerStyles = css`
-    // position: relative;
-    // width: 100px;
+
   `;
     const inputContainer = {
       $type: 'div',
@@ -2979,6 +2946,13 @@
       id: `menu-${inputName}`,
       class: appStyles,
       $components: [label, inputContainer],
+      _updateObservers: [],
+      _subscribeToUpdates: function (observer) {
+        this._updateObservers.push(observer);
+      },
+      $update: function () {
+        this._updateObservers.forEach(fn => fn());
+      },
       _value: undefined,
       _setValue: function (value) {
         this._value = value;
