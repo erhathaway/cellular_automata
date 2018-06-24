@@ -17,6 +17,13 @@ const createApp = ({ cellName, labelName, selections }) => {
     margin-right: 1px;
     background-color: white;
 
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
 
   const activeSelectorStyles = css`
@@ -68,6 +75,14 @@ const createApp = ({ cellName, labelName, selections }) => {
     font-size: 12px;
     letter-spacing: 2px;
     margin-bottom: 7px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
 
   const label = {

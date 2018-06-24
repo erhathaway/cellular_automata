@@ -2,7 +2,7 @@ import { css } from 'emotion';
 
 import './styles.scss';
 
-const createApp = (cellName) => {
+const createApp = ({ cellName, labelName, inputElementAttributes }) => {
   const validations = [
     { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
     { validate: v => v % 1 === 0, error: 'Must be a whole number' },
@@ -29,10 +29,7 @@ const createApp = (cellName) => {
     id: `menu-${cellName}__input`,
     class: inputStyles,
     required: true,
-    value: 110,
-    type: 'number',
-    min: 0,
-    max: 255,
+    ...inputElementAttributes,
     _setValidationState: function(e) {
       const value = e.target.value;
       const errors = validations.reduce((acc, v) => {
@@ -65,13 +62,21 @@ const createApp = (cellName) => {
     font-size: 12px;
     letter-spacing: 2px;
     margin-bottom: 7px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
 
   const label = {
     $type: 'label',
-    class: labelStyles,
+    class: labelStyles + ' .noselect',
     for:'my-text-field',
-    $text: cellName,
+    $text: labelName,
   };
 
   const underlineStyles = css`
@@ -90,8 +95,10 @@ const createApp = (cellName) => {
 
   const helperStyles = css`
     margin-top: 7px;
-    color: rgba(0,0,0,.6);
+    // color: rgba(0,0,0,.6);
     font-family: monospace;
+    color: #4eb5939c;
+    margin-bottom: 11px;
   `;
 
   const helper = {
@@ -117,7 +124,7 @@ const createApp = (cellName) => {
     flex-direction: column;
     justify-content: flex-start;
     margin-left: 50px;
-    margin-bottom: 25px;
+    margin-bottom: 10px;
   `;
 
   const app = {

@@ -2717,7 +2717,11 @@
 
   
 
-  const createApp = cellName => {
+  const createApp = ({
+    cellName,
+    labelName,
+    inputElementAttributes
+  }) => {
     const validations = [{
       validate: v => v >= 0 && v <= 255,
       error: 'Must be between 0 to 255'
@@ -2741,15 +2745,12 @@
       background-color: #ffffff7d;
     }
   `;
-    const input = {
+    const input = Object.assign({
       $type: 'input',
       id: `menu-${cellName}__input`,
       class: inputStyles,
-      required: true,
-      value: 110,
-      type: 'number',
-      min: 0,
-      max: 255,
+      required: true
+    }, inputElementAttributes, {
       _setValidationState: function (e) {
         const value = e.target.value;
         const errors = validations.reduce((acc, v) => {
@@ -2776,7 +2777,7 @@
       $init: function () {
         this.addEventListener('input', this._setValidationState);
       }
-    };
+    });
     const labelStyles = css`
     // margin-bottom: 5px;
     // color: #4CAF50;
@@ -2787,12 +2788,20 @@
     font-size: 12px;
     letter-spacing: 2px;
     margin-bottom: 7px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
     const label = {
       $type: 'label',
-      class: labelStyles,
+      class: labelStyles + ' .noselect',
       for: 'my-text-field',
-      $text: cellName
+      $text: labelName
     };
     const underlineStyles = css`
     border-bottom: 1px solid rgba(76, 175, 80, 0.4);
@@ -2803,8 +2812,10 @@
   `;
     const helperStyles = css`
     margin-top: 7px;
-    color: rgba(0,0,0,.6);
+    // color: rgba(0,0,0,.6);
     font-family: monospace;
+    color: #4eb5939c;
+    margin-bottom: 11px;
   `;
     const helper = {
       $type: 'div',
@@ -2826,7 +2837,7 @@
     flex-direction: column;
     justify-content: flex-start;
     margin-left: 50px;
-    margin-bottom: 25px;
+    margin-bottom: 10px;
   `;
     const app = {
       $cell: true,
@@ -2864,6 +2875,13 @@
     margin-right: 1px;
     background-color: white;
 
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
     const activeSelectorStyles = css`
     background-color: rgba(255, 193, 7, 0.38);
@@ -2917,6 +2935,14 @@
     font-size: 12px;
     letter-spacing: 2px;
     margin-bottom: 7px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
   `;
     const label = {
       $type: 'label',
@@ -3909,28 +3935,86 @@
   color: #FF9800;
   font-size: 15px;
   margin-top: 20px;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 `;
   const header = {
     $type: 'header',
     class: headerStyles,
     $text: 'Configure'
   };
+  const inputRuleElementAttributes = {
+    value: 110,
+    type: 'number',
+    min: 0,
+    max: 255
+  };
+  const inputNeighborsElementAttributes = {
+    value: 2,
+    type: 'number',
+    min: 1,
+    max: 255
+  };
+  const inputPopulationElementAttributes = {
+    value: 100,
+    type: 'number',
+    min: 2,
+    max: 255
+  };
+  const inputGenerationsElementAttributes = {
+    value: 50,
+    type: 'number',
+    min: 1,
+    max: 255
+  };
+  const inputEdgesElementAttributes = {
+    value: 2,
+    type: 'number',
+    min: 0,
+    max: 255
+  };
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [createApp('Rule'), createApp$1({
+    $components: [createApp({
+      labelName: 'Rule (0-255)',
+      cellName: 'rule',
+      inputElementAttributes: inputRuleElementAttributes
+    }), createApp$1({
       labelName: 'Dimension',
       cellName: 'dimension',
       selections: ['1D', '2D']
-    }), createApp('Neighbors'), createApp('Population Count'), createApp$1({
+    }), createApp({
+      labelName: 'Neighbors (1+)',
+      cellName: 'neighbors',
+      inputElementAttributes: inputNeighborsElementAttributes
+    }), createApp({
+      labelName: 'Population Count',
+      cellName: 'population',
+      inputElementAttributes: inputPopulationElementAttributes
+    }), createApp$1({
       labelName: 'Growth',
       cellName: 'growth',
       selections: ['Fixed', 'Continuous']
-    }), createApp('Generations'), createApp('Edges')]
+    }), createApp({
+      labelName: 'Generations',
+      cellName: 'generations',
+      inputElementAttributes: inputGenerationsElementAttributes
+    }), createApp({
+      labelName: 'Edges',
+      cellName: 'edges',
+      inputElementAttributes: inputEdgesElementAttributes
+    })]
   };
   const drawerContainerStyle = css`
   // background-color: #f7ffa9f0 !important;
-      background-color: #000000d4 !important;
+      background-color: #000000db !important;
   // border-bottom-right-radius: 15%;
   // border-top-right-radius: 15%;
   // height: 110% !important;
