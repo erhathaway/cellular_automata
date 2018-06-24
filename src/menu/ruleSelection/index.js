@@ -1,6 +1,7 @@
-import { MDCTextFieldHelperText } from '@material/textfield/helper-text';
-import { MDCLineRipple } from '@material/line-ripple';
-import { MDCTextField } from '@material/textfield';
+// import { MDCTextFieldHelperText } from '@material/textfield/helper-text';
+// import { MDCLineRipple } from '@material/line-ripple';
+// import { MDCTextField } from '@material/textfield';
+import { css } from 'emotion';
 
 import './styles.scss';
 
@@ -10,10 +11,16 @@ const createApp = (inputName) => {
     { validate: v => v % 1 === 0, error: 'Must be a whole number' },
   ];
 
+  const inputStyles = css`
+    border: none;
+    outline: none;
+    font-size: 20px;
+    width: 100%;
+  `
   const input = {
     $type: 'input',
-    id: `menu-rule-${inputName}__input`,
-    class: 'mdc-text-field__input',
+    id: `menu-${inputName}__input`,
+    class: inputStyles,
     required: true,
     value: 110,
     type: 'number',
@@ -40,59 +47,81 @@ const createApp = (inputName) => {
     }
   };
 
+  const labelStyles = css`
+    font-size: 15px;
+    margin-bottom: 5px;
+    // color: rgba(0,0,0,.6);
+    color: #4CAF50;
+    font-family: monospace;
+  `;
+
   const label = {
     $type: 'label',
-    class: 'mdc-floating-label',
+    class: labelStyles,
     for:'my-text-field',
     $text: inputName,
   };
 
-  const ripple = {
+  const underlineStyles = css`
+    border-bottom: 1px solid rgba(0,0,0,.2);
+    height: 1px;
+    width: 70%;
+    margin-top: 4px;
+    border-color: #4CAF50;
+    margin-bottom: 15px;
+  `;
+
+  const underline = {
     $type: 'div',
-    id: `menu-rule-${inputName}__line_ripple`,
-    class: 'mdc-line-ripple',
+    id: `menu-${inputName}__underline`,
+    class: underlineStyles,
   };
+
+  const helperStyles = css`
+    height: 20px;
+    width: 100%;
+    margin-top: 7px;
+    color: rgba(0,0,0,.6);
+    font-family: monospace;
+  `;
 
   const helper = {
-    $type: 'p',
-    id: `menu-rule-${inputName}__helper-text`,
-    class: 'mdc-text-field-helper-text',
-    'aria-hidden': 'true',
+    $type: 'div',
+    id: `menu-${inputName}__helper`,
+    class: helperStyles,
   };
 
-  const container = {
+  const inputContainerStyles = css`
+    position: relative;
+    width: 100px;
+  `;
+
+  const inputContainer = {
     $type: 'div',
-    id: `menu-rule-${inputName}__container`,
-    class: "mdc-text-field",
-    $components: [input, label, ripple],
+    id: `menu-${inputName}__container`,
+    class: inputContainerStyles,
+    $components: [input],
   };
+
+  const appStyles = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-left: 50px;
+  `;
 
   const app = {
     $cell: true,
     $type: 'div',
-    id: `menu-rule-${inputName}`,
-    class: 'menu-input-selection',
-    $components: [container, helper],
-    _helperTextAdapter: undefined,
-    _helperTextFoundation: undefined,
+    id: `menu-${inputName}`,
+    class: appStyles,
+    $components: [label, underline, inputContainer, helper],
     _setHelperText: function(text) {
-      this._helperTextAdapter.setContent(text)
-      this._helperTextFoundation.setPersistent(true)
-      this._helperTextFoundation.setValidity(false)
+      document.getElementById(helper.id).$text = text;
     },
     _removeHelperText: function() {
-      this._helperTextAdapter.setContent('')
-      this._helperTextFoundation.setValidity(true)
-      this._helperTextFoundation.setPersistent(false)
+      document.getElementById(helper.id).$text = '';
     },
-    $init: function() {
-      const helperText = new MDCTextFieldHelperText(document.querySelector(`#menu-rule-${inputName}__helper-text`));
-      this._helperTextAdapter = helperText.foundation_.adapter_;
-      this._helperTextFoundation = helperText.foundation_;
-
-      const lineRipple = new MDCLineRipple(document.querySelector(`#menu-rule-${inputName}__line_ripple`));
-      const textField = new MDCTextField(document.querySelector(`#menu-rule-${inputName}__container`));
-    }
   };
 
   return app;

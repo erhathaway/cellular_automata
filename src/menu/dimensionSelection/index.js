@@ -14,7 +14,7 @@ const selectorStyle = css`
   height: 30px;
   border: 1px solid rgba(0, 0, 0, 0.42);
   margin-right: 10px;
-  border-radius: 1px;
+  border-radius: 3px;
 `;
 
 const selectorContainerStyle = css`
@@ -38,7 +38,7 @@ const selectorContainer = {
 const label = {
   $type: 'label',
   class: 'mdc-floating-label mdc-floating-label--float-above',
-  style: 'margin-bottom: 10px; color: rgba(0, 0, 0, 0.6);',
+  style: 'margin-bottom: 10px; color: rgba(0, 0, 0, 0.6); font-size: 22px',
   for: 'menu-dimension-selection__container',
   $text: 'Dimension',
 };
@@ -58,7 +58,7 @@ const container = {
   $type: 'div',
   id: "menu-dimension-selection__container",
   style: 'position: relative;',
-  $components: [selectorContainer, label, ripple],
+  $components: [label, selectorContainer, ripple],
 };
 
 const app = {
