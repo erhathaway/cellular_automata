@@ -1,22 +1,37 @@
 import { MDCTemporaryDrawer } from '@material/drawer';
+import { css } from 'emotion';
 
 import './styles.scss';
 import { inputSelection, dimensionSelection } from '../menu';
 
+const headerStyles = css`
+  height: 100px;
+  width: 100%;
+`;
+
 const header = {
   $type: 'header',
-  class: 'mdc-drawer__header',
+  class: headerStyles,
+  // class: 'mdc-drawer__header',
 };
 
 const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
-  $components: [inputSelection('Rule'), inputSelection('Other'), inputSelection('Other'), inputSelection('Other')],
+  $components: [inputSelection('Rule'), dimensionSelection('Dimension'), inputSelection('Neighbors'), inputSelection('Population Count'), dimensionSelection('Growth'), inputSelection('Generations'), inputSelection('Edges')],
 };
+
+const drawerContainerStyle = css`
+  background-color: #f7ffa9f0 !important;
+  border-bottom-right-radius: 15%;
+  border-top-right-radius: 15%;
+  height: 120% !important;
+  top: -10%;
+`;
 
 const drawerContainer = {
   $type: 'nav',
-  class: 'mdc-drawer__drawer',
+  class: 'mdc-drawer__drawer' + ' ' + drawerContainerStyle,
   $components: [header, contents],
 };
 

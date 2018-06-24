@@ -14,8 +14,25 @@ const createApp = (inputName) => {
   const inputStyles = css`
     border: none;
     outline: none;
-    font-size: 20px;
+    font-size: 16px;
     width: 100%;
+    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15) inset;
+    // box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
+    padding: 11px;
+    border-radius: 12px;
+    // margin-left: -11px;
+    text-align: center;
+    padding-top: 14px;
+    // background-color: #ffffff7d;
+    // background-color: none;
+    // background: transparent;
+    background-color: #ffffff70;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
+      background-color: #ffffff7d;
+
+    }
   `
   const input = {
     $type: 'input',
@@ -40,6 +57,7 @@ const createApp = (inputName) => {
         this._setHelperText(msg)
       } else {
         this._removeHelperText()
+        this._setValue(value);
       }
     },
     $init: function() {
@@ -50,8 +68,9 @@ const createApp = (inputName) => {
   const labelStyles = css`
     font-size: 14px;
     margin-bottom: 5px;
-    color: #4CAF50;
+    // color: #4CAF50;
     // color: #37793a;
+    color: #314032;
     font-family: monospace;
   `;
 
@@ -78,8 +97,8 @@ const createApp = (inputName) => {
   };
 
   const helperStyles = css`
-    height: 20px;
-    width: 100%;
+    // height: 20px;
+    // width: 100%;
     margin-top: 7px;
     color: rgba(0,0,0,.6);
     font-family: monospace;
@@ -116,7 +135,9 @@ const createApp = (inputName) => {
     $type: 'div',
     id: `menu-${inputName}`,
     class: appStyles,
-    $components: [label, underline, inputContainer, helper],
+    $components: [label, inputContainer, helper],
+    _value: undefined,
+    _setValue: function(value) { this._value = value },
     _setHelperText: function(text) {
       document.getElementById(helper.id).$text = text;
     },

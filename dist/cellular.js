@@ -2730,8 +2730,25 @@
     const inputStyles = css`
     border: none;
     outline: none;
-    font-size: 20px;
+    font-size: 16px;
     width: 100%;
+    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15) inset;
+    // box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
+    padding: 11px;
+    border-radius: 12px;
+    // margin-left: -11px;
+    text-align: center;
+    padding-top: 14px;
+    // background-color: #ffffff7d;
+    // background-color: none;
+    // background: transparent;
+    background-color: #ffffff70;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
+      background-color: #ffffff7d;
+
+    }
   `;
     const input = {
       $type: 'input',
@@ -2761,6 +2778,8 @@
           this._setHelperText(msg);
         } else {
           this._removeHelperText();
+
+          this._setValue(value);
         }
       },
       $init: function () {
@@ -2770,8 +2789,9 @@
     const labelStyles = css`
     font-size: 14px;
     margin-bottom: 5px;
-    color: #4CAF50;
+    // color: #4CAF50;
     // color: #37793a;
+    color: #314032;
     font-family: monospace;
   `;
     const label = {
@@ -2788,14 +2808,9 @@
     // border-color: #4CAF50;
     margin-bottom: 7px;
   `;
-    const underline = {
-      $type: 'div',
-      id: `menu-${inputName}__underline`,
-      class: underlineStyles
-    };
     const helperStyles = css`
-    height: 20px;
-    width: 100%;
+    // height: 20px;
+    // width: 100%;
     margin-top: 7px;
     color: rgba(0,0,0,.6);
     font-family: monospace;
@@ -2827,7 +2842,11 @@
       $type: 'div',
       id: `menu-${inputName}`,
       class: appStyles,
-      $components: [label, underline, inputContainer, helper],
+      $components: [label, inputContainer, helper],
+      _value: undefined,
+      _setValue: function (value) {
+        this._value = value;
+      },
       _setHelperText: function (text) {
         document.getElementById(helper.id).$text = text;
       },
@@ -2840,17 +2859,133 @@
 
   
 
-  const selectorStyle = css`
-  width: 100%;
-  height: 30px;
-  border: 1px solid rgba(0, 0, 0, 0.42);
-  margin-right: 10px;
-  border-radius: 3px;
-`;
-  const selectorContainerStyle = css`
-  display: flex;
-  width: 200px;
-`;
+  const createApp$1 = inputName => {
+    const selectorStyles = css`
+    width: 80px;
+    height: 40px;
+    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15);
+    border-width: 0px;
+    outline: none;
+    box-shadow: rgba(0, 0, 0, 0.15) 5px 3px 4px 1px;
+    margin-right: 1px;
+    background-color: white;
+
+  `;
+    const activeSelectorStyle = css`
+    background-color: #FFC107;
+    box-shadow: rgba(0, 0, 0, 0.15) 5px 3px 4px 1px inset;
+  `;
+
+    const selectorPositionedStyles = position => {
+      if (position === 'left') return 'border-bottom-left-radius: 8px; border-top-left-radius: 8px;';else if (position === 'right') return 'border-bottom-right-radius: 8px; border-top-right-radius: 8px;';else return '';
+    };
+
+    const selector = ({
+      name,
+      position
+    }) => ({
+      $type: 'button',
+      style: selectorPositionedStyles(position),
+      id: `menu-${inputName}__selector-${name}`,
+      $text: name,
+      class: selectorStyles,
+      _handleSelect: function (e) {
+        console.log(e.target);
+      },
+      $init: function () {
+        this.addEventListener('click', this._handleSelect);
+      }
+    }); // const inputStyles = css`
+    //   border: none;
+    //   outline: none;
+    //   font-size: 16px;
+    //   width: 100%;
+    //   padding: 11px;
+    //   border-radius: 12px;
+    //   margin-left: -11px;
+    //   text-align: center;
+    //   padding-top: 14px;
+    // `
+    // const input = {
+    //   $type: 'input',
+    //   id: `menu-${inputName}__input`,
+    //   class: inputStyles,
+    //   required: true,
+    //   value: 110,
+    //   type: 'number',
+    //   min: 0,
+    //   max: 255,
+    //   _setValidationState: function(e) {
+    //     const value = e.target.value;
+    //     const errors = validations.reduce((acc, v) => {
+    //       const isValid = v.validate(value)
+    //       if (isValid === false) { acc.push(v.error) }
+    //       return acc;
+    //     }, [])
+    //
+    //     if (errors.length > 0) {
+    //       const msg = errors[0];
+    //       e.target.setCustomValidity(msg)
+    //       this._setHelperText(msg)
+    //     } else {
+    //       this._removeHelperText()
+    //       this._setValue(value);
+    //     }
+    //   },
+    //   $init: function() {
+    //     this.addEventListener('input', this._setValidationState);
+    //   }
+    // };
+
+
+    const labelStyles = css`
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #314032;
+    font-family: monospace;
+  `;
+    const label = {
+      $type: 'label',
+      class: labelStyles,
+      for: 'my-text-field',
+      $text: inputName
+    };
+    const inputContainerStyles = css`
+    // position: relative;
+    // width: 100px;
+  `;
+    const inputContainer = {
+      $type: 'div',
+      id: `menu-${inputName}__container`,
+      class: inputContainerStyles,
+      $components: [selector({
+        name: '1D',
+        position: 'left'
+      }), selector({
+        name: '2D',
+        position: 'right'
+      })]
+    };
+    const appStyles = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-left: 50px;
+    margin-bottom: 25px;
+  `;
+    const app = {
+      $cell: true,
+      $type: 'div',
+      id: `menu-${inputName}`,
+      class: appStyles,
+      $components: [label, inputContainer],
+      _value: undefined,
+      _setValue: function (value) {
+        this._value = value;
+      }
+    };
+    return app;
+  };
 
   const neighborhoodRule = (ruleNumber, neighborhood) => {
     /* example:
@@ -2943,7 +3078,7 @@
     };
   }
 
-  const app$1 = {
+  const app = {
     $cell: true,
     class: className,
     _ruleObject: ruleObject(110),
@@ -3013,7 +3148,7 @@
     };
   };
 
-  const app$2 = {
+  const app$1 = {
     $cell: true,
     $type: 'nav',
     class: 'mdc-tab-bar',
@@ -3039,7 +3174,7 @@
     $text: iconName
   });
 
-  const app$3 = {
+  const app$2 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-fab',
@@ -3071,7 +3206,7 @@
 
   
 
-  const app$4 = {
+  const app$3 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -3088,7 +3223,7 @@
 
   
 
-  const app$5 = {
+  const app$4 = {
     $cell: true,
     $type: 'button',
     class: 'mdc-icon-button material-icons',
@@ -3783,21 +3918,33 @@
 
   
 
+  const headerStyles = css`
+  height: 100px;
+  width: 100%;
+`;
   const header = {
     $type: 'header',
-    class: 'mdc-drawer__header'
+    class: headerStyles // class: 'mdc-drawer__header',
+
   };
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [createApp('Rule'), createApp('Other'), createApp('Other'), createApp('Other')]
+    $components: [createApp('Rule'), createApp$1('Dimension'), createApp('Neighbors'), createApp('Population Count'), createApp$1('Growth'), createApp('Generations'), createApp('Edges')]
   };
+  const drawerContainerStyle = css`
+  background-color: #f7ffa9f0 !important;
+  border-bottom-right-radius: 15%;
+  border-top-right-radius: 15%;
+  height: 120% !important;
+  top: -10%;
+`;
   const drawerContainer = {
     $type: 'nav',
-    class: 'mdc-drawer__drawer',
+    class: 'mdc-drawer__drawer' + ' ' + drawerContainerStyle,
     $components: [header, contents]
   };
-  const app$6 = {
+  const app$5 = {
     $cell: true,
     $type: 'aside',
     class: 'mdc-drawer mdc-drawer--temporary',
@@ -3854,17 +4001,17 @@
 `;
   const leftMenu = {
     class: leftMenuClassName,
-    $components: [app$6]
+    $components: [app$5]
   };
   const rightMenu = {
     class: rightMenuClassName,
-    $components: [app$3, app$4, app$5]
+    $components: [app$2, app$3, app$4]
   };
   const body = {
     class: bodyClassName,
-    $components: [leftMenu, rightMenu, app$1]
+    $components: [leftMenu, rightMenu, app]
   };
-  const app$7 = {
+  const app$6 = {
     id: "root",
     $cell: true,
     class: rootClassName,
@@ -3873,10 +4020,10 @@
       // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$2, body]
+    $components: [app$1, body]
   };
 
-  return app$7;
+  return app$6;
 
 })));
 //# sourceMappingURL=cellular.js.map
