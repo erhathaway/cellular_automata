@@ -2717,9 +2717,7 @@
 
   
 
-  // import { MDCTextFieldHelperText } from '@material/textfield/helper-text';
-
-  const createApp = inputName => {
+  const createApp = cellName => {
     const validations = [{
       validate: v => v >= 0 && v <= 255,
       error: 'Must be between 0 to 255'
@@ -2732,27 +2730,20 @@
     outline: none;
     font-size: 16px;
     width: 100%;
-    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15) inset;
-    // box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
     padding: 11px;
     border-radius: 12px;
-    // margin-left: -11px;
     text-align: center;
     padding-top: 14px;
-    // background-color: #ffffff7d;
-    // background-color: none;
-    // background: transparent;
     background-color: #ffffff70;
 
     &:hover {
       box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
       background-color: #ffffff7d;
-
     }
   `;
     const input = {
       $type: 'input',
-      id: `menu-${inputName}__input`,
+      id: `menu-${cellName}__input`,
       class: inputStyles,
       required: true,
       value: 110,
@@ -2787,46 +2778,46 @@
       }
     };
     const labelStyles = css`
-    font-size: 14px;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
     // color: #4CAF50;
     // color: #37793a;
-    color: #314032;
+    // color: #314032;
+    color: #4caf50bd;
     font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
   `;
     const label = {
       $type: 'label',
       class: labelStyles,
       for: 'my-text-field',
-      $text: inputName
+      $text: cellName
     };
     const underlineStyles = css`
     border-bottom: 1px solid rgba(76, 175, 80, 0.4);
     height: 1px;
     width: 70%;
     margin-top: 2px;
-    // border-color: #4CAF50;
     margin-bottom: 7px;
   `;
     const helperStyles = css`
-    // height: 20px;
-    // width: 100%;
     margin-top: 7px;
     color: rgba(0,0,0,.6);
     font-family: monospace;
   `;
     const helper = {
       $type: 'div',
-      id: `menu-${inputName}__helper`,
+      id: `menu-${cellName}__helper`,
       class: helperStyles
     };
     const inputContainerStyles = css`
     position: relative;
-    width: 100px;
+    width: 200px;
   `;
     const inputContainer = {
       $type: 'div',
-      id: `menu-${inputName}__container`,
+      id: `menu-${cellName}__container`,
       class: inputContainerStyles,
       $components: [input]
     };
@@ -2840,7 +2831,7 @@
     const app = {
       $cell: true,
       $type: 'div',
-      id: `menu-${inputName}`,
+      id: `menu-${cellName}`,
       class: appStyles,
       $components: [label, inputContainer, helper],
       _value: undefined,
@@ -2859,9 +2850,13 @@
 
   
 
-  const createApp$1 = inputName => {
+  const createApp$1 = ({
+    cellName,
+    labelName,
+    selections
+  }) => {
     const selectorStyles = css`
-    width: 80px;
+    width: 100px;
     height: 40px;
     border-width: 0px;
     outline: none;
@@ -2870,10 +2865,15 @@
     background-color: white;
 
   `;
-    const activeSelectorStyle = css`
-    // background-color: #FFC107;
+    const activeSelectorStyles = css`
     background-color: rgba(255, 193, 7, 0.38);
     box-shadow: rgba(0, 0, 0, 0.15) 5px 3px 4px 1px inset;
+  `;
+    const inactiveSelectorStyles = css`
+    &:hover {
+      background-color: #ffffff7d;
+
+    }
   `;
 
     const selectorPositionedStyles = position => {
@@ -2886,14 +2886,16 @@
     }) => ({
       $type: 'button',
       style: selectorPositionedStyles(position),
-      id: `menu-${inputName}__selector-${name}`,
+      id: `menu-${cellName}__selector-${name}`,
       $text: name,
       class: selectorStyles,
       _checkSelected: function () {
         if (this._value === name) {
-          this.classList.add(activeSelectorStyle);
+          this.classList.add(activeSelectorStyles);
+          this.classList.remove(inactiveSelectorStyles);
         } else {
-          this.classList.remove(activeSelectorStyle);
+          this.classList.remove(activeSelectorStyles);
+          this.classList.add(inactiveSelectorStyles);
         }
       },
       _handleClick: function () {
@@ -2909,27 +2911,31 @@
     const labelStyles = css`
     font-size: 14px;
     margin-bottom: 5px;
-    color: #314032;
+    // color: #314032;
+    color: #4caf50bd;
     font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
   `;
     const label = {
       $type: 'label',
       class: labelStyles,
       for: 'my-text-field',
-      $text: inputName
+      $text: labelName
     };
     const inputContainerStyles = css`
 
   `;
     const inputContainer = {
       $type: 'div',
-      id: `menu-${inputName}__container`,
+      id: `menu-${cellName}__container`,
       class: inputContainerStyles,
       $components: [selector({
-        name: '1D',
+        name: selections[0],
         position: 'left'
       }), selector({
-        name: '2D',
+        name: selections[1],
         position: 'right'
       })]
     };
@@ -2943,7 +2949,7 @@
     const app = {
       $cell: true,
       $type: 'div',
-      id: `menu-${inputName}`,
+      id: `menu-${cellName}`,
       class: appStyles,
       $components: [label, inputContainer],
       _updateObservers: [],
@@ -2953,7 +2959,7 @@
       $update: function () {
         this._updateObservers.forEach(fn => fn());
       },
-      _value: undefined,
+      _value: selections[0],
       _setValue: function (value) {
         this._value = value;
       }
@@ -3893,25 +3899,46 @@
   
 
   const headerStyles = css`
-  height: 100px;
+  height: 50px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: monospace;
+  letter-spacing: 4px;
+  color: #FF9800;
+  font-size: 15px;
+  margin-top: 20px;
 `;
   const header = {
     $type: 'header',
-    class: headerStyles // class: 'mdc-drawer__header',
-
+    class: headerStyles,
+    $text: 'Configure'
   };
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [createApp('Rule'), createApp$1('Dimension'), createApp('Neighbors'), createApp('Population Count'), createApp$1('Growth'), createApp('Generations'), createApp('Edges')]
+    $components: [createApp('Rule'), createApp$1({
+      labelName: 'Dimension',
+      cellName: 'dimension',
+      selections: ['1D', '2D']
+    }), createApp('Neighbors'), createApp('Population Count'), createApp$1({
+      labelName: 'Growth',
+      cellName: 'growth',
+      selections: ['Fixed', 'Continuous']
+    }), createApp('Generations'), createApp('Edges')]
   };
   const drawerContainerStyle = css`
-  background-color: #f7ffa9f0 !important;
-  border-bottom-right-radius: 15%;
-  border-top-right-radius: 15%;
-  height: 120% !important;
-  top: -10%;
+  // background-color: #f7ffa9f0 !important;
+      background-color: #000000d4 !important;
+  // border-bottom-right-radius: 15%;
+  // border-top-right-radius: 15%;
+  // height: 110% !important;
+  // top: -10%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
   const drawerContainer = {
     $type: 'nav',

@@ -1,11 +1,8 @@
-// import { MDCTextFieldHelperText } from '@material/textfield/helper-text';
-// import { MDCLineRipple } from '@material/line-ripple';
-// import { MDCTextField } from '@material/textfield';
 import { css } from 'emotion';
 
 import './styles.scss';
 
-const createApp = (inputName) => {
+const createApp = (cellName) => {
   const validations = [
     { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
     { validate: v => v % 1 === 0, error: 'Must be a whole number' },
@@ -16,27 +13,20 @@ const createApp = (inputName) => {
     outline: none;
     font-size: 16px;
     width: 100%;
-    // box-shadow: 1px 2px 3px 2px rgba(0, 0, 0, 0.15) inset;
-    // box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
     padding: 11px;
     border-radius: 12px;
-    // margin-left: -11px;
     text-align: center;
     padding-top: 14px;
-    // background-color: #ffffff7d;
-    // background-color: none;
-    // background: transparent;
     background-color: #ffffff70;
 
     &:hover {
       box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
       background-color: #ffffff7d;
-
     }
   `
   const input = {
     $type: 'input',
-    id: `menu-${inputName}__input`,
+    id: `menu-${cellName}__input`,
     class: inputStyles,
     required: true,
     value: 110,
@@ -66,19 +56,22 @@ const createApp = (inputName) => {
   };
 
   const labelStyles = css`
-    font-size: 14px;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
     // color: #4CAF50;
     // color: #37793a;
-    color: #314032;
+    // color: #314032;
+    color: #4caf50bd;
     font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
   `;
 
   const label = {
     $type: 'label',
     class: labelStyles,
     for:'my-text-field',
-    $text: inputName,
+    $text: cellName,
   };
 
   const underlineStyles = css`
@@ -86,19 +79,16 @@ const createApp = (inputName) => {
     height: 1px;
     width: 70%;
     margin-top: 2px;
-    // border-color: #4CAF50;
     margin-bottom: 7px;
   `;
 
   const underline = {
     $type: 'div',
-    id: `menu-${inputName}__underline`,
+    id: `menu-${cellName}__underline`,
     class: underlineStyles,
   };
 
   const helperStyles = css`
-    // height: 20px;
-    // width: 100%;
     margin-top: 7px;
     color: rgba(0,0,0,.6);
     font-family: monospace;
@@ -106,18 +96,18 @@ const createApp = (inputName) => {
 
   const helper = {
     $type: 'div',
-    id: `menu-${inputName}__helper`,
+    id: `menu-${cellName}__helper`,
     class: helperStyles,
   };
 
   const inputContainerStyles = css`
     position: relative;
-    width: 100px;
+    width: 200px;
   `;
 
   const inputContainer = {
     $type: 'div',
-    id: `menu-${inputName}__container`,
+    id: `menu-${cellName}__container`,
     class: inputContainerStyles,
     $components: [input],
   };
@@ -133,7 +123,7 @@ const createApp = (inputName) => {
   const app = {
     $cell: true,
     $type: 'div',
-    id: `menu-${inputName}`,
+    id: `menu-${cellName}`,
     class: appStyles,
     $components: [label, inputContainer, helper],
     _value: undefined,

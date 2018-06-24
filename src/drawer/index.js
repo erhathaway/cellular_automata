@@ -2,31 +2,52 @@ import { MDCTemporaryDrawer } from '@material/drawer';
 import { css } from 'emotion';
 
 import './styles.scss';
-import { inputSelection, dimensionSelection } from '../menu';
+import { textInputSelection, buttonSelection } from '../menu';
 
 const headerStyles = css`
-  height: 100px;
+  height: 50px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: monospace;
+  letter-spacing: 4px;
+  color: #FF9800;
+  font-size: 15px;
+  margin-top: 20px;
 `;
 
 const header = {
   $type: 'header',
   class: headerStyles,
-  // class: 'mdc-drawer__header',
+  $text: 'Configure',
 };
 
 const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
-  $components: [inputSelection('Rule'), dimensionSelection('Dimension'), inputSelection('Neighbors'), inputSelection('Population Count'), dimensionSelection('Growth'), inputSelection('Generations'), inputSelection('Edges')],
+  $components: [
+    textInputSelection('Rule'),
+    buttonSelection({ labelName: 'Dimension', cellName: 'dimension', selections: ['1D', '2D'] }),
+    textInputSelection('Neighbors'),
+    textInputSelection('Population Count'),
+    buttonSelection({ labelName: 'Growth', cellName: 'growth', selections: ['Fixed', 'Continuous'] }),
+    textInputSelection('Generations'),
+    textInputSelection('Edges')
+  ],
 };
 
 const drawerContainerStyle = css`
-  background-color: #f7ffa9f0 !important;
-  border-bottom-right-radius: 15%;
-  border-top-right-radius: 15%;
-  height: 120% !important;
-  top: -10%;
+  // background-color: #f7ffa9f0 !important;
+      background-color: #000000d4 !important;
+  // border-bottom-right-radius: 15%;
+  // border-top-right-radius: 15%;
+  // height: 110% !important;
+  // top: -10%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const drawerContainer = {

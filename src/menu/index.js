@@ -1,2 +1,2 @@
-export { default as inputSelection } from './ruleSelection';
-export { default as dimensionSelection } from './dimensionSelection';
+export { default as textInputSelection } from './textInputSelection';
+export { default as buttonSelection } from './buttonSelection';
