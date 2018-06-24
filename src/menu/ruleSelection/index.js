@@ -48,10 +48,10 @@ const createApp = (inputName) => {
   };
 
   const labelStyles = css`
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 5px;
-    // color: rgba(0,0,0,.6);
     color: #4CAF50;
+    // color: #37793a;
     font-family: monospace;
   `;
 
@@ -63,12 +63,12 @@ const createApp = (inputName) => {
   };
 
   const underlineStyles = css`
-    border-bottom: 1px solid rgba(0,0,0,.2);
+    border-bottom: 1px solid rgba(76, 175, 80, 0.4);
     height: 1px;
     width: 70%;
-    margin-top: 4px;
-    border-color: #4CAF50;
-    margin-bottom: 15px;
+    margin-top: 2px;
+    // border-color: #4CAF50;
+    margin-bottom: 7px;
   `;
 
   const underline = {
@@ -108,6 +108,7 @@ const createApp = (inputName) => {
     flex-direction: column;
     justify-content: flex-start;
     margin-left: 50px;
+    margin-bottom: 25px;
   `;
 
   const app = {

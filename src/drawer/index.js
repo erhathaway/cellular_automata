@@ -11,7 +11,7 @@ const header = {
 const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
-  $components: [inputSelection('Rule'), dimensionSelection, inputSelection('Other')],
+  $components: [inputSelection('Rule'), inputSelection('Other'), inputSelection('Other'), inputSelection('Other')],
 };
 
 const drawerContainer = {

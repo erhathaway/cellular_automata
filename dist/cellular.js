@@ -2768,10 +2768,10 @@
       }
     };
     const labelStyles = css`
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 5px;
-    // color: rgba(0,0,0,.6);
     color: #4CAF50;
+    // color: #37793a;
     font-family: monospace;
   `;
     const label = {
@@ -2781,12 +2781,12 @@
       $text: inputName
     };
     const underlineStyles = css`
-    border-bottom: 1px solid rgba(0,0,0,.2);
+    border-bottom: 1px solid rgba(76, 175, 80, 0.4);
     height: 1px;
     width: 70%;
-    margin-top: 4px;
-    border-color: #4CAF50;
-    margin-bottom: 15px;
+    margin-top: 2px;
+    // border-color: #4CAF50;
+    margin-bottom: 7px;
   `;
     const underline = {
       $type: 'div',
@@ -2796,7 +2796,7 @@
     const helperStyles = css`
     height: 20px;
     width: 100%;
-    margin-top: 15px;
+    margin-top: 7px;
     color: rgba(0,0,0,.6);
     font-family: monospace;
   `;
@@ -2820,6 +2820,7 @@
     flex-direction: column;
     justify-content: flex-start;
     margin-left: 50px;
+    margin-bottom: 25px;
   `;
     const app = {
       $cell: true,
@@ -2850,42 +2851,6 @@
   display: flex;
   width: 200px;
 `;
-
-  const selector = name => ({
-    $type: 'div',
-    id: `menu-dimension-selection__selector-${name}`,
-    class: selectorStyle
-  });
-
-  const selectorContainer = {
-    $type: 'div',
-    id: 'menu-dimension-selection__container',
-    class: selectorContainerStyle,
-    $components: [selector('1D'), selector('2D')]
-  };
-  const label = {
-    $type: 'label',
-    class: 'mdc-floating-label mdc-floating-label--float-above',
-    style: 'margin-bottom: 10px; color: rgba(0, 0, 0, 0.6); font-size: 22px',
-    for: 'menu-dimension-selection__container',
-    $text: 'Dimension'
-  };
-  const ripple = {
-    $type: 'div',
-    class: 'mdc-line-ripple'
-  };
-  const container = {
-    $type: 'div',
-    id: "menu-dimension-selection__container",
-    style: 'position: relative;',
-    $components: [label, selectorContainer, ripple]
-  };
-  const app = {
-    $cell: true,
-    $type: 'div',
-    id: 'menu-dimension-selection',
-    $components: [container]
-  };
 
   const neighborhoodRule = (ruleNumber, neighborhood) => {
     /* example:
@@ -3825,7 +3790,7 @@
   const contents = {
     $type: 'nav',
     class: 'mdc-drawer__content',
-    $components: [createApp('Rule'), app, createApp('Other')]
+    $components: [createApp('Rule'), createApp('Other'), createApp('Other'), createApp('Other')]
   };
   const drawerContainer = {
     $type: 'nav',
