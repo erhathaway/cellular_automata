@@ -12,12 +12,17 @@ const createApp = ({ cellName, labelName, inputElementAttributes }) => {
     border: none;
     outline: none;
     font-size: 16px;
-    width: 100%;
-    padding: 11px;
+    width: 75%;
+    // padding: 11px;
     border-radius: 12px;
     text-align: center;
-    padding-top: 14px;
+    // padding-top: 14px;
     background-color: #ffffff70;
+
+    height: 30px;
+    padding: 0;
+    padding-right: 10%;
+    padding-left: 15%;
 
     &:hover {
       box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;

@@ -15,6 +15,7 @@ const headerStyles = css`
   color: #FF9800;
   font-size: 15px;
   margin-top: 20px;
+  margin-bottom: 20px;
 
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

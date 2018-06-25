@@ -2733,12 +2733,17 @@
     border: none;
     outline: none;
     font-size: 16px;
-    width: 100%;
-    padding: 11px;
+    width: 75%;
+    // padding: 11px;
     border-radius: 12px;
     text-align: center;
-    padding-top: 14px;
+    // padding-top: 14px;
     background-color: #ffffff70;
+
+    height: 30px;
+    padding: 0;
+    padding-right: 10%;
+    padding-left: 15%;
 
     &:hover {
       box-shadow: rgba(0, 0, 0, 0.15) 1px 2px 1px 0px inset;
@@ -3123,53 +3128,109 @@
 
   
 
-  const tabHTML = `
-  {{tabName}}
-  <span class="mdc-tab__indicator"></span>
+  const selectedTabStyles = css`
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  background-color: #ffc107f5;
+
+`;
+  const unselectedTabStyles = css`
+  // background-color: rgb(255, 191, 0);
+  background-color: rgba(225, 169, 0, 0.96);
+  &:hover {
+      box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  }
+`;
+  const tabStyles = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 170px;
+  height: 50px;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  text-transform: uppercase;
+  // box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
+  // margin-left: 1px;
+  font-family: monospace;
+  letter-spacing: 3px;
+  font-size: 12px;
+  color: 000000a6;
+`;
+  const leftTabStyles = css`
+  border-bottom-left-radius: 30px;
+`;
+  const rightTabStyles = css`
+  border-bottom-right-radius: 30px;
 `;
 
-  const tab = function (tabName) {
+  const tab = function ({
+    tabName,
+    position
+  }) {
     return {
-      $type: 'a',
-      id: `${tabName}-scene-tab`,
-      class: 'mdc-tab scene-tab',
+      $type: 'div',
+      id: `scene-tab__${tabName}`,
+      class: tabStyles,
       $text: tabName,
       _tabName: tabName,
       onclick: function () {
         this._setActiveTab(this._tabName);
       },
-      $html: Handlebars.compile(tabHTML)({
-        tabName
-      }),
       $init: function () {
+        this._subscribeToRootUpdate(this._updateActiveState);
+
+        if (position === 'left') {
+          this.classList.add(leftTabStyles);
+        } else if (position === 'right') {
+          this.classList.add(rightTabStyles);
+        }
+
         this._updateActiveState();
       },
       _updateActiveState: function () {
-        if (this._activeTab === this._tabName) {
-          const classes = this.classList.add('mdc-tab--active');
+        if (this._selectedTab === this._tabName) {
+          this.classList.add(selectedTabStyles);
+          this.classList.remove(unselectedTabStyles);
         } else {
-          this.classList.remove('mdc-tab--active');
+          this.classList.remove(selectedTabStyles);
+          this.classList.add(unselectedTabStyles);
         }
       }
     };
   };
 
+  const containerStyles = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
   const app$1 = {
     $cell: true,
     $type: 'nav',
-    class: 'mdc-tab-bar',
-    _activeTab: 'View',
+    class: containerStyles,
+    id: 'sceneTabs',
+    _selectedTab: 'View',
+    _updateObservers: [],
+    _subscribeToRootUpdate: function (fn) {
+      this._updateObservers.push(fn);
+    },
+    _notifyObservers: function () {
+      this._updateObservers.map(fn => fn());
+    },
     _setActiveTab: function (tabName) {
-      this._activeTab = tabName;
+      this._selectedTab = tabName;
+
+      this._notifyObservers();
     },
-    id: "sceneTabs",
-    _updateComponents: function () {
-      this.$components.forEach(c => c._updateActiveState());
-    },
-    $update: function () {
-      this._updateComponents();
-    },
-    $components: [tab('View'), tab('Explore')]
+    $components: [tab({
+      tabName: 'View',
+      position: 'left'
+    }), tab({
+      tabName: 'Explore',
+      position: 'right'
+    })]
   };
 
   
@@ -3935,6 +3996,7 @@
   color: #FF9800;
   font-size: 15px;
   margin-top: 20px;
+  margin-bottom: 20px;
 
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
