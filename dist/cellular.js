@@ -3131,7 +3131,6 @@
   const selectedTabStyles = css`
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   background-color: rgba(225, 169, 0, 1);
-
 `;
   const unselectedTabStyles = css`
     background-color: #ffc107f5;
@@ -3146,7 +3145,7 @@
   align-items: center;
   text-align: center;
   width: 170px;
-  height: 50px;
+  height: 60px;
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
@@ -4109,7 +4108,38 @@
 
       this._openDrawer();
 
-      document.querySelector('#fullscreen-button').addEventListener('click', this._openDrawer);
+      document.querySelector('#menu-button').addEventListener('click', this._openDrawer);
+    }
+  };
+
+  const icon$1 = iconName => ({
+    $type: 'span',
+    class: 'mdc-fab__icon material-icons',
+    $text: iconName
+  });
+
+  const appStyles = css`
+  position: absolute;
+  left: 0px;
+  top: 55px;
+  background-color: orange;
+  height: 60px;
+  width: 60px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 15px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 15px;
+`;
+  const app$6 = {
+    $cell: true,
+    $type: 'button',
+    class: 'mdc-fab' + ' ' + appStyles,
+    id: 'menu-button',
+    _active: false,
+    _iconName: 'menu',
+    $components: [icon$1('menu')],
+    $init: function () {
+      const fabRipple = new MDCRipple(document.querySelector('#menu-button'));
     }
   };
 
@@ -4158,7 +4188,7 @@
     class: bodyClassName,
     $components: [leftMenu, rightMenu, app]
   };
-  const app$6 = {
+  const app$7 = {
     id: "root",
     $cell: true,
     class: rootClassName,
@@ -4167,10 +4197,10 @@
       // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },
-    $components: [app$1, body]
+    $components: [app$1, body, app$6]
   };
 
-  return app$6;
+  return app$7;
 
 })));
 //# sourceMappingURL=cellular.js.map

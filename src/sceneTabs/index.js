@@ -6,7 +6,6 @@ import './styles.scss'
 const selectedTabStyles = css`
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   background-color: rgba(225, 169, 0, 1);
-
 `;
 
 const unselectedTabStyles = css`
@@ -23,7 +22,7 @@ const tabStyles = css`
   align-items: center;
   text-align: center;
   width: 170px;
-  height: 50px;
+  height: 60px;
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
@@ -32,7 +31,7 @@ const tabStyles = css`
   letter-spacing: 3px;
   font-size: 12px;
   color: #000000a6;
-`
+`;
 
 const leftTabStyles = css`
   border-bottom-left-radius: 30px;

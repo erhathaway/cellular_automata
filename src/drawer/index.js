@@ -112,7 +112,7 @@ const app = {
   $init: function() {
     this._drawer = new MDCTemporaryDrawer(document.querySelector('.mdc-drawer--temporary'));
     this._openDrawer();
-    document.querySelector('#fullscreen-button').addEventListener('click', this._openDrawer);
+    document.querySelector('#menu-button').addEventListener('click', this._openDrawer);
   }
 };
 
