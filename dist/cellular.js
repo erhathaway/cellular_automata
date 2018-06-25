@@ -3130,14 +3130,14 @@
 
   const selectedTabStyles = css`
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  background-color: #ffc107f5;
+  background-color: rgba(225, 169, 0, 1);
 
 `;
   const unselectedTabStyles = css`
-  // background-color: rgb(255, 191, 0);
-  background-color: rgba(225, 169, 0, 0.96);
+    background-color: #ffc107f5;
+
   &:hover {
-      box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    background-color: rgba(225, 169, 0, 1);
   }
 `;
   const tabStyles = css`
@@ -3150,13 +3150,11 @@
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
-  // box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
   box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
-  // margin-left: 1px;
   font-family: monospace;
   letter-spacing: 3px;
   font-size: 12px;
-  color: 000000a6;
+  color: #000000a6;
 `;
   const leftTabStyles = css`
   border-bottom-left-radius: 30px;
@@ -3187,7 +3185,9 @@
           this.classList.add(rightTabStyles);
         }
 
-        this._updateActiveState();
+        this._updateActiveState(); // const tabRipple = new MDCRipple(document.querySelector('#scene-tab__Explore'));
+        // tabRipple.unbounded = true;
+
       },
       _updateActiveState: function () {
         if (this._selectedTab === this._tabName) {
@@ -3265,7 +3265,7 @@
     },
     $components: [icon('play_arrow')],
     $init: function () {
-      const fabRipple = new MDCRipple(document.querySelector('.mdc-fab'));
+      const fabRipple = new MDCRipple(document.querySelector('#play-button'));
 
       this._updateIcon();
     }
@@ -3283,7 +3283,7 @@
       console.log('sharing');
     },
     $init: function () {
-      const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+      const iconButtonRipple = new MDCRipple(document.querySelector('#share-button'));
       iconButtonRipple.unbounded = true;
     }
   };
@@ -3300,7 +3300,7 @@
       console.log('fullscreen');
     },
     $init: function () {
-      const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+      const iconButtonRipple = new MDCRipple(document.querySelector('#fullscreen-button'));
       iconButtonRipple.unbounded = true;
     }
   };

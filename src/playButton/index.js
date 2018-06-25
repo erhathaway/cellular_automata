@@ -23,7 +23,7 @@ const app = {
   $update: function() { this._updateIcon();},
   $components: [icon('play_arrow')],
   $init: function() {
-    const fabRipple = new MDCRipple(document.querySelector('.mdc-fab'));
+    const fabRipple = new MDCRipple(document.querySelector('#play-button'));
     this._updateIcon();
   }
 }

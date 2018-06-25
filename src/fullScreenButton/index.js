@@ -9,7 +9,7 @@ const app = {
   $text : 'fullscreen',
   onclick: function() { console.log('fullscreen') },
   $init: function() {
-    const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+    const iconButtonRipple = new MDCRipple(document.querySelector('#fullscreen-button'));
     iconButtonRipple.unbounded = true;
   }
 }

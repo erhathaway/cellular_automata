@@ -1,17 +1,19 @@
 import { css } from 'emotion';
+import { MDCRipple } from '@material/ripple';
+
 import './styles.scss'
 
 const selectedTabStyles = css`
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  background-color: #ffc107f5;
+  background-color: rgba(225, 169, 0, 1);
 
 `;
 
 const unselectedTabStyles = css`
-  // background-color: rgb(255, 191, 0);
-  background-color: rgba(225, 169, 0, 0.96);
+    background-color: #ffc107f5;
+
   &:hover {
-      box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    background-color: rgba(225, 169, 0, 1);
   }
 `;
 
@@ -25,13 +27,11 @@ const tabStyles = css`
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
-  // box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
   box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
-  // margin-left: 1px;
   font-family: monospace;
   letter-spacing: 3px;
   font-size: 12px;
-  color: 000000a6;
+  color: #000000a6;
 `
 
 const leftTabStyles = css`
@@ -54,6 +54,8 @@ const tab = function({ tabName, position }) { return {
     if (position === 'left') {this.classList.add(leftTabStyles)}
     else if (position === 'right') {this.classList.add(rightTabStyles)}
     this._updateActiveState();
+    // const tabRipple = new MDCRipple(document.querySelector('#scene-tab__Explore'));
+    // tabRipple.unbounded = true;
   },
   _updateActiveState: function() {
     if (this._selectedTab === this._tabName) {

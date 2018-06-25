@@ -9,7 +9,7 @@ const app = {
   $text : 'share',
   onclick: function() { console.log('sharing') },
   $init: function() {
-    const iconButtonRipple = new MDCRipple(document.querySelector('.mdc-icon-button'));
+    const iconButtonRipple = new MDCRipple(document.querySelector('#share-button'));
     iconButtonRipple.unbounded = true;
   }
 }
