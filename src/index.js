@@ -27,10 +27,10 @@ const rootClassName = css`
   // overflow-y: hidden;
 `;
 
-const bodyClassName = css`
+const bodyStyles = css`
   display: flex;
   flex-grow: 1;
-  width: 100%;
+  width: 100vw;
   height: 100%;
   justify-content: space-between;
 `;
@@ -63,7 +63,7 @@ const rightMenu = {
 };
 
 const body = {
-  class: bodyClassName,
+  class: bodyStyles,
   $components: [leftMenu, rightMenu, viewer],
 };
 
