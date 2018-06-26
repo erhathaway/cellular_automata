@@ -14,7 +14,13 @@ const app = {
   id: 'play-button',
   _active: false,
   _iconName: 'play_arrow',
-  onclick: function() { this._active = !this._active },
+  onclick: function() {
+    this._active = !this._active;
+    
+    const simulator = document.getElementById('automata-viewer');
+    if (this._active === true) { simulator._runSimulation() }
+    else { simulator._stopSimulation() }
+  },
   _updateIcon: function() {
     if (this._active) { this._iconName = 'pause' }
     else { this._iconName = 'play_arrow' }
