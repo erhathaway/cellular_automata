@@ -2721,15 +2721,13 @@
     cellName,
     labelName,
     inputElementAttributes,
-    updateFn
+    updateFn,
+    validations = []
   }) => {
-    const validations = [{
-      validate: v => v >= 0 && v <= 255,
-      error: 'Must be between 0 to 255'
-    }, {
-      validate: v => v % 1 === 0,
-      error: 'Must be a whole number'
-    }];
+    // const validations = [
+    //   { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
+    //   { validate: v => v % 1 === 0, error: 'Must be a whole number' },
+    // ];
     const inputStyles = css`
     border: none;
     outline: none;
@@ -3104,7 +3102,7 @@
 
   const firstGeneration = population => [...new Array(population)].map(() => Math.round(Math.random()));
 
-  function Cell(state) {
+  function cell(state) {
     return {
       $type: 'div',
       style: `
@@ -3116,11 +3114,11 @@
     };
   }
 
-  function Generation(generation) {
+  function generation(generation) {
     return {
       $type: 'div',
       class: generationClassName,
-      $components: generation.map(this._cellComponent)
+      $components: generation.map(cell.bind(this))
     };
   }
 
@@ -3144,22 +3142,26 @@
       this._runSimulation();
     },
     _setDimension: function (value) {
-      this._dimension = value;
+      this._dimension = +value;
     },
     _setNeighbors: function (value) {
-      this._neighbors = value;
+      this._neighbors = +value;
     },
     _setPopulation: function (value) {
-      this._population = value;
+      this._population = +value;
+
+      this._runSimulation();
     },
     _setGrowth: function (value) {
-      this._growth = value;
+      this._growth = +value;
     },
     _setGenerations: function (value) {
-      this._generations = value;
+      this._generations = +value;
+
+      this._runSimulation();
     },
     _setEdges: function (value) {
-      this._edges = value;
+      this._edges = +value;
     },
     _gen: undefined,
     _cellDimension: 10,
@@ -3169,8 +3171,6 @@
       } = this.getBoundingClientRect();
       this._cellDimension = width / this._population;
     },
-    _cellComponent: Cell,
-    _generationCompnent: Generation,
     $components: undefined,
     $update: function () {},
     _createNextGeneration: function () {
@@ -3185,34 +3185,20 @@
       this._gen = previousGens;
     },
     _visualizeData: function () {
-      this.$components = this._gen.map(this._generationCompnent);
+      this.$components = this._gen.map(generation.bind(this));
     },
     _isRunning: false,
     _runSimulation: function () {
-      console.log(this._population);
-      this._isRunning = true;
       let count = 0;
-      console.log('running simulation');
 
       this._sizeHandler();
 
-      this._gen = [firstGeneration(this._population)]; // const arr = new Array(this._generations).fill(null);
-      // arr.forEach(this._createNextGeneration);
-
-      let shouldGrow = true;
-
-      const isRunning = () => {
-        return this._isRunning;
-      };
+      this._gen = [firstGeneration(this._population)];
 
       while (count < this._generations) {
-        // while(shouldGrow) {
-        console.log('isRunning', isRunning());
-
         this._createNextGeneration();
 
         count += 1;
-        shouldGrow = isRunning();
       }
 
       this._visualizeData();
@@ -4175,14 +4161,12 @@
   const inputPopulationElementAttributes = {
     value: 100,
     type: 'number',
-    min: 2,
-    max: 255
+    min: 2
   };
   const inputGenerationsElementAttributes = {
     value: 50,
     type: 'number',
-    min: 1,
-    max: 255
+    min: 1
   };
   const inputEdgesElementAttributes = {
     value: 2,

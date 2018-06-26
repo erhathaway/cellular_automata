@@ -50,14 +50,12 @@ const inputPopulationElementAttributes = {
   value: 100,
   type: 'number',
   min: 2,
-  max: 255,
 };
 
 const inputGenerationsElementAttributes = {
   value: 50,
   type: 'number',
   min: 1,
-  max: 255,
 };
 
 const inputEdgesElementAttributes = {

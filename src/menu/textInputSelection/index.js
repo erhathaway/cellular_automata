@@ -2,11 +2,11 @@ import { css } from 'emotion';
 
 import './styles.scss';
 
-const createApp = ({ cellName, labelName, inputElementAttributes, updateFn }) => {
-  const validations = [
-    { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
-    { validate: v => v % 1 === 0, error: 'Must be a whole number' },
-  ];
+const createApp = ({ cellName, labelName, inputElementAttributes, updateFn, validations = []}) => {
+  // const validations = [
+  //   { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
+  //   { validate: v => v % 1 === 0, error: 'Must be a whole number' },
+  // ];
 
   const inputStyles = css`
     border: none;

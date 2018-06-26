@@ -24,7 +24,7 @@ const firstGeneration = (population) =>
   [...new Array(population)]
     .map(() => Math.round(Math.random()))
 
-function Cell(state) {
+function cell(state) {
   return {
     $type: 'div',
     style: `
@@ -36,11 +36,11 @@ function Cell(state) {
   }
 }
 
-function Generation(generation){
+function generation(generation){
   return {
     $type: 'div',
     class: generationClassName,
-    $components: generation.map(this._cellComponent)
+    $components: generation.map(cell.bind(this))
   }
 }
 
@@ -63,12 +63,12 @@ const app = {
     this._ruleObject = ruleObject(value);
     this._runSimulation();
   },
-  _setDimension: function(value) { this._dimension = value; },
-  _setNeighbors: function(value) { this._neighbors = value; },
-  _setPopulation: function(value) { this._population = value; },
-  _setGrowth: function(value) { this._growth = value; },
-  _setGenerations: function(value) { this._generations = value; },
-  _setEdges: function(value) { this._edges = value; },
+  _setDimension: function(value) { this._dimension = +value; },
+  _setNeighbors: function(value) { this._neighbors = +value; },
+  _setPopulation: function(value) { this._population = +value; this._runSimulation(); },
+  _setGrowth: function(value) { this._growth = +value; },
+  _setGenerations: function(value) { this._generations = +value; this._runSimulation(); },
+  _setEdges: function(value) { this._edges = +value; },
 
   _gen: undefined,
   _cellDimension: 10,
@@ -76,8 +76,6 @@ const app = {
     const { width } = this.getBoundingClientRect();
     this._cellDimension = width / this._population;
   },
-  _cellComponent: Cell,
-  _generationCompnent: Generation,
   $components: undefined,
   $update: function() {
   },
@@ -91,26 +89,17 @@ const app = {
     this._gen = previousGens;
   },
   _visualizeData: function() {
-    this.$components = this._gen.map(this._generationCompnent);
+    this.$components = this._gen.map(generation.bind(this));
   },
   _isRunning: false,
   _runSimulation: function() {
-    console.log(this._population)
-    this._isRunning = true;
     let count = 0;
-    console.log('running simulation')
     this._sizeHandler();
     this._gen = [firstGeneration(this._population)];
-    // const arr = new Array(this._generations).fill(null);
-    // arr.forEach(this._createNextGeneration);
-    let shouldGrow = true;
-    const isRunning = () => { return this._isRunning }
+
     while(count < this._generations) {
-    // while(shouldGrow) {
-      console.log('isRunning', isRunning())
       this._createNextGeneration()
       count += 1;
-      shouldGrow = isRunning()
     }
     this._visualizeData();
   },
