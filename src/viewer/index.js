@@ -20,7 +20,7 @@ const generationClassName = css`
   width: 100%;
 `;
 
-const firstGeneration = (population) =>
+const calcFirstGenerationCellState = (population) =>
   [...new Array(population)]
     .map(() => Math.round(Math.random()))
 
@@ -70,35 +70,35 @@ const app = {
   _setGenerations: function(value) { this._generations = +value; this._runSimulation(); },
   _setEdges: function(value) { this._edges = +value; },
 
-  _gen: undefined,
+  _cellStates: undefined,
   _cellDimension: 10,
-  _sizeHandler: function(e) {
+  _calcCellDimensions: function(e) {
     const { width } = this.getBoundingClientRect();
     this._cellDimension = width / this._population;
   },
   $components: undefined,
   $update: function() {
   },
-  _createNextGeneration: function() {
-    const genCopy = this._gen;
+  _calcNextGenerationCellStates: function() {
+    const genCopy = this._cellStates;
     const lastGen = genCopy.slice(-1)[0];
     const nextGen = nextGeneration(lastGen, this._ruleObject);
-    const previousGens = this._gen.slice(-this._generations)
+    const previousGens = this._cellStates.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
-    this._gen = previousGens;
+    this._cellStates = previousGens;
   },
   _visualizeData: function() {
-    this.$components = this._gen.map(generation.bind(this));
+    this.$components = this._cellStates.map(generation.bind(this));
   },
   _isRunning: false,
   _runSimulation: function() {
     const compStart = performance.now();
     let count = 0;
-    this._sizeHandler();
-    this._gen = [firstGeneration(this._population)];
+    this._calcCellDimensions();
+    this._cellStates = [calcFirstGenerationCellState(this._population)];
 
     while(count < this._generations) {
-      this._createNextGeneration()
+      this._calcNextGenerationCellStates()
       count += 1;
     }
     const compEnd = performance.now();
@@ -110,7 +110,7 @@ const app = {
   },
   $init: function() {
     this._runSimulation();
-    // this.sizeObserver = window.addEventListener("resize", this._sizeHandler)
+    // this.sizeObserver = window.addEventListener("resize", this._calcCellDimensions)
   }
 }
 
