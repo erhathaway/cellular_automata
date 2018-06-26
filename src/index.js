@@ -1,9 +1,5 @@
 import { css } from 'emotion';
 
-import {MDCTextFieldHelperText} from '@material/textfield/helper-text';
-import {MDCLineRipple} from '@material/line-ripple';
-import {MDCTextField} from '@material/textfield';
-
 import menu from './menu';
 import viewer from './viewer';
 import sceneTabs from './sceneTabs';
@@ -15,16 +11,13 @@ import menuButton from './menuButton';
 
 import './styles.scss';
 
-
 const rootClassName = css`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  // height: 100vh;
   height: 100%;
   width: 100%;
-  // overflow-y: hidden;
 `;
 
 const bodyStyles = css`
@@ -72,12 +65,6 @@ const app = {
   $cell: true,
   class: rootClassName,
   $type: "div",
-  $init: () => {
-    window.helloWorld = 'hi'
-    // const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
-    // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
-    // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
-  },
   $components: [sceneTabs, body, menuButton],
 }
 

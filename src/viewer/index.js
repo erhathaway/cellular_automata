@@ -83,9 +83,8 @@ const app = {
     const genCopy = this._gen;
     const lastGen = genCopy.slice(-1)[0];
     const nextGen = nextGeneration(lastGen, this._ruleObject);
-    const previousGens = this._gen.slice(-50)
+    const previousGens = this._gen.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
-    // this._gen.push(nextGen)
     this._gen = previousGens;
   },
   _visualizeData: function() {
@@ -93,6 +92,7 @@ const app = {
   },
   _isRunning: false,
   _runSimulation: function() {
+    const compStart = performance.now();
     let count = 0;
     this._sizeHandler();
     this._gen = [firstGeneration(this._population)];
@@ -101,13 +101,15 @@ const app = {
       this._createNextGeneration()
       count += 1;
     }
+    const compEnd = performance.now();
+    console.log('finish computation', compEnd-compStart, 'ms')
     this._visualizeData();
   },
   _stopSimulation: function() {
     this._isRunning = false;
   },
   $init: function() {
-    // this._runSimulation();
+    this._runSimulation();
     // this.sizeObserver = window.addEventListener("resize", this._sizeHandler)
   }
 }

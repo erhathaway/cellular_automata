@@ -3,22 +3,7 @@
 @import "@material/line-ripple/mdc-line-ripple";
 @import "@material/floating-label/mdc-floating-label";
 
-// body {
-//   background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
-//   background-size: 20px 20px;
-//   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-// }
 body {
   height: 100vh;
   margin: 0px;
-}
-
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
 }

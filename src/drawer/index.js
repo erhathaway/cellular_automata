@@ -39,6 +39,11 @@ const inputRuleElementAttributes = {
   max: 255,
 };
 
+const ruleValidations = [
+  { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
+  { validate: v => v % 1 === 0, error: 'Must be a whole number' },
+];
+
 const inputNeighborsElementAttributes = {
   value: 2,
   type: 'number',
@@ -69,7 +74,7 @@ const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
   $components: [
-    textInputSelection({ labelName: 'Rule (0-255)', cellName: 'rule', updateFn: '_setRule', inputElementAttributes: inputRuleElementAttributes }),
+    textInputSelection({ labelName: 'Rule (0-255)', cellName: 'rule', updateFn: '_setRule', validations: ruleValidations, inputElementAttributes: inputRuleElementAttributes }),
     buttonSelection({ labelName: 'Dimension', cellName: 'dimension', updateFn: '_setDimension', selections: ['1D', '2D'] }),
     textInputSelection({ labelName: 'Neighbors (1+)', cellName: 'neighbors', updateFn: '_setNeighbors', inputElementAttributes: inputNeighborsElementAttributes }),
     textInputSelection({ labelName: 'Population Count', cellName: 'population', updateFn: '_setPopulation', inputElementAttributes: inputPopulationElementAttributes }),
