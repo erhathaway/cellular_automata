@@ -2720,7 +2720,8 @@
   const createApp = ({
     cellName,
     labelName,
-    inputElementAttributes
+    inputElementAttributes,
+    updateFn
   }) => {
     const validations = [{
       validate: v => v >= 0 && v <= 255,
@@ -2769,11 +2770,15 @@
         }, []);
 
         if (errors.length > 0) {
+          this._setIsValid(false);
+
           const msg = errors[0];
           e.target.setCustomValidity(msg);
 
           this._setHelperText(msg);
         } else {
+          this._setIsValid(true);
+
           this._removeHelperText();
 
           this._setValue(value);
@@ -2854,11 +2859,28 @@
       _setValue: function (value) {
         this._value = value;
       },
+      _isValid: true,
+      _setIsValid: function (state) {
+        this._isValid = state;
+      },
       _setHelperText: function (text) {
         document.getElementById(helper.id).$text = text;
       },
       _removeHelperText: function () {
         document.getElementById(helper.id).$text = '';
+      },
+      $update: function () {
+        if (this._isValid === true && updateFn) {
+          const cell = document.getElementById('automata-viewer');
+
+          if (cell) {
+            const fn = cell[updateFn];
+
+            if (fn) {
+              fn(this._value);
+            }
+          }
+        }
       }
     };
     return app;
@@ -2869,7 +2891,8 @@
   const createApp$1 = ({
     cellName,
     labelName,
-    selections
+    selections,
+    updateFn
   }) => {
     const selectorStyles = css`
     width: 100px;
@@ -2989,6 +3012,18 @@
       },
       $update: function () {
         this._updateObservers.forEach(fn => fn());
+
+        if (updateFn) {
+          const cell = document.getElementById('automata-viewer');
+
+          if (cell) {
+            const fn = cell[updateFn];
+
+            if (fn) {
+              fn(this._value);
+            }
+          }
+        }
       },
       _value: selections[0],
       _setValue: function (value) {
@@ -3092,6 +3127,36 @@
   const app = {
     $cell: true,
     class: className,
+    id: 'automata-viewer',
+    // automata model
+    _rule: undefined,
+    _dimension: undefined,
+    _neighbors: undefined,
+    _population: undefined,
+    _growth: undefined,
+    _generations: undefined,
+    _edges: undefined,
+    _setRule: function (value) {
+      this._rule = value;
+    },
+    _setDimension: function (value) {
+      this._dimension = value;
+    },
+    _setNeighbors: function (value) {
+      this._neighbors = value;
+    },
+    _setPopulation: function (value) {
+      this._population = value;
+    },
+    _setGrowth: function (value) {
+      this._growth = value;
+    },
+    _setGenerations: function (value) {
+      this._generations = value;
+    },
+    _setEdges: function (value) {
+      this._edges = value;
+    },
     _ruleObject: ruleObject(110),
     _cellCount: 100,
     _gen: undefined,
@@ -3115,6 +3180,7 @@
     $components: undefined,
     $update: function () {
       this.$components = this._gen.map(this._generationCompnent);
+      console.log(this._rule);
     },
     $init: function () {
       this._sizeHandler(); // this.sizeObserver = window.addEventListener("resize", this._sizeHandler)
@@ -3140,16 +3206,19 @@
   }
 `;
   const tabStyles = css`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   width: 170px;
-  height: 60px;
+  height: 50px;
+  top: -10px;
+  padding-top: 10px;
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
+  // box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
   font-family: monospace;
   letter-spacing: 3px;
   font-size: 12px;
@@ -3157,9 +3226,11 @@
 `;
   const leftTabStyles = css`
   border-bottom-left-radius: 30px;
+  box-shadow: rgba(0, 0, 0, 0.25) -4px 2px 7px, rgba(0, 0, 0, 0.22) -4px 2px 7px;
 `;
   const rightTabStyles = css`
   border-bottom-right-radius: 30px;
+  box-shadow: rgba(0, 0, 0, 0.25) 4px 2px 7px, rgba(0, 0, 0, 0.22) 4px 2px 7px;
 `;
 
   const tab = function ({
@@ -4085,30 +4156,37 @@
     $components: [createApp({
       labelName: 'Rule (0-255)',
       cellName: 'rule',
+      updateFn: '_setRule',
       inputElementAttributes: inputRuleElementAttributes
     }), createApp$1({
       labelName: 'Dimension',
       cellName: 'dimension',
+      updateFn: '_setDimension',
       selections: ['1D', '2D']
     }), createApp({
       labelName: 'Neighbors (1+)',
       cellName: 'neighbors',
+      updateFn: '_setNeighbors',
       inputElementAttributes: inputNeighborsElementAttributes
     }), createApp({
       labelName: 'Population Count',
       cellName: 'population',
+      updateFn: '_setPopulation',
       inputElementAttributes: inputPopulationElementAttributes
     }), createApp$1({
       labelName: 'Growth',
       cellName: 'growth',
+      updateFn: '_setGrowth',
       selections: ['Fixed', 'Continuous']
     }), createApp({
       labelName: 'Generations',
       cellName: 'generations',
+      updateFn: '_setGenerations',
       inputElementAttributes: inputGenerationsElementAttributes
     }), createApp({
       labelName: 'Edges',
       cellName: 'edges',
+      updateFn: '_setEdges',
       inputElementAttributes: inputEdgesElementAttributes
     })]
   };
@@ -4232,7 +4310,8 @@
     $cell: true,
     class: rootClassName,
     $type: "div",
-    $init: () => {// const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
+    $init: () => {
+      window.helloWorld = 'hi'; // const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
       // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
       // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
     },

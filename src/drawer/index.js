@@ -71,13 +71,13 @@ const contents = {
   $type: 'nav',
   class: 'mdc-drawer__content',
   $components: [
-    textInputSelection({ labelName: 'Rule (0-255)', cellName: 'rule', inputElementAttributes: inputRuleElementAttributes }),
-    buttonSelection({ labelName: 'Dimension', cellName: 'dimension', selections: ['1D', '2D'] }),
-    textInputSelection({ labelName: 'Neighbors (1+)', cellName: 'neighbors', inputElementAttributes: inputNeighborsElementAttributes }),
-    textInputSelection({ labelName: 'Population Count', cellName: 'population', inputElementAttributes: inputPopulationElementAttributes }),
-    buttonSelection({ labelName: 'Growth', cellName: 'growth', selections: ['Fixed', 'Continuous'] }),
-    textInputSelection({ labelName: 'Generations', cellName: 'generations', inputElementAttributes: inputGenerationsElementAttributes }),
-    textInputSelection({ labelName: 'Edges', cellName: 'edges', inputElementAttributes: inputEdgesElementAttributes })
+    textInputSelection({ labelName: 'Rule (0-255)', cellName: 'rule', updateFn: '_setRule', inputElementAttributes: inputRuleElementAttributes }),
+    buttonSelection({ labelName: 'Dimension', cellName: 'dimension', updateFn: '_setDimension', selections: ['1D', '2D'] }),
+    textInputSelection({ labelName: 'Neighbors (1+)', cellName: 'neighbors', updateFn: '_setNeighbors', inputElementAttributes: inputNeighborsElementAttributes }),
+    textInputSelection({ labelName: 'Population Count', cellName: 'population', updateFn: '_setPopulation', inputElementAttributes: inputPopulationElementAttributes }),
+    buttonSelection({ labelName: 'Growth', cellName: 'growth', updateFn: '_setGrowth', selections: ['Fixed', 'Continuous'] }),
+    textInputSelection({ labelName: 'Generations', cellName: 'generations', updateFn: '_setGenerations', inputElementAttributes: inputGenerationsElementAttributes }),
+    textInputSelection({ labelName: 'Edges', cellName: 'edges', updateFn: '_setEdges', inputElementAttributes: inputEdgesElementAttributes })
   ],
 };
 

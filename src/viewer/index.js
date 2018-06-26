@@ -47,6 +47,23 @@ function Generation(generation){
 const app = {
   $cell: true,
   class: className,
+  id: 'automata-viewer',
+  // automata model
+  _rule: undefined,
+  _dimension: undefined,
+  _neighbors: undefined,
+  _population: undefined,
+  _growth: undefined,
+  _generations: undefined,
+  _edges: undefined,
+  _setRule: function(value) { this._rule = value;_},
+  _setDimension: function(value) { this._dimension = value;_},
+  _setNeighbors: function(value) { this._neighbors = value;_},
+  _setPopulation: function(value) { this._population = value;_},
+  _setGrowth: function(value) { this._growth = value;_},
+  _setGenerations: function(value) { this._generations = value;_},
+  _setEdges: function(value) { this._edges = value;_},
+
   _ruleObject: ruleObject(110),
   _cellCount: 100,
   _gen: undefined,
@@ -65,6 +82,7 @@ const app = {
   $components: undefined,
   $update: function() {
     this.$components = this._gen.map(this._generationCompnent)
+    console.log(this._rule)
   },
   $init: function() {
     this._sizeHandler();

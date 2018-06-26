@@ -17,16 +17,19 @@ const unselectedTabStyles = css`
 `;
 
 const tabStyles = css`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   width: 170px;
-  height: 60px;
+  height: 50px;
+  top: -10px;
+  padding-top: 10px;
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   text-transform: uppercase;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
+  // box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 10px, rgba(0, 0, 0, 0.22) 2px 2px 10px;
   font-family: monospace;
   letter-spacing: 3px;
   font-size: 12px;
@@ -35,10 +38,12 @@ const tabStyles = css`
 
 const leftTabStyles = css`
   border-bottom-left-radius: 30px;
+  box-shadow: rgba(0, 0, 0, 0.25) -4px 2px 7px, rgba(0, 0, 0, 0.22) -4px 2px 7px;
 `;
 
 const rightTabStyles = css`
   border-bottom-right-radius: 30px;
+  box-shadow: rgba(0, 0, 0, 0.25) 4px 2px 7px, rgba(0, 0, 0, 0.22) 4px 2px 7px;
 `;
 
 const tab = function({ tabName, position }) { return {

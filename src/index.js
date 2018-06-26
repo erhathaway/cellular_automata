@@ -73,6 +73,7 @@ const app = {
   class: rootClassName,
   $type: "div",
   $init: () => {
+    window.helloWorld = 'hi'
     // const helperText = new MDCTextFieldHelperText(document.querySelector('.mdc-text-field-helper-text'));
     // const lineRipple = new MDCLineRipple(document.querySelector('.mdc-line-ripple'));
     // const textField = new MDCTextField(document.querySelector('.mdc-text-field'));

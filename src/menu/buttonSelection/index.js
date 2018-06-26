@@ -2,7 +2,7 @@ import { css } from 'emotion';
 
 import './styles.scss';
 
-const createApp = ({ cellName, labelName, selections }) => {
+const createApp = ({ cellName, labelName, selections, updateFn }) => {
   const validations = [
     { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
     { validate: v => v % 1 === 0, error: 'Must be a whole number' },
@@ -119,7 +119,17 @@ const createApp = ({ cellName, labelName, selections }) => {
     $components: [label, inputContainer],
     _updateObservers: [],
     _subscribeToUpdates: function(observer) { this._updateObservers.push(observer) },
-    $update: function() { this._updateObservers.forEach(fn => fn() )},
+    $update: function() {
+      this._updateObservers.forEach(fn => fn() )
+
+      if (updateFn) {
+        const cell = document.getElementById('automata-viewer');
+        if (cell) {
+          const fn = cell[updateFn];
+          if (fn) { fn(this._value); };
+        }[updateFn];
+      }
+    },
     _value: selections[0],
     _setValue: function(value) { this._value = value },
   };

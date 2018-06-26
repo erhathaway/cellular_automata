@@ -2,7 +2,7 @@ import { css } from 'emotion';
 
 import './styles.scss';
 
-const createApp = ({ cellName, labelName, inputElementAttributes }) => {
+const createApp = ({ cellName, labelName, inputElementAttributes, updateFn }) => {
   const validations = [
     { validate: v => (v >= 0) && (v <= 255), error: 'Must be between 0 to 255' },
     { validate: v => v % 1 === 0, error: 'Must be a whole number' },
@@ -44,11 +44,13 @@ const createApp = ({ cellName, labelName, inputElementAttributes }) => {
       }, [])
 
       if (errors.length > 0) {
+        this._setIsValid(false);
         const msg = errors[0];
-        e.target.setCustomValidity(msg)
-        this._setHelperText(msg)
+        e.target.setCustomValidity(msg);
+        this._setHelperText(msg);
       } else {
-        this._removeHelperText()
+        this._setIsValid(true);
+        this._removeHelperText();
         this._setValue(value);
       }
     },
@@ -140,12 +142,23 @@ const createApp = ({ cellName, labelName, inputElementAttributes }) => {
     $components: [label, inputContainer, helper],
     _value: undefined,
     _setValue: function(value) { this._value = value },
+    _isValid: true,
+    _setIsValid: function(state) { this._isValid = state },
     _setHelperText: function(text) {
       document.getElementById(helper.id).$text = text;
     },
     _removeHelperText: function() {
       document.getElementById(helper.id).$text = '';
     },
+    $update: function() {
+      if (this._isValid === true && updateFn) {
+        const cell = document.getElementById('automata-viewer');
+        if (cell) {
+          const fn = cell[updateFn];
+          if (fn) { fn(this._value); };
+        }[updateFn];
+      }
+    }
   };
 
   return app;
