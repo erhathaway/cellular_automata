@@ -1,14 +1,14 @@
 import { css } from 'emotion';
 import { ruleObject, nextGeneration } from '../automata';
+import OneDimensionViewer from './1d';
 
 const className = css`
-  background-color: lightcyan;
   position: absolute;
   z-index: -1;
   left: 0px;
   top: 0px;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   border-radius: 3px;
   // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   box-shadow: #000000b8 3px 4px 18px 1px;
@@ -88,7 +88,10 @@ const app = {
     this._cellStates = previousGens;
   },
   _visualizeData: function() {
-    this.$components = this._cellStates.map(generation.bind(this));
+    this._viewer.clearScene();
+    this._cellStates.forEach((genState, i) => {
+      this._viewer.addGeneration({ generationState: genState, startY: i*50 });
+    })
   },
   _isRunning: false,
   _runSimulation: function() {
@@ -109,8 +112,9 @@ const app = {
     this._isRunning = false;
   },
   $init: function() {
+    this._viewer = new OneDimensionViewer(this.id);
+    this._viewer.createScene();
     this._runSimulation();
-    // this.sizeObserver = window.addEventListener("resize", this._calcCellDimensions)
   }
 }
 
