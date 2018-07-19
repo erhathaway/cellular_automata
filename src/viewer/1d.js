@@ -9,7 +9,8 @@ import {
 import render from './render';
 
 export default class OneDimensionViewer {
-  constructor(containerElId) {
+  constructor(containerElId, generationGenerator) {
+    this._generationGenerator = generationGenerator;
     this.setContainerById(containerElId);
     this.setPopulationCount(500);
 
@@ -34,7 +35,16 @@ export default class OneDimensionViewer {
 
     this.currentGeneration = 0;
     this.moveSceneDistance = 0;
+
+    this.animationStepsPerUpdate = 5;
+    this.totalDistanceToMovePerAnimation = undefined;
+    this.distanceToMoveOnAnimation = undefined;
+    this.cellDiameter = undefined;
+    this.runSimulation = true;
   }
+
+  turnSimulationOff = () => this.runSimulation = false;
+  turnSimulationOn = () => this.runSimulation = true;
 
   createPoint = ({ startX, startY, geometry }) => {
     const vertex = new Vector3();
@@ -47,6 +57,16 @@ export default class OneDimensionViewer {
 
   updateCellDimensions = () => {
     this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
+    this.distanceToMoveOnAnimation = this.cellDiameter / this.animationStepsPerUpdate;
+    this.resetTotalDistanceToMovePerAnimation();
+  }
+
+  get maxGenerations() {
+    return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
+  }
+
+  resetTotalDistanceToMovePerAnimation = () => {
+    this.totalDistanceToMovePerAnimation = this.cellDiameter;
   }
 
   setPopulationCount = (populationCount) => {
@@ -89,9 +109,15 @@ export default class OneDimensionViewer {
     };
   }
 
-  addGeneration = ({ generationState }) => {
-    const material = new PointsMaterial( { color: 'white', size: this.cellDiameter, sizeAttenuation: true } );
+  getNextGenerationState = () => {
+    this._generationGenerator();
+  }
+
+  addGeneration = () => {
+    const material = new PointsMaterial( { color: 'white', size: this.cellDiameter || 0, sizeAttenuation: true } );
     const geometry = new Geometry();
+
+    const generationState = this._generationGenerator();
 
     this.setPopulationCount(generationState.length)
     generationState.forEach((state, cellNumber) => {
@@ -99,7 +125,7 @@ export default class OneDimensionViewer {
         const xOffset = this.containerWidth / 2;
         const startX = (this.cellDiameter * cellNumber) - xOffset;
 
-        const yOffset = (this.containerHeight / 2);
+        const yOffset = (this.containerHeight / 2) + (this.cellDiameter * 2);
         const startY = (this.currentGeneration * this.cellDiameter) - yOffset;
         this.createPoint({ startX, startY, geometry });
       }
@@ -110,57 +136,38 @@ export default class OneDimensionViewer {
     this.scene.add(pointField);
 
     this.currentGeneration += 1;
+  }
 
-    const maxGenerations = this.containerHeight / this.cellDiameter;
-    if (this.scene.children[0] && this.scene.children.length > maxGenerations + 2) {
-      // if (this.scene.children[0].position.y < this.containerHeight / 2) {
-        this.scene.remove(this.scene.children[0]);
-      // }
-      this.moveSceneDistance += this.cellDiameter;
-      // this.scene.position.y -= this.cellDiameter;
-    }
+  removeGeneration = () => {
+    this.scene.remove(this.scene.children[0]);
   }
 
 
   updateFn = () => {
-    // this.scene.position.y -= this.cellDiameter;
-    // this.scene.children.forEach((ch) => console.log(ch))
-    // const bs = this.scene.children[1].geometry.boundingSphere;
-    // const bottom = this.containerHeight / 2 * - 1 + 1;
-    // if (bs && bs.center) {
-    //   if (bs.center.y < (bottom - 10) || bs.center.y > (bottom + 10)) {
-    //     this.scene.remove(this.scene.children[1]);
-    //   }
-    //   console.log('cell bottom', bs.center.y)
-    // }
+    if (this.runSimulation === true) {
+      const maxGenerations = this.maxGenerations
+      // console.log(maxGenerations)
+      if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
+        this.removeGeneration();
+        // this.addGeneration();
+      }
 
-    // console.log('container bottom', bottom)
-    // if (this.scene.children[0].position.y < (this.containerHeight / 2 * -1)) {
-      // const height = this.scene.children[0].position.y
-      // console.log('height', height)
-      // this.scene.remove(this.scene.children[0]);
-    // }
+      this.scene.translateY(-this.distanceToMoveOnAnimation)
 
-    if (this.moveSceneDistance >= 0.001) {
-      let move = this.moveSceneDistance / 10;
-      // if (this.moveTotal === undefined) { this.moveTotal = 0}
-      // if (this.moveCount === undefined) { this.moveCount = 0}
-      // this.moveTotal += move;
-      // this.moveCount += 1;
-      // this.moveAvg = this.moveTotal / this.moveCount;
-      // console.log('move avg', this.moveAvg, 'move', move)
-      // if (this.moveAvg / move < 1.1 && this.moveAvg / move > .9) {
-        // move = this.moveAvg;
-      // }
-      this.scene.position.y -= move;
-      this.moveSceneDistance -= move;
-      // console.log('move', move)
-      // console.log('dist left', this.moveSceneDistance)
-      // requestAnimationFrame(animate);
+      this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+      if (this.totalDistanceToMovePerAnimation < this.distanceToMoveOnAnimation) {
+        this.resetTotalDistanceToMovePerAnimation();
+
+        this.addGeneration();
+        // if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
+        //   this.removeGeneration();
+        // }
+      }
     } else {
-      this.moveSceneDistance = 0;
-      // this.scene.remove(this.scene.children[0])
-
+      if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
+        this.scene.translateY(-this.distanceToMoveOnAnimation)
+        this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+      }
     }
   }
 

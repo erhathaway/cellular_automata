@@ -48125,9 +48125,10 @@
   });
 
   class OneDimensionViewer {
-    constructor(containerElId) {
+    constructor(containerElId, generationGenerator) {
       _initialiseProps.call(this);
 
+      this._generationGenerator = generationGenerator;
       this.setContainerById(containerElId);
       this.setPopulationCount(500);
       this.scene = new Scene();
@@ -48151,11 +48152,24 @@
       this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
       this.currentGeneration = 0;
       this.moveSceneDistance = 0;
+      this.animationStepsPerUpdate = 5;
+      this.totalDistanceToMovePerAnimation = undefined;
+      this.distanceToMoveOnAnimation = undefined;
+      this.cellDiameter = undefined;
+      this.runSimulation = true;
+    }
+
+    get maxGenerations() {
+      return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
     }
 
   }
 
   var _initialiseProps = function () {
+    this.turnSimulationOff = () => this.runSimulation = false;
+
+    this.turnSimulationOn = () => this.runSimulation = true;
+
     this.createPoint = ({
       startX,
       startY,
@@ -48170,6 +48184,12 @@
 
     this.updateCellDimensions = () => {
       this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
+      this.distanceToMoveOnAnimation = this.cellDiameter / this.animationStepsPerUpdate;
+      this.resetTotalDistanceToMovePerAnimation();
+    };
+
+    this.resetTotalDistanceToMovePerAnimation = () => {
+      this.totalDistanceToMovePerAnimation = this.cellDiameter;
     };
 
     this.setPopulationCount = populationCount => {
@@ -48205,21 +48225,26 @@
       }
     };
 
-    this.addGeneration = ({
-      generationState
-    }) => {
+    this.getNextGenerationState = () => {
+      this._generationGenerator();
+    };
+
+    this.addGeneration = () => {
       const material = new PointsMaterial({
         color: 'white',
-        size: this.cellDiameter,
+        size: this.cellDiameter || 0,
         sizeAttenuation: true
       });
       const geometry = new Geometry();
+
+      const generationState = this._generationGenerator();
+
       this.setPopulationCount(generationState.length);
       generationState.forEach((state, cellNumber) => {
         if (state === 1) {
           const xOffset = this.containerWidth / 2;
           const startX = this.cellDiameter * cellNumber - xOffset;
-          const yOffset = this.containerHeight / 2;
+          const yOffset = this.containerHeight / 2 + this.cellDiameter * 2;
           const startY = this.currentGeneration * this.cellDiameter - yOffset;
           this.createPoint({
             startX,
@@ -48232,50 +48257,34 @@
       const pointField = new Points(geometry, material);
       this.scene.add(pointField);
       this.currentGeneration += 1;
-      const maxGenerations = this.containerHeight / this.cellDiameter;
+    };
 
-      if (this.scene.children[0] && this.scene.children.length > maxGenerations + 2) {
-        // if (this.scene.children[0].position.y < this.containerHeight / 2) {
-        this.scene.remove(this.scene.children[0]); // }
-
-        this.moveSceneDistance += this.cellDiameter; // this.scene.position.y -= this.cellDiameter;
-      }
+    this.removeGeneration = () => {
+      this.scene.remove(this.scene.children[0]);
     };
 
     this.updateFn = () => {
-      // this.scene.position.y -= this.cellDiameter;
-      // this.scene.children.forEach((ch) => console.log(ch))
-      // const bs = this.scene.children[1].geometry.boundingSphere;
-      // const bottom = this.containerHeight / 2 * - 1 + 1;
-      // if (bs && bs.center) {
-      //   if (bs.center.y < (bottom - 10) || bs.center.y > (bottom + 10)) {
-      //     this.scene.remove(this.scene.children[1]);
-      //   }
-      //   console.log('cell bottom', bs.center.y)
-      // }
-      // console.log('container bottom', bottom)
-      // if (this.scene.children[0].position.y < (this.containerHeight / 2 * -1)) {
-      // const height = this.scene.children[0].position.y
-      // console.log('height', height)
-      // this.scene.remove(this.scene.children[0]);
-      // }
-      if (this.moveSceneDistance >= 0.001) {
-        let move = this.moveSceneDistance / 10; // if (this.moveTotal === undefined) { this.moveTotal = 0}
-        // if (this.moveCount === undefined) { this.moveCount = 0}
-        // this.moveTotal += move;
-        // this.moveCount += 1;
-        // this.moveAvg = this.moveTotal / this.moveCount;
-        // console.log('move avg', this.moveAvg, 'move', move)
-        // if (this.moveAvg / move < 1.1 && this.moveAvg / move > .9) {
-        // move = this.moveAvg;
-        // }
+      if (this.runSimulation === true) {
+        const maxGenerations = this.maxGenerations; // console.log(maxGenerations)
 
-        this.scene.position.y -= move;
-        this.moveSceneDistance -= move; // console.log('move', move)
-        // console.log('dist left', this.moveSceneDistance)
-        // requestAnimationFrame(animate);
+        if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
+          this.removeGeneration(); // this.addGeneration();
+        }
+
+        this.scene.translateY(-this.distanceToMoveOnAnimation);
+        this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+
+        if (this.totalDistanceToMovePerAnimation < this.distanceToMoveOnAnimation) {
+          this.resetTotalDistanceToMovePerAnimation();
+          this.addGeneration(); // if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
+          //   this.removeGeneration();
+          // }
+        }
       } else {
-        this.moveSceneDistance = 0; // this.scene.remove(this.scene.children[0])
+        if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
+          this.scene.translateY(-this.distanceToMoveOnAnimation);
+          this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+        }
       }
     };
 
@@ -48384,6 +48393,7 @@
       }
     },
     _calcNextGenerationCellStates: function () {
+      // console.log('this', this._cellStates)
       const genCopy = this._cellStates;
       const lastGen = genCopy.slice(-1)[0];
       const nextGen = nextGeneration(lastGen, this._ruleObject);
@@ -48391,58 +48401,45 @@
       const previousGens = this._cellStates.slice(-this._generations);
 
       const newGens = previousGens.push(nextGen);
-      this._cellStates = previousGens;
-    },
-    _visualizeData: function () {
-      const nextGenToVisualize = this._cellStates.slice(-1)[0];
+      this._cellStates = previousGens; // console.log('next gen', nextGen)
 
-      this._viewer.addGeneration({
-        generationState: nextGenToVisualize
-      });
+      return nextGen;
     },
     _runSimulation: function () {
-      if (this._isRunning === false) {
-        this._isRunning = true;
-      }
-
-      if (this._runSimulationID === undefined) {
-        this._runSimulationID = setInterval(function () {
-          this._calcNextGenerationCellStates();
-
-          this._visualizeData();
-        }.bind(this), 200);
-      }
+      this._viewer.turnSimulationOn();
     },
     _stopSimulation: function () {
-      if (this._runSimulationID) {
-        clearInterval(this._runSimulationID);
-        this._runSimulationID = undefined;
-      }
+      this._viewer.turnSimulationOff();
     },
     _bulkCreateGenerations: function (numberOfGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
       }
 
+      console.log(numberOfGenerations);
       let count = 0;
 
       while (count < numberOfGenerations) {
-        this._calcNextGenerationCellStates();
-
-        this._visualizeData();
+        this._viewer.addGeneration();
 
         count += 1;
       }
     },
     _createGenesisGeneration: function () {
-      this._cellStates = [calcFirstGenerationCellState(this._population)];
+      const firstGeneration = calcFirstGenerationCellState(this._population);
+
+      this._viewer.setPopulationCount(firstGeneration.length);
+
+      this._cellStates = [firstGeneration];
     },
     $init: function () {
-      this._viewer = new OneDimensionViewer(this.id);
+      this._viewer = new OneDimensionViewer(this.id, this._calcNextGenerationCellStates);
+
+      this._createGenesisGeneration();
 
       this._viewer.createScene();
 
-      this._bulkCreateGenerations(100);
+      this._bulkCreateGenerations(this._viewer.maxGenerations);
 
       this._runSimulation();
     }

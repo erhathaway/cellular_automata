@@ -89,49 +89,41 @@ const app = {
     }
   },
   _calcNextGenerationCellStates: function() {
+    // console.log('this', this._cellStates)
     const genCopy = this._cellStates;
     const lastGen = genCopy.slice(-1)[0];
     const nextGen = nextGeneration(lastGen, this._ruleObject);
     const previousGens = this._cellStates.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
     this._cellStates = previousGens;
-  },
-  _visualizeData: function() {
-    const nextGenToVisualize = this._cellStates.slice(-1)[0];
-    this._viewer.addGeneration({ generationState: nextGenToVisualize });
+    // console.log('next gen', nextGen)
+    return nextGen;
   },
   _runSimulation: function() {
-    if (this._isRunning === false) { this._isRunning = true; }
-    if (this._runSimulationID === undefined) {
-      this._runSimulationID = setInterval(function() {
-        this._calcNextGenerationCellStates()
-        this._visualizeData();
-      }.bind(this), 200)
-    }
+    this._viewer.turnSimulationOn();
   },
   _stopSimulation: function() {
-    if (this._runSimulationID) {
-      clearInterval(this._runSimulationID)
-      this._runSimulationID = undefined;
-    }
+    this._viewer.turnSimulationOff();
   },
   _bulkCreateGenerations: function(numberOfGenerations) {
     if (this._cellStates === undefined) { this._createGenesisGeneration(); }
-
+    console.log(numberOfGenerations)
     let count = 0;
     while(count < numberOfGenerations) {
-      this._calcNextGenerationCellStates()
-      this._visualizeData();
+      this._viewer.addGeneration()
       count += 1;
     }
   },
   _createGenesisGeneration: function() {
-    this._cellStates = [calcFirstGenerationCellState(this._population)];
+    const firstGeneration = calcFirstGenerationCellState(this._population);
+    this._viewer.setPopulationCount(firstGeneration.length)
+    this._cellStates = [firstGeneration];
   },
   $init: function() {
-    this._viewer = new OneDimensionViewer(this.id);
+    this._viewer = new OneDimensionViewer(this.id, this._calcNextGenerationCellStates);
+    this._createGenesisGeneration();
     this._viewer.createScene();
-    this._bulkCreateGenerations(100);
+    this._bulkCreateGenerations(this._viewer.maxGenerations);
     this._runSimulation();
   }
 }
