@@ -4,7 +4,7 @@ export default ({ renderer, scene, camera, updateFn, stats }) => {
   };
   const animate = () => {
     requestAnimationFrame(animate);
-    if (updateFn) updateFn();
+    if (updateFn) updateFn(animate);
     render();
     if (stats) stats.update();
   };

@@ -48116,7 +48116,7 @@
 
     const animate = () => {
       requestAnimationFrame(animate);
-      if (updateFn) updateFn();
+      if (updateFn) updateFn(animate);
       render();
       if (stats) stats.update();
     };
@@ -48150,6 +48150,7 @@
       this.camera.lookAt(this.scene.position);
       this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
       this.currentGeneration = 0;
+      this.moveSceneDistance = 0;
     }
 
   }
@@ -48180,7 +48181,6 @@
       this.containerEl = document.getElementById(containerElId);
       this.containerHeight = this.containerEl.clientHeight;
       this.containerWidth = this.containerEl.clientWidth;
-      console.log(this.containerWidth);
       this.updateCellDimensions();
     };
 
@@ -48209,7 +48209,7 @@
       generationState
     }) => {
       const material = new PointsMaterial({
-        color: 'black',
+        color: 'white',
         size: this.cellDiameter,
         sizeAttenuation: true
       });
@@ -48234,9 +48234,48 @@
       this.currentGeneration += 1;
       const maxGenerations = this.containerHeight / this.cellDiameter;
 
-      if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
-        this.scene.remove(this.scene.children[0]);
-        this.scene.position.y -= this.cellDiameter;
+      if (this.scene.children[0] && this.scene.children.length > maxGenerations + 2) {
+        // if (this.scene.children[0].position.y < this.containerHeight / 2) {
+        this.scene.remove(this.scene.children[0]); // }
+
+        this.moveSceneDistance += this.cellDiameter; // this.scene.position.y -= this.cellDiameter;
+      }
+    };
+
+    this.updateFn = () => {
+      // this.scene.position.y -= this.cellDiameter;
+      // this.scene.children.forEach((ch) => console.log(ch))
+      // const bs = this.scene.children[1].geometry.boundingSphere;
+      // const bottom = this.containerHeight / 2 * - 1 + 1;
+      // if (bs && bs.center) {
+      //   if (bs.center.y < (bottom - 10) || bs.center.y > (bottom + 10)) {
+      //     this.scene.remove(this.scene.children[1]);
+      //   }
+      //   console.log('cell bottom', bs.center.y)
+      // }
+      // console.log('container bottom', bottom)
+      // if (this.scene.children[0].position.y < (this.containerHeight / 2 * -1)) {
+      // const height = this.scene.children[0].position.y
+      // console.log('height', height)
+      // this.scene.remove(this.scene.children[0]);
+      // }
+      if (this.moveSceneDistance >= 0.001) {
+        let move = this.moveSceneDistance / 10; // if (this.moveTotal === undefined) { this.moveTotal = 0}
+        // if (this.moveCount === undefined) { this.moveCount = 0}
+        // this.moveTotal += move;
+        // this.moveCount += 1;
+        // this.moveAvg = this.moveTotal / this.moveCount;
+        // console.log('move avg', this.moveAvg, 'move', move)
+        // if (this.moveAvg / move < 1.1 && this.moveAvg / move > .9) {
+        // move = this.moveAvg;
+        // }
+
+        this.scene.position.y -= move;
+        this.moveSceneDistance -= move; // console.log('move', move)
+        // console.log('dist left', this.moveSceneDistance)
+        // requestAnimationFrame(animate);
+      } else {
+        this.moveSceneDistance = 0; // this.scene.remove(this.scene.children[0])
       }
     };
 
@@ -48258,12 +48297,14 @@
       render({
         scene: this.scene,
         renderer: this.renderer,
-        camera: this.camera
+        camera: this.camera,
+        updateFn: this.updateFn
       });
     };
   };
 
   const className = css`
+  background-color: black;
   position: absolute;
   z-index: -1;
   left: 0px;
@@ -48369,7 +48410,7 @@
           this._calcNextGenerationCellStates();
 
           this._visualizeData();
-        }.bind(this), 100);
+        }.bind(this), 200);
       }
     },
     _stopSimulation: function () {
@@ -49622,9 +49663,7 @@
       this._active = !this._active;
       const simulator = document.getElementById('automata-viewer');
 
-      simulator._changeRunningState(this._active); // if (this._active === true) { simulator._runSimulation() }
-      // else { simulator._stopSimulation() }
-
+      simulator._changeRunningState(this._active);
     },
     _updateIcon: function () {
       if (this._active) {

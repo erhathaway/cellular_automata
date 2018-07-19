@@ -33,6 +33,7 @@ export default class OneDimensionViewer {
     this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
 
     this.currentGeneration = 0;
+    this.moveSceneDistance = 0;
   }
 
   createPoint = ({ startX, startY, geometry }) => {
@@ -57,7 +58,6 @@ export default class OneDimensionViewer {
     this.containerEl = document.getElementById(containerElId);
     this.containerHeight = this.containerEl.clientHeight;
     this.containerWidth = this.containerEl.clientWidth;
-    console.log(this.containerWidth)
     this.updateCellDimensions();
   }
 
@@ -90,7 +90,7 @@ export default class OneDimensionViewer {
   }
 
   addGeneration = ({ generationState }) => {
-    const material = new PointsMaterial( { color: 'black', size: this.cellDiameter, sizeAttenuation: true } );
+    const material = new PointsMaterial( { color: 'white', size: this.cellDiameter, sizeAttenuation: true } );
     const geometry = new Geometry();
 
     this.setPopulationCount(generationState.length)
@@ -112,9 +112,55 @@ export default class OneDimensionViewer {
     this.currentGeneration += 1;
 
     const maxGenerations = this.containerHeight / this.cellDiameter;
-    if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
-      this.scene.remove(this.scene.children[0])
-      this.scene.position.y -= this.cellDiameter;
+    if (this.scene.children[0] && this.scene.children.length > maxGenerations + 2) {
+      // if (this.scene.children[0].position.y < this.containerHeight / 2) {
+        this.scene.remove(this.scene.children[0]);
+      // }
+      this.moveSceneDistance += this.cellDiameter;
+      // this.scene.position.y -= this.cellDiameter;
+    }
+  }
+
+
+  updateFn = () => {
+    // this.scene.position.y -= this.cellDiameter;
+    // this.scene.children.forEach((ch) => console.log(ch))
+    // const bs = this.scene.children[1].geometry.boundingSphere;
+    // const bottom = this.containerHeight / 2 * - 1 + 1;
+    // if (bs && bs.center) {
+    //   if (bs.center.y < (bottom - 10) || bs.center.y > (bottom + 10)) {
+    //     this.scene.remove(this.scene.children[1]);
+    //   }
+    //   console.log('cell bottom', bs.center.y)
+    // }
+
+    // console.log('container bottom', bottom)
+    // if (this.scene.children[0].position.y < (this.containerHeight / 2 * -1)) {
+      // const height = this.scene.children[0].position.y
+      // console.log('height', height)
+      // this.scene.remove(this.scene.children[0]);
+    // }
+
+    if (this.moveSceneDistance >= 0.001) {
+      let move = this.moveSceneDistance / 10;
+      // if (this.moveTotal === undefined) { this.moveTotal = 0}
+      // if (this.moveCount === undefined) { this.moveCount = 0}
+      // this.moveTotal += move;
+      // this.moveCount += 1;
+      // this.moveAvg = this.moveTotal / this.moveCount;
+      // console.log('move avg', this.moveAvg, 'move', move)
+      // if (this.moveAvg / move < 1.1 && this.moveAvg / move > .9) {
+        // move = this.moveAvg;
+      // }
+      this.scene.position.y -= move;
+      this.moveSceneDistance -= move;
+      // console.log('move', move)
+      // console.log('dist left', this.moveSceneDistance)
+      // requestAnimationFrame(animate);
+    } else {
+      this.moveSceneDistance = 0;
+      // this.scene.remove(this.scene.children[0])
+
     }
   }
 
@@ -141,6 +187,7 @@ export default class OneDimensionViewer {
       scene: this.scene,
       renderer: this.renderer,
       camera: this.camera,
+      updateFn: this.updateFn,
     })
   };
 

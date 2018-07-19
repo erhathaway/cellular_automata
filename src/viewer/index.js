@@ -3,6 +3,7 @@ import { ruleObject, nextGeneration } from '../automata';
 import OneDimensionViewer from './1d';
 
 const className = css`
+  background-color: black;
   position: absolute;
   z-index: -1;
   left: 0px;
@@ -105,7 +106,7 @@ const app = {
       this._runSimulationID = setInterval(function() {
         this._calcNextGenerationCellStates()
         this._visualizeData();
-      }.bind(this), 100)
+      }.bind(this), 200)
     }
   },
   _stopSimulation: function() {
