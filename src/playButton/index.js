@@ -12,14 +12,15 @@ const app = {
   $type: 'button',
   class: 'mdc-fab',
   id: 'play-button',
-  _active: false,
+  _active: true,
   _iconName: 'play_arrow',
   onclick: function() {
     this._active = !this._active;
-    
+
     const simulator = document.getElementById('automata-viewer');
-    if (this._active === true) { simulator._runSimulation() }
-    else { simulator._stopSimulation() }
+    simulator._changeRunningState(this._active);
+    // if (this._active === true) { simulator._runSimulation() }
+    // else { simulator._stopSimulation() }
   },
   _updateIcon: function() {
     if (this._active) { this._iconName = 'pause' }

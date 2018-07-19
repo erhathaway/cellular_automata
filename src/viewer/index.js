@@ -56,7 +56,7 @@ const app = {
   _neighbors: undefined,
   _population: 100,
   _growth: undefined,
-  _generations: 50,
+  _generations: 500,
   _edges: undefined,
   _setRule: function(value) {
     this._rule = value;
@@ -72,12 +72,20 @@ const app = {
 
   _cellStates: undefined,
   _cellDimension: 10,
+  _isRunning: false,
+  _runSimulationID: undefined,
+  _viewer: undefined,
   _calcCellDimensions: function(e) {
     const { width } = this.getBoundingClientRect();
     this._cellDimension = width / this._population;
   },
   $components: undefined,
-  $update: function() {
+  _changeRunningState: function(shouldRun) {
+    if (shouldRun === true) {
+      this._runSimulation();
+    } else if (shouldRun === false) {
+      this._stopSimulation();
+    }
   },
   _calcNextGenerationCellStates: function() {
     const genCopy = this._cellStates;
@@ -88,32 +96,41 @@ const app = {
     this._cellStates = previousGens;
   },
   _visualizeData: function() {
-    this._viewer.clearScene();
-    this._cellStates.forEach((genState, i) => {
-      this._viewer.addGeneration({ generationState: genState, startY: i*50 });
-    })
+    const nextGenToVisualize = this._cellStates.slice(-1)[0];
+    this._viewer.addGeneration({ generationState: nextGenToVisualize });
   },
-  _isRunning: false,
   _runSimulation: function() {
-    const compStart = performance.now();
-    let count = 0;
-    this._calcCellDimensions();
-    this._cellStates = [calcFirstGenerationCellState(this._population)];
-
-    while(count < this._generations) {
-      this._calcNextGenerationCellStates()
-      count += 1;
+    if (this._isRunning === false) { this._isRunning = true; }
+    if (this._runSimulationID === undefined) {
+      this._runSimulationID = setInterval(function() {
+        this._calcNextGenerationCellStates()
+        this._visualizeData();
+      }.bind(this), 100)
     }
-    const compEnd = performance.now();
-    console.log('finish computation', compEnd-compStart, 'ms')
-    this._visualizeData();
   },
   _stopSimulation: function() {
-    this._isRunning = false;
+    if (this._runSimulationID) {
+      clearInterval(this._runSimulationID)
+      this._runSimulationID = undefined;
+    }
+  },
+  _bulkCreateGenerations: function(numberOfGenerations) {
+    if (this._cellStates === undefined) { this._createGenesisGeneration(); }
+
+    let count = 0;
+    while(count < numberOfGenerations) {
+      this._calcNextGenerationCellStates()
+      this._visualizeData();
+      count += 1;
+    }
+  },
+  _createGenesisGeneration: function() {
+    this._cellStates = [calcFirstGenerationCellState(this._population)];
   },
   $init: function() {
     this._viewer = new OneDimensionViewer(this.id);
     this._viewer.createScene();
+    this._bulkCreateGenerations(100);
     this._runSimulation();
   }
 }

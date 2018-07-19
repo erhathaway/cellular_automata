@@ -48168,7 +48168,7 @@
     };
 
     this.updateCellDimensions = () => {
-      this.cellDiameter = this.containerWidth / this.populationCount;
+      this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
     };
 
     this.setPopulationCount = populationCount => {
@@ -48232,6 +48232,12 @@
       const pointField = new Points(geometry, material);
       this.scene.add(pointField);
       this.currentGeneration += 1;
+      const maxGenerations = this.containerHeight / this.cellDiameter;
+
+      if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
+        this.scene.remove(this.scene.children[0]);
+        this.scene.position.y -= this.cellDiameter;
+      }
     };
 
     this.createScene = () => {
@@ -48287,7 +48293,7 @@
     _neighbors: undefined,
     _population: 100,
     _growth: undefined,
-    _generations: 50,
+    _generations: 500,
     _edges: undefined,
     _setRule: function (value) {
       this._rule = value;
@@ -48319,6 +48325,9 @@
     },
     _cellStates: undefined,
     _cellDimension: 10,
+    _isRunning: false,
+    _runSimulationID: undefined,
+    _viewer: undefined,
     _calcCellDimensions: function (e) {
       const {
         width
@@ -48326,7 +48335,13 @@
       this._cellDimension = width / this._population;
     },
     $components: undefined,
-    $update: function () {},
+    _changeRunningState: function (shouldRun) {
+      if (shouldRun === true) {
+        this._runSimulation();
+      } else if (shouldRun === false) {
+        this._stopSimulation();
+      }
+    },
     _calcNextGenerationCellStates: function () {
       const genCopy = this._cellStates;
       const lastGen = genCopy.slice(-1)[0];
@@ -48338,42 +48353,55 @@
       this._cellStates = previousGens;
     },
     _visualizeData: function () {
-      this._viewer.clearScene();
+      const nextGenToVisualize = this._cellStates.slice(-1)[0];
 
-      this._cellStates.forEach((genState, i) => {
-        this._viewer.addGeneration({
-          generationState: genState,
-          startY: i * 50
-        });
+      this._viewer.addGeneration({
+        generationState: nextGenToVisualize
       });
     },
-    _isRunning: false,
     _runSimulation: function () {
-      const compStart = performance.now();
+      if (this._isRunning === false) {
+        this._isRunning = true;
+      }
+
+      if (this._runSimulationID === undefined) {
+        this._runSimulationID = setInterval(function () {
+          this._calcNextGenerationCellStates();
+
+          this._visualizeData();
+        }.bind(this), 100);
+      }
+    },
+    _stopSimulation: function () {
+      if (this._runSimulationID) {
+        clearInterval(this._runSimulationID);
+        this._runSimulationID = undefined;
+      }
+    },
+    _bulkCreateGenerations: function (numberOfGenerations) {
+      if (this._cellStates === undefined) {
+        this._createGenesisGeneration();
+      }
+
       let count = 0;
 
-      this._calcCellDimensions();
-
-      this._cellStates = [calcFirstGenerationCellState(this._population)];
-
-      while (count < this._generations) {
+      while (count < numberOfGenerations) {
         this._calcNextGenerationCellStates();
+
+        this._visualizeData();
 
         count += 1;
       }
-
-      const compEnd = performance.now();
-      console.log('finish computation', compEnd - compStart, 'ms');
-
-      this._visualizeData();
     },
-    _stopSimulation: function () {
-      this._isRunning = false;
+    _createGenesisGeneration: function () {
+      this._cellStates = [calcFirstGenerationCellState(this._population)];
     },
     $init: function () {
       this._viewer = new OneDimensionViewer(this.id);
 
       this._viewer.createScene();
+
+      this._bulkCreateGenerations(100);
 
       this._runSimulation();
     }
@@ -49588,17 +49616,15 @@
     $type: 'button',
     class: 'mdc-fab',
     id: 'play-button',
-    _active: false,
+    _active: true,
     _iconName: 'play_arrow',
     onclick: function () {
       this._active = !this._active;
       const simulator = document.getElementById('automata-viewer');
 
-      if (this._active === true) {
-        simulator._runSimulation();
-      } else {
-        simulator._stopSimulation();
-      }
+      simulator._changeRunningState(this._active); // if (this._active === true) { simulator._runSimulation() }
+      // else { simulator._stopSimulation() }
+
     },
     _updateIcon: function () {
       if (this._active) {

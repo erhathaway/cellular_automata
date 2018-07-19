@@ -45,7 +45,7 @@ export default class OneDimensionViewer {
   }
 
   updateCellDimensions = () => {
-    this.cellDiameter = this.containerWidth / this.populationCount;
+    this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
   }
 
   setPopulationCount = (populationCount) => {
@@ -99,7 +99,7 @@ export default class OneDimensionViewer {
         const xOffset = this.containerWidth / 2;
         const startX = (this.cellDiameter * cellNumber) - xOffset;
 
-        const yOffset = this.containerHeight / 2
+        const yOffset = (this.containerHeight / 2);
         const startY = (this.currentGeneration * this.cellDiameter) - yOffset;
         this.createPoint({ startX, startY, geometry });
       }
@@ -110,6 +110,12 @@ export default class OneDimensionViewer {
     this.scene.add(pointField);
 
     this.currentGeneration += 1;
+
+    const maxGenerations = this.containerHeight / this.cellDiameter;
+    if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
+      this.scene.remove(this.scene.children[0])
+      this.scene.position.y -= this.cellDiameter;
+    }
   }
 
   createScene = () => {
