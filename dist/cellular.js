@@ -48126,11 +48126,153 @@
 
   class OneDimensionViewer {
     constructor(containerElId, generationGenerator) {
-      _initialiseProps.call(this);
+      this.turnSimulationOff = () => this.runSimulation = false;
 
-      this._generationGenerator = generationGenerator;
-      this.setContainerById(containerElId);
-      this.setPopulationCount(500);
+      this.turnSimulationOn = () => this.runSimulation = true;
+
+      this.createPoint = ({
+        startX,
+        startY,
+        geometry
+      }) => {
+        const vertex = new Vector3();
+        vertex.x = startX;
+        vertex.y = startY;
+        vertex.z = 0;
+        geometry.vertices.push(vertex);
+      };
+
+      this.updateCellDimensions = () => {
+        this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
+        this.distanceToMoveOnAnimation = this.cellDiameter / this.animationStepsPerUpdate;
+        this.resetTotalDistanceToMovePerAnimation();
+      };
+
+      this.resetTotalDistanceToMovePerAnimation = () => {
+        this.totalDistanceToMovePerAnimation = this.cellDiameter;
+      };
+
+      this.setPopulationCount = populationCount => {
+        this.populationCount = populationCount;
+        this.updateCellDimensions();
+        console.log('updating population count', this.populationCount);
+      };
+
+      this.handleWindowResize = () => {
+        this.updateCellDimensions();
+      };
+
+      this.setCameraProjectionMatrix = camera => {};
+
+      this.setCameraPosition = camera => {};
+
+      this.setScenePosition = camera => {};
+
+      this.initLight = () => {
+        this.light.position.set(0, 0, 1);
+        this.scene.add(this.light);
+      };
+
+      this.setLightProperties = () => {};
+
+      this.clearScene = () => {
+        this.currentGeneration = 0;
+
+        while (this.scene.children.length > 0) {
+          this.scene.remove.apply(this.scene, this.scene.children);
+        }
+      };
+
+      this.getNextGenerationState = () => {
+        this._generationGenerator();
+      };
+
+      this.addGeneration = () => {
+        const material = new PointsMaterial({
+          color: 'white',
+          size: this.cellDiameter || 0,
+          sizeAttenuation: true
+        });
+        const geometry = new Geometry();
+
+        const generationState = this._generationGenerator();
+
+        this.setPopulationCount(generationState.length);
+        generationState.forEach((state, cellNumber) => {
+          if (state === 1) {
+            const xOffset = this.containerWidth / 2;
+            const startX = this.cellDiameter * cellNumber - xOffset;
+            const yOffset = this.containerHeight / 2 + this.cellDiameter * 2;
+            const startY = this.currentGeneration * this.cellDiameter - yOffset;
+            this.createPoint({
+              startX,
+              startY,
+              geometry
+            });
+          }
+        });
+        geometry.verticesNeedUpdate = true;
+        const pointField = new Points(geometry, material);
+        this.scene.add(pointField);
+        this.currentGeneration += 1;
+      };
+
+      this.removeGeneration = () => {
+        this.scene.remove(this.scene.children[0]);
+      };
+
+      this.updateFn = () => {
+        if (this.runSimulation === true) {
+          const maxGenerations = this.maxGenerations;
+          this.scene.translateY(-this.distanceToMoveOnAnimation);
+          this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+
+          if (this.totalDistanceToMovePerAnimation < this.distanceToMoveOnAnimation) {
+            this.resetTotalDistanceToMovePerAnimation();
+            this.addGeneration();
+
+            if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
+              this.removeGeneration();
+            }
+          }
+        } else {
+          if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
+            this.scene.translateY(-this.distanceToMoveOnAnimation);
+            this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+          }
+        }
+
+        this.camera.updateProjectionMatrix();
+      };
+
+      this.createScene = () => {
+        // while (this.scene.children.length > 0) {
+        // this.scene.remove.apply(this.scene, this.scene.children);
+        // };
+        // this.renderer.setSize(window.innerWidth, window.innerHeight);
+        // document.body.appendChild(this.renderer.domElement);
+        // setCameraProjectionMatrix(camera);
+        // setCameraPosition(camera);
+        // setScenePosition(camera);
+        //
+        // createSky();
+        // createGenerations(0);
+        // createFloor();
+        // createLight();
+        this.containerEl.appendChild(this.renderer.domElement);
+        render({
+          scene: this.scene,
+          renderer: this.renderer,
+          camera: this.camera,
+          updateFn: this.updateFn
+        });
+      };
+
+      this.containerElId = containerElId;
+      this._generationGenerator = generationGenerator; // this.setContainerById(containerElId);
+      // this.setPopulationCount(500);
+
+      this.updateCellDimensions();
       this.scene = new Scene();
       this.renderer = new WebGLRenderer({
         alpha: true,
@@ -48152,165 +48294,31 @@
       this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
       this.currentGeneration = 0;
       this.moveSceneDistance = 0;
-      this.animationStepsPerUpdate = 5;
+      this.animationStepsPerUpdate = 1;
       this.totalDistanceToMovePerAnimation = undefined;
       this.distanceToMoveOnAnimation = undefined;
       this.cellDiameter = undefined;
       this.runSimulation = true;
+      window.addEventListener('resize', this.handleWindowResize);
+    }
+
+    get containerWidth() {
+      return this.containerEl.clientWidth;
+    }
+
+    get containerHeight() {
+      return this.containerEl.clientHeight;
     }
 
     get maxGenerations() {
       return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
     }
 
+    get containerEl() {
+      return document.getElementById(this.containerElId);
+    }
+
   }
-
-  var _initialiseProps = function () {
-    this.turnSimulationOff = () => this.runSimulation = false;
-
-    this.turnSimulationOn = () => this.runSimulation = true;
-
-    this.createPoint = ({
-      startX,
-      startY,
-      geometry
-    }) => {
-      const vertex = new Vector3();
-      vertex.x = startX;
-      vertex.y = startY;
-      vertex.z = 0;
-      geometry.vertices.push(vertex);
-    };
-
-    this.updateCellDimensions = () => {
-      this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
-      this.distanceToMoveOnAnimation = this.cellDiameter / this.animationStepsPerUpdate;
-      this.resetTotalDistanceToMovePerAnimation();
-    };
-
-    this.resetTotalDistanceToMovePerAnimation = () => {
-      this.totalDistanceToMovePerAnimation = this.cellDiameter;
-    };
-
-    this.setPopulationCount = populationCount => {
-      this.populationCount = populationCount;
-      this.updateCellDimensions();
-    };
-
-    this.setContainerById = containerElId => {
-      this.containerEl = document.getElementById(containerElId);
-      this.containerHeight = this.containerEl.clientHeight;
-      this.containerWidth = this.containerEl.clientWidth;
-      this.updateCellDimensions();
-    };
-
-    this.setCameraProjectionMatrix = camera => {};
-
-    this.setCameraPosition = camera => {};
-
-    this.setScenePosition = camera => {};
-
-    this.initLight = () => {
-      this.light.position.set(0, 0, 1);
-      this.scene.add(this.light);
-    };
-
-    this.setLightProperties = () => {};
-
-    this.clearScene = () => {
-      this.currentGeneration = 0;
-
-      while (this.scene.children.length > 0) {
-        this.scene.remove.apply(this.scene, this.scene.children);
-      }
-    };
-
-    this.getNextGenerationState = () => {
-      this._generationGenerator();
-    };
-
-    this.addGeneration = () => {
-      const material = new PointsMaterial({
-        color: 'white',
-        size: this.cellDiameter || 0,
-        sizeAttenuation: true
-      });
-      const geometry = new Geometry();
-
-      const generationState = this._generationGenerator();
-
-      this.setPopulationCount(generationState.length);
-      generationState.forEach((state, cellNumber) => {
-        if (state === 1) {
-          const xOffset = this.containerWidth / 2;
-          const startX = this.cellDiameter * cellNumber - xOffset;
-          const yOffset = this.containerHeight / 2 + this.cellDiameter * 2;
-          const startY = this.currentGeneration * this.cellDiameter - yOffset;
-          this.createPoint({
-            startX,
-            startY,
-            geometry
-          });
-        }
-      });
-      geometry.verticesNeedUpdate = true;
-      const pointField = new Points(geometry, material);
-      this.scene.add(pointField);
-      this.currentGeneration += 1;
-    };
-
-    this.removeGeneration = () => {
-      this.scene.remove(this.scene.children[0]);
-    };
-
-    this.updateFn = () => {
-      if (this.runSimulation === true) {
-        const maxGenerations = this.maxGenerations; // console.log(maxGenerations)
-
-        if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
-          this.removeGeneration(); // this.addGeneration();
-        }
-
-        this.scene.translateY(-this.distanceToMoveOnAnimation);
-        this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
-
-        if (this.totalDistanceToMovePerAnimation < this.distanceToMoveOnAnimation) {
-          this.resetTotalDistanceToMovePerAnimation();
-          this.addGeneration(); // if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
-          //   this.removeGeneration();
-          // }
-        }
-      } else {
-        if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
-          this.scene.translateY(-this.distanceToMoveOnAnimation);
-          this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
-        }
-      }
-    };
-
-    this.createScene = () => {
-      // while (this.scene.children.length > 0) {
-      // this.scene.remove.apply(this.scene, this.scene.children);
-      // };
-      // this.renderer.setSize(window.innerWidth, window.innerHeight);
-      // document.body.appendChild(this.renderer.domElement);
-      // setCameraProjectionMatrix(camera);
-      // setCameraPosition(camera);
-      // setScenePosition(camera);
-      //
-      // createSky();
-      // createGenerations(0);
-      // createFloor();
-      // createLight();
-      this.containerEl.appendChild(this.renderer.domElement);
-      render({
-        scene: this.scene,
-        renderer: this.renderer,
-        camera: this.camera,
-        updateFn: this.updateFn
-      });
-    };
-  };
 
   const className = css`
   background-color: black;
@@ -48341,7 +48349,7 @@
     _ruleObject: ruleObject(110),
     _dimension: undefined,
     _neighbors: undefined,
-    _population: 100,
+    _population: 300,
     _growth: undefined,
     _generations: 500,
     _edges: undefined,
@@ -48359,9 +48367,8 @@
     },
     _setPopulation: function (value) {
       this._population = +value;
-
-      this._runSimulation();
     },
+    // this._viewer.setPopulationCount(this._population); },
     _setGrowth: function (value) {
       this._growth = +value;
     },
@@ -48396,7 +48403,22 @@
       // console.log('this', this._cellStates)
       const genCopy = this._cellStates;
       const lastGen = genCopy.slice(-1)[0];
-      const nextGen = nextGeneration(lastGen, this._ruleObject);
+      console.log(lastGen.length);
+      const diff = this._population - lastGen.length;
+      let lastGenModified;
+      console.log('diff', diff);
+
+      if (diff > 0) {
+        const filler = new Array(diff).fill(0);
+        lastGenModified = [...lastGen, ...filler];
+      } else if (diff < 0) {
+        lastGenModified = lastGen.slice(0, this._population);
+      } else {
+        lastGenModified = lastGen;
+      }
+
+      console.log('last gen modified', lastGenModified);
+      const nextGen = nextGeneration(lastGenModified, this._ruleObject);
 
       const previousGens = this._cellStates.slice(-this._generations);
 

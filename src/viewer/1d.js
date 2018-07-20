@@ -10,9 +10,11 @@ import render from './render';
 
 export default class OneDimensionViewer {
   constructor(containerElId, generationGenerator) {
+    this.containerElId = containerElId
     this._generationGenerator = generationGenerator;
-    this.setContainerById(containerElId);
-    this.setPopulationCount(500);
+    // this.setPopulationCount(500);
+
+    this.updateCellDimensions();
 
     this.scene = new Scene();
     this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
@@ -36,11 +38,12 @@ export default class OneDimensionViewer {
     this.currentGeneration = 0;
     this.moveSceneDistance = 0;
 
-    this.animationStepsPerUpdate = 5;
+    this.animationStepsPerUpdate = 1;
     this.totalDistanceToMovePerAnimation = undefined;
     this.distanceToMoveOnAnimation = undefined;
     this.cellDiameter = undefined;
     this.runSimulation = true;
+    window.addEventListener('resize', this.handleWindowResize);
   }
 
   turnSimulationOff = () => this.runSimulation = false;
@@ -61,8 +64,20 @@ export default class OneDimensionViewer {
     this.resetTotalDistanceToMovePerAnimation();
   }
 
+  get containerWidth() {
+    return this.containerEl.clientWidth;
+  }
+
+  get containerHeight() {
+    return this.containerEl.clientHeight;
+  }
+
   get maxGenerations() {
     return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
+  }
+
+  get containerEl() {
+     return document.getElementById(this.containerElId);
   }
 
   resetTotalDistanceToMovePerAnimation = () => {
@@ -72,12 +87,10 @@ export default class OneDimensionViewer {
   setPopulationCount = (populationCount) => {
     this.populationCount = populationCount;
     this.updateCellDimensions();
+    console.log('updating population count', this.populationCount)
   }
 
-  setContainerById = (containerElId) => {
-    this.containerEl = document.getElementById(containerElId);
-    this.containerHeight = this.containerEl.clientHeight;
-    this.containerWidth = this.containerEl.clientWidth;
+  handleWindowResize = () => {
     this.updateCellDimensions();
   }
 
@@ -142,15 +155,9 @@ export default class OneDimensionViewer {
     this.scene.remove(this.scene.children[0]);
   }
 
-
   updateFn = () => {
     if (this.runSimulation === true) {
       const maxGenerations = this.maxGenerations
-      // console.log(maxGenerations)
-      if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
-        this.removeGeneration();
-        // this.addGeneration();
-      }
 
       this.scene.translateY(-this.distanceToMoveOnAnimation)
 
@@ -159,9 +166,9 @@ export default class OneDimensionViewer {
         this.resetTotalDistanceToMovePerAnimation();
 
         this.addGeneration();
-        // if (this.scene.children[0] && this.scene.children.length > maxGenerations) {
-        //   this.removeGeneration();
-        // }
+        if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
+          this.removeGeneration();
+        }
       }
     } else {
       if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
@@ -169,6 +176,8 @@ export default class OneDimensionViewer {
         this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
       }
     }
+
+    this.camera.updateProjectionMatrix()
   }
 
   createScene = () => {

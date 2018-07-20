@@ -55,7 +55,7 @@ const app = {
   _ruleObject: ruleObject(110),
   _dimension: undefined,
   _neighbors: undefined,
-  _population: 100,
+  _population: 300,
   _growth: undefined,
   _generations: 500,
   _edges: undefined,
@@ -66,7 +66,7 @@ const app = {
   },
   _setDimension: function(value) { this._dimension = +value; },
   _setNeighbors: function(value) { this._neighbors = +value; },
-  _setPopulation: function(value) { this._population = +value; this._runSimulation(); },
+  _setPopulation: function(value) { this._population = +value }, // this._viewer.setPopulationCount(this._population); },
   _setGrowth: function(value) { this._growth = +value; },
   _setGenerations: function(value) { this._generations = +value; this._runSimulation(); },
   _setEdges: function(value) { this._edges = +value; },
@@ -92,7 +92,22 @@ const app = {
     // console.log('this', this._cellStates)
     const genCopy = this._cellStates;
     const lastGen = genCopy.slice(-1)[0];
-    const nextGen = nextGeneration(lastGen, this._ruleObject);
+    console.log(lastGen.length)
+    const diff = this._population - lastGen.length;
+    let lastGenModified;
+    console.log('diff', diff)
+    if (diff > 0) {
+      const filler = new Array(diff).fill(0)
+      lastGenModified = [...lastGen, ...filler]
+    } else if (diff < 0) {
+      lastGenModified = lastGen.slice(0, this._population)
+    } else {
+      lastGenModified = lastGen
+    }
+
+    console.log('last gen modified', lastGenModified)
+
+    const nextGen = nextGeneration(lastGenModified, this._ruleObject);
     const previousGens = this._cellStates.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
     this._cellStates = previousGens;
