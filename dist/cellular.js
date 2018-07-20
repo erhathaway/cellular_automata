@@ -48220,8 +48220,7 @@
       };
 
       this.removeGeneration = () => {
-        console.log(this.scene.position, -this.containerHeight, this.scene.children.length);
-
+        // console.log(this.scene.position, -this.containerHeight, this.scene.children.length)
         if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
           this.scene.remove(this.scene.children[0]);
         }
@@ -48234,7 +48233,7 @@
           if (this.totalDistanceToMovePerAnimation <= 0) {
             // if there is nothing left to move, add a generation;
             this.resetTotalDistanceToMovePerAnimation();
-            this.addGeneration();
+            this.addGeneration(); // this.removeGeneration();
           } else {
             this.scene.translateY(-this.distanceToMoveOnAnimation);
             this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
@@ -48295,7 +48294,7 @@
       this.currentGenerationCount = 0;
       this.currrentGenerationYPosition = this.containerHeight / 2 * -1;
       this.moveSceneDistance = 0;
-      this.animationStepsPerUpdate = 5;
+      this.animationStepsPerUpdate = 2;
       this.totalDistanceToMovePerAnimation = undefined;
       this.distanceToMoveOnAnimation = undefined;
       this.cellDiameter = undefined;

@@ -38,7 +38,7 @@ export default class OneDimensionViewer {
     this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
     this.moveSceneDistance = 0;
 
-    this.animationStepsPerUpdate = 5;
+    this.animationStepsPerUpdate = 2;
     this.totalDistanceToMovePerAnimation = undefined;
     this.distanceToMoveOnAnimation = undefined;
     this.cellDiameter = undefined;
@@ -167,6 +167,7 @@ export default class OneDimensionViewer {
       if (this.totalDistanceToMovePerAnimation <= 0) { // if there is nothing left to move, add a generation;
         this.resetTotalDistanceToMovePerAnimation();
         this.addGeneration();
+        // this.removeGeneration();
       } else {
         this.scene.translateY(-this.distanceToMoveOnAnimation);
         this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
