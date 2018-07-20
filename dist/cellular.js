@@ -48125,7 +48125,7 @@
   });
 
   class OneDimensionViewer {
-    constructor(containerElId, generationGenerator) {
+    constructor(containerElId, getNextGeneration) {
       this.setRendererSize = () => {
         this.renderer.setSize(this.containerWidth, this.containerHeight);
       };
@@ -48146,7 +48146,7 @@
 
       this.setPopulationCount = populationCount => {
         this.populationCount = populationCount;
-        this.updateCellDimensions(); // console.log('updating population count', this.populationCount)
+        this.updateCellDimensions();
       };
 
       this.handleWindowResize = () => {
@@ -48197,59 +48197,54 @@
         });
         const geometry = new Geometry();
 
-        const generationState = this._generationGenerator();
+        const generationState = this._getNextGeneration();
 
-        this.setPopulationCount(generationState.length); // const startY = (this.currentGenerationCount * this.cellDiameter) - yOffset;
-
+        this.setPopulationCount(generationState.length);
         const startY = this.currrentGenerationYPosition;
-        this.currrentGenerationYPosition += this.cellDiameter; // let startX = -this.containerWidth / 2;
-
-        const xOffset = this.containerWidth / 2; // const xOffset = 500;
-
-        console.log('xoffset', xOffset);
+        const xOffset = this.containerWidth / 2;
         generationState.forEach((cellState, cellNumber) => {
           if (cellState === 1) {
-            const startX = this.cellDiameter * cellNumber - xOffset; // const yOffset = (this.containerHeight / 2) + (this.cellDiameter * 2);
-
+            const startX = this.cellDiameter * cellNumber - xOffset;
             this.createPoint({
               startX,
               startY,
               geometry
             });
-          } // startX = startX + this.cellDiameter
-
+          }
         });
         geometry.verticesNeedUpdate = true;
         const pointField = new Points(geometry, material);
         this.scene.add(pointField);
+        this.currrentGenerationYPosition += this.cellDiameter;
         this.currentGenerationCount += 1;
       };
 
       this.removeGeneration = () => {
-        this.scene.remove(this.scene.children[0]);
+        console.log(this.scene.position, -this.containerHeight, this.scene.children.length);
+
+        if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
+          this.scene.remove(this.scene.children[0]);
+        }
       };
 
       this.updateFn = () => {
         if (this.runSimulation === true) {
-          const maxGenerations = this.maxGenerations;
-          this.scene.translateY(-this.distanceToMoveOnAnimation);
-          this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+          this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
 
-          if (this.totalDistanceToMovePerAnimation < this.distanceToMoveOnAnimation) {
+          if (this.totalDistanceToMovePerAnimation <= 0) {
+            // if there is nothing left to move, add a generation;
             this.resetTotalDistanceToMovePerAnimation();
             this.addGeneration();
-
-            if (this.scene.children[0] && this.scene.children.length >= maxGenerations) {
-              this.removeGeneration();
-            }
+          } else {
+            this.scene.translateY(-this.distanceToMoveOnAnimation);
+            this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
           }
         } else {
           if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
             this.scene.translateY(-this.distanceToMoveOnAnimation);
             this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
           }
-        } // this.camera.updateProjectionMatrix()
-
+        }
       };
 
       this.createScene = () => {
@@ -48276,8 +48271,7 @@
       };
 
       this.containerElId = containerElId;
-      this._generationGenerator = generationGenerator; // this.setPopulationCount(500);
-
+      this._getNextGeneration = getNextGeneration;
       this.updateCellDimensions();
       this.scene = new Scene();
       this.renderer = new WebGLRenderer({
@@ -48317,7 +48311,7 @@
       return this.containerEl.clientHeight;
     }
 
-    get maxGenerations() {
+    get maxGenerationsToShow() {
       return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
     }
 
@@ -48338,11 +48332,7 @@
   border-radius: 3px;
   // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   box-shadow: #000000b8 3px 4px 18px 1px;
-  // overflow-y: auto;
-`;
-  const generationClassName = css`
-  display: flex;
-  width: 100%;
+  overflow: hidden;
 `;
 
   const calcFirstGenerationCellState = population => [...new Array(population)].map(() => Math.round(Math.random()));
@@ -48406,13 +48396,17 @@
         this._stopSimulation();
       }
     },
-    _calcNextGenerationCellStates: function () {
-      // console.log('this', this._cellStates)
+    _runSimulation: function () {
+      this._viewer.turnSimulationOn();
+    },
+    _stopSimulation: function () {
+      this._viewer.turnSimulationOff();
+    },
+    _retrieveNextGeneration: function () {
       const genCopy = this._cellStates;
-      const lastGen = genCopy.slice(-1)[0]; // console.log(lastGen.length)
-
+      const lastGen = genCopy.slice(-1)[0];
       const diff = this._population - lastGen.length;
-      let lastGenModified; // console.log('diff', diff)
+      let lastGenModified;
 
       if (diff > 0) {
         const filler = new Array(diff).fill(0);
@@ -48421,36 +48415,25 @@
         lastGenModified = lastGen.slice(0, this._population);
       } else {
         lastGenModified = lastGen;
-      } // console.log('last gen modified', lastGenModified)
-
+      }
 
       const nextGen = nextGeneration(lastGenModified, this._ruleObject);
 
       const previousGens = this._cellStates.slice(-this._generations);
 
       const newGens = previousGens.push(nextGen);
-      this._cellStates = previousGens; // console.log('next gen', nextGen)
-
+      this._cellStates = previousGens;
       return nextGen;
     },
-    _runSimulation: function () {
-      this._viewer.turnSimulationOn();
-    },
-    _stopSimulation: function () {
-      this._viewer.turnSimulationOff();
-    },
-    _bulkCreateGenerations: function (numberOfGenerations) {
+    _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
-      } // console.log(numberOfGenerations)
+      }
 
+      let generationCount;
 
-      let count = 0;
-
-      while (count < numberOfGenerations) {
+      for (generationCount = 0; generationCount < numberOfVisibleGenerations; generationCount++) {
         this._viewer.addGeneration();
-
-        count += 1;
       }
     },
     _createGenesisGeneration: function () {
@@ -48461,13 +48444,13 @@
       this._cellStates = [firstGeneration];
     },
     $init: function () {
-      this._viewer = new OneDimensionViewer(this.id, this._calcNextGenerationCellStates);
-
-      this._createGenesisGeneration();
+      this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
 
       this._viewer.createScene();
 
-      this._bulkCreateGenerations(this._viewer.maxGenerations);
+      this._createGenesisGeneration();
+
+      this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
 
       this._runSimulation();
     }

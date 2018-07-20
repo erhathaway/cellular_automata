@@ -13,37 +13,12 @@ const className = css`
   border-radius: 3px;
   // box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   box-shadow: #000000b8 3px 4px 18px 1px;
-  // overflow-y: auto;
-`;
-
-const generationClassName = css`
-  display: flex;
-  width: 100%;
+  overflow: hidden;
 `;
 
 const calcFirstGenerationCellState = (population) =>
   [...new Array(population)]
     .map(() => Math.round(Math.random()))
-
-function cell(state) {
-  return {
-    $type: 'div',
-    style: `
-      background-color: ${state === 0 ? "transparent" : "black"};
-      height: ${this._cellDimension}px;
-      width: ${this._cellDimension}px;
-      // border-radius: ${this._cellDimension/2}px;
-    `
-  }
-}
-
-function generation(generation){
-  return {
-    $type: 'div',
-    class: generationClassName,
-    $components: generation.map(cell.bind(this))
-  }
-}
 
 const app = {
   $cell: true,
@@ -88,14 +63,19 @@ const app = {
       this._stopSimulation();
     }
   },
-  _calcNextGenerationCellStates: function() {
-    // console.log('this', this._cellStates)
+  _runSimulation: function() {
+    this._viewer.turnSimulationOn();
+  },
+  _stopSimulation: function() {
+    this._viewer.turnSimulationOff();
+  },
+  _retrieveNextGeneration: function() {
     const genCopy = this._cellStates;
     const lastGen = genCopy.slice(-1)[0];
-    // console.log(lastGen.length)
+
     const diff = this._population - lastGen.length;
     let lastGenModified;
-    // console.log('diff', diff)
+
     if (diff > 0) {
       const filler = new Array(diff).fill(0)
       lastGenModified = [...lastGen, ...filler]
@@ -105,28 +85,19 @@ const app = {
       lastGenModified = lastGen
     }
 
-    // console.log('last gen modified', lastGenModified)
-
     const nextGen = nextGeneration(lastGenModified, this._ruleObject);
     const previousGens = this._cellStates.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
     this._cellStates = previousGens;
-    // console.log('next gen', nextGen)
+
     return nextGen;
   },
-  _runSimulation: function() {
-    this._viewer.turnSimulationOn();
-  },
-  _stopSimulation: function() {
-    this._viewer.turnSimulationOff();
-  },
-  _bulkCreateGenerations: function(numberOfGenerations) {
+  _bulkCreateGenerations: function(numberOfVisibleGenerations) {
     if (this._cellStates === undefined) { this._createGenesisGeneration(); }
-    // console.log(numberOfGenerations)
-    let count = 0;
-    while(count < numberOfGenerations) {
+
+    let generationCount;
+    for (generationCount = 0; generationCount < numberOfVisibleGenerations; generationCount++ ) {
       this._viewer.addGeneration()
-      count += 1;
     }
   },
   _createGenesisGeneration: function() {
@@ -135,10 +106,10 @@ const app = {
     this._cellStates = [firstGeneration];
   },
   $init: function() {
-    this._viewer = new OneDimensionViewer(this.id, this._calcNextGenerationCellStates);
-    this._createGenesisGeneration();
+    this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
     this._viewer.createScene();
-    this._bulkCreateGenerations(this._viewer.maxGenerations);
+    this._createGenesisGeneration();
+    this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
     this._runSimulation();
   }
 }
