@@ -48248,9 +48248,8 @@
             this.scene.translateY(-this.distanceToMoveOnAnimation);
             this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
           }
-        }
+        } // this.camera.updateProjectionMatrix()
 
-        this.camera.updateProjectionMatrix();
       };
 
       this.createScene = () => {
@@ -48302,7 +48301,7 @@
       this.currentGenerationCount = 0;
       this.currrentGenerationYPosition = this.containerHeight / 2 * -1;
       this.moveSceneDistance = 0;
-      this.animationStepsPerUpdate = 1;
+      this.animationStepsPerUpdate = 5;
       this.totalDistanceToMovePerAnimation = undefined;
       this.distanceToMoveOnAnimation = undefined;
       this.cellDiameter = undefined;
@@ -48357,7 +48356,7 @@
     _ruleObject: ruleObject(110),
     _dimension: undefined,
     _neighbors: undefined,
-    _population: 300,
+    _population: 200,
     _growth: undefined,
     _generations: 500,
     _edges: undefined,

@@ -39,7 +39,7 @@ export default class OneDimensionViewer {
     this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
     this.moveSceneDistance = 0;
 
-    this.animationStepsPerUpdate = 1;
+    this.animationStepsPerUpdate = 5;
     this.totalDistanceToMovePerAnimation = undefined;
     this.distanceToMoveOnAnimation = undefined;
     this.cellDiameter = undefined;
@@ -188,7 +188,7 @@ export default class OneDimensionViewer {
       }
     }
 
-    this.camera.updateProjectionMatrix()
+    // this.camera.updateProjectionMatrix()
   }
 
   createScene = () => {
