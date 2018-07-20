@@ -33,9 +33,10 @@ export default class OneDimensionViewer {
   	this.scene.add(this.camera);
   	this.camera.position.set(0, 0, 360);
   	this.camera.lookAt(this.scene.position);
-    this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
+    this.setRendererSize();
 
-    this.currentGeneration = 0;
+    this.currentGenerationCount = 0;
+    this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
     this.moveSceneDistance = 0;
 
     this.animationStepsPerUpdate = 1;
@@ -46,17 +47,12 @@ export default class OneDimensionViewer {
     window.addEventListener('resize', this.handleWindowResize);
   }
 
+  setRendererSize = () => {
+    this.renderer.setSize(this.containerWidth, this.containerHeight);
+  }
+
   turnSimulationOff = () => this.runSimulation = false;
   turnSimulationOn = () => this.runSimulation = true;
-
-  createPoint = ({ startX, startY, geometry }) => {
-    const vertex = new Vector3();
-    vertex.x = startX;
-    vertex.y = startY;
-    vertex.z = 0;
-
-    geometry.vertices.push(vertex);
-  }
 
   updateCellDimensions = () => {
     this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
@@ -87,11 +83,14 @@ export default class OneDimensionViewer {
   setPopulationCount = (populationCount) => {
     this.populationCount = populationCount;
     this.updateCellDimensions();
-    console.log('updating population count', this.populationCount)
+    // console.log('updating population count', this.populationCount)
   }
 
   handleWindowResize = () => {
     this.updateCellDimensions();
+    this.setRendererSize();
+    this.camera.aspect = this.containerWidth / this.containerHeight;
+    this.camera.updateProjectionMatrix();
   }
 
   setCameraProjectionMatrix = (camera) => {
@@ -116,14 +115,19 @@ export default class OneDimensionViewer {
   }
 
   clearScene = () => {
-    this.currentGeneration = 0;
+    this.currentGenerationCount = 0;
     while (this.scene.children.length > 0) {
       this.scene.remove.apply(this.scene, this.scene.children);
     };
   }
 
-  getNextGenerationState = () => {
-    this._generationGenerator();
+  createPoint = ({ startX, startY, geometry }) => {
+    const vertex = new Vector3();
+    vertex.x = startX;
+    vertex.y = startY;
+    vertex.z = 0;
+
+    geometry.vertices.push(vertex);
   }
 
   addGeneration = () => {
@@ -133,22 +137,29 @@ export default class OneDimensionViewer {
     const generationState = this._generationGenerator();
 
     this.setPopulationCount(generationState.length)
-    generationState.forEach((state, cellNumber) => {
-      if (state === 1) {
-        const xOffset = this.containerWidth / 2;
+    // const startY = (this.currentGenerationCount * this.cellDiameter) - yOffset;
+    const startY = this.currrentGenerationYPosition;
+    this.currrentGenerationYPosition += this.cellDiameter;
+    // let startX = -this.containerWidth / 2;
+    const xOffset = this.containerWidth / 2;
+    // const xOffset = 500;
+    console.log('xoffset', xOffset)
+
+    generationState.forEach((cellState, cellNumber) => {
+      if (cellState === 1) {
         const startX = (this.cellDiameter * cellNumber) - xOffset;
 
-        const yOffset = (this.containerHeight / 2) + (this.cellDiameter * 2);
-        const startY = (this.currentGeneration * this.cellDiameter) - yOffset;
+        // const yOffset = (this.containerHeight / 2) + (this.cellDiameter * 2);
         this.createPoint({ startX, startY, geometry });
       }
+      // startX = startX + this.cellDiameter
     });
 
     geometry.verticesNeedUpdate = true
     const pointField = new Points(geometry, material);
     this.scene.add(pointField);
 
-    this.currentGeneration += 1;
+    this.currentGenerationCount += 1;
   }
 
   removeGeneration = () => {

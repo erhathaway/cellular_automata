@@ -48126,21 +48126,13 @@
 
   class OneDimensionViewer {
     constructor(containerElId, generationGenerator) {
+      this.setRendererSize = () => {
+        this.renderer.setSize(this.containerWidth, this.containerHeight);
+      };
+
       this.turnSimulationOff = () => this.runSimulation = false;
 
       this.turnSimulationOn = () => this.runSimulation = true;
-
-      this.createPoint = ({
-        startX,
-        startY,
-        geometry
-      }) => {
-        const vertex = new Vector3();
-        vertex.x = startX;
-        vertex.y = startY;
-        vertex.z = 0;
-        geometry.vertices.push(vertex);
-      };
 
       this.updateCellDimensions = () => {
         this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
@@ -48154,12 +48146,14 @@
 
       this.setPopulationCount = populationCount => {
         this.populationCount = populationCount;
-        this.updateCellDimensions();
-        console.log('updating population count', this.populationCount);
+        this.updateCellDimensions(); // console.log('updating population count', this.populationCount)
       };
 
       this.handleWindowResize = () => {
         this.updateCellDimensions();
+        this.setRendererSize();
+        this.camera.aspect = this.containerWidth / this.containerHeight;
+        this.camera.updateProjectionMatrix();
       };
 
       this.setCameraProjectionMatrix = camera => {};
@@ -48176,15 +48170,23 @@
       this.setLightProperties = () => {};
 
       this.clearScene = () => {
-        this.currentGeneration = 0;
+        this.currentGenerationCount = 0;
 
         while (this.scene.children.length > 0) {
           this.scene.remove.apply(this.scene, this.scene.children);
         }
       };
 
-      this.getNextGenerationState = () => {
-        this._generationGenerator();
+      this.createPoint = ({
+        startX,
+        startY,
+        geometry
+      }) => {
+        const vertex = new Vector3();
+        vertex.x = startX;
+        vertex.y = startY;
+        vertex.z = 0;
+        geometry.vertices.push(vertex);
       };
 
       this.addGeneration = () => {
@@ -48197,24 +48199,30 @@
 
         const generationState = this._generationGenerator();
 
-        this.setPopulationCount(generationState.length);
-        generationState.forEach((state, cellNumber) => {
-          if (state === 1) {
-            const xOffset = this.containerWidth / 2;
-            const startX = this.cellDiameter * cellNumber - xOffset;
-            const yOffset = this.containerHeight / 2 + this.cellDiameter * 2;
-            const startY = this.currentGeneration * this.cellDiameter - yOffset;
+        this.setPopulationCount(generationState.length); // const startY = (this.currentGenerationCount * this.cellDiameter) - yOffset;
+
+        const startY = this.currrentGenerationYPosition;
+        this.currrentGenerationYPosition += this.cellDiameter; // let startX = -this.containerWidth / 2;
+
+        const xOffset = this.containerWidth / 2; // const xOffset = 500;
+
+        console.log('xoffset', xOffset);
+        generationState.forEach((cellState, cellNumber) => {
+          if (cellState === 1) {
+            const startX = this.cellDiameter * cellNumber - xOffset; // const yOffset = (this.containerHeight / 2) + (this.cellDiameter * 2);
+
             this.createPoint({
               startX,
               startY,
               geometry
             });
-          }
+          } // startX = startX + this.cellDiameter
+
         });
         geometry.verticesNeedUpdate = true;
         const pointField = new Points(geometry, material);
         this.scene.add(pointField);
-        this.currentGeneration += 1;
+        this.currentGenerationCount += 1;
       };
 
       this.removeGeneration = () => {
@@ -48269,8 +48277,7 @@
       };
 
       this.containerElId = containerElId;
-      this._generationGenerator = generationGenerator; // this.setContainerById(containerElId);
-      // this.setPopulationCount(500);
+      this._generationGenerator = generationGenerator; // this.setPopulationCount(500);
 
       this.updateCellDimensions();
       this.scene = new Scene();
@@ -48291,8 +48298,9 @@
       this.scene.add(this.camera);
       this.camera.position.set(0, 0, 360);
       this.camera.lookAt(this.scene.position);
-      this.renderer.setSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
-      this.currentGeneration = 0;
+      this.setRendererSize();
+      this.currentGenerationCount = 0;
+      this.currrentGenerationYPosition = this.containerHeight / 2 * -1;
       this.moveSceneDistance = 0;
       this.animationStepsPerUpdate = 1;
       this.totalDistanceToMovePerAnimation = undefined;
@@ -48402,11 +48410,10 @@
     _calcNextGenerationCellStates: function () {
       // console.log('this', this._cellStates)
       const genCopy = this._cellStates;
-      const lastGen = genCopy.slice(-1)[0];
-      console.log(lastGen.length);
+      const lastGen = genCopy.slice(-1)[0]; // console.log(lastGen.length)
+
       const diff = this._population - lastGen.length;
-      let lastGenModified;
-      console.log('diff', diff);
+      let lastGenModified; // console.log('diff', diff)
 
       if (diff > 0) {
         const filler = new Array(diff).fill(0);
@@ -48415,9 +48422,9 @@
         lastGenModified = lastGen.slice(0, this._population);
       } else {
         lastGenModified = lastGen;
-      }
+      } // console.log('last gen modified', lastGenModified)
 
-      console.log('last gen modified', lastGenModified);
+
       const nextGen = nextGeneration(lastGenModified, this._ruleObject);
 
       const previousGens = this._cellStates.slice(-this._generations);
@@ -48436,9 +48443,9 @@
     _bulkCreateGenerations: function (numberOfGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
-      }
+      } // console.log(numberOfGenerations)
 
-      console.log(numberOfGenerations);
+
       let count = 0;
 
       while (count < numberOfGenerations) {
