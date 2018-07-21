@@ -48110,18 +48110,23 @@
     updateFn,
     stats
   }) => {
+    let reqID = undefined;
+
     const render = () => {
       renderer.render(scene, camera);
     };
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      reqID = requestAnimationFrame(animate);
       if (updateFn) updateFn(animate);
       render();
       if (stats) stats.update();
     };
 
-    requestAnimationFrame(animate);
+    reqID = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(reqID);
+    };
   });
 
   class OneDimensionViewer {
@@ -48195,7 +48200,9 @@
           size: this.cellDiameter || 0,
           sizeAttenuation: true
         });
+        this.materials.push(material);
         const geometry = new Geometry();
+        this.geometries.push(geometry);
 
         const generationState = this._getNextGeneration();
 
@@ -48211,18 +48218,57 @@
               geometry
             });
           }
-        });
-        geometry.verticesNeedUpdate = true;
+        }); // geometry.verticesNeedUpdate = true
+
         const pointField = new Points(geometry, material);
+        this.meshes.push(pointField);
         this.scene.add(pointField);
         this.currrentGenerationYPosition += this.cellDiameter;
         this.currentGenerationCount += 1;
       };
 
+      this.dispose = obj => {
+        Object.keys(obj).forEach(key => {
+          if (obj[key] && typeof obj[key].dispose === 'function') {
+            try {
+              this.dispose(obj[key]);
+            } catch (e) {}
+          }
+
+          if (typeof obj.dispose === 'function') {
+            try {
+              obj.dispose();
+            } catch (e) {}
+          }
+
+          if (key !== 'forceContextLoss') {
+            try {
+              obj[key] = null;
+            } catch (e) {}
+          }
+        });
+      };
+
+      this.cleanUpRefsByMesh = (mesh, deleteMesh) => {
+        if (deleteMesh) {
+          this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+        }
+
+        const geometry = mesh.geometry;
+        this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+        const material = mesh.material;
+        this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+        this.scene.remove(mesh);
+        this.dispose(geometry);
+        this.dispose(material);
+        this.dispose(mesh);
+      };
+
       this.removeGeneration = () => {
-        // console.log(this.scene.position, -this.containerHeight, this.scene.children.length)
         if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-          this.scene.remove(this.scene.children[0]);
+          this.scene.remove(this.camera);
+          const mesh = this.meshes.shift();
+          this.cleanUpRefsByMesh(mesh);
         }
       };
 
@@ -48261,7 +48307,7 @@
         // createFloor();
         // createLight();
         this.containerEl.appendChild(this.renderer.domElement);
-        render({
+        this.cancelRender = render({
           scene: this.scene,
           renderer: this.renderer,
           camera: this.camera,
@@ -48269,6 +48315,27 @@
         });
       };
 
+      this.quit = () => {
+        this.cancelRender();
+        this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
+        this.dispose(this.camera);
+        this.dispose(this.light);
+        this.dispose(this.scene);
+        this.dispose(this.renderer);
+        this.renderer.forceContextLoss();
+        this.renderer.context = null;
+        this.renderer.domElement = null;
+        this.renderer = null;
+        this.camera = null;
+        this.scene = null;
+        this.light = null;
+      };
+
+      this.cleanUp = () => {
+        this.renderer.forceContextLoss();
+      };
+
+      this.dimension = '1D';
       this.containerElId = containerElId;
       this._getNextGeneration = getNextGeneration;
       this.updateCellDimensions();
@@ -48300,6 +48367,10 @@
       this.cellDiameter = undefined;
       this.runSimulation = true;
       window.addEventListener('resize', this.handleWindowResize);
+      this.materials = [];
+      this.geometries = [];
+      this.meshes = [];
+      this.vectors = [];
     }
 
     get containerWidth() {
@@ -48343,7 +48414,7 @@
     // automata model
     _rule: undefined,
     _ruleObject: ruleObject(110),
-    _dimension: undefined,
+    _dimension: '1D',
     _neighbors: undefined,
     _population: 200,
     _growth: undefined,
@@ -48356,7 +48427,9 @@
       this._runSimulation();
     },
     _setDimension: function (value) {
-      this._dimension = +value;
+      this._dimension = value;
+
+      this._setViewer();
     },
     _setNeighbors: function (value) {
       this._neighbors = +value;
@@ -48442,14 +48515,35 @@
 
       this._cellStates = [firstGeneration];
     },
-    $init: function () {
-      this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
+    _setViewer: function () {
+      switch (this._dimension) {
+        case '1D':
+          if (this._viewer && this._viewer.dimension === '1D') break;
+          if (this._viewer) this._viewer.quit();
+          this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
+          break;
 
-      this._viewer.createScene();
+        case '2D':
+          if (this._viewer && this._viewer.dimension === '2D') break;
+          if (this._viewer) this._viewer.quit();
+          this._viewer = null; // this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
+
+          break;
+      }
+
+      if (this._viewer !== undefined) {
+        console.log('here'); // this._viewer.createScene();
+        // this._runSimulation();
+      }
+    },
+    $init: function () {
+      this._setViewer();
 
       this._createGenesisGeneration();
 
       this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+
+      this._viewer.createScene();
 
       this._runSimulation();
     }

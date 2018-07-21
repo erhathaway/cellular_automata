@@ -1,12 +1,17 @@
 export default ({ renderer, scene, camera, updateFn, stats }) => {
+  let reqID = undefined;
   const render = () => {
     renderer.render( scene, camera );
   };
   const animate = () => {
-    requestAnimationFrame(animate);
+    reqID = requestAnimationFrame(animate);
     if (updateFn) updateFn(animate);
     render();
     if (stats) stats.update();
   };
-  requestAnimationFrame(animate);
+  reqID = requestAnimationFrame(animate);
+
+  return () => {
+    cancelAnimationFrame(reqID)
+  };
 }

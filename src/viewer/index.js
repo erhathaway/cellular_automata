@@ -28,7 +28,7 @@ const app = {
   // automata model
   _rule: undefined,
   _ruleObject: ruleObject(110),
-  _dimension: undefined,
+  _dimension: '1D',
   _neighbors: undefined,
   _population: 200,
   _growth: undefined,
@@ -39,7 +39,7 @@ const app = {
     this._ruleObject = ruleObject(value);
     this._runSimulation();
   },
-  _setDimension: function(value) { this._dimension = +value; },
+  _setDimension: function(value) { this._dimension = value; this._setViewer() },
   _setNeighbors: function(value) { this._neighbors = +value; },
   _setPopulation: function(value) { this._population = +value }, // this._viewer.setPopulationCount(this._population); },
   _setGrowth: function(value) { this._growth = +value; },
@@ -105,11 +105,34 @@ const app = {
     this._viewer.setPopulationCount(firstGeneration.length)
     this._cellStates = [firstGeneration];
   },
+  _setViewer: function() {
+    switch(this._dimension) {
+      case '1D' :
+        if (this._viewer && this._viewer.dimension === '1D') break;
+        if (this._viewer) this._viewer.quit();
+
+        this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
+        break;
+      case '2D' :
+        if (this._viewer && this._viewer.dimension === '2D') break;
+        if (this._viewer) this._viewer.quit();
+        this._viewer = null;
+        // this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
+        break;
+    }
+
+    if (this._viewer !== undefined) {
+      console.log('here')
+      // this._viewer.createScene();
+      // this._runSimulation();
+    }
+  },
   $init: function() {
-    this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
-    this._viewer.createScene();
+    this._setViewer();
     this._createGenesisGeneration();
     this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+    this._viewer.createScene();
+
     this._runSimulation();
   }
 }

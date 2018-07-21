@@ -10,6 +10,8 @@ import render from './render';
 
 export default class OneDimensionViewer {
   constructor(containerElId, getNextGeneration) {
+    this.dimension = '1D';
+
     this.containerElId = containerElId
     this._getNextGeneration = getNextGeneration;
 
@@ -44,6 +46,11 @@ export default class OneDimensionViewer {
     this.cellDiameter = undefined;
     this.runSimulation = true;
     window.addEventListener('resize', this.handleWindowResize);
+
+    this.materials = [];
+    this.geometries = [];
+    this.meshes = [];
+    this.vectors = [];
   }
 
   setRendererSize = () => {
@@ -130,7 +137,9 @@ export default class OneDimensionViewer {
 
   addGeneration = () => {
     const material = new PointsMaterial( { color: 'white', size: this.cellDiameter || 0, sizeAttenuation: true } );
+    this.materials.push(material);
     const geometry = new Geometry();
+    this.geometries.push(geometry);
 
     const generationState = this._getNextGeneration();
 
@@ -146,18 +155,62 @@ export default class OneDimensionViewer {
       }
     });
 
-    geometry.verticesNeedUpdate = true
+    // geometry.verticesNeedUpdate = true
     const pointField = new Points(geometry, material);
+    this.meshes.push(pointField);
     this.scene.add(pointField);
 
     this.currrentGenerationYPosition += this.cellDiameter;
     this.currentGenerationCount += 1;
   }
 
+  dispose = (obj) => {
+    Object.keys(obj).forEach((key) => {
+      if (obj[key] && typeof obj[key].dispose === 'function') {
+        try {
+          this.dispose(obj[key])
+        } catch(e) {}
+      }
+      if (typeof obj.dispose === 'function') {
+        try {
+          obj.dispose();
+        } catch(e) {}
+      }
+
+      if (key !== 'forceContextLoss') {
+        try {
+          obj[key] = null;
+        } catch(e) {}
+      }
+    });
+
+  }
+
+  cleanUpRefsByMesh = (mesh, deleteMesh) => {
+    if (deleteMesh) {
+      this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+    }
+
+    const geometry = mesh.geometry;
+    this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+
+
+    const material = mesh.material;
+    this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+
+
+    this.scene.remove(mesh);
+    this.dispose(geometry);
+    this.dispose(material);
+    this.dispose(mesh);
+  }
+
   removeGeneration = () => {
-    // console.log(this.scene.position, -this.containerHeight, this.scene.children.length)
     if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-      this.scene.remove(this.scene.children[0]);
+      this.scene.remove(this.camera)
+
+      const mesh = this.meshes.shift();
+      this.cleanUpRefsByMesh(mesh);
     }
   }
 
@@ -199,7 +252,7 @@ export default class OneDimensionViewer {
 
     this.containerEl.appendChild( this.renderer.domElement );
 
-    render({
+    this.cancelRender = render({
       scene: this.scene,
       renderer: this.renderer,
       camera: this.camera,
@@ -207,4 +260,24 @@ export default class OneDimensionViewer {
     })
   };
 
+  quit = () => {
+    this.cancelRender();
+    this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true))
+    this.dispose(this.camera)
+    this.dispose(this.light)
+    this.dispose(this.scene)
+    this.dispose(this.renderer)
+
+    this.renderer.forceContextLoss();
+    this.renderer.context = null;
+    this.renderer.domElement = null;
+    this.renderer = null;
+    this.camera = null;
+    this.scene = null;
+    this.light = null;
+  }
+
+  cleanUp = () => {
+    this.renderer.forceContextLoss();
+  }
 }
