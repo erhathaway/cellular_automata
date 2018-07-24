@@ -1538,56 +1538,102 @@
     return app;
   };
 
-  const neighborhoodRule = (ruleNumber, neighborhood) => {
-    /* example:
-      If rule = 110 and neighborhood = 7 (seven being the largest index - since there are 8 total),
-      we want to mask the 6 earlier neighborhoods and
-      see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
-    */
-    const mask = 2 ** neighborhood;
-    return (ruleNumber & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+  // cellIndex: Int
+  // neighborhoodArr: [Int, Int, ...]
+  const oneDimension = (cellIndex, neighborhoodArr) => {
+    const NEIGHBORS = [{
+      name: 'leftNeighbor',
+      stateFn: (index, arr) => arr[index - 1] || arr.slice(-1)[0]
+    }, // { name: 'cell', stateFn: (index, arr) => arr[index] },
+    {
+      name: 'rightNeighbor',
+      stateFn: (index, arr) => arr[index + 1] || arr[0]
+    }];
+    const neighbors = NEIGHBORS.map(({
+      stateFn
+    }) => stateFn(cellIndex, neighborhoodArr));
+    const cell = neighborhoodArr[cellIndex];
+    return {
+      neighbors,
+      cell
+    };
+  }; // cellCoords: { x: Int, y, Int }
+
+  const oneDimension$1 = ({
+    neighbors,
+    cell
+  }) => {
+    const left = neighbors[0] << 2;
+    const self = cell << 1;
+    const right = neighbors[1];
+    const count = left + self + right; // console.log('count', count)
+
+    return count;
   };
 
-  const ruleObject = ruleNumber => {
-    /* returns an object
-      the keys are the neighborhood index
-      the value is a state (1 or 0)
-    */
-    const neighborhodVarieties = [...Array(8).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+  const oneDimension$2 = rule => {
+    const neighborhoodRule = (ruleNumber, neighborhood) => {
+      /* example:
+        If rule = 110 and neighborhood = 7 (seven being the largest index - since there are 8 total),
+        we want to mask the 6 earlier neighborhoods and
+        see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
+      */
+      const mask = 2 ** neighborhood;
+      return (ruleNumber & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+    };
 
-    return neighborhodVarieties.reduce((acc, state) => {
-      acc[state] = neighborhoodRule(ruleNumber, state);
-      return acc;
-    }, {});
+    const ruleObject = ruleNumber => {
+      /* returns an object
+        the keys are the neighborhood index
+        the value is a state (1 or 0)
+      */
+      const neighborhoodVarieties = [...Array(8).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+
+      return neighborhoodVarieties.reduce((acc, state) => {
+        acc[state] = neighborhoodRule(ruleNumber, state);
+        return acc;
+      }, {});
+    };
+
+    console.log(ruleObject(rule));
+    return reducedNeighborhoodState => ruleObject(rule)[reducedNeighborhoodState];
   };
 
-  const NEIGHBORS = [{
-    name: 'leftNeighboor',
-    value: (index, arr) => arr[index - 1],
-    bitShift: value => value << 2
-  }, {
-    name: 'cell',
-    value: (index, arr) => arr[index],
-    bitShift: value => value << 1
-  }, {
-    name: 'rightNeighboor',
-    value: (index, arr) => arr[index + 1],
-    bitShift: value => value
-  }];
+  // export { default as ruleObject } from './rule';
 
-  const nextGeneration = (currentGeneration, ruleObject) => currentGeneration.map((val, index, arr) => {
-    const neighborhoodState = NEIGHBORS.reduce((acc, {
-      value,
-      bitShift
-    }) => {
-      const v = value(index, arr);
-      return acc | bitShift(v);
-    }, 0);
-    return ruleObject[neighborhoodState];
-  });
-  // const r = ruleObject(110)
-  //
-  // nextGeneration(testGeneration, r)
+  class GenerationMaker {
+    constructor(rule) {
+      this.rule = rule;
+    }
+
+    set rule(rule) {
+      this._rule = rule;
+      this._ruleApplicator = oneDimension$2(rule);
+    }
+
+    get rule() {
+      return this._rule;
+    }
+
+    _initGenerationMaker() {
+      this._generationMaker = generationMaker(this._rule);
+    }
+
+    run(population) {
+      return population.map((state, index) => {
+        const neighborhoodState = oneDimension(index, population);
+        const reducedState = oneDimension$1({
+          neighbors: neighborhoodState.neighbors,
+          cell: neighborhoodState.cell
+        });
+
+        const newCellState = this._ruleApplicator(reducedState);
+
+        return newCellState;
+      });
+    }
+
+  }
 
   // Polyfills
 
@@ -48349,7 +48395,7 @@
       const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
       const VIEW_ANGLE = 91;
       const NEAR = 0.1;
-      const FAR = 20000;
+      const FAR = 500;
       this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
       this.light = new PointLight('yellow');
       this.renderer.shadowMap.enabled = true;
@@ -48412,19 +48458,21 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _rule: undefined,
-    _ruleObject: ruleObject(110),
+    // _rule: undefined,
+    // _ruleObject: ruleObject(110),
     _dimension: '1D',
     _neighbors: undefined,
     _population: 200,
     _growth: undefined,
     _generations: 500,
     _edges: undefined,
-    _setRule: function (value) {
-      this._rule = value;
-      this._ruleObject = ruleObject(value);
-
-      this._runSimulation();
+    _initGenerationMaker: function (rule) {
+      this._generationMaker = new GenerationMaker(rule);
+    },
+    _setRule: function (rule) {
+      this._generationMaker.rule = rule; //   this._rule = value;
+      //   // this._ruleObject = ruleObject(value);
+      //   this._runSimulation();
     },
     _setDimension: function (value) {
       this._dimension = value;
@@ -48489,7 +48537,8 @@
         lastGenModified = lastGen;
       }
 
-      const nextGen = nextGeneration(lastGenModified, this._ruleObject);
+      const nextGen = this._generationMaker.run(lastGenModified); // const nextGen = nextGeneration(lastGenModified, this._ruleObject);
+
 
       const previousGens = this._cellStates.slice(-this._generations);
 
@@ -48537,6 +48586,8 @@
       }
     },
     $init: function () {
+      this._initGenerationMaker(110);
+
       this._setViewer();
 
       this._createGenesisGeneration();

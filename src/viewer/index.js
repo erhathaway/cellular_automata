@@ -1,5 +1,6 @@
 import { css } from 'emotion';
-import { ruleObject, nextGeneration } from '../automata';
+// import { ruleObject, nextGeneration } from '../automata';
+import GenerationMaker from '../automata';
 import OneDimensionViewer from './1d';
 
 const className = css`
@@ -26,18 +27,22 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _rule: undefined,
-  _ruleObject: ruleObject(110),
+  // _rule: undefined,
+  // _ruleObject: ruleObject(110),
   _dimension: '1D',
   _neighbors: undefined,
   _population: 200,
   _growth: undefined,
   _generations: 500,
   _edges: undefined,
-  _setRule: function(value) {
-    this._rule = value;
-    this._ruleObject = ruleObject(value);
-    this._runSimulation();
+  _initGenerationMaker: function(rule) {
+    this._generationMaker = new GenerationMaker(rule)
+  },
+  _setRule: function(rule) {
+    this._generationMaker.rule = rule;
+  //   this._rule = value;
+  //   // this._ruleObject = ruleObject(value);
+  //   this._runSimulation();
   },
   _setDimension: function(value) { this._dimension = value; this._setViewer() },
   _setNeighbors: function(value) { this._neighbors = +value; },
@@ -85,7 +90,8 @@ const app = {
       lastGenModified = lastGen
     }
 
-    const nextGen = nextGeneration(lastGenModified, this._ruleObject);
+    const nextGen = this._generationMaker.run(lastGenModified);
+    // const nextGen = nextGeneration(lastGenModified, this._ruleObject);
     const previousGens = this._cellStates.slice(-this._generations)
     const newGens = previousGens.push(nextGen)
     this._cellStates = previousGens;
@@ -128,6 +134,7 @@ const app = {
     }
   },
   $init: function() {
+    this._initGenerationMaker(110);
     this._setViewer();
     this._createGenesisGeneration();
     this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);

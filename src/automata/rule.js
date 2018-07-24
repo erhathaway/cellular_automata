@@ -13,8 +13,8 @@ const ruleObject = (ruleNumber) => {
     the keys are the neighborhood index
     the value is a state (1 or 0)
   */
-  const neighborhodVarieties = [...Array(8).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
-  return neighborhodVarieties.reduce(
+  const neighborhoodVarieties = [...Array(8).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+  return neighborhoodVarieties.reduce(
     (acc, state) => {
       acc[state] = neighborhoodRule(ruleNumber, state);
       return acc;

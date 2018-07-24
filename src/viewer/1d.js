@@ -25,7 +25,7 @@ export default class OneDimensionViewer {
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
     const VIEW_ANGLE = 91;
     const NEAR = 0.1;
-    const FAR = 20000;
+    const FAR = 500;
     this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
     this.light = new PointLight('yellow');
 
