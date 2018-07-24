@@ -23,11 +23,30 @@ const oneDimension = (cellIndex, neighborhoodArr) => {
 // neighborhoodMatrix: [[Int, Int...], ...]
 const twoDimension = (cellCoords, neighborhoodMatrix) => {
   const NEIGHBORS = [
-    { name: 'top', stateFn: ({ x, y }, mat) => mat[y - 1][x] },
-    { name: 'right', stateFn: ({ x, y }, mat) => mat[y][x + 1] },
-    { name: 'bottom', stateFn: ({ x, y }, mat) => mat[y + 1][x] },
-    { name: 'left', stateFn: ({ x, y }, mat) => mat[y][x - 1] },
-    { name: 'cell', stateFn: ({ x, y }, mat) => mat[y][x] },
+    { name: 'top', stateFn: ({ x, y }, mat) => {
+        const state = mat[y - 1];
+        return state === undefined ? mat.slice(-1)[0][x] : state[x];
+      }
+    },
+    { name: 'right', stateFn: ({ x, y }, mat) => {
+        const state = mat[y][x + 1];
+        return state === undefined ? mat[y][0] : state;
+      }
+    },
+    { name: 'bottom', stateFn: ({ x, y }, mat) => {
+        const state = mat[y + 1];
+        return state === undefined ? mat[0][x] : state[x];
+      }
+    },
+    { name: 'left', stateFn: ({ x, y }, mat) => {
+        const state = mat[y][x - 1];
+        return state === undefined ? mat[y].slice(-1)[0] : state;
+      }
+    },
+    { name: 'cell', stateFn: ({ x, y }, mat) => {
+        return mat[y][x];
+      }
+    },
   ];
   const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellIndex, neighborhoodMatrix));
   const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
