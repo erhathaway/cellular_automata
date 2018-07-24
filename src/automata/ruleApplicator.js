@@ -27,7 +27,7 @@ const oneDimension = (rule = 110, { states, cells } = { states: 2, cells: 3 }) =
 }
 
 const lifeLike = ({ survive, born } = { survive: [2, 3], born: [3] }) => (neighborStates, cellState) => {
-  if (cellState === 1) && survive.includes(neighborStates[1])) return 1;
+  if (cellState === 1 && survive.includes(neighborStates[1])) return 1;
   else if (cellState === 0 && born.includes(neighborStates[1])) return 1;
   else return 0;
 }

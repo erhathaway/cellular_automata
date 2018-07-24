@@ -1577,7 +1577,7 @@
   };
 
   // a simple 1D cellular automata program has two states (0, 1) and three cells ( 2 neighbors and itself)
-  const oneDimension$2 = (rule, {
+  const oneDimension$2 = (rule = 110, {
     states,
     cells
   } = {
