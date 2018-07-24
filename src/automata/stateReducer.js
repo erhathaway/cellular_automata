@@ -3,16 +3,23 @@ const oneDimension = ({ neighbors, cell }) => {
   const self = cell << 1;
   const right = neighbors[1];
   const count = left | self | right;
-  return count
+  return count;
 }
 
 const twoDimension = ({ neighbors, cell }) => {
-  const stateCount = neighbors.reduce((acc, state) => {
+  const sumNeighborRule = neighbors.reduce((acc, state, index) => {
+    return acc | state << index;
+  }, 0)
+  return sumNeighborRule | cell << neighbors.length;
+}
+
+const lifeLike = ({ neighbors, cell }) => {
+  const neighborsStateCount = neighbors.reduce((acc, state) => {
     const existingCount = acc[state] || 0;
     acc[state] = existingCount + 1;
     return acc;
   }, {});
-  return stateCount;
+  return { neighborsState: neighborsStateCount, cellState };
 }
 
 export { oneDimension, twoDimension }
