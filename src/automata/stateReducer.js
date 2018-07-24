@@ -2,8 +2,7 @@ const oneDimension = ({ neighbors, cell }) => {
   const left = neighbors[0] << 2;
   const self = cell << 1;
   const right = neighbors[1];
-  const count = left + self + right;
-  // console.log('count', count)
+  const count = left | self | right;
   return count
 }
 

@@ -93,7 +93,7 @@ const app = {
     const nextGen = this._generationMaker.run(lastGenModified);
     // const nextGen = nextGeneration(lastGenModified, this._ruleObject);
     const previousGens = this._cellStates.slice(-this._generations)
-    const newGens = previousGens.push(nextGen)
+    previousGens.push(nextGen)
     this._cellStates = previousGens;
 
     return nextGen;

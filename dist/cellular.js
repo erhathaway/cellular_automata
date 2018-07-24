@@ -1543,11 +1543,17 @@
   const oneDimension = (cellIndex, neighborhoodArr) => {
     const NEIGHBORS = [{
       name: 'leftNeighbor',
-      stateFn: (index, arr) => arr[index - 1] || arr.slice(-1)[0]
+      stateFn: (index, arr) => {
+        const state = arr[index - 1];
+        return state === undefined ? arr.slice(-1)[0] : state;
+      }
     }, // { name: 'cell', stateFn: (index, arr) => arr[index] },
     {
       name: 'rightNeighbor',
-      stateFn: (index, arr) => arr[index + 1] || arr[0]
+      stateFn: (index, arr) => {
+        const state = arr[index + 1];
+        return state === undefined ? arr[0] : state;
+      }
     }];
     const neighbors = NEIGHBORS.map(({
       stateFn
@@ -1566,8 +1572,7 @@
     const left = neighbors[0] << 2;
     const self = cell << 1;
     const right = neighbors[1];
-    const count = left + self + right; // console.log('count', count)
-
+    const count = left | self | right;
     return count;
   };
 
@@ -48542,7 +48547,7 @@
 
       const previousGens = this._cellStates.slice(-this._generations);
 
-      const newGens = previousGens.push(nextGen);
+      previousGens.push(nextGen);
       this._cellStates = previousGens;
       return nextGen;
     },

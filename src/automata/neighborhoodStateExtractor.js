@@ -2,9 +2,17 @@
 // neighborhoodArr: [Int, Int, ...]
 const oneDimension = (cellIndex, neighborhoodArr) => {
   const NEIGHBORS = [
-    { name: 'leftNeighbor', stateFn: (index, arr) => arr[index-1] || arr.slice(-1)[0] },
+    { name: 'leftNeighbor', stateFn: (index, arr) => {
+        const state = arr[index-1];
+        return state === undefined ? arr.slice(-1)[0] : state;
+      }
+    },
     // { name: 'cell', stateFn: (index, arr) => arr[index] },
-    { name: 'rightNeighbor', stateFn: (index, arr) => arr[index+1] || arr[0] },
+    { name: 'rightNeighbor', stateFn: (index, arr) => {
+        const state = arr[index+1];
+        return state === undefined ? arr[0] : state;
+      }
+    },
   ];
   const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellIndex, neighborhoodArr));
   const cell = neighborhoodArr[cellIndex];
