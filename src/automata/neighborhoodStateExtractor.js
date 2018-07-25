@@ -20,28 +20,26 @@ const oneDimension = (cellIndex, neighborhoodArr) => {
 
 // cellCoords: { x: Int, y, Int }
 // neighborhoodMatrix: [[Int, Int...], ...]
+const getBefore = (y, arr) => {
+  const state = arr[y - 1];
+  return state === undefined ? arr.slice(-1)[0] : state;
+}
+
+const getAfter = (y, arr) => {
+  const state = arr[y + 1];
+  return state === undefined ? arr[0] : state;
+}
+
 const twoDimension = (cellCoords, neighborhoodMatrix) => {
   const NEIGHBORS = [
-    { name: 'top', stateFn: ({ x, y }, mat) => {
-        const state = mat[y - 1];
-        return state === undefined ? mat.slice(-1)[0][x] : state[x];
-      }
-    },
-    { name: 'right', stateFn: ({ x, y }, mat) => {
-        const state = mat[y][x + 1];
-        return state === undefined ? mat[y][0] : state;
-      }
-    },
-    { name: 'bottom', stateFn: ({ x, y }, mat) => {
-        const state = mat[y + 1];
-        return state === undefined ? mat[0][x] : state[x];
-      }
-    },
-    { name: 'left', stateFn: ({ x, y }, mat) => {
-        const state = mat[y][x - 1];
-        return state === undefined ? mat[y].slice(-1)[0] : state;
-      }
-    },
+    { name: 'top', stateFn: ({ x, y }, mat) => getBefore(y, mat)[x] },
+    { name: 'topRight', stateFn: ({ x, y }, mat) => getAfter(x, getBefore(y, mat)) },
+    { name: 'right', stateFn: ({ x, y }, mat) => getAfter(x, mat[y]) },
+    { name: 'bottomRight', stateFn: ({ x, y }, mat) => getAfter(x, getAfter(y, mat)) },
+    { name: 'bottom', stateFn: ({ x, y }, mat) => getAfter(y, mat)[x] },
+    { name: 'bottomLeft', stateFn: ({ x, y }, mat) => getBefore(x, getAfter(y, mat)) },
+    { name: 'left', stateFn: ({ x, y }, mat) => getBefore(x, mat[y]) },
+    { name: 'topLeft', stateFn: ({ x, y }, mat) => getBefore(x, getBefore(y, mat)) },
   ];
   const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
   const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];

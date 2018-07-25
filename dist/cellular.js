@@ -1566,6 +1566,26 @@
   // neighborhoodMatrix: [[Int, Int...], ...]
 
 
+  const getTop = (y, arr) => {
+    const state = arr[y - 1];
+    return state === undefined ? arr.slice(-1)[0] : state;
+  };
+
+  const getBottom = (y, arr) => {
+    const state = arr[y + 1];
+    return state === undefined ? arr[0] : state;
+  };
+
+  const getLeft = (x, arr) => {
+    const state = arr[x - 1];
+    return state === undefined ? arr.slice(-1)[0] : state;
+  };
+
+  const getRight = (x, arr) => {
+    const state = arr[x + 1];
+    return state === undefined ? arr[0] : state;
+  };
+
   const twoDimension = (cellCoords, neighborhoodMatrix) => {
     const NEIGHBORS = [{
       name: 'top',
@@ -1573,36 +1593,60 @@
         x,
         y
       }, mat) => {
-        const state = mat[y - 1];
-        return state === undefined ? mat.slice(-1)[0][x] : state[x];
+        return getTop(y, mat)[x]; // const state = mat[y - 1];
+        // return state === undefined ? mat.slice(-1)[0][x] : state[x];
       }
+    }, {
+      name: 'topRight',
+      stateFn: ({
+        x,
+        y
+      }, mat) => getRight(x, getTop(y, mat))
     }, {
       name: 'right',
       stateFn: ({
         x,
         y
       }, mat) => {
-        const state = mat[y][x + 1];
-        return state === undefined ? mat[y][0] : state;
+        return getRight(x, mat[y]); // const state = mat[y][x + 1];
+        // return state === undefined ? mat[y][0] : state;
       }
+    }, {
+      name: 'bottomRight',
+      stateFn: ({
+        x,
+        y
+      }, mat) => getRight(x, getBottom(y, mat))
     }, {
       name: 'bottom',
       stateFn: ({
         x,
         y
       }, mat) => {
-        const state = mat[y + 1];
-        return state === undefined ? mat[0][x] : state[x];
+        return getBottom(y, mat)[x]; // const state = mat[y + 1];
+        // return state === undefined ? mat[0][x] : state[x];
       }
+    }, {
+      name: 'bottomLeft',
+      stateFn: ({
+        x,
+        y
+      }, mat) => getLeft(x, getBottom(y, mat))
     }, {
       name: 'left',
       stateFn: ({
         x,
         y
       }, mat) => {
-        const state = mat[y][x - 1];
-        return state === undefined ? mat[y].slice(-1)[0] : state;
+        return getLeft(x, mat[y]); // const state = mat[y][x - 1];
+        // return state === undefined ? mat[y].slice(-1)[0] : state;
       }
+    }, {
+      name: 'topLeft',
+      stateFn: ({
+        x,
+        y
+      }, mat) => getLeft(x, getTop(y, mat))
     }];
     const neighbors = NEIGHBORS.map(({
       stateFn
@@ -48948,8 +48992,8 @@
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: {
-      x: 300,
-      y: 300
+      x: 500,
+      y: 500
     },
     _growth: undefined,
     _generationsToShow: 500,
