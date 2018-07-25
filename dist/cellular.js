@@ -48673,12 +48673,12 @@
     // automata model
     _dimension: '1D',
     _neighbors: undefined,
-    _population: 500,
+    _populationSize: 500,
     _populationShape: {
       x: 500
     },
     _growth: undefined,
-    _generations: 500,
+    _generationsToShow: 500,
     _edges: undefined,
     _initGenerationMaker: function () {
       this._generationMaker = new GenerationMaker();
@@ -48699,21 +48699,21 @@
       this._neighbors = +value;
     },
     _setPopulation: function (value) {
-      this._population = +value;
+      this._populationSize = +value;
     },
-    // this._viewer.setPopulationCount(this._population); },
+    // this._viewer.setPopulationCount(this._populationSize); },
     _setGrowth: function (value) {
       this._growth = +value;
     },
     _setGenerations: function (value) {
-      this._generations = +value;
+      this._generationsToShow = +value;
 
       this._runSimulation();
     },
     _setEdges: function (value) {
       this._edges = +value;
     },
-    _cellStates: undefined,
+    _populationHistory: [],
     _cellDimension: 10,
     _isRunning: false,
     _runSimulationID: undefined,
@@ -48722,7 +48722,7 @@
       const {
         width
       } = this.getBoundingClientRect();
-      this._cellDimension = width / this._population();
+      this._cellDimension = width / this._populationSize;
     },
     $components: undefined,
     _changeRunningState: function (shouldRun) {
@@ -48739,37 +48739,37 @@
       this._viewer.turnSimulationOff();
     },
     _retrieveNextGeneration: function () {
-      const genCopy = this._cellStates;
+      const genCopy = this._populationHistory;
       const unScaledCurrentGen = genCopy.slice(-1)[0];
-      const scaleDiff = this._population - unScaledCurrentGen.length;
+      const scaleDiff = this._populationSize - unScaledCurrentGen.length;
       let currentGen; // on view resizing we need to add filler cells or subtract existing cells
 
       if (scaleDiff > 0) {
         const filler = new Array(scaleDiff).fill(0);
         currentGen = [...unScaledCurrentGen, ...filler];
       } else if (scaleDiff < 0) {
-        currentGen = unScaledCurrentGen.slice(0, this._population);
+        currentGen = unScaledCurrentGen.slice(0, this._populationSize);
       } else {
         currentGen = unScaledCurrentGen;
       }
 
       const nextGen = this._generationMaker.run(currentGen);
 
-      const previousGens = this._cellStates.slice(-this._generations);
+      const previousGens = this._populationHistory.slice(-this._generationsToShow);
 
       previousGens.push(nextGen);
-      this._cellStates = previousGens;
+      this._populationHistory = previousGens;
       return nextGen;
     },
     // _retrieveNextGeneration: function() {
-    //   const currentGen = this._cellStates;
+    //   const currentGen = this._populationHistory;
     //   const nextGen = this._generationMaker.run(currentGen);
-    //   this._cellStates = nextGen;
+    //   this._populationHistory = [nextGen];
     //   // console.log('next generation', nextGen)
     //   return nextGen;
     // },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
-      if (this._cellStates === undefined) {
+      if (this._populationHistory === undefined) {
         this._createGenesisGeneration();
       }
 
@@ -48780,9 +48780,9 @@
       }
     },
     _createGenesisGeneration: function () {
-      this._viewer.setPopulationCount(this._population);
+      this._viewer.setPopulationCount(this._populationSize);
 
-      this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)]; // this._cellStates = this._generationMaker.runPopulationSeed(this._populationShape)
+      this._populationHistory = [this._generationMaker.runPopulationSeed(this._populationShape)]; // this._populationHistory = this._generationMaker.runPopulationSeed(this._populationShape)
     },
     _setViewer: function () {
       switch (this._dimension) {
