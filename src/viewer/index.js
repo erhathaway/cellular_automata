@@ -31,7 +31,7 @@ const app = {
   // _ruleObject: ruleObject(110),
   _dimension: '1D',
   _neighbors: undefined,
-  _population: 200,
+  _population: 500,
   _growth: undefined,
   _generations: 500,
   _edges: undefined,

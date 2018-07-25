@@ -1610,11 +1610,20 @@
     return reducedNeighborhoodState => ruleObject(rule)[reducedNeighborhoodState];
   };
 
+  function* oneDimension$3(currentPopulation) {
+    for (let i = 0; i < currentPopulation.length; i++) {
+      yield i;
+    }
+  }
+
   // export { default as ruleObject } from './rule';
 
   class GenerationMaker {
     constructor(rule) {
       this.rule = rule;
+      this.generationRate = 0;
+      this.totalTimeSpentGenerating = 0;
+      this.generationNumber = 0;
     }
 
     set rule(rule) {
@@ -1630,18 +1639,46 @@
       this._generationMaker = generationMaker(this._rule);
     }
 
-    run(population) {
-      return population.map((state, index) => {
-        const neighborhoodState = oneDimension(index, population);
+    oneDimensionGenerationGenerator(currentPopulation) {
+      const populationIterable = oneDimension$3(currentPopulation);
+      let newPopulation = [];
+
+      for (let indexOfCell of populationIterable) {
+        if (indexOfCell === undefined) break;
+        const neighborhoodState = oneDimension(indexOfCell, currentPopulation);
         const reducedState = oneDimension$1({
           neighbors: neighborhoodState.neighbors,
           cell: neighborhoodState.cell
         });
+        newPopulation.push(this._ruleApplicator(reducedState));
+      }
 
-        const newCellState = this._ruleApplicator(reducedState);
+      return newPopulation;
+    }
 
-        return newCellState;
-      });
+    run(currentPopulation) {
+      const t0 = performance.now();
+      const newPopulation = this.oneDimensionGenerationGenerator(currentPopulation); // const newPopulation = currentPopulation.map((state, index) => {
+      //   const neighborhoodState = oneDimensionNeighborhoodStateExtractor(index, currentPopulation);
+      //   const reducedState = oneDimensionStateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
+      //   const newCellState = this._ruleApplicator(reducedState);
+      //   return newCellState
+      // })
+
+      const t1 = performance.now();
+
+      if (this.generationNumber % 100 === 0) {
+        this.generationNumber = 0;
+        this.totalTimeSpentGenerating = 0;
+        console.log('-------------------rest--------------------');
+      }
+
+      const time = t1 - t0;
+      this.generationNumber += 1;
+      this.totalTimeSpentGenerating += time;
+      this.generationRate = this.totalTimeSpentGenerating / this.generationNumber;
+      console.log('rate', this.generationRate);
+      return newPopulation;
     }
 
   }
@@ -48473,7 +48510,7 @@
     // _ruleObject: ruleObject(110),
     _dimension: '1D',
     _neighbors: undefined,
-    _population: 200,
+    _population: 500,
     _growth: undefined,
     _generations: 500,
     _edges: undefined,
