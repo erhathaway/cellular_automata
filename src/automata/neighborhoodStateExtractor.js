@@ -43,12 +43,8 @@ const twoDimension = (cellCoords, neighborhoodMatrix) => {
         return state === undefined ? mat[y].slice(-1)[0] : state;
       }
     },
-    { name: 'cell', stateFn: ({ x, y }, mat) => {
-        return mat[y][x];
-      }
-    },
   ];
-  const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellIndex, neighborhoodMatrix));
+  const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
   const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
   return { neighbors, cell }
 }

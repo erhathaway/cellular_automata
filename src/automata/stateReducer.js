@@ -19,7 +19,7 @@ const lifeLike = ({ neighbors, cell }) => {
     acc[state] = existingCount + 1;
     return acc;
   }, {});
-  return { neighborsState: neighborsStateCount, cellState };
+  return { neighborsState: neighborsStateCount, cellState: cell };
 }
 
-export { oneDimension, twoDimension }
+export { oneDimension, twoDimension, lifeLike }

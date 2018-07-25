@@ -1564,6 +1564,56 @@
       cell
     };
   }; // cellCoords: { x: Int, y, Int }
+  // neighborhoodMatrix: [[Int, Int...], ...]
+
+
+  const twoDimension = (cellCoords, neighborhoodMatrix) => {
+    const NEIGHBORS = [{
+      name: 'top',
+      stateFn: ({
+        x,
+        y
+      }, mat) => {
+        const state = mat[y - 1];
+        return state === undefined ? mat.slice(-1)[0][x] : state[x];
+      }
+    }, {
+      name: 'right',
+      stateFn: ({
+        x,
+        y
+      }, mat) => {
+        const state = mat[y][x + 1];
+        return state === undefined ? mat[y][0] : state;
+      }
+    }, {
+      name: 'bottom',
+      stateFn: ({
+        x,
+        y
+      }, mat) => {
+        const state = mat[y + 1];
+        return state === undefined ? mat[0][x] : state[x];
+      }
+    }, {
+      name: 'left',
+      stateFn: ({
+        x,
+        y
+      }, mat) => {
+        const state = mat[y][x - 1];
+        return state === undefined ? mat[y].slice(-1)[0] : state;
+      }
+    }];
+    const neighbors = NEIGHBORS.map(({
+      stateFn
+    }) => stateFn(cellCoords, neighborhoodMatrix));
+    const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
+    return {
+      neighbors,
+      cell
+    };
+  };
 
   const oneDimension$1 = ({
     neighbors,
@@ -1576,51 +1626,125 @@
     return count;
   };
 
-  // a simple 1D cellular automata program has two states (0, 1) and three cells ( 2 neighbors and itself)
-  const oneDimension$2 = (rule = 110, {
-    states,
-    cells
-  } = {
-    states: 2,
-    cells: 3
+  const lifeLike = ({
+    neighbors,
+    cell
   }) => {
-    const neighborhoodRule = (ruleNumber, neighborhood) => {
+    const neighborsStateCount = neighbors.reduce((acc, state) => {
+      const existingCount = acc[state] || 0;
+      acc[state] = existingCount + 1;
+      return acc;
+    }, {});
+    return {
+      neighborsState: neighborsStateCount,
+      cellState: cell
+    };
+  };
+
+  // a simple 1D cellular automata program has two states (0, 1) and three cells ( 2 neighbors and itself)
+  class OneDimension {
+    constructor() {
+      this._ruleObject = undefined;
+      this.config = {
+        states: 2,
+        cells: 3
+      };
+      this.rule = 110;
+    }
+
+    set rule(rule) {
+      this._rule = rule;
+      this.updateRuleObject();
+    }
+
+    set config(config) {
+      this._config = config;
+    }
+
+    get rule() {
+      return this._rule;
+    }
+
+    get config() {
+      return this._config;
+    }
+
+    get ruleObject() {
+      return this._ruleObject;
+    }
+
+    neighborhoodRule(neighborhood) {
       /* example:
         If rule = 110 and neighborhood = 7 (seven being the largest index - since there are 8 total),
         we want to mask the 6 earlier neighborhoods and
         see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
       */
-      const mask = states ** neighborhood;
-      return (ruleNumber & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
-    };
+      const mask = this.config.states ** neighborhood;
+      return (this.rule & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+    }
 
-    const ruleObject = ruleNumber => {
+    updateRuleObject() {
       /* returns an object
         the keys are the neighborhood index
         the value is a state (1 or 0)
       */
-      const neighborhoodVarieties = [...Array(cells ** states).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+      const neighborhoodVarieties = [...Array(this.config.cells ** this.config.states).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
 
-      return neighborhoodVarieties.reduce((acc, state) => {
-        acc[state] = neighborhoodRule(ruleNumber, state);
+      this._ruleObject = neighborhoodVarieties.reduce((acc, state) => {
+        acc[state] = this.neighborhoodRule(state);
         return acc;
       }, {});
-    };
-
-    return reducedNeighborhoodState => ruleObject(rule)[reducedNeighborhoodState];
-  };
-
-  function* oneDimension$3(currentPopulation) {
-    for (let i = 0; i < currentPopulation.length; i++) {
-      yield i;
     }
+
+    run(state) {
+      return this.ruleObject[state];
+    }
+
   }
 
-  // export { default as ruleObject } from './rule';
+  class LifeLike {
+    constructor() {
+      this.rule = {
+        survive: [2, 3],
+        born: [3]
+      };
+    }
+
+    set rule(rule) {
+      this._rule = rule;
+    }
+
+    get rule() {
+      return this._rule;
+    }
+
+    run(neighborStates, cellState) {
+      if (cellState === 1 && this.rule.survive.includes(neighborStates[1])) return 1;else if (cellState === 0 && this.rule.born.includes(neighborStates[1])) return 1;else return 0;
+    }
+
+  }
+
+  const newState = () => Math.round(Math.random());
+
+  const newDimension = shape => {
+    const dimensions = Object.keys(shape);
+    const firstDimension = dimensions[0];
+    const dimensionPopulation = shape[firstDimension]; // if only dimension left in shape, generate states
+
+    if (dimensions.length === 1) {
+      return [...new Array(shape[firstDimension])].map(newState); // if more dimensions left, map over those dimensions first
+    } else {
+      const newShape = shape;
+      delete newShape[firstDimension];
+      return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
+    }
+  };
 
   class GenerationMaker {
-    constructor(rule) {
-      this.rule = rule;
+    constructor() {
+      // this.useLifeLikeGenerator();
+      this.useOneDimensionGenerator(); // this.rule = rule;
+
       this.generationRate = 0;
       this.totalTimeSpentGenerating = 0;
       this.generationNumber = 0;
@@ -1628,49 +1752,114 @@
 
     set rule(rule) {
       this._rule = rule;
-      this._ruleApplicator = oneDimension$2(rule);
+      this._ruleApplicator.rule = this.rule;
     }
 
     get rule() {
       return this._rule;
     }
 
-    _initGenerationMaker() {
-      this._generationMaker = generationMaker(this._rule);
+    runPopulationSeed(populationSape) {
+      return this._populationSeed(populationSape);
     }
 
-    oneDimensionGenerationGenerator(currentPopulation) {
-      const populationIterable = oneDimension$3(currentPopulation);
-      let newPopulation = [];
+    useOneDimensionGenerator() {
+      this._generatorType = 'oneDimension';
+      this._populationSeed = newDimension; // this._populationMap = oneDimensionPopulationMap;
 
-      for (let indexOfCell of populationIterable) {
-        if (indexOfCell === undefined) break;
-        const neighborhoodState = oneDimension(indexOfCell, currentPopulation);
-        const reducedState = oneDimension$1({
-          neighbors: neighborhoodState.neighbors,
-          cell: neighborhoodState.cell
-        });
-        newPopulation.push(this._ruleApplicator(reducedState));
-      }
+      this._neighborStateExtractor = oneDimension;
+      this._stateReducer = oneDimension$1;
+      this._ruleApplicator = new OneDimension();
+    }
+
+    useLifeLikeGenerator() {
+      this._generatorType = 'twoDimension';
+      this._populationSeed = newDimension; // this._populationMap = twoDimensionPopulationMap;
+
+      this._neighborStateExtractor = twoDimension;
+      this._stateReducer = lifeLike;
+      this._ruleApplicator = new LifeLike();
+    }
+
+    _computeStateOffCoords(coords, currentPopulation) {
+      const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
+
+      const reducedState = this._stateReducer({
+        neighbors: neighborhoodState.neighbors,
+        cell: neighborhoodState.cell
+      });
+
+      const cellState = this._ruleApplicator.run(reducedState);
+
+      return cellState;
+    }
+
+    _run(currentPopulation) {
+      // console.log('generating new population')
+      // console.log('using TYPE', this._generatorType)
+      // const populationIterable = this._populationMap(currentPopulation)
+      let newPopulation = []; // console.log('currentPopulation', currentPopulation)
+      // for (let indexOfCell of populationIterable) {
+      //   if (indexOfCell === undefined) break;
+      //
+      //   const cellState = this._computeStateOffCoords(indexOfCell, currentPopulation)
+      //   // console.log('index of cell', indexOfCell)
+      //   // const neighborhoodState = this._neighborStateExtractor(indexOfCell, currentPopulation);
+      //   // const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
+      //   // const cellState = this._ruleApplicator.run(reducedState)
+      //   newPopulation.push(cellState);
+      //   // console.log('neighborhoodState', neighborhoodState)
+      //   // console.log('reducedState', reducedState)
+      //   // console.log('cellState', cellState)
+      // }
+
+      for (let y = 0; y < currentPopulation.length; y++) {
+        const row = currentPopulation[y]; // if 2D
+
+        if (Array.isArray(row)) {
+          const columnStates = [];
+
+          for (let x = 0; x < row.length; x++) {
+            const coords = {
+              x,
+              y
+            };
+
+            const state = this._computeStateOffCoords(coords, currentPopulation);
+
+            columnStates.push(state);
+          }
+
+          newPopulation.push(columnStates); // if 1D
+        } else {
+          const state = this._computeStateOffCoords(y, currentPopulation);
+
+          newPopulation.push(state);
+        }
+      } // console.log('----------------new population-------------', newPopulation)
+      // return [newPopulation];
+
 
       return newPopulation;
     }
 
     run(currentPopulation) {
       const t0 = performance.now();
-      const newPopulation = this.oneDimensionGenerationGenerator(currentPopulation); // const newPopulation = currentPopulation.map((state, index) => {
+
+      const newPopulation = this._run(currentPopulation); // const newPopulation = currentPopulation.map((state, index) => {
       //   const neighborhoodState = oneDimensionNeighborhoodStateExtractor(index, currentPopulation);
       //   const reducedState = oneDimensionStateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
       //   const newCellState = this._ruleApplicator(reducedState);
       //   return newCellState
       // })
 
+
       const t1 = performance.now();
 
       if (this.generationNumber % 100 === 0) {
         this.generationNumber = 0;
         this.totalTimeSpentGenerating = 0;
-        console.log('-------------------rest--------------------');
+        console.log('-------------------reset--------------------');
       }
 
       const time = t1 - t0;
@@ -48498,30 +48687,30 @@
   box-shadow: #000000b8 3px 4px 18px 1px;
   overflow: hidden;
 `;
-
-  const calcFirstGenerationCellState = population => [...new Array(population)].map(() => Math.round(Math.random()));
-
   const app = {
     $cell: true,
     class: className,
     id: 'automata-viewer',
     // automata model
-    // _rule: undefined,
-    // _ruleObject: ruleObject(110),
     _dimension: '1D',
     _neighbors: undefined,
     _population: 500,
+    _populationShape: {
+      x: 500
+    },
     _growth: undefined,
     _generations: 500,
     _edges: undefined,
-    _initGenerationMaker: function (rule) {
-      this._generationMaker = new GenerationMaker(rule);
+    _initGenerationMaker: function () {
+      this._generationMaker = new GenerationMaker();
     },
     _setRule: function (rule) {
-      this._generationMaker.rule = rule; //   this._rule = value;
-      //   // this._ruleObject = ruleObject(value);
-      //   this._runSimulation();
+      this._generationMaker.rule = rule;
     },
+    // _population: function() {
+    //   const dimensions = Object.values(this._populationShape);
+    //   return dimensions.reduce((acc, size) => acc * size, 1);
+    // },
     _setDimension: function (value) {
       this._dimension = value;
 
@@ -48554,7 +48743,7 @@
       const {
         width
       } = this.getBoundingClientRect();
-      this._cellDimension = width / this._population;
+      this._cellDimension = width / this._population();
     },
     $components: undefined,
     _changeRunningState: function (shouldRun) {
@@ -48572,21 +48761,20 @@
     },
     _retrieveNextGeneration: function () {
       const genCopy = this._cellStates;
-      const lastGen = genCopy.slice(-1)[0];
-      const diff = this._population - lastGen.length;
-      let lastGenModified;
+      const unScaledCurrentGen = genCopy.slice(-1)[0];
+      const scaleDiff = this._population - unScaledCurrentGen.length;
+      let currentGen; // on view resizing we need to add filler cells or subtract existing cells
 
-      if (diff > 0) {
-        const filler = new Array(diff).fill(0);
-        lastGenModified = [...lastGen, ...filler];
-      } else if (diff < 0) {
-        lastGenModified = lastGen.slice(0, this._population);
+      if (scaleDiff > 0) {
+        const filler = new Array(scaleDiff).fill(0);
+        currentGen = [...unScaledCurrentGen, ...filler];
+      } else if (scaleDiff < 0) {
+        currentGen = unScaledCurrentGen.slice(0, this._population);
       } else {
-        lastGenModified = lastGen;
+        currentGen = unScaledCurrentGen;
       }
 
-      const nextGen = this._generationMaker.run(lastGenModified); // const nextGen = nextGeneration(lastGenModified, this._ruleObject);
-
+      const nextGen = this._generationMaker.run(currentGen);
 
       const previousGens = this._cellStates.slice(-this._generations);
 
@@ -48594,6 +48782,13 @@
       this._cellStates = previousGens;
       return nextGen;
     },
+    // _retrieveNextGeneration: function() {
+    //   const currentGen = this._cellStates;
+    //   const nextGen = this._generationMaker.run(currentGen);
+    //   this._cellStates = nextGen;
+    //   console.log('next generation', nextGen)
+    //   return nextGen;
+    // },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
@@ -48604,13 +48799,13 @@
       for (generationCount = 0; generationCount < numberOfVisibleGenerations; generationCount++) {
         this._viewer.addGeneration();
       }
+
+      console.log('bulk generations created', this._cellStates);
     },
     _createGenesisGeneration: function () {
-      const firstGeneration = calcFirstGenerationCellState(this._population);
+      this._viewer.setPopulationCount(this._population);
 
-      this._viewer.setPopulationCount(firstGeneration.length);
-
-      this._cellStates = [firstGeneration];
+      this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)];
     },
     _setViewer: function () {
       switch (this._dimension) {
@@ -48634,7 +48829,8 @@
       }
     },
     $init: function () {
-      this._initGenerationMaker(110);
+      this._initGenerationMaker(); // this._setRule(110);
+
 
       this._setViewer();
 
