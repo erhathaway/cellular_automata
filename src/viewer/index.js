@@ -1,6 +1,7 @@
 import { css } from 'emotion';
 import GenerationMaker from '../automata';
 import OneDimensionViewer from './1d';
+import TwoDimensionViewer from './2d';
 
 const className = css`
   background-color: black;
@@ -23,10 +24,10 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _dimension: '1D',
+  _dimension: '2D',
   _neighbors: undefined,
   _populationSize: 500,
-  _populationShape: { x: 500 },
+  _populationShape: { x: 300, y: 300 },
   _growth: undefined,
   _generationsToShow: 500,
   _edges: undefined,
@@ -40,7 +41,12 @@ const app = {
   //   const dimensions = Object.values(this._populationShape);
   //   return dimensions.reduce((acc, size) => acc * size, 1);
   // },
-  _setDimension: function(value) { this._dimension = value; this._setViewer() },
+  _setDimension: function(value) {
+    if (this._dimension !== value) {
+      this._dimension = value;
+      this._setViewer();
+    }
+  },
   _setNeighbors: function(value) { this._neighbors = +value; },
   _setPopulation: function(value) { this._populationSize = +value }, // this._viewer.setPopulationCount(this._populationSize); },
   _setGrowth: function(value) { this._growth = +value; },
@@ -70,38 +76,38 @@ const app = {
   _stopSimulation: function() {
     this._viewer.turnSimulationOff();
   },
-  _retrieveNextGeneration: function() {
-    const genCopy = this._populationHistory;
-    const unScaledCurrentGen = genCopy.slice(-1)[0];
-
-    const scaleDiff = this._populationSize - unScaledCurrentGen.length;
-    let currentGen;
-
-    // on view resizing we need to add filler cells or subtract existing cells
-    if (scaleDiff > 0) {
-      const filler = new Array(scaleDiff).fill(0)
-      currentGen = [...unScaledCurrentGen, ...filler]
-    } else if (scaleDiff < 0) {
-      currentGen = unScaledCurrentGen.slice(0, this._populationSize)
-    } else {
-      currentGen = unScaledCurrentGen;
-    }
-
-    const nextGen = this._generationMaker.run(currentGen);
-
-    const previousGens = this._populationHistory.slice(-this._generationsToShow)
-    previousGens.push(nextGen)
-    this._populationHistory = previousGens;
-
-    return nextGen;
-  },
   // _retrieveNextGeneration: function() {
-  //   const currentGen = this._populationHistory;
+  //   const genCopy = this._populationHistory;
+  //   const unScaledCurrentGen = genCopy.slice(-1)[0];
+  //
+  //   const scaleDiff = this._populationSize - unScaledCurrentGen.length;
+  //   let currentGen;
+  //
+  //   // on view resizing we need to add filler cells or subtract existing cells
+  //   if (scaleDiff > 0) {
+  //     const filler = new Array(scaleDiff).fill(0)
+  //     currentGen = [...unScaledCurrentGen, ...filler]
+  //   } else if (scaleDiff < 0) {
+  //     currentGen = unScaledCurrentGen.slice(0, this._populationSize)
+  //   } else {
+  //     currentGen = unScaledCurrentGen;
+  //   }
+  //
   //   const nextGen = this._generationMaker.run(currentGen);
-  //   this._populationHistory = [nextGen];
-  //   // console.log('next generation', nextGen)
+  //
+  //   const previousGens = this._populationHistory.slice(-this._generationsToShow)
+  //   previousGens.push(nextGen)
+  //   this._populationHistory = previousGens;
+  //
   //   return nextGen;
   // },
+  _retrieveNextGeneration: function() {
+    const currentGen = this._populationHistory.slice(-1)[0];
+    const nextGen = this._generationMaker.run(currentGen);
+    this._populationHistory = [nextGen];
+    // console.log('next generation', nextGen)
+    return nextGen;
+  },
   _bulkCreateGenerations: function(numberOfVisibleGenerations) {
     if (this._populationHistory === undefined) { this._createGenesisGeneration(); }
 
@@ -113,22 +119,20 @@ const app = {
   _createGenesisGeneration: function() {
     this._viewer.setPopulationCount(this._populationSize);
     this._populationHistory = [this._generationMaker.runPopulationSeed(this._populationShape)];
-
-    // this._populationHistory = this._generationMaker.runPopulationSeed(this._populationShape)
   },
   _setViewer: function() {
     switch(this._dimension) {
       case '1D' :
+        console.log('1d case')
         if (this._viewer && this._viewer.dimension === '1D') break;
         if (this._viewer) this._viewer.quit();
-
         this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
         break;
       case '2D' :
+        console.log('2d case')
         if (this._viewer && this._viewer.dimension === '2D') break;
         if (this._viewer) this._viewer.quit();
-        this._viewer = null;
-        // this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
+        this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
         break;
     }
 
@@ -143,7 +147,7 @@ const app = {
     // this._setRule(110);
     this._setViewer();
     this._createGenesisGeneration();
-    this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+    // this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
     this._viewer.createScene();
 
     this._runSimulation();

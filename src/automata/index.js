@@ -5,8 +5,8 @@ import { populationSeed } from './populationSeed';
 
 export default class GenerationMaker {
   constructor() {
-    // this.useLifeLikeGenerator();
-    this.useOneDimensionGenerator();
+    this.useLifeLikeGenerator();
+    // this.useOneDimensionGenerator();
     this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
@@ -82,14 +82,14 @@ export default class GenerationMaker {
     if (this.generationNumber % 100 === 0) {
         this.generationNumber = 0;
         this.totalTimeSpentGenerating = 0;
-        console.log('-------------------reset--------------------')
+        // console.log('-------------------reset--------------------')
     }
 
     const time = t1 - t0;
     this.generationNumber += 1;
     this.totalTimeSpentGenerating += time;
     this.generationRate = this.totalTimeSpentGenerating / this.generationNumber
-    console.log('rate', this.generationRate)
+    // console.log('rate', this.generationRate)
     return newPopulation;
   }
 }
