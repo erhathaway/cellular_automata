@@ -1,16 +1,12 @@
-
 import { oneDimension as oneDimensionNeighborhoodStateExtractor, twoDimension as twoDimensionNeighborhoodStateExtractor } from './neighborhoodStateExtractor';
 import { oneDimension as oneDimensionStateReducer, lifeLike as lifeLikeStateReducer } from './stateReducer';
 import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApplicator } from './ruleApplicator';
-// import { oneDimension as oneDimensionPopulationMap, twoDimension as twoDimensionPopulationMap } from './populationMap';
-// import { oneDimension as oneDimensionPopulationSeed, twoDimension as twoDimensionPopulationSeed } from './populationSeed';
 import { populationSeed } from './populationSeed';
 
 export default class GenerationMaker {
   constructor() {
-    // this.useLifeLikeGenerator();
-    this.useOneDimensionGenerator();
-    // this.rule = rule;
+    this.useLifeLikeGenerator();
+    // this.useOneDimensionGenerator();
     this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
@@ -32,7 +28,6 @@ export default class GenerationMaker {
   useOneDimensionGenerator() {
     this._generatorType = 'oneDimension';
     this._populationSeed = populationSeed;
-    // this._populationMap = oneDimensionPopulationMap;
     this._neighborStateExtractor = oneDimensionNeighborhoodStateExtractor;
     this._stateReducer = oneDimensionStateReducer;
     this._ruleApplicator = new OneDimensionRuleApplicator();
@@ -41,7 +36,6 @@ export default class GenerationMaker {
   useLifeLikeGenerator() {
     this._generatorType = 'twoDimension';
     this._populationSeed = populationSeed;
-    // this._populationMap = twoDimensionPopulationMap;
     this._neighborStateExtractor = twoDimensionNeighborhoodStateExtractor;
     this._stateReducer = lifeLikeStateReducer;
     this._ruleApplicator = new LifeLikeRuleApplicator();
@@ -60,20 +54,6 @@ export default class GenerationMaker {
     // const populationIterable = this._populationMap(currentPopulation)
     let newPopulation = [];
     // console.log('currentPopulation', currentPopulation)
-
-    // for (let indexOfCell of populationIterable) {
-    //   if (indexOfCell === undefined) break;
-    //
-    //   const cellState = this._computeStateOffCoords(indexOfCell, currentPopulation)
-    //   // console.log('index of cell', indexOfCell)
-    //   // const neighborhoodState = this._neighborStateExtractor(indexOfCell, currentPopulation);
-    //   // const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-    //   // const cellState = this._ruleApplicator.run(reducedState)
-    //   newPopulation.push(cellState);
-    //   // console.log('neighborhoodState', neighborhoodState)
-    //   // console.log('reducedState', reducedState)
-    //   // console.log('cellState', cellState)
-    // }
 
     for (let y = 0; y < currentPopulation.length; y++) {
       const row = currentPopulation[y];
@@ -95,10 +75,6 @@ export default class GenerationMaker {
 
     }
 
-
-
-    // console.log('----------------new population-------------', newPopulation)
-    // return [newPopulation];
     return newPopulation
   }
 

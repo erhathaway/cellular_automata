@@ -14,12 +14,12 @@ const twoDimension = ({ neighbors, cell }) => {
 }
 
 const lifeLike = ({ neighbors, cell }) => {
-  const neighborsStateCount = neighbors.reduce((acc, state) => {
+  const neighborStatesCount = neighbors.reduce((acc, state) => {
     const existingCount = acc[state] || 0;
     acc[state] = existingCount + 1;
     return acc;
   }, {});
-  return { neighborsState: neighborsStateCount, cellState: cell };
+  return { neighborStates: neighborStatesCount, cellState: cell };
 }
 
 export { oneDimension, twoDimension, lifeLike }

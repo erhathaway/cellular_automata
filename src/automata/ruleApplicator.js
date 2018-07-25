@@ -58,7 +58,7 @@ class OneDimension {
 
 class LifeLike {
   constructor() {
-    this.rule = { survive: [2, 3], born: [3] };
+    this.rule = { survive: [1, 2], born: [3] };
   }
 
   set rule(rule) {
@@ -68,7 +68,7 @@ class LifeLike {
     return this._rule;
   }
 
-  run(neighborStates, cellState) {
+  run({ neighborStates, cellState }) {
     if (cellState === 1 && this.rule.survive.includes(neighborStates[1])) return 1;
     else if (cellState === 0 && this.rule.born.includes(neighborStates[1])) return 1;
     else return 0;

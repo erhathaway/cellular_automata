@@ -1630,13 +1630,13 @@
     neighbors,
     cell
   }) => {
-    const neighborsStateCount = neighbors.reduce((acc, state) => {
+    const neighborStatesCount = neighbors.reduce((acc, state) => {
       const existingCount = acc[state] || 0;
       acc[state] = existingCount + 1;
       return acc;
     }, {});
     return {
-      neighborsState: neighborsStateCount,
+      neighborStates: neighborStatesCount,
       cellState: cell
     };
   };
@@ -1705,7 +1705,7 @@
   class LifeLike {
     constructor() {
       this.rule = {
-        survive: [2, 3],
+        survive: [1, 2],
         born: [3]
       };
     }
@@ -1718,7 +1718,10 @@
       return this._rule;
     }
 
-    run(neighborStates, cellState) {
+    run({
+      neighborStates,
+      cellState
+    }) {
       if (cellState === 1 && this.rule.survive.includes(neighborStates[1])) return 1;else if (cellState === 0 && this.rule.born.includes(neighborStates[1])) return 1;else return 0;
     }
 
@@ -1742,8 +1745,7 @@
 
   class GenerationMaker {
     constructor() {
-      // this.useLifeLikeGenerator();
-      this.useOneDimensionGenerator(); // this.rule = rule;
+      this.useLifeLikeGenerator(); // this.useOneDimensionGenerator();
 
       this.generationRate = 0;
       this.totalTimeSpentGenerating = 0;
@@ -1765,8 +1767,7 @@
 
     useOneDimensionGenerator() {
       this._generatorType = 'oneDimension';
-      this._populationSeed = newDimension; // this._populationMap = oneDimensionPopulationMap;
-
+      this._populationSeed = newDimension;
       this._neighborStateExtractor = oneDimension;
       this._stateReducer = oneDimension$1;
       this._ruleApplicator = new OneDimension();
@@ -1774,8 +1775,7 @@
 
     useLifeLikeGenerator() {
       this._generatorType = 'twoDimension';
-      this._populationSeed = newDimension; // this._populationMap = twoDimensionPopulationMap;
-
+      this._populationSeed = newDimension;
       this._neighborStateExtractor = twoDimension;
       this._stateReducer = lifeLike;
       this._ruleApplicator = new LifeLike();
@@ -1799,19 +1799,6 @@
       // console.log('using TYPE', this._generatorType)
       // const populationIterable = this._populationMap(currentPopulation)
       let newPopulation = []; // console.log('currentPopulation', currentPopulation)
-      // for (let indexOfCell of populationIterable) {
-      //   if (indexOfCell === undefined) break;
-      //
-      //   const cellState = this._computeStateOffCoords(indexOfCell, currentPopulation)
-      //   // console.log('index of cell', indexOfCell)
-      //   // const neighborhoodState = this._neighborStateExtractor(indexOfCell, currentPopulation);
-      //   // const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-      //   // const cellState = this._ruleApplicator.run(reducedState)
-      //   newPopulation.push(cellState);
-      //   // console.log('neighborhoodState', neighborhoodState)
-      //   // console.log('reducedState', reducedState)
-      //   // console.log('cellState', cellState)
-      // }
 
       for (let y = 0; y < currentPopulation.length; y++) {
         const row = currentPopulation[y]; // if 2D
@@ -1836,9 +1823,7 @@
 
           newPopulation.push(state);
         }
-      } // console.log('----------------new population-------------', newPopulation)
-      // return [newPopulation];
-
+      }
 
       return newPopulation;
     }
@@ -48696,7 +48681,8 @@
     _neighbors: undefined,
     _population: 500,
     _populationShape: {
-      x: 500
+      x: 900,
+      y: 900
     },
     _growth: undefined,
     _generations: 500,
@@ -48759,36 +48745,40 @@
     _stopSimulation: function () {
       this._viewer.turnSimulationOff();
     },
+    // _retrieveNextGeneration: function() {
+    //   const genCopy = this._cellStates;
+    //   const unScaledCurrentGen = genCopy.slice(-1)[0];
+    //
+    //   const scaleDiff = this._population - unScaledCurrentGen.length;
+    //   let currentGen;
+    //
+    //   // on view resizing we need to add filler cells or subtract existing cells
+    //   if (scaleDiff > 0) {
+    //     const filler = new Array(scaleDiff).fill(0)
+    //     currentGen = [...unScaledCurrentGen, ...filler]
+    //   } else if (scaleDiff < 0) {
+    //     currentGen = unScaledCurrentGen.slice(0, this._population)
+    //   } else {
+    //     currentGen = unScaledCurrentGen;
+    //   }
+    //
+    //   const nextGen = this._generationMaker.run(currentGen);
+    //
+    //   const previousGens = this._cellStates.slice(-this._generations)
+    //   previousGens.push(nextGen)
+    //   this._cellStates = previousGens;
+    //
+    //   return nextGen;
+    // },
     _retrieveNextGeneration: function () {
-      const genCopy = this._cellStates;
-      const unScaledCurrentGen = genCopy.slice(-1)[0];
-      const scaleDiff = this._population - unScaledCurrentGen.length;
-      let currentGen; // on view resizing we need to add filler cells or subtract existing cells
-
-      if (scaleDiff > 0) {
-        const filler = new Array(scaleDiff).fill(0);
-        currentGen = [...unScaledCurrentGen, ...filler];
-      } else if (scaleDiff < 0) {
-        currentGen = unScaledCurrentGen.slice(0, this._population);
-      } else {
-        currentGen = unScaledCurrentGen;
-      }
+      const currentGen = this._cellStates;
 
       const nextGen = this._generationMaker.run(currentGen);
 
-      const previousGens = this._cellStates.slice(-this._generations);
-
-      previousGens.push(nextGen);
-      this._cellStates = previousGens;
+      this._cellStates = nextGen;
+      console.log('next generation', nextGen);
       return nextGen;
     },
-    // _retrieveNextGeneration: function() {
-    //   const currentGen = this._cellStates;
-    //   const nextGen = this._generationMaker.run(currentGen);
-    //   this._cellStates = nextGen;
-    //   console.log('next generation', nextGen)
-    //   return nextGen;
-    // },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
@@ -48803,9 +48793,10 @@
       console.log('bulk generations created', this._cellStates);
     },
     _createGenesisGeneration: function () {
-      this._viewer.setPopulationCount(this._population);
+      this._viewer.setPopulationCount(this._population); // this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)]
 
-      this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)];
+
+      this._cellStates = this._generationMaker.runPopulationSeed(this._populationShape);
     },
     _setViewer: function () {
       switch (this._dimension) {
@@ -48834,9 +48825,8 @@
 
       this._setViewer();
 
-      this._createGenesisGeneration();
+      this._createGenesisGeneration(); // this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
 
-      this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
 
       this._viewer.createScene();
 
