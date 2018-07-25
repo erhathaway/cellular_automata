@@ -7,7 +7,6 @@ const oneDimension = (cellIndex, neighborhoodArr) => {
         return state === undefined ? arr.slice(-1)[0] : state;
       }
     },
-    // { name: 'cell', stateFn: (index, arr) => arr[index] },
     { name: 'rightNeighbor', stateFn: (index, arr) => {
         const state = arr[index+1];
         return state === undefined ? arr[0] : state;

@@ -51,8 +51,8 @@ class OneDimension {
     {});
   }
 
-  run(state) {
-    return this.ruleObject[state]
+  run({ ruleKey }) {
+    return this.ruleObject[ruleKey]
   }
 }
 
@@ -68,9 +68,9 @@ class LifeLike {
     return this._rule;
   }
 
-  run({ neighborStates, cellState }) {
-    if (cellState === 1 && this.rule.survive.includes(neighborStates[1])) return 1;
-    else if (cellState === 0 && this.rule.born.includes(neighborStates[1])) return 1;
+  run({ neighborStatesCount, cellState }) {
+    if (cellState === 1 && this.rule.survive.includes(neighborStatesCount[1])) return 1;
+    else if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;
     else return 0;
   }
 }

@@ -1547,8 +1547,7 @@
         const state = arr[index - 1];
         return state === undefined ? arr.slice(-1)[0] : state;
       }
-    }, // { name: 'cell', stateFn: (index, arr) => arr[index] },
-    {
+    }, {
       name: 'rightNeighbor',
       stateFn: (index, arr) => {
         const state = arr[index + 1];
@@ -1622,8 +1621,10 @@
     const left = neighbors[0] << 2;
     const self = cell << 1;
     const right = neighbors[1];
-    const count = left | self | right;
-    return count;
+    const ruleKey = left | self | right;
+    return {
+      ruleKey
+    };
   };
 
   const lifeLike = ({
@@ -1636,7 +1637,7 @@
       return acc;
     }, {});
     return {
-      neighborStates: neighborStatesCount,
+      neighborStatesCount,
       cellState: cell
     };
   };
@@ -1696,8 +1697,10 @@
       }, {});
     }
 
-    run(state) {
-      return this.ruleObject[state];
+    run({
+      ruleKey
+    }) {
+      return this.ruleObject[ruleKey];
     }
 
   }
@@ -1719,10 +1722,10 @@
     }
 
     run({
-      neighborStates,
+      neighborStatesCount,
       cellState
     }) {
-      if (cellState === 1 && this.rule.survive.includes(neighborStates[1])) return 1;else if (cellState === 0 && this.rule.born.includes(neighborStates[1])) return 1;else return 0;
+      if (cellState === 1 && this.rule.survive.includes(neighborStatesCount[1])) return 1;else if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;else return 0;
     }
 
   }
@@ -1745,8 +1748,8 @@
 
   class GenerationMaker {
     constructor() {
-      this.useLifeLikeGenerator(); // this.useOneDimensionGenerator();
-
+      // this.useLifeLikeGenerator();
+      this.useOneDimensionGenerator();
       this.generationRate = 0;
       this.totalTimeSpentGenerating = 0;
       this.generationNumber = 0;
@@ -1795,10 +1798,7 @@
     }
 
     _run(currentPopulation) {
-      // console.log('generating new population')
-      // console.log('using TYPE', this._generatorType)
-      // const populationIterable = this._populationMap(currentPopulation)
-      let newPopulation = []; // console.log('currentPopulation', currentPopulation)
+      let newPopulation = [];
 
       for (let y = 0; y < currentPopulation.length; y++) {
         const row = currentPopulation[y]; // if 2D
@@ -1831,13 +1831,7 @@
     run(currentPopulation) {
       const t0 = performance.now();
 
-      const newPopulation = this._run(currentPopulation); // const newPopulation = currentPopulation.map((state, index) => {
-      //   const neighborhoodState = oneDimensionNeighborhoodStateExtractor(index, currentPopulation);
-      //   const reducedState = oneDimensionStateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-      //   const newCellState = this._ruleApplicator(reducedState);
-      //   return newCellState
-      // })
-
+      const newPopulation = this._run(currentPopulation);
 
       const t1 = performance.now();
 
@@ -48681,8 +48675,7 @@
     _neighbors: undefined,
     _population: 500,
     _populationShape: {
-      x: 900,
-      y: 900
+      x: 500
     },
     _growth: undefined,
     _generations: 500,
@@ -48745,40 +48738,36 @@
     _stopSimulation: function () {
       this._viewer.turnSimulationOff();
     },
-    // _retrieveNextGeneration: function() {
-    //   const genCopy = this._cellStates;
-    //   const unScaledCurrentGen = genCopy.slice(-1)[0];
-    //
-    //   const scaleDiff = this._population - unScaledCurrentGen.length;
-    //   let currentGen;
-    //
-    //   // on view resizing we need to add filler cells or subtract existing cells
-    //   if (scaleDiff > 0) {
-    //     const filler = new Array(scaleDiff).fill(0)
-    //     currentGen = [...unScaledCurrentGen, ...filler]
-    //   } else if (scaleDiff < 0) {
-    //     currentGen = unScaledCurrentGen.slice(0, this._population)
-    //   } else {
-    //     currentGen = unScaledCurrentGen;
-    //   }
-    //
-    //   const nextGen = this._generationMaker.run(currentGen);
-    //
-    //   const previousGens = this._cellStates.slice(-this._generations)
-    //   previousGens.push(nextGen)
-    //   this._cellStates = previousGens;
-    //
-    //   return nextGen;
-    // },
     _retrieveNextGeneration: function () {
-      const currentGen = this._cellStates;
+      const genCopy = this._cellStates;
+      const unScaledCurrentGen = genCopy.slice(-1)[0];
+      const scaleDiff = this._population - unScaledCurrentGen.length;
+      let currentGen; // on view resizing we need to add filler cells or subtract existing cells
+
+      if (scaleDiff > 0) {
+        const filler = new Array(scaleDiff).fill(0);
+        currentGen = [...unScaledCurrentGen, ...filler];
+      } else if (scaleDiff < 0) {
+        currentGen = unScaledCurrentGen.slice(0, this._population);
+      } else {
+        currentGen = unScaledCurrentGen;
+      }
 
       const nextGen = this._generationMaker.run(currentGen);
 
-      this._cellStates = nextGen;
-      console.log('next generation', nextGen);
+      const previousGens = this._cellStates.slice(-this._generations);
+
+      previousGens.push(nextGen);
+      this._cellStates = previousGens;
       return nextGen;
     },
+    // _retrieveNextGeneration: function() {
+    //   const currentGen = this._cellStates;
+    //   const nextGen = this._generationMaker.run(currentGen);
+    //   this._cellStates = nextGen;
+    //   // console.log('next generation', nextGen)
+    //   return nextGen;
+    // },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._cellStates === undefined) {
         this._createGenesisGeneration();
@@ -48789,14 +48778,11 @@
       for (generationCount = 0; generationCount < numberOfVisibleGenerations; generationCount++) {
         this._viewer.addGeneration();
       }
-
-      console.log('bulk generations created', this._cellStates);
     },
     _createGenesisGeneration: function () {
-      this._viewer.setPopulationCount(this._population); // this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)]
+      this._viewer.setPopulationCount(this._population);
 
-
-      this._cellStates = this._generationMaker.runPopulationSeed(this._populationShape);
+      this._cellStates = [this._generationMaker.runPopulationSeed(this._populationShape)]; // this._cellStates = this._generationMaker.runPopulationSeed(this._populationShape)
     },
     _setViewer: function () {
       switch (this._dimension) {
@@ -48825,8 +48811,9 @@
 
       this._setViewer();
 
-      this._createGenesisGeneration(); // this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+      this._createGenesisGeneration();
 
+      this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
 
       this._viewer.createScene();
 

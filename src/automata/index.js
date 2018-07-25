@@ -5,8 +5,8 @@ import { populationSeed } from './populationSeed';
 
 export default class GenerationMaker {
   constructor() {
-    this.useLifeLikeGenerator();
-    // this.useOneDimensionGenerator();
+    // this.useLifeLikeGenerator();
+    this.useOneDimensionGenerator();
     this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
@@ -49,11 +49,7 @@ export default class GenerationMaker {
   }
 
   _run(currentPopulation) {
-    // console.log('generating new population')
-    // console.log('using TYPE', this._generatorType)
-    // const populationIterable = this._populationMap(currentPopulation)
     let newPopulation = [];
-    // console.log('currentPopulation', currentPopulation)
 
     for (let y = 0; y < currentPopulation.length; y++) {
       const row = currentPopulation[y];
@@ -80,15 +76,7 @@ export default class GenerationMaker {
 
   run(currentPopulation) {
     const t0 = performance.now();
-
     const newPopulation = this._run(currentPopulation);
-    // const newPopulation = currentPopulation.map((state, index) => {
-    //   const neighborhoodState = oneDimensionNeighborhoodStateExtractor(index, currentPopulation);
-    //   const reducedState = oneDimensionStateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-    //   const newCellState = this._ruleApplicator(reducedState);
-    //   return newCellState
-    // })
-
     const t1 = performance.now();
 
     if (this.generationNumber % 100 === 0) {
