@@ -1566,23 +1566,13 @@
   // neighborhoodMatrix: [[Int, Int...], ...]
 
 
-  const getTop = (y, arr) => {
+  const getBefore = (y, arr) => {
     const state = arr[y - 1];
     return state === undefined ? arr.slice(-1)[0] : state;
   };
 
-  const getBottom = (y, arr) => {
+  const getAfter = (y, arr) => {
     const state = arr[y + 1];
-    return state === undefined ? arr[0] : state;
-  };
-
-  const getLeft = (x, arr) => {
-    const state = arr[x - 1];
-    return state === undefined ? arr.slice(-1)[0] : state;
-  };
-
-  const getRight = (x, arr) => {
-    const state = arr[x + 1];
     return state === undefined ? arr[0] : state;
   };
 
@@ -1592,61 +1582,49 @@
       stateFn: ({
         x,
         y
-      }, mat) => {
-        return getTop(y, mat)[x]; // const state = mat[y - 1];
-        // return state === undefined ? mat.slice(-1)[0][x] : state[x];
-      }
+      }, mat) => getBefore(y, mat)[x]
     }, {
       name: 'topRight',
       stateFn: ({
         x,
         y
-      }, mat) => getRight(x, getTop(y, mat))
+      }, mat) => getAfter(x, getBefore(y, mat))
     }, {
       name: 'right',
       stateFn: ({
         x,
         y
-      }, mat) => {
-        return getRight(x, mat[y]); // const state = mat[y][x + 1];
-        // return state === undefined ? mat[y][0] : state;
-      }
+      }, mat) => getAfter(x, mat[y])
     }, {
       name: 'bottomRight',
       stateFn: ({
         x,
         y
-      }, mat) => getRight(x, getBottom(y, mat))
+      }, mat) => getAfter(x, getAfter(y, mat))
     }, {
       name: 'bottom',
       stateFn: ({
         x,
         y
-      }, mat) => {
-        return getBottom(y, mat)[x]; // const state = mat[y + 1];
-        // return state === undefined ? mat[0][x] : state[x];
-      }
+      }, mat) => getAfter(y, mat)[x]
     }, {
       name: 'bottomLeft',
       stateFn: ({
         x,
         y
-      }, mat) => getLeft(x, getBottom(y, mat))
+      }, mat) => getBefore(x, getAfter(y, mat))
     }, {
       name: 'left',
       stateFn: ({
         x,
         y
-      }, mat) => {
-        return getLeft(x, mat[y]); // const state = mat[y][x - 1];
-        // return state === undefined ? mat[y].slice(-1)[0] : state;
-      }
+      }, mat) => getBefore(x, mat[y])
     }, {
       name: 'topLeft',
       stateFn: ({
         x,
         y
-      }, mat) => getLeft(x, getTop(y, mat))
+      }, mat) => getBefore(x, getBefore(y, mat))
     }];
     const neighbors = NEIGHBORS.map(({
       stateFn
@@ -48843,19 +48821,18 @@
       };
 
       this.removeGeneration = () => {
-        this.clearScene(); // if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-        //   this.scene.remove(this.camera)
-        //
-        //   const mesh = this.meshes.shift();
-        //   this.cleanUpRefsByMesh(mesh);
-        // }
+        if (this.meshes.length > 1) {
+          // mesh + camera
+          const mesh = this.meshes[0];
+          this.cleanUpRefsByMesh(mesh, true);
+        }
       };
 
       this.updateFn = () => {
         if (this.runSimulation === true) {
+          this.addGeneration();
           this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-
-          this.addGeneration(); //   if (this.totalDistanceToMovePerAnimation <= 0) { // if there is nothing left to move, add a generation;
+          //   if (this.totalDistanceToMovePerAnimation <= 0) { // if there is nothing left to move, add a generation;
           //     this.resetTotalDistanceToMovePerAnimation();
           //     this.addGeneration();
           //     // this.removeGeneration();
@@ -48992,8 +48969,8 @@
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: {
-      x: 500,
-      y: 500
+      x: 200,
+      y: 200
     },
     _growth: undefined,
     _generationsToShow: 500,

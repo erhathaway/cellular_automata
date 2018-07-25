@@ -27,7 +27,7 @@ const app = {
   _dimension: '2D',
   _neighbors: undefined,
   _populationSize: 500,
-  _populationShape: { x: 500, y: 500 },
+  _populationShape: { x: 200, y: 200 },
   _growth: undefined,
   _generationsToShow: 500,
   _edges: undefined,

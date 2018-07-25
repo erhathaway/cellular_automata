@@ -218,19 +218,17 @@ export default class TwoDimensionViewer {
   }
 
   removeGeneration = () => {
-    this.clearScene();
-    // if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-    //   this.scene.remove(this.camera)
-    //
-    //   const mesh = this.meshes.shift();
-    //   this.cleanUpRefsByMesh(mesh);
-    // }
+    if (this.meshes.length > 1) { // mesh + camera
+      const mesh = this.meshes[0];
+
+      this.cleanUpRefsByMesh(mesh, true)
+    }
   }
 
   updateFn = () => {
     if (this.runSimulation === true) {
-      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       this.addGeneration();
+      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
     //   if (this.totalDistanceToMovePerAnimation <= 0) { // if there is nothing left to move, add a generation;
     //     this.resetTotalDistanceToMovePerAnimation();
     //     this.addGeneration();
