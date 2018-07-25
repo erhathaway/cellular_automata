@@ -19,7 +19,9 @@ export default class TwoDimensionViewer {
 
     this.scene = new Scene();
     this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
-
+    this.elID = this.dimension + '-dimension-viewer';
+    this.renderer.domElement.id = this.elID
+    
     const CONTAINER_WIDTH =  this.containerWidth;
     const CONTAINER_HEIGHT = this.containerHeight;
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
@@ -283,6 +285,11 @@ export default class TwoDimensionViewer {
     this.renderer.forceContextLoss();
     this.renderer.context = null;
     this.renderer.domElement = null;
+
+    setTimeout(function() {
+      document.getElementById(this.elID).remove();
+    }.bind(this), 1000)
+
     this.renderer = null;
     this.camera = null;
     this.scene = null;

@@ -6,8 +6,8 @@ import { populationSeed } from './populationSeed';
 export default class GenerationMaker {
   constructor() {
     this.useLifeLikeGenerator();
-    // this.useOneDimensionGenerator();
-    this.generationRate = 0;
+    this.useOneDimensionGenerator();
+    // this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
   }
