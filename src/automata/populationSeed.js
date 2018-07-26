@@ -1,7 +1,19 @@
 const newState = () => Math.round(Math.random());
 
+/* coordinate system
+┌─────────────────────────────┐
+│ ┌─────┐                     │
+│ │┌───┐│                     │
+│ ││ z ││                     │
+│ │└───┘│                     │
+│ │     │                     │
+│ │  y  │             x       │
+│ └─────┘                     │
+└─────────────────────────────┘
+*/
+
 const newDimension = (shape) => {
-  const dimensions = Object.keys(shape);
+  const dimensions = Object.keys(shape).sort(); // built up in terms of x, y, z etc...
   const firstDimension = dimensions[0];
   const dimensionPopulation = shape[firstDimension];
 
