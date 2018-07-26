@@ -90,7 +90,7 @@ export default class GenerationMaker {
     this.totalTimeSpentGenerating += time;
     this.generationRate = this.totalTimeSpentGenerating / this.generationNumber
     // console.log('**generation rate**', this.generationRate)
-    console.log('**generation rate**', time)
+    // console.log('**generation rate**', time)
 
     return newPopulation;
   }

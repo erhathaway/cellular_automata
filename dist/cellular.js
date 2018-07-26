@@ -1629,7 +1629,15 @@
   const twoNeighboorsOneDimension = createCoordinateExtractors(['x-1', 'x+1']); // 2D
 
   const fourNeighboorsTwoDimensions = createCoordinateExtractors(['x|y+1', 'x+1|y', 'x|y-1', 'x-1|y']);
-  const eightNeighboorsTwoDimensions = createCoordinateExtractors(['x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1']); // 3D
+  const eightNeighboorsTwoDimensions = createCoordinateExtractors(['x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1']);
+  const twentyFourNeighboorsTwoDimensions = createCoordinateExtractors([// 'x-2|y+1',
+  // 'x-2|y-1',
+  // 'x-2|y-2',
+  // 'x-2|y',
+  // 'x-2|y+2',
+  'x+2|y+2', 'x+2|y+1', 'x+2|y', 'x+2|y-1', 'x+2|y-2', // 'x-1|y+2', 'x|y+2', 'x+1|y+2',
+  // 'x-1|y-2', 'x|y-2', 'x+1|y-2',
+  'x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1']); // 3D
 
   const sixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y|z', 'x|y-1|z', 'x-1|y|z', 'x|y|z+1', 'x|y|z-1']);
   const twentySixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y+1|z', 'x+1|y|z', 'x+1|y-1|z', 'x|y-1|z', 'x-1|y-1|z', 'x-1|y|z', 'x-1|y+1|z', 'x|y+1|z+1', 'x+1|y+1|z+1', 'x+1|y|z+1', 'x+1|y-1|z+1', 'x|y-1|z+1', 'x-1|y-1|z+1', 'x-1|y|z+1', 'x-1|y+1|z+1', 'x|y|z+1', 'x|y+1|z-1', 'x+1|y+1|z-1', 'x+1|y|z-1', 'x+1|y-1|z-1', 'x|y-1|z-1', 'x-1|y-1|z-1', 'x-1|y|z-1', 'x-1|y+1|z-1', 'x|y|z-1']); // cellIndex: Int
@@ -1672,7 +1680,7 @@
     // ];
     // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
     // console.log(eightNeighboorsTwoDimensions)
-    const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+    const neighbors = twentyFourNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
     const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
     return {
       neighbors,
@@ -1774,8 +1782,8 @@
   class LifeLike {
     constructor() {
       this.rule = {
-        survive: [3, 2],
-        born: [3]
+        survive: [4, 5, 6, 7],
+        born: [5]
       };
     }
 
@@ -1923,8 +1931,8 @@
       this.generationNumber += 1;
       this.totalTimeSpentGenerating += time;
       this.generationRate = this.totalTimeSpentGenerating / this.generationNumber; // console.log('**generation rate**', this.generationRate)
+      // console.log('**generation rate**', time)
 
-      console.log('**generation rate**', time);
       return newPopulation;
     }
 
@@ -49044,7 +49052,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _dimension: '1D',
+    _dimension: '2D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -49143,7 +49151,12 @@
     },
     _retrieveNextGenerationTwoDimension: function () {
       // create new population
-      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // save new population to history
+      // if (this._populationHistory.length === this._generationsToShow) {
+      //   this._currentPopulation = this._populationHistory.shift()
+      //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
+      // } else {
+      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // }
+      // save new population to history
       // resize history to width of generationsToShow variable
 
       const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
@@ -49195,10 +49208,10 @@
           if (this._viewer && this._viewer.dimension === '2D') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 300,
-            y: 300
+            x: 200,
+            y: 200
           };
-          this._generationsToShow = 300;
+          this._generationsToShow = 2;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
           this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
 
@@ -51288,7 +51301,7 @@
       labelName: 'Dimension',
       cellName: 'dimension',
       updateFn: '_setDimension',
-      selections: ['1D', '2D']
+      selections: ['2D', '1D']
     }), createApp({
       labelName: 'Neighbors (1+)',
       cellName: 'neighbors',

@@ -83,6 +83,21 @@ const twoNeighboorsOneDimension = createCoordinateExtractors(['x-1', 'x+1']);
 // 2D
 const fourNeighboorsTwoDimensions = createCoordinateExtractors(['x|y+1', 'x+1|y', 'x|y-1', 'x-1|y']);
 const eightNeighboorsTwoDimensions = createCoordinateExtractors(['x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1']);
+const twentyFourNeighboorsTwoDimensions = createCoordinateExtractors([
+  // 'x-2|y+1',
+  // 'x-2|y-1',
+  // 'x-2|y-2',
+  // 'x-2|y',
+  // 'x-2|y+2',
+  'x+2|y+2',
+  'x+2|y+1',
+  'x+2|y',
+  'x+2|y-1',
+  'x+2|y-2',
+  // 'x-1|y+2', 'x|y+2', 'x+1|y+2',
+  // 'x-1|y-2', 'x|y-2', 'x+1|y-2',
+  'x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1'
+]);
 // 3D
 const sixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y|z', 'x|y-1|z', 'x-1|y|z', 'x|y|z+1', 'x|y|z-1']);
 const twentySixNeighboorsThreeDimensions = createCoordinateExtractors([
@@ -128,7 +143,7 @@ const twoDimension = (cellCoords, neighborhoodMatrix) => {
   // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
   // console.log(eightNeighboorsTwoDimensions)
 
-  const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+  const neighbors = twentyFourNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
   const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
   return { neighbors, cell }
 }

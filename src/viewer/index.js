@@ -24,7 +24,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _dimension: '1D',
+  _dimension: '2D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
@@ -112,7 +112,12 @@ const app = {
   },
   _retrieveNextGenerationTwoDimension: function() {
     // create new population
-    this._currentPopulation = this._generationMaker.run(this._currentPopulation);
+    // if (this._populationHistory.length === this._generationsToShow) {
+    //   this._currentPopulation = this._populationHistory.shift()
+    //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
+    // } else {
+      this._currentPopulation = this._generationMaker.run(this._currentPopulation);
+    // }
 
     // save new population to history
     // resize history to width of generationsToShow variable
@@ -153,8 +158,8 @@ const app = {
         console.log('2d case')
         if (this._viewer && this._viewer.dimension === '2D') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 300, y: 300 };
-        this._generationsToShow = 300;
+        this._populationShape = { x: 200, y: 200 };
+        this._generationsToShow = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
         this._generationMaker.useLifeLikeGenerator();
