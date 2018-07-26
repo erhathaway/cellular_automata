@@ -49087,6 +49087,7 @@
       this._edges = +value;
     },
     _populationHistory: [],
+    _currentPopulation: undefined,
     _cellDimension: 10,
     _isRunning: false,
     _runSimulationID: undefined,
@@ -49114,43 +49115,44 @@
     _retrieveNextGeneration: undefined,
     _retrieveNextGenerationOneDimension: function () {
       const genCopy = this._populationHistory;
-      const unScaledCurrentGen = genCopy.slice(-1)[0];
-      const scaleDiff = this._populationSize - unScaledCurrentGen.length;
-      let currentGen; // on view resizing we need to add filler cells or subtract existing cells
+      const scaleDiff = this._populationSize - this._currentPopulation.length;
 
       if (scaleDiff > 0) {
         const filler = new Array(scaleDiff).fill(0);
-        currentGen = [...unScaledCurrentGen, ...filler];
+        this._currentPopulation = [...this._currentPopulation, ...filler];
       } else if (scaleDiff < 0) {
-        currentGen = unScaledCurrentGen.slice(0, this._populationSize);
+        this._currentPopulation = this._currentPopulation.slice(0, this._populationSize);
       } else {
-        currentGen = unScaledCurrentGen;
+        this._currentPopulation = this._currentPopulation;
       }
 
-      const nextGen = this._generationMaker.run(currentGen);
+      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // save current population to history
+      // resize history to width of generationsToShow variable
+
+      const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
 
       const previousGens = this._populationHistory.slice(-this._generationsToShow);
 
-      previousGens.push(nextGen);
+      previousGens.push(binCurrentPopulation);
       this._populationHistory = previousGens;
-      return nextGen;
+      return this._currentPopulation;
+    },
+    _convertArrayStateDataToBinaryString: function (arr) {
+      if (Array.isArray(arr[0])) return arr.map(this._convertArrayStateDataToBinaryString);
+      return arr.map(i => i.toString(2)).join('');
     },
     _retrieveNextGenerationTwoDimension: function () {
-      const t0 = performance.now();
+      // create new population
+      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // save new population to history
+      // resize history to width of generationsToShow variable
 
-      const currentGen = this._populationHistory.slice(-1)[0];
+      const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
 
-      const t1 = performance.now(); // console.log('old history acq rate', t1-t0)
+      const previousGens = this._populationHistory.slice(-this._generationsToShow);
 
-      const nextGen = this._generationMaker.run(currentGen);
-
-      const t2 = performance.now(); // console.log('---new gen acq rate----', t2-t1)
-
-      this._populationHistory = [nextGen]; // console.log('next generation', nextGen)
-
-      const t3 = performance.now(); // console.log('add new gen rate', t3-t2)
-
-      return nextGen;
+      previousGens.push(binCurrentPopulation);
+      this._populationHistory = previousGens;
+      return this._currentPopulation;
     },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._populationHistory === undefined) {
@@ -49168,7 +49170,8 @@
 
       this._viewer.setPopulationCount(this._populationSize);
 
-      this._populationHistory = [this._generationMaker.runPopulationSeed(this._populationShape)];
+      this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
+      this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
     },
     _setViewer: function () {
       switch (this._dimension) {
@@ -49179,6 +49182,7 @@
           this._populationShape = {
             x: 300
           };
+          this._generationsToShow = 500;
           this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
           this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
 
@@ -49194,6 +49198,7 @@
             x: 300,
             y: 300
           };
+          this._generationsToShow = 300;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
           this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
 
