@@ -21,7 +21,7 @@ export default class TwoDimensionViewer {
     this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
     this.elID = this.dimension + '-dimension-viewer';
     this.renderer.domElement.id = this.elID
-    
+
     const CONTAINER_WIDTH =  this.containerWidth;
     const CONTAINER_HEIGHT = this.containerHeight;
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
@@ -143,7 +143,10 @@ export default class TwoDimensionViewer {
     const geometry = new Geometry();
     this.geometries.push(geometry);
 
+    const t0 = performance.now();
     const generationState = this._getNextGeneration();
+    const t1 = performance.now();
+    // console.log('-----viewer new state acquisition rate----', t1-t0)
 
     this.setPopulationCount(generationState.length)
     // const startY = this.currrentGenerationYPosition;
@@ -168,11 +171,15 @@ export default class TwoDimensionViewer {
         }
       })
     });
+    const t2 = performance.now();
+    // console.log('point creationg rate', t2 - t1)
 
     // geometry.verticesNeedUpdate = true
     const pointField = new Points(geometry, material);
     this.meshes.push(pointField);
     this.scene.add(pointField);
+    const t3 = performance.now();
+    // console.log('mesh addition rate', t3 - t2)
 
     this.currrentGenerationYPosition += this.cellDiameter;
     this.currentGenerationCount += 1;
@@ -228,6 +235,7 @@ export default class TwoDimensionViewer {
   }
 
   updateFn = () => {
+    const t0 = performance.now();
     if (this.runSimulation === true) {
       this.addGeneration();
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
@@ -245,6 +253,8 @@ export default class TwoDimensionViewer {
     //     this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
     //   }
     }
+    const t1 = performance.now();
+    // console.log('----viewer update rate----', t1-t0)
   }
 
   createScene = () => {

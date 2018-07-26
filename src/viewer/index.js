@@ -103,10 +103,17 @@ const app = {
     return nextGen;
   },
   _retrieveNextGenerationTwoDimension: function() {
+    const t0 = performance.now();
     const currentGen = this._populationHistory.slice(-1)[0];
+    const t1 = performance.now();
+    // console.log('old history acq rate', t1-t0)
     const nextGen = this._generationMaker.run(currentGen);
+    const t2 = performance.now();
+    // console.log('---new gen acq rate----', t2-t1)
     this._populationHistory = [nextGen];
     // console.log('next generation', nextGen)
+    const t3 = performance.now();
+    // console.log('add new gen rate', t3-t2)
     return nextGen;
   },
   _bulkCreateGenerations: function(numberOfVisibleGenerations) {
