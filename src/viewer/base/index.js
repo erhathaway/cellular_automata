@@ -40,6 +40,9 @@ export default class BaseClass {
     this.initCamera();
 
     window.addEventListener('resize', this._handleWindowResize);
+
+    this.updateRateInMS = undefined;
+    this.updateStartTime = new Date().getTime();
   }
 
   /*********************/
@@ -78,13 +81,13 @@ export default class BaseClass {
     const CONTAINER_WIDTH =  this.containerWidth;
     const CONTAINER_HEIGHT = this.containerHeight;
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-    const VIEW_ANGLE = 91;
+    const VIEW_ANGLE = 140;
     const NEAR = 0.1;
-    const FAR = 500;
+    const FAR = 8500;
     this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
 
     this.scene.add(this.camera);
-    this.camera.position.set(0, 0, 360);
+    this.camera.position.set(0, 100, -460);
     this.camera.lookAt(this.scene.position);
     this.updateCamera();
   }
@@ -148,7 +151,15 @@ export default class BaseClass {
 
   _updateFn = () => {
     if (this.runSimulation === true) {
-      this.updateFn();
+      if(this.updateRateInMS) {
+        const currentTime = new Date().getTime();
+        if (currentTime - this.updateStartTime >= this.updateRateInMS) {
+          this.updateStartTime = currentTime;
+          this.updateFn();
+        }
+      } else {
+        this.updateFn();
+      }
     }
   }
 

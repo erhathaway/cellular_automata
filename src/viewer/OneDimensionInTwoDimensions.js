@@ -1,6 +1,6 @@
 import { PointsMaterial, Geometry, Points, Vector3 } from 'three';
 
-import BaseClass from './BaseClass';
+import BaseClass from './base';
 
 function AttributeNotDefined(message) {
   this.message = message;

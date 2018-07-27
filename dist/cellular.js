@@ -1680,7 +1680,7 @@
     // ];
     // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
     // console.log(eightNeighboorsTwoDimensions)
-    const neighbors = twentyFourNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+    const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
     const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
     return {
       neighbors,
@@ -1782,8 +1782,8 @@
   class LifeLike {
     constructor() {
       this.rule = {
-        survive: [4, 5, 6, 7],
-        born: [5]
+        survive: [2, 3],
+        born: [3]
       };
     }
 
@@ -48525,12 +48525,12 @@
         const CONTAINER_WIDTH = this.containerWidth;
         const CONTAINER_HEIGHT = this.containerHeight;
         const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-        const VIEW_ANGLE = 91;
+        const VIEW_ANGLE = 140;
         const NEAR = 0.1;
-        const FAR = 500;
+        const FAR = 8500;
         this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
         this.scene.add(this.camera);
-        this.camera.position.set(0, 0, 360);
+        this.camera.position.set(0, 100, -460);
         this.camera.lookAt(this.scene.position);
         this.updateCamera();
       };
@@ -48550,7 +48550,16 @@
 
       this._updateFn = () => {
         if (this.runSimulation === true) {
-          this.updateFn();
+          if (this.updateRateInMS) {
+            const currentTime = new Date().getTime();
+
+            if (currentTime - this.updateStartTime >= this.updateRateInMS) {
+              this.updateStartTime = currentTime;
+              this.updateFn();
+            }
+          } else {
+            this.updateFn();
+          }
         }
       };
 
@@ -48665,6 +48674,8 @@
       this.initRenderer();
       this.initCamera();
       window.addEventListener('resize', this._handleWindowResize);
+      this.updateRateInMS = undefined;
+      this.updateStartTime = new Date().getTime();
     }
     /*********************/
 
@@ -48992,11 +49003,23 @@
 
       const xOffset = this.containerWidth / 2;
       const yOffset = this.containerHeight / 2;
-      generationState.forEach((row, rowNumber) => {
-        const startY = this.cellShape.y * rowNumber - yOffset;
-        row.forEach((cellState, cellNumber) => {
+      /* coordinate system
+      ┌─────────────────────────────┐
+      │ ┌─────┐                     │
+      │ │┌───┐│                     │
+      │ ││ z ││                     │
+      │ │└───┘│                     │
+      │ │     │                     │
+      │ │  y  │             x       │
+      │ └─────┘                     │
+      └─────────────────────────────┘
+      */
+
+      generationState.forEach((column, columnNumber) => {
+        const startX = this.cellShape.x * columnNumber - xOffset;
+        column.forEach((cellState, cellNumber) => {
           if (cellState === 1) {
-            const startX = this.cellShape.x * cellNumber - xOffset;
+            const startY = this.cellShape.y * cellNumber - yOffset;
             this.createPoint({
               startX,
               startY,
@@ -49058,8 +49081,194 @@
 
   }
 
+  function AttributeNotDefined$3(message) {
+    this.message = message;
+    this.name = 'AttributeNotDefined';
+  }
+
+  class TwoDimensionViewerInTwoDimensions$1 extends BaseClass {
+    constructor({
+      containerElId,
+      populationShape,
+      retrieveNextGeneration
+    }) {
+      if (populationShape === undefined) {
+        throw new AttributeNotDefined$3('A population shape objects must be passed to the constructor');
+      }
+
+      super({
+        containerElId,
+        populationShape,
+        type: 'two-dimension-in-two-dimensions',
+        retrieveNextGeneration
+      });
+
+      this.createPoint = ({
+        startX,
+        startY,
+        startZ,
+        geometry,
+        material,
+        singleGeometry
+      }) => {
+        // const vertex = new Vector3();
+        // vertex.x = startX;
+        // vertex.y = startZ;
+        // vertex.z = startY;
+        //
+        // geometry.vertices.push(vertex);
+        const cube = new Mesh(geometry, material);
+        cube.castShadow = true; //default is false
+
+        cube.receiveShadow = true; //default
+
+        cube.position.set(startX, startZ, startY);
+        cube.updateMatrix();
+        singleGeometry.merge(cube.geometry, cube.matrix);
+      };
+
+      this.currentGenerationCount = 0;
+      this.populationShape = populationShape;
+      this.updateRateInMS = 100;
+    }
+    /*******************************/
+
+    /* REQUIRED BY PARENT CLASS */
+
+    /*******************************/
+
+
+    handleWindowResize() {
+      this.updateCellShape();
+    } // method to control how a generation is added to a scene
+
+
+    addGeneration() {
+      const material = new MeshLambertMaterial({
+        color: 0x8888ff
+      });
+      const geometry = new BoxGeometry(this.cellShape.x, this.cellShape.y, this.cellShape.z);
+      const singleMaterial = new MeshPhongMaterial({
+        color: 'green',
+        transparent: false,
+        opacity: 1
+      });
+      const singleGeometry = new Geometry(); // const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
+
+      this.materials.push(singleMaterial); // const geometry = new Geometry();
+
+      this.geometries.push(singleGeometry);
+      const generationState = this.retrieveNextGeneration();
+
+      if (this._populationShape.x !== generationState.length) {
+        this.populationShape = {
+          x: generationState.length
+        };
+      }
+
+      const xOffset = this.containerWidth / 2;
+      const yOffset = this.containerHeight / 2;
+      /* coordinate system
+      ┌─────────────────────────────┐
+      │ ┌─────┐                     │
+      │ │┌───┐│                     │
+      │ ││ z ││                     │
+      │ │└───┘│                     │
+      │ │     │                     │
+      │ │  y  │             x       │
+      │ └─────┘                     │
+      └─────────────────────────────┘
+      */
+
+      const startZ = this.currentGenerationCount * this.cellShape.z;
+      generationState.forEach((column, columnNumber) => {
+        const startX = this.cellShape.x * columnNumber - xOffset;
+        column.forEach((cellState, cellNumber) => {
+          if (cellState === 1) {
+            const startY = this.cellShape.y * cellNumber - yOffset;
+            this.createPoint({
+              startX,
+              startY,
+              startZ,
+              geometry,
+              material,
+              singleGeometry
+            });
+          }
+        });
+      });
+      singleGeometry.computeMorphNormals();
+      singleGeometry.computeFaceNormals();
+      singleGeometry.verticesNeedUpdate = true; // const pointField = new Points(geometry, material);
+
+      const singleMesh = new Mesh(singleGeometry, singleMaterial);
+      this.meshes.push(singleMesh);
+      this.scene.add(singleMesh);
+      this.currentGenerationCount += 1;
+    } // method to control how a generation is removed from a scene
+
+
+    removeGeneration() {
+      if (this.meshes.length > 2) {
+        // mesh + camera
+        const mesh = this.meshes[0];
+        this.cleanUpRefsByMesh(mesh, true);
+      }
+    } // method to initialize lights, sky, background, etc on the initial scene creation
+
+
+    initialize() {
+      this.light = new PointLight('yellow');
+      this.light.castShadow = true; // default false
+
+      this.light.position.set(-100, 200, 0);
+      this.light.intensity = 1;
+      this.scene.add(this.light);
+    } // method to control what happens on each render update
+
+
+    updateFn() {
+      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+
+      this.addGeneration(); // atempt to add a generation if the view is full already
+
+      this.camera.position.y += this.cellShape.y;
+      this.camera.lookAt(this.scene.position);
+      this.light.position.y += this.cellShape.y;
+      this.updateCamera();
+    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
+
+
+    updateCellShape(cellShape) {
+      if (cellShape) {
+        this.cellShape = cellShape;
+      } else {
+        const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
+        this.cellShape = {
+          x: diameter,
+          y: diameter,
+          z: diameter
+        };
+      }
+    } // ex: { x: 100 } or { x: 100, y 200 }
+
+
+    set populationShape(populationShape) {
+      this._populationShape = populationShape;
+      this.updateCellShape();
+    }
+    /*******************************/
+
+    /* CUSTOM METHODS */
+
+    /*******************************/
+
+
+  }
+
   const className = css`
-  background-color: black;
+  background-color: white;
   position: absolute;
   z-index: -1;
   left: 0px;
@@ -49076,7 +49285,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '1D',
+    _viewerType: '2Din3D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -49089,12 +49298,10 @@
     _setRule: function (rule) {
       this._generationMaker.rule = rule;
     },
-    _setDimension: function (value) {
-      if (this._viewerType !== value) {
-        this._viewerType = value;
-
-        this._setViewer();
-      }
+    _setDimension: function (value) {// if (this._viewerType !== value) {
+      //   this._viewerType = value;
+      //   this._setViewer();
+      // }
     },
     _setNeighbors: function (value) {
       this._neighbors = +value;
@@ -49229,12 +49436,32 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 200,
+            x: 400,
             y: 200
           };
           this._populationHistorySize = 2;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
           this._viewer = new TwoDimensionViewerInTwoDimensions({
+            containerElId: this.id,
+            populationShape: this._populationShape,
+            retrieveNextGeneration: this._retrieveNextGeneration
+          });
+
+          this._generationMaker.useLifeLikeGenerator();
+
+          break;
+
+        case '2Din3D':
+          console.log('2Din3D case');
+          if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
+          if (this._viewer) this._viewer.quit();
+          this._populationShape = {
+            x: 100,
+            y: 200
+          };
+          this._populationHistorySize = 180;
+          this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
+          this._viewer = new TwoDimensionViewerInTwoDimensions$1({
             containerElId: this.id,
             populationShape: this._populationShape,
             retrieveNextGeneration: this._retrieveNextGeneration

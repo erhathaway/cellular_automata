@@ -58,7 +58,7 @@ class OneDimension {
 
 class LifeLike {
   constructor() {
-    this.rule = { survive: [4, 5, 6, 7], born: [5] };
+    this.rule = { survive: [2, 3], born: [3] };
   }
 
   set rule(rule) {

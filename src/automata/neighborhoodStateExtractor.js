@@ -143,7 +143,7 @@ const twoDimension = (cellCoords, neighborhoodMatrix) => {
   // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
   // console.log(eightNeighboorsTwoDimensions)
 
-  const neighbors = twentyFourNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+  const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
   const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
   return { neighbors, cell }
 }

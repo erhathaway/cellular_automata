@@ -1,4 +1,4 @@
-import { PointsMaterial, Geometry, Points, Vector3 } from 'three';
+import { PointsMaterial, Geometry, BoxGeometry, Points, Vector3, Mesh, MeshLambertMaterial, MeshPhongMaterial, PointLight } from 'three';
 
 import BaseClass from './base';
 
@@ -15,6 +15,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
+    this.updateRateInMS = 100;
   }
 
   /*******************************/
@@ -27,10 +28,16 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
-    const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
-    this.materials.push(material);
-    const geometry = new Geometry();
-    this.geometries.push(geometry);
+    const material = new MeshLambertMaterial( {color: 0x8888ff} );
+    const geometry = new BoxGeometry(this.cellShape.x, this.cellShape.y, this.cellShape.z);
+    const singleMaterial = new MeshPhongMaterial({color: 'green', transparent: false, opacity: 1});
+    const singleGeometry = new Geometry();
+
+
+    // const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
+    this.materials.push(singleMaterial);
+    // const geometry = new Geometry();
+    this.geometries.push(singleGeometry);
 
     const generationState = this.retrieveNextGeneration();
 
@@ -53,6 +60,9 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     │ └─────┘                     │
     └─────────────────────────────┘
     */
+
+    const startZ = this.currentGenerationCount * this.cellShape.z;
+
     generationState.forEach((column, columnNumber) => {
       const startX = (this.cellShape.x * columnNumber) - xOffset;
 
@@ -60,21 +70,26 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
         if (cellState === 1) {
           const startY = (this.cellShape.y * cellNumber) - yOffset;
 
-          this.createPoint({ startX, startY, geometry });
+          this.createPoint({ startX, startY, startZ, geometry, material, singleGeometry });
         }
       })
     });
 
-    const pointField = new Points(geometry, material);
-    this.meshes.push(pointField);
-    this.scene.add(pointField);
+    singleGeometry.computeMorphNormals();
+    singleGeometry.computeFaceNormals();
+    singleGeometry.verticesNeedUpdate = true
+
+    // const pointField = new Points(geometry, material);
+    const singleMesh = new Mesh(singleGeometry, singleMaterial);
+    this.meshes.push(singleMesh);
+    this.scene.add(singleMesh)
 
     this.currentGenerationCount += 1;
   }
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    if (this.meshes.length > 1) { // mesh + camera
+    if (this.meshes.length > 2) { // mesh + camera
       const mesh = this.meshes[0];
 
       this.cleanUpRefsByMesh(mesh, true)
@@ -83,13 +98,23 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to initialize lights, sky, background, etc on the initial scene creation
   initialize() {
-
+    this.light = new PointLight('yellow');
+    this.light.castShadow = true;            // default false
+    this.light.position.set(-100, 200, 0);
+    this.light.intensity = 1;
+    this.scene.add(this.light)
   }
 
   // method to control what happens on each render update
   updateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
     this.addGeneration(); // atempt to add a generation if the view is full already
+
+
+        this.camera.position.y += this.cellShape.y;
+        this.camera.lookAt(this.scene.position);
+        this.light.position.y += this.cellShape.y;
+        this.updateCamera();
   }
 
   // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
@@ -100,7 +125,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     }
     else {
       const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
-      this.cellShape = { x: diameter, y: diameter };
+      this.cellShape = { x: diameter, y: diameter, z: diameter };
     }
   }
 
@@ -114,12 +139,19 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   /* CUSTOM METHODS */
   /*******************************/
 
-  createPoint = ({ startX, startY, geometry }) => {
-    const vertex = new Vector3();
-    vertex.x = startX;
-    vertex.y = startY;
-    vertex.z = 0;
+  createPoint = ({ startX, startY, startZ, geometry, material, singleGeometry }) => {
+    // const vertex = new Vector3();
+    // vertex.x = startX;
+    // vertex.y = startZ;
+    // vertex.z = startY;
+    //
+    // geometry.vertices.push(vertex);
+    const cube = new Mesh(geometry, material);
+    cube.castShadow = true; //default is false
+    cube.receiveShadow = true; //default
+    cube.position.set(startX, startZ, startY);
 
-    geometry.vertices.push(vertex);
+    cube.updateMatrix();
+    singleGeometry.merge(cube.geometry, cube.matrix);
   }
 }

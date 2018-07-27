@@ -2,10 +2,10 @@ import { css } from 'emotion';
 import GenerationMaker from '../automata';
 import OneDimensionViewerInTwoDimensions from './OneDimensionInTwoDimensions';
 import TwoDimensionViewerInTwoDimensions from './TwoDimensionInTwoDimensions';
-
+import TwoDimensionViewerInThreeDimensions from './TwoDimensionInThreeDimensions';
 
 const className = css`
-  background-color: black;
+  background-color: white;
   position: absolute;
   z-index: -1;
   left: 0px;
@@ -25,7 +25,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '1D',
+  _viewerType: '2Din3D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
@@ -39,10 +39,10 @@ const app = {
     this._generationMaker.rule = rule;
   },
   _setDimension: function(value) {
-    if (this._viewerType !== value) {
-      this._viewerType = value;
-      this._setViewer();
-    }
+    // if (this._viewerType !== value) {
+    //   this._viewerType = value;
+    //   this._setViewer();
+    // }
   },
   _setNeighbors: function(value) { this._neighbors = +value; },
   _setPopulation: function(value) { this._populationSize = +value }, // this._viewer.setPopulationCount(this._populationSize); },
@@ -153,10 +153,20 @@ const app = {
         console.log('2d case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 200, y: 200 };
+        this._populationShape = { x: 400, y: 200 };
         this._populationHistorySize = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
+        this._generationMaker.useLifeLikeGenerator();
+        break;
+      case '2Din3D' :
+        console.log('2Din3D case')
+        if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
+        if (this._viewer) this._viewer.quit();
+        this._populationShape = { x: 100, y: 200 };
+        this._populationHistorySize = 180;
+        this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
+        this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useLifeLikeGenerator();
         break;
     }
