@@ -1,6 +1,7 @@
 import { css } from 'emotion';
 import GenerationMaker from '../automata';
 import OneDimensionViewer from './OneDimension';
+import One from './1d';
 import TwoDimensionViewer from './2d';
 
 const className = css`
@@ -149,9 +150,11 @@ const app = {
         if (this._viewer && this._viewer.type === 'one-dimension') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 300 };
-        this._generationsToShow = 500;
+        this._generationsToShow = 1500;
         this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
-        this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
+        // this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
+        this._viewer = new One(this.id, this._retrieveNextGeneration)
+        this._viewer.setPopulationCount(this._populationShape.x);
         this._generationMaker.useOneDimensionGenerator();
         break;
       case '2D' :

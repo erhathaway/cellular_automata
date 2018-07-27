@@ -11,6 +11,7 @@ import render from './render';
 export default class OneDimensionViewer {
   constructor(containerElId, getNextGeneration) {
     this.dimension = '1D';
+    this.type = 'one-dimension'
 
     this.containerElId = containerElId
     this._getNextGeneration = getNextGeneration;
