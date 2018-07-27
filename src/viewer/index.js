@@ -25,7 +25,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '2D',
+  _viewerType: '1D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
@@ -39,10 +39,10 @@ const app = {
     this._generationMaker.rule = rule;
   },
   _setDimension: function(value) {
-    // if (this._viewerType !== value) {
-    //   this._viewerType = value;
-    //   this._setViewer();
-    // }
+    if (this._viewerType !== value) {
+      this._viewerType = value;
+      this._setViewer();
+    }
   },
   _setNeighbors: function(value) { this._neighbors = +value; },
   _setPopulation: function(value) { this._populationSize = +value }, // this._viewer.setPopulationCount(this._populationSize); },

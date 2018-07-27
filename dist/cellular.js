@@ -49076,7 +49076,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '2D',
+    _viewerType: '1D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -49089,10 +49089,12 @@
     _setRule: function (rule) {
       this._generationMaker.rule = rule;
     },
-    _setDimension: function (value) {// if (this._viewerType !== value) {
-      //   this._viewerType = value;
-      //   this._setViewer();
-      // }
+    _setDimension: function (value) {
+      if (this._viewerType !== value) {
+        this._viewerType = value;
+
+        this._setViewer();
+      }
     },
     _setNeighbors: function (value) {
       this._neighbors = +value;
@@ -51324,7 +51326,7 @@
       labelName: 'Dimension',
       cellName: 'dimension',
       updateFn: '_setDimension',
-      selections: ['2D', '1D']
+      selections: ['1D', '2D']
     }), createApp({
       labelName: 'Neighbors (1+)',
       cellName: 'neighbors',
