@@ -1,26 +1,32 @@
 import { Scene, WebGLRenderer, PerspectiveCamera } from 'three';
 import render from './render';
 
+function MethodNotDefined(message) {
+  this.message = message;
+  this.name = 'MethodNotDefined';
+}
+
+function AttributeNotDefined(message) {
+  this.message = message;
+  this.name = 'AttributeNotDefined';
+}
+
 export default class BaseClass {
-  static MethodNotDefined(message) {
-   this.message = message;
-   this.name = 'MethodNotDefined';
-  }
 
-  static AttributeNotDefined(message) {
-    this.message = message;
-    this.name = 'AttributeNotDefined'
-  }
+  constructor({ containerElId, type, populationShape, retrieveNextGeneration }) {
+    this.debug = true;
 
-  constructor({ containerElId, type }) {
-    if (containerElId === undefined) throw BaseClass.AttributeNotDefined('The DOM ID for the container element must be passed to the constructor')
-    if (type === undefined) throw BaseClass.AttributeNotDefined('A type string must be passed to the constructor to specify the type of viewer')
+    if (containerElId === undefined) { throw new AttributeNotDefined('The DOM ID for the container element must be passed to the constructor') }
+    if (type === undefined) { throw new AttributeNotDefined('A type string must be passed to the constructor to specify the type of viewer') }
+    if (populationShape === undefined) { throw new AttributeNotDefined('A population shape objects must be passed to the constructor') }
+    if (retrieveNextGeneration === undefined) { throw new AttributeNotDefined('A retrieveNextGeneration function must be passed to the constructor') }
 
     // viewer defaults
-    this.runSimulation = true;
+    this.runSimulation = false;
     this.cellShape = undefined;
-    this.type = type;
     this.containerElId = containerElId;
+    this.type = type;
+    this.retrieveNextGeneration = retrieveNextGeneration;
 
     // threeJS ref holders
     this.materials = [];
@@ -28,13 +34,10 @@ export default class BaseClass {
     this.meshes = [];
     this.vectors = [];
 
-
     // create scene & renderer
     this.initScene();
     this.initRenderer();
     this.initCamera();
-
-    this.updateCellShape();
 
     window.addEventListener('resize', this._handleWindowResize);
   }
@@ -48,7 +51,6 @@ export default class BaseClass {
   }
 
   updateScene = () => {
-
   }
 
   /*********************/
@@ -59,14 +61,14 @@ export default class BaseClass {
     this.renderer.shadowMap.enabled = true;
 
     // assign render El a DOM id
-    this.elID = this.type + 'automata-viewer';
+    this.elID = this.type + '-automata-viewer';
     this.renderer.domElement.id = this.elID
 
     this.updateRenderer();
   }
 
-  updateRenderer = ({ width, height }) => {
-    this.renderer.setSize(width || this.containerWidth, height || this.containerHeight);
+  updateRenderer = ({ width, height } = {}) => {
+    this.renderer.setSize(this.containerWidth, this.containerHeight);
   }
 
   /*********************/
@@ -100,11 +102,6 @@ export default class BaseClass {
   /************************/
   /* Sizing */
   /***********************/
-  // updateCellShape = () => {
-  //   this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
-  //   this.updateCellShapeCallback();
-  // }
-
   get containerWidth() {
     return this.containerEl.clientWidth;
   }
@@ -128,23 +125,26 @@ export default class BaseClass {
   /* Subclass methods */
   /***********************/
   // method to control things like updating the cell shape
-  handleWindowResize = () => throw BaseClass.MethodNotDefined('handleWindowResize not defined in child class')
+  handleWindowResize() { throw new MethodNotDefined('handleWindowResize not defined in child class') }
 
   // method to control how a generation is added to a scene
-  addGeneration = () => throw BaseClass.MethodNotDefined('addGeneration not defined in child class')
+  addGeneration() { throw new MethodNotDefined('addGeneration not defined in child class') }
 
   // method to control how a generation is removed from a scene
-  removeGeneration = () => throw BaseClass.MethodNotDefined('removeGeneration not defined in child class')
+  removeGeneration() { throw new MethodNotDefined('removeGeneration not defined in child class') }
 
   // method to initialize lights, sky, background, etc on the initial scene creation
-  initialize = () => throw MethodNotDefined('initialize not defined in child class')
+  initialize() { throw new MethodNotDefined('initialize not defined in child class') }
 
   // method to control what happens on each render update
-  updateFn = () => throw MethodNotDefined('updateFn not defined in child class')
+  updateFn() { throw new MethodNotDefined('updateFn not defined in child class') }
 
   // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
   // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
-  updateCellShape = () => throw MethodNotDefined('updateCellShape not defined in child class')
+  updateCellShape() { throw new MethodNotDefined('updateCellShape not defined in child class') }
+
+  // population is used to figure out cell shape usually
+  set populationShape(shape) { throw new MethodNotDefined('updateCellShape not defined in child class') }
 
   _updateFn = () => {
     if (this.runSimulation === true) {
@@ -157,8 +157,17 @@ export default class BaseClass {
   /***********************/
 
   createScene = () => {
+    if (this.debug) console.log('creating scene')
     this.initialize();
     this.containerEl.appendChild( this.renderer.domElement );
+
+    if (this.debug) {
+      console.log('renderer dom element', this.renderer.domElement)
+      console.log('scene', this.scene)
+      console.log('camera', this.camera)
+      console.log('updateFn', this._updateFn)
+    }
+
     this.cancelRender = render({
       scene: this.scene,
       renderer: this.renderer,

@@ -228,7 +228,7 @@ export default class OneDimensionViewer {
         this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
       }
     } else {
-      if (this.resetTotalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
+      if (this.totalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
         this.scene.translateY(-this.distanceToMoveOnAnimation);
         this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
       }

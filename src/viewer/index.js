@@ -1,6 +1,6 @@
 import { css } from 'emotion';
 import GenerationMaker from '../automata';
-import OneDimensionViewer from './1d';
+import OneDimensionViewer from './OneDimension';
 import TwoDimensionViewer from './2d';
 
 const className = css`
@@ -24,7 +24,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _dimension: '2D',
+  _viewerType: '1D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
@@ -42,8 +42,8 @@ const app = {
   //   return dimensions.reduce((acc, size) => acc * size, 1);
   // },
   _setDimension: function(value) {
-    if (this._dimension !== value) {
-      this._dimension = value;
+    if (this._viewerType !== value) {
+      this._viewerType = value;
       this._setViewer();
     }
   },
@@ -138,30 +138,30 @@ const app = {
   },
   _createGenesisGeneration: function() {
     this._populationHistory = [];
-    this._viewer.setPopulationCount(this._populationSize);
+    // this._viewer.setPopulationCount(this._populationSize);
     this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
     this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
   },
   _setViewer: function() {
-    switch(this._dimension) {
+    switch(this._viewerType) {
       case '1D' :
         console.log('1d case')
-        if (this._viewer && this._viewer.dimension === '1D') break;
+        if (this._viewer && this._viewer.type === 'one-dimension') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 300 };
         this._generationsToShow = 500;
         this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
-        this._viewer = new OneDimensionViewer(this.id, this._retrieveNextGeneration);
+        this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useOneDimensionGenerator();
         break;
       case '2D' :
         console.log('2d case')
-        if (this._viewer && this._viewer.dimension === '2D') break;
+        if (this._viewer && this._viewer.type === '2D') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 200, y: 200 };
         this._generationsToShow = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
-        this._viewer = new TwoDimensionViewer(this.id, this._retrieveNextGeneration);
+        this._viewer = new TwoDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useLifeLikeGenerator();
         break;
     }
@@ -169,7 +169,7 @@ const app = {
     if (this._viewer !== undefined) {
       this._viewer.createScene();
       this._createGenesisGeneration();
-      this._viewer.dimension === '1D' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+      this._viewer.type === 'one-dimension' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
       this._runSimulation();
     }
   },
