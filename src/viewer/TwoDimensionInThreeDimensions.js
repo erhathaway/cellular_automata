@@ -1,4 +1,8 @@
 import { PointsMaterial, Geometry, BoxGeometry, Points, Vector3, Mesh, MeshLambertMaterial, MeshPhongMaterial, PointLight } from 'three';
+import * as THREE from 'three';
+import Orbit from 'three-orbit-controls';
+
+const OrbitControls = Orbit(THREE);
 
 import BaseClass from './base';
 
@@ -11,11 +15,34 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   constructor({ containerElId, populationShape, retrieveNextGeneration }) {
     if (populationShape === undefined) { throw new AttributeNotDefined('A population shape objects must be passed to the constructor') }
 
-    super({ containerElId, populationShape, type: 'two-dimension-in-two-dimensions', retrieveNextGeneration })
+    super({ containerElId, populationShape, type: 'two-dimension-in-three-dimensions', retrieveNextGeneration })
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
     this.updateRateInMS = 100;
+  }
+
+
+  /*******************************/
+  /* SPECIAL OVERRIDES OF PARENT CLASS */
+  /*******************************/
+  initCamera = () => {
+    const CONTAINER_WIDTH =  this.containerWidth;
+    const CONTAINER_HEIGHT = this.containerHeight;
+    const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
+    const VIEW_ANGLE = 140;
+    const NEAR = 0.1;
+    const FAR = 8500;
+    this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
+
+    this.scene.add(this.camera);
+    this.camera.position.set(0, 100, -460);
+    this.camera.lookAt(this.scene.position);
+    this.updateCamera();
+  }
+
+  updateScene = () => {
+    this.scene.position.y = -20
   }
 
   /*******************************/
@@ -33,10 +60,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     const singleMaterial = new MeshPhongMaterial({color: 'green', transparent: false, opacity: 1});
     const singleGeometry = new Geometry();
 
-
-    // const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
     this.materials.push(singleMaterial);
-    // const geometry = new Geometry();
     this.geometries.push(singleGeometry);
 
     const generationState = this.retrieveNextGeneration();
@@ -79,7 +103,6 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     singleGeometry.computeFaceNormals();
     singleGeometry.verticesNeedUpdate = true
 
-    // const pointField = new Points(geometry, material);
     const singleMesh = new Mesh(singleGeometry, singleMaterial);
     this.meshes.push(singleMesh);
     this.scene.add(singleMesh)
@@ -89,7 +112,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    if (this.meshes.length > 2) { // mesh + camera
+    if (this.meshes.length > 1000) { // mesh + camera
       const mesh = this.meshes[0];
 
       this.cleanUpRefsByMesh(mesh, true)
@@ -103,6 +126,8 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     this.light.position.set(-100, 200, 0);
     this.light.intensity = 1;
     this.scene.add(this.light)
+
+    this.controls = new OrbitControls(this.camera)
   }
 
   // method to control what happens on each render update
@@ -115,6 +140,10 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
         this.camera.lookAt(this.scene.position);
         this.light.position.y += this.cellShape.y;
         this.updateCamera();
+
+        this.controls.update()
+        console.log('scene position', this.scene.position)
+        console.log('camera position', this.camera.position)
   }
 
   // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
@@ -140,12 +169,6 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   /*******************************/
 
   createPoint = ({ startX, startY, startZ, geometry, material, singleGeometry }) => {
-    // const vertex = new Vector3();
-    // vertex.x = startX;
-    // vertex.y = startZ;
-    // vertex.z = startY;
-    //
-    // geometry.vertices.push(vertex);
     const cube = new Mesh(geometry, material);
     cube.castShadow = true; //default is false
     cube.receiveShadow = true; //default

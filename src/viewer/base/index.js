@@ -12,9 +12,16 @@ function AttributeNotDefined(message) {
 }
 
 export default class BaseClass {
-
   constructor({ containerElId, type, populationShape, retrieveNextGeneration }) {
-    this.debug = false;
+    // INFO, VERBOSE
+    // this.debug = 'VERBOSE';
+    if (this.debug === 'VERBOSE') { console.log(
+      "constructor called with args... \n",
+      "\ncontainerElId:", containerElId,
+      "\ntype:", type,
+      "\npopulationShape:", populationShape,
+      "\nretrieveNextGeneration:", retrieveNextGeneration,
+    )}
 
     if (containerElId === undefined) { throw new AttributeNotDefined('The DOM ID for the container element must be passed to the constructor') }
     if (type === undefined) { throw new AttributeNotDefined('A type string must be passed to the constructor to specify the type of viewer') }
@@ -51,6 +58,7 @@ export default class BaseClass {
   initScene = () => {
     this.scene = new Scene();
     this.updateScene();
+    if (this.debug) console.log('initialized scene')
   }
 
   updateScene = () => {
@@ -68,6 +76,8 @@ export default class BaseClass {
     this.renderer.domElement.id = this.elID
 
     this.updateRenderer();
+    if (this.debug) console.log('initialized renderer')
+
   }
 
   updateRenderer = ({ width, height } = {}) => {
@@ -81,15 +91,17 @@ export default class BaseClass {
     const CONTAINER_WIDTH =  this.containerWidth;
     const CONTAINER_HEIGHT = this.containerHeight;
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-    const VIEW_ANGLE = 140;
+    const VIEW_ANGLE = 91;
     const NEAR = 0.1;
-    const FAR = 8500;
+    const FAR = 500;
     this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
 
     this.scene.add(this.camera);
-    this.camera.position.set(0, 100, -460);
+    this.camera.position.set(0, 0, 360);
     this.camera.lookAt(this.scene.position);
     this.updateCamera();
+
+    if (this.debug) console.log('initialized camera')
   }
 
   updateCamera = () => {
@@ -151,7 +163,9 @@ export default class BaseClass {
 
   _updateFn = () => {
     if (this.runSimulation === true) {
+      if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: TRUE')
       if(this.updateRateInMS) {
+        if (this.debug && this.debug === 'VERBOSE') console.log(`An update rate of ${this.updateRateInMS} was detected`)
         const currentTime = new Date().getTime();
         if (currentTime - this.updateStartTime >= this.updateRateInMS) {
           this.updateStartTime = currentTime;
@@ -160,6 +174,8 @@ export default class BaseClass {
       } else {
         this.updateFn();
       }
+    } else {
+      if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: FALSE')
     }
   }
 
@@ -168,7 +184,6 @@ export default class BaseClass {
   /***********************/
 
   createScene = () => {
-    if (this.debug) console.log('creating scene')
     this.initialize();
     this.containerEl.appendChild( this.renderer.domElement );
 
@@ -185,6 +200,7 @@ export default class BaseClass {
       camera: this.camera,
       updateFn: this._updateFn,
     });
+    if (this.debug) console.log('initial scene rendered')
   }
 
 
@@ -233,6 +249,8 @@ export default class BaseClass {
   }
 
   quit = () => {
+    if (this.debug) console.log('running quit viewer code')
+
     this.cancelRender();
     this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
     this.dispose(this.camera);
@@ -252,5 +270,7 @@ export default class BaseClass {
     this.camera = null;
     this.scene = null;
     this.light = null;
+
+    if (this.debug) console.log('successfully quit')
   }
 }
