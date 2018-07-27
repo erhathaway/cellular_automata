@@ -48478,102 +48478,100 @@
     };
   });
 
-  class OneDimensionViewer$1 {
-    constructor(containerElId, getNextGeneration) {
-      this.setRendererSize = () => {
+  function MethodNotDefined(message) {
+    this.message = message;
+    this.name = 'MethodNotDefined';
+  }
+
+  function AttributeNotDefined(message) {
+    this.message = message;
+    this.name = 'AttributeNotDefined';
+  }
+
+  class BaseClass {
+    constructor({
+      containerElId,
+      type,
+      populationShape,
+      retrieveNextGeneration
+    }) {
+      this.initScene = () => {
+        this.scene = new Scene();
+        this.updateScene();
+      };
+
+      this.updateScene = () => {};
+
+      this.initRenderer = () => {
+        this.renderer = new WebGLRenderer({
+          alpha: true,
+          antialias: true
+        });
+        this.renderer.shadowMap.enabled = true; // assign render El a DOM id
+
+        this.elID = this.type + '-automata-viewer';
+        this.renderer.domElement.id = this.elID;
+        this.updateRenderer();
+      };
+
+      this.updateRenderer = ({
+        width,
+        height
+      } = {}) => {
         this.renderer.setSize(this.containerWidth, this.containerHeight);
       };
+
+      this.initCamera = () => {
+        const CONTAINER_WIDTH = this.containerWidth;
+        const CONTAINER_HEIGHT = this.containerHeight;
+        const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
+        const VIEW_ANGLE = 91;
+        const NEAR = 0.1;
+        const FAR = 500;
+        this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
+        this.scene.add(this.camera);
+        this.camera.position.set(0, 0, 360);
+        this.camera.lookAt(this.scene.position);
+        this.updateCamera();
+      };
+
+      this.updateCamera = () => {};
 
       this.turnSimulationOff = () => this.runSimulation = false;
 
       this.turnSimulationOn = () => this.runSimulation = true;
 
-      this.updateCellDimensions = () => {
-        this.cellDiameter = +(this.containerWidth / this.populationCount).toFixed(2);
-        this.distanceToMoveOnAnimation = this.cellDiameter / this.animationStepsPerUpdate;
-        this.resetTotalDistanceToMovePerAnimation();
-      };
-
-      this.resetTotalDistanceToMovePerAnimation = () => {
-        this.totalDistanceToMovePerAnimation = this.cellDiameter;
-      };
-
-      this.setPopulationCount = populationCount => {
-        this.populationCount = populationCount;
-        this.updateCellDimensions();
-      };
-
-      this.handleWindowResize = () => {
-        this.updateCellDimensions();
-        this.setRendererSize();
+      this._handleWindowResize = () => {
+        this.handleWindowResize();
+        this.updateRenderer();
         this.camera.aspect = this.containerWidth / this.containerHeight;
         this.camera.updateProjectionMatrix();
       };
 
-      this.setCameraProjectionMatrix = camera => {};
-
-      this.setCameraPosition = camera => {};
-
-      this.setScenePosition = camera => {};
-
-      this.initLight = () => {
-        this.light.position.set(0, 0, 1);
-        this.scene.add(this.light);
-      };
-
-      this.setLightProperties = () => {};
-
-      this.clearScene = () => {
-        this.currentGenerationCount = 0;
-
-        while (this.scene.children.length > 0) {
-          this.scene.remove.apply(this.scene, this.scene.children);
+      this._updateFn = () => {
+        if (this.runSimulation === true) {
+          this.updateFn();
         }
       };
 
-      this.createPoint = ({
-        startX,
-        startY,
-        geometry
-      }) => {
-        const vertex = new Vector3();
-        vertex.x = startX;
-        vertex.y = startY;
-        vertex.z = 0;
-        geometry.vertices.push(vertex);
-      };
+      this.createScene = () => {
+        if (this.debug) console.log('creating scene');
+        this.initialize();
+        this.containerEl.appendChild(this.renderer.domElement);
 
-      this.addGeneration = () => {
-        const material = new PointsMaterial({
-          color: 'white',
-          size: this.cellDiameter || 0,
-          sizeAttenuation: true
+        if (this.debug) {
+          console.log('renderer dom element', this.renderer.domElement);
+          console.log('scene', this.scene);
+          console.log('camera', this.camera);
+          console.log('updateFn', this._updateFn);
+        }
+
+        this.cancelRender = render({
+          scene: this.scene,
+          renderer: this.renderer,
+          camera: this.camera,
+          updateFn: this._updateFn
         });
-        this.materials.push(material);
-        const geometry = new Geometry();
-        this.geometries.push(geometry);
-
-        const generationState = this._getNextGeneration();
-
-        this.setPopulationCount(generationState.length);
-        const startY = this.currrentGenerationYPosition;
-        const xOffset = this.containerWidth / 2;
-        generationState.forEach((cellState, cellNumber) => {
-          if (cellState === 1) {
-            const startX = this.cellDiameter * cellNumber - xOffset;
-            this.createPoint({
-              startX,
-              startY,
-              geometry
-            });
-          }
-        }); // geometry.verticesNeedUpdate = true
-
-        const pointField = new Points(geometry, material);
-        this.meshes.push(pointField);
-        this.scene.add(pointField);
-        this.currrentGenerationYPosition += this.cellDiameter;
-        this.currentGenerationCount += 1;
       };
 
       this.dispose = obj => {
@@ -48613,57 +48611,6 @@
         this.dispose(mesh);
       };
 
-      this.removeGeneration = () => {
-        if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-          this.scene.remove(this.camera);
-          const mesh = this.meshes.shift();
-          this.cleanUpRefsByMesh(mesh);
-        }
-      };
-
-      this.updateFn = () => {
-        if (this.runSimulation === true) {
-          this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-
-          if (this.totalDistanceToMovePerAnimation <= 0) {
-            // if there is nothing left to move, add a generation;
-            this.resetTotalDistanceToMovePerAnimation();
-            this.addGeneration(); // this.removeGeneration();
-          } else {
-            this.scene.translateY(-this.distanceToMoveOnAnimation);
-            this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
-          }
-        } else {
-          if (this.totalDistanceToMovePerAnimation > this.distanceToMoveOnAnimation) {
-            this.scene.translateY(-this.distanceToMoveOnAnimation);
-            this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
-          }
-        }
-      };
-
-      this.createScene = () => {
-        // while (this.scene.children.length > 0) {
-        // this.scene.remove.apply(this.scene, this.scene.children);
-        // };
-        // this.renderer.setSize(window.innerWidth, window.innerHeight);
-        // document.body.appendChild(this.renderer.domElement);
-        // setCameraProjectionMatrix(camera);
-        // setCameraPosition(camera);
-        // setScenePosition(camera);
-        //
-        // createSky();
-        // createGenerations(0);
-        // createFloor();
-        // createLight();
-        this.containerEl.appendChild(this.renderer.domElement);
-        this.cancelRender = render({
-          scene: this.scene,
-          renderer: this.renderer,
-          camera: this.camera,
-          updateFn: this.updateFn
-        });
-      };
-
       this.quit = () => {
         this.cancelRender();
         this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
@@ -48683,51 +48630,53 @@
         this.light = null;
       };
 
-      this.cleanUp = () => {
-        this.renderer.forceContextLoss();
-      };
+      this.debug = true;
 
-      this.dimension = '1D';
-      this.type = 'one-dimension';
+      if (containerElId === undefined) {
+        throw new AttributeNotDefined('The DOM ID for the container element must be passed to the constructor');
+      }
+
+      if (type === undefined) {
+        throw new AttributeNotDefined('A type string must be passed to the constructor to specify the type of viewer');
+      }
+
+      if (populationShape === undefined) {
+        throw new AttributeNotDefined('A population shape objects must be passed to the constructor');
+      }
+
+      if (retrieveNextGeneration === undefined) {
+        throw new AttributeNotDefined('A retrieveNextGeneration function must be passed to the constructor');
+      } // viewer defaults
+
+
+      this.runSimulation = false;
+      this.cellShape = undefined;
       this.containerElId = containerElId;
-      this._getNextGeneration = getNextGeneration;
-      this.updateCellDimensions();
-      this.scene = new Scene();
-      this.renderer = new WebGLRenderer({
-        alpha: true,
-        antialias: true
-      });
-      this.elID = this.dimension + '-dimension-viewer';
-      this.renderer.domElement.id = this.elID;
-      const CONTAINER_WIDTH = this.containerWidth;
-      const CONTAINER_HEIGHT = this.containerHeight;
-      const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-      const VIEW_ANGLE = 91;
-      const NEAR = 0.1;
-      const FAR = 500;
-      this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
-      this.light = new PointLight('yellow');
-      this.renderer.shadowMap.enabled = true;
-      this.light.castShadow = true;
-      this.scene.add(this.camera);
-      this.camera.position.set(0, 0, 360);
-      this.camera.lookAt(this.scene.position);
-      this.setRendererSize();
-      this.currentGenerationCount = 0;
-      this.currrentGenerationYPosition = this.containerHeight / 2 * -1;
-      this.moveSceneDistance = 0;
-      this.animationStepsPerUpdate = 2;
-      this.totalDistanceToMovePerAnimation = undefined;
-      this.distanceToMoveOnAnimation = undefined;
-      this.cellDiameter = undefined;
-      this.runSimulation = true;
-      window.addEventListener('resize', this.handleWindowResize);
+      this.type = type;
+      this.retrieveNextGeneration = retrieveNextGeneration; // threeJS ref holders
+
       this.materials = [];
       this.geometries = [];
       this.meshes = [];
-      this.vectors = [];
-    }
+      this.vectors = []; // create scene & renderer
 
+      this.initScene();
+      this.initRenderer();
+      this.initCamera();
+      window.addEventListener('resize', this._handleWindowResize);
+    }
+    /*********************/
+
+    /* SCENE */
+
+    /*********************/
+
+
+    /************************/
+
+    /* Sizing */
+
+    /***********************/
     get containerWidth() {
       return this.containerEl.clientWidth;
     }
@@ -48736,12 +48685,241 @@
       return this.containerEl.clientHeight;
     }
 
-    get maxGenerationsToShow() {
-      return Math.ceil(this.containerHeight / this.cellDiameter) + 2;
-    }
-
     get containerEl() {
       return document.getElementById(this.containerElId);
+    }
+
+    /************************/
+
+    /* Subclass methods */
+
+    /***********************/
+    // method to control things like updating the cell shape
+    handleWindowResize() {
+      throw new MethodNotDefined('handleWindowResize not defined in child class');
+    } // method to control how a generation is added to a scene
+
+
+    addGeneration() {
+      throw new MethodNotDefined('addGeneration not defined in child class');
+    } // method to control how a generation is removed from a scene
+
+
+    removeGeneration() {
+      throw new MethodNotDefined('removeGeneration not defined in child class');
+    } // method to initialize lights, sky, background, etc on the initial scene creation
+
+
+    initialize() {
+      throw new MethodNotDefined('initialize not defined in child class');
+    } // method to control what happens on each render update
+
+
+    updateFn() {
+      throw new MethodNotDefined('updateFn not defined in child class');
+    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
+
+
+    updateCellShape() {
+      throw new MethodNotDefined('updateCellShape not defined in child class');
+    } // population is used to figure out cell shape usually
+
+
+    set populationShape(shape) {
+      throw new MethodNotDefined('updateCellShape not defined in child class');
+    }
+
+  }
+
+  function AttributeNotDefined$1(message) {
+    this.message = message;
+    this.name = 'AttributeNotDefined';
+  }
+
+  class OneDimensionViewer extends BaseClass {
+    constructor({
+      containerElId,
+      populationShape,
+      retrieveNextGeneration
+    }) {
+      if (populationShape === undefined) {
+        throw new AttributeNotDefined$1('A population shape objects must be passed to the constructor');
+      }
+
+      super({
+        containerElId,
+        populationShape,
+        type: 'one-dimension',
+        retrieveNextGeneration
+      });
+
+      this.createPoint = ({
+        startX,
+        startY,
+        geometry
+      }) => {
+        const vertex = new Vector3();
+        vertex.x = startX; // vertex.y = startY;
+
+        vertex.z = 0;
+        geometry.vertices.push(vertex);
+      };
+
+      this.currentGenerationCount = 0;
+      this.distanceToMoveOnAnimation = undefined;
+      this.totalDistanceToMovePerAnimation = undefined;
+      this._animationStepsPerUpdate = 2;
+      this.currrentGenerationYPosition = this.containerHeight / 2 * -1;
+      this.populationShape = populationShape;
+      this.padding = {
+        top: 20,
+        bottom: 20
+      };
+    }
+    /*******************************/
+
+    /* REQUIRED BY PARENT CLASS */
+
+    /*******************************/
+
+
+    handleWindowResize() {
+      this.updateCellShape();
+    } // method to control how a generation is added to a scene
+
+
+    addGeneration() {
+      // look at the last generation added
+      const lastGeneration = this.meshes.slice(-1)[0];
+      let y = undefined; // get the y position of the generation
+
+      if (lastGeneration !== undefined) {
+        y = lastGeneration.getWorldPosition(new Vector3()).y;
+      } // if the generation doesn't exist (b/c none of have been made, or the generation is NOT above the screen - still in view, we are good to make another generation)
+
+
+      if (y === undefined || y < this.containerHeight / 2 - this.padding.top) {
+        const material = new PointsMaterial({
+          color: 'white',
+          size: this.cellShape.x,
+          sizeAttenuation: true
+        });
+        this.materials.push(material);
+        const geometry = new Geometry();
+        this.geometries.push(geometry);
+        const generationState = this.retrieveNextGeneration();
+
+        if (this._populationShape.x !== generationState.length) {
+          this.populationShape = {
+            x: generationState.length
+          };
+        }
+
+        const xOffset = this.containerWidth / 2;
+        const startY = this.currrentGenerationYPosition; // keep track of curent y posiiton in case cell shape changes
+
+        generationState.forEach((cellState, cellNumber) => {
+          if (cellState === 1) {
+            const startX = this.cellShape.x * cellNumber - xOffset;
+            this.createPoint({
+              startX,
+              startY,
+              geometry
+            });
+          }
+        });
+        const pointField = new Points(geometry, material);
+        pointField.position.y = startY;
+        this.meshes.push(pointField);
+        this.scene.add(pointField);
+        this.currentGenerationCount += 1;
+        this.currrentGenerationYPosition += this.cellShape.y;
+      }
+    } // method to control how a generation is removed from a scene
+
+
+    removeGeneration() {
+      // look for all deleteable generations
+      for (let i = 0; i < this.meshes.length; i++) {
+        const m = this.meshes[i];
+        if (m === undefined) break; // get world position of generation
+
+        const meshY = m.getWorldPosition(new Vector3()).y; // if the generation is off the screen, delete it
+
+        if (meshY < -this.containerHeight / 2 + this.padding.bottom) {
+          this.scene.remove(this.camera);
+          const mesh = this.meshes.shift();
+          this.cleanUpRefsByMesh(mesh); // otherwise, break out since generations should be ordered
+        } else {
+          break;
+        }
+      }
+    } // method to initialize lights, sky, background, etc on the initial scene creation
+
+
+    initialize() {} // method to control what happens on each render update
+
+
+    updateFn() {
+      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+
+      this.addGeneration(); // atempt to add a generation if the view is full already
+
+      if (this.totalDistanceToMovePerAnimation <= 0) {
+        // if there is nothing left to move, add a generation;
+        this.resetTotalDistanceToMovePerAnimation();
+      } else {
+        this.scene.translateY(-this.distanceToMoveOnAnimation);
+        this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
+      }
+    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
+
+
+    updateCellShape(cellShape) {
+      if (cellShape) {
+        this.cellShape = cellShape;
+      } else {
+        const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
+        this.cellShape = {
+          x: diameter,
+          y: diameter
+        };
+      }
+
+      this.updateDistanceToMoveOnAnimation();
+      this.resetTotalDistanceToMovePerAnimation();
+    } // ex: { x: 100 } or { x: 100, y 200 }
+
+
+    set populationShape(populationShape) {
+      this._populationShape = populationShape;
+      this.updateCellShape();
+    }
+    /*******************************/
+
+    /* CUSTOM METHODS */
+
+    /*******************************/
+
+
+    resetTotalDistanceToMovePerAnimation() {
+      this.totalDistanceToMovePerAnimation = this.cellShape.x;
+    }
+
+    set animationStepsPerUpdate(steps) {
+      this._animationStepsPerUpdate = steps;
+      this.updateDistanceToMoveOnAnimation();
+    }
+
+    updateDistanceToMoveOnAnimation() {
+      this.distanceToMoveOnAnimation = this.cellShape.x / this._animationStepsPerUpdate;
+    }
+
+    get maxGenerationsToShow() {
+      const max = Math.ceil(this.containerHeight / this.cellShape.y) + 2;
+      return max;
     }
 
   }
@@ -49180,8 +49358,7 @@
       }
     },
     _createGenesisGeneration: function () {
-      this._populationHistory = []; // this._viewer.setPopulationCount(this._populationSize);
-
+      this._populationHistory = [];
       this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
       this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
     },
@@ -49195,11 +49372,12 @@
             x: 300
           };
           this._generationsToShow = 1500;
-          this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension; // this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-
-          this._viewer = new OneDimensionViewer$1(this.id, this._retrieveNextGeneration);
-
-          this._viewer.setPopulationCount(this._populationShape.x);
+          this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
+          this._viewer = new OneDimensionViewer({
+            containerElId: this.id,
+            populationShape: this._populationShape,
+            retrieveNextGeneration: this._retrieveNextGeneration
+          });
 
           this._generationMaker.useOneDimensionGenerator();
 
@@ -49231,7 +49409,9 @@
 
         this._createGenesisGeneration();
 
-        this._viewer.type === 'one-dimension' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+        this._viewer.updateCellShape();
+
+        this._viewer.type === 'one-dimension' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow * 2);
 
         this._runSimulation();
       }

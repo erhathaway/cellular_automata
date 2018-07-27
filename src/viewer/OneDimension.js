@@ -18,7 +18,9 @@ export default class OneDimensionViewer extends BaseClass {
     this.distanceToMoveOnAnimation = undefined;
     this.totalDistanceToMovePerAnimation = undefined;
     this._animationStepsPerUpdate = 2;
+    this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
     this.populationShape = populationShape;
+    this.padding = { top: 20, bottom: 20 };
   }
 
   /*******************************/
@@ -31,65 +33,69 @@ export default class OneDimensionViewer extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
-    const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
-    this.materials.push(material);
-    const geometry = new Geometry();
-    this.geometries.push(geometry);
+    // look at the last generation added
+    const lastGeneration = this.meshes.slice(-1)[0];
+    let y = undefined;
 
-    const generationState = this.retrieveNextGeneration();
-
-    if (this._populationShape.x !== generationState.length) {
-      this.populationShape = { x: generationState.length };
+    // get the y position of the generation
+    if (lastGeneration !== undefined) {
+      y = lastGeneration.getWorldPosition(new Vector3).y;
     }
 
-    const xOffset = this.containerWidth / 2;
-    const yOffset = this.containerHeight / 2;
-    const startY = (this.cellShape.y * this.currentGenerationCount) - yOffset;
-    // console.log(startY)
-    // const startY = 0;
+    // if the generation doesn't exist (b/c none of have been made, or the generation is NOT above the screen - still in view, we are good to make another generation)
+    if (y === undefined || y < (this.containerHeight/ 2) - this.padding.top) {
+      const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
+      this.materials.push(material);
+      const geometry = new Geometry();
+      this.geometries.push(geometry);
 
-    generationState.forEach((cellState, cellNumber) => {
-      if (cellState === 1) {
-        const startX = (this.cellShape.x * cellNumber) - xOffset;
+      const generationState = this.retrieveNextGeneration();
 
-        this.createPoint({ startX, startY, geometry });
+      if (this._populationShape.x !== generationState.length) {
+        this.populationShape = { x: generationState.length };
       }
-    });
 
-    const pointField = new Points(geometry, material);
-    // pointField.position.y = startY;
-    this.meshes.push(pointField);
-    this.scene.add(pointField);
+      const xOffset = this.containerWidth / 2;
+      const startY = this.currrentGenerationYPosition; // keep track of curent y posiiton in case cell shape changes
 
-    this.currentGenerationCount += 1;
+
+      generationState.forEach((cellState, cellNumber) => {
+        if (cellState === 1) {
+          const startX = (this.cellShape.x * cellNumber) - xOffset;
+
+          this.createPoint({ startX, startY, geometry });
+        }
+      });
+
+      const pointField = new Points(geometry, material);
+      pointField.position.y = startY;
+      this.meshes.push(pointField);
+      this.scene.add(pointField);
+
+      this.currentGenerationCount += 1;
+      this.currrentGenerationYPosition += this.cellShape.y;
+    }
   }
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    // const firstMesh = this.meshes[0];
-    // const meshY = firstMesh.getWorldPosition(new Vector3).y;
-    // const sceneY = this.scene.position.y;
-    //
-    // const y = meshY - sceneY;
-    // console.log('scene position', scenePosition)
-    // console.log('yyyy', y, ' vs ', -this.containerHeight /2)
-    // if (y < (-this.containerHeight / 2)) {
-    //     // this.scene.remove(this.camera)
-    //   const mesh = this.meshes.shift();
-    //   this.cleanUpRefsByMesh(mesh);
-    // }
-    // if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-    //
-    //   const mesh = this.meshes.shift();
-    //   console.log('mesh world position', mesh.getWorldPosition(new Vector3()))
-    //   this.cleanUpRefsByMesh(mesh);
-    // }
+    // look for all deleteable generations
+    for (let i = 0; i < this.meshes.length; i++) {
+      const m = this.meshes[i];
+      if (m === undefined) break;
 
-    if (this.scene.children[0] && this.scene.children.length > this.maxGenerationsToShow) {
-      this.scene.remove(this.camera)
+      // get world position of generation
+      const meshY = m.getWorldPosition(new Vector3).y;
 
-      const mesh = this.meshes.shift();
-      this.cleanUpRefsByMesh(mesh);
+      // if the generation is off the screen, delete it
+      if (meshY < ((-this.containerHeight / 2) + this.padding.bottom)) {
+        this.scene.remove(this.camera)
+        const mesh = this.meshes.shift();
+        this.cleanUpRefsByMesh(mesh);
+      // otherwise, break out since generations should be ordered
+      } else {
+        break;
+      }
     }
   }
 
@@ -101,28 +107,12 @@ export default class OneDimensionViewer extends BaseClass {
   // method to control what happens on each render update
   updateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-    // const lastMesh = this.meshes.slice(-1)[0]
-    // if (lastMesh) {
-    //   lastMesh.updateMatrix();
-    //   lastMesh.updateMatrixWorld(true);
-    //   console.log('world to local', lastMesh.worldToLocal(new Vector3()))
-    //   console.log('point', lastMesh.getWorldPosition(new Vector3()))
-    //   console.log('point local', lastMesh.localToWorld(new Vector3()))
-    // }
+    this.addGeneration(); // atempt to add a generation if the view is full already
+
     if (this.totalDistanceToMovePerAnimation <= 0) { // if there is nothing left to move, add a generation;
       this.resetTotalDistanceToMovePerAnimation();
-      this.addGeneration();
-      // this.removeGeneration();
     } else {
       this.scene.translateY(-this.distanceToMoveOnAnimation);
-      // this.scene.updateMatrix();
-      // // this.meshes.forEach(m => m.translateY(-this.distanceToMoveOnAnimation));
-      // this.scene.updateMatrixWorld(true);
-      // this.scene.matrixWorldNeedsUpdate = true;
-      // this.camera.updateProjectionMatrix();
-      //
-      // // this.scene.matrixAutoUpdate  = false;
-      // // this.scene.updateMatrix();
       this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
     }
   }
@@ -155,7 +145,7 @@ export default class OneDimensionViewer extends BaseClass {
   createPoint = ({ startX, startY, geometry }) => {
     const vertex = new Vector3();
     vertex.x = startX;
-    vertex.y = startY;
+    // vertex.y = startY;
     vertex.z = 0;
 
     geometry.vertices.push(vertex);
@@ -175,8 +165,7 @@ export default class OneDimensionViewer extends BaseClass {
   }
 
   get maxGenerationsToShow() {
-    const max = Math.ceil(this.containerHeight * 2/ this.cellShape.y) + 2;
-    console.log('max', max)
+    const max = Math.ceil(this.containerHeight / this.cellShape.y) + 2;
     return max;
   }
 }

@@ -139,7 +139,6 @@ const app = {
   },
   _createGenesisGeneration: function() {
     this._populationHistory = [];
-    // this._viewer.setPopulationCount(this._populationSize);
     this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
     this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
   },
@@ -152,9 +151,7 @@ const app = {
         this._populationShape = { x: 300 };
         this._generationsToShow = 1500;
         this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
-        // this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-        this._viewer = new One(this.id, this._retrieveNextGeneration)
-        this._viewer.setPopulationCount(this._populationShape.x);
+        this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useOneDimensionGenerator();
         break;
       case '2D' :
@@ -172,7 +169,7 @@ const app = {
     if (this._viewer !== undefined) {
       this._viewer.createScene();
       this._createGenesisGeneration();
-      this._viewer.type === 'one-dimension' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow);
+      this._viewer.type === 'one-dimension' && this._bulkCreateGenerations(this._viewer.maxGenerationsToShow * 2);
       this._runSimulation();
     }
   },
