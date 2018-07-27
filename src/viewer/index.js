@@ -1,8 +1,8 @@
 import { css } from 'emotion';
 import GenerationMaker from '../automata';
-import OneDimensionViewer from './OneDimension';
-import One from './1d';
-import TwoDimensionViewer from './2d';
+import OneDimensionViewerInTwoDimensions from './OneDimensionInTwoDimensions';
+import TwoDimensionViewerInTwoDimensions from './TwoDimensionInTwoDimensions';
+
 
 const className = css`
   background-color: black;
@@ -25,12 +25,12 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '1D',
+  _viewerType: '2D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
   _growth: undefined,
-  _generationsToShow: 500,
+  _populationHistorySize: 500,
   _edges: undefined,
   _initGenerationMaker: function() {
     this._generationMaker = new GenerationMaker()
@@ -38,20 +38,16 @@ const app = {
   _setRule: function(rule) {
     this._generationMaker.rule = rule;
   },
-  // _population: function() {
-  //   const dimensions = Object.values(this._populationShape);
-  //   return dimensions.reduce((acc, size) => acc * size, 1);
-  // },
   _setDimension: function(value) {
-    if (this._viewerType !== value) {
-      this._viewerType = value;
-      this._setViewer();
-    }
+    // if (this._viewerType !== value) {
+    //   this._viewerType = value;
+    //   this._setViewer();
+    // }
   },
   _setNeighbors: function(value) { this._neighbors = +value; },
   _setPopulation: function(value) { this._populationSize = +value }, // this._viewer.setPopulationCount(this._populationSize); },
   _setGrowth: function(value) { this._growth = +value; },
-  _setGenerations: function(value) { this._generationsToShow = +value; this._runSimulation(); },
+  _setGenerations: function(value) { this._populationHistorySize = +value; this._runSimulation(); },
   _setEdges: function(value) { this._edges = +value; },
 
   _populationHistory: [],
@@ -100,7 +96,7 @@ const app = {
     // save current population to history
     // resize history to width of generationsToShow variable
     const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
-    const previousGens = this._populationHistory.slice(-this._generationsToShow)
+    const previousGens = this._populationHistory.slice(-this._populationHistorySize)
     previousGens.push(binCurrentPopulation)
     this._populationHistory = previousGens;
 
@@ -113,7 +109,7 @@ const app = {
   },
   _retrieveNextGenerationTwoDimension: function() {
     // create new population
-    // if (this._populationHistory.length === this._generationsToShow) {
+    // if (this._populationHistory.length === this._populationHistorySize) {
     //   this._currentPopulation = this._populationHistory.shift()
     //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
     // } else {
@@ -123,10 +119,9 @@ const app = {
     // save new population to history
     // resize history to width of generationsToShow variable
     const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation)
-    const previousGens = this._populationHistory.slice(-this._generationsToShow)
+    const previousGens = this._populationHistory.slice(-this._populationHistorySize)
     previousGens.push(binCurrentPopulation)
     this._populationHistory = previousGens;
-
     return this._currentPopulation;
   },
   _bulkCreateGenerations: function(numberOfVisibleGenerations) {
@@ -149,19 +144,19 @@ const app = {
         if (this._viewer && this._viewer.type === 'one-dimension') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 300 };
-        this._generationsToShow = 1500;
+        this._populationHistorySize = 1500;
         this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
-        this._viewer = new OneDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
+        this._viewer = new OneDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useOneDimensionGenerator();
         break;
       case '2D' :
         console.log('2d case')
-        if (this._viewer && this._viewer.type === '2D') break;
+        if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 200, y: 200 };
-        this._generationsToShow = 2;
+        this._populationHistorySize = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
-        this._viewer = new TwoDimensionViewer({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
+        this._viewer = new TwoDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._generationMaker.useLifeLikeGenerator();
         break;
     }

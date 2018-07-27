@@ -14,7 +14,7 @@ function AttributeNotDefined(message) {
 export default class BaseClass {
 
   constructor({ containerElId, type, populationShape, retrieveNextGeneration }) {
-    this.debug = true;
+    this.debug = false;
 
     if (containerElId === undefined) { throw new AttributeNotDefined('The DOM ID for the container element must be passed to the constructor') }
     if (type === undefined) { throw new AttributeNotDefined('A type string must be passed to the constructor to specify the type of viewer') }
@@ -181,6 +181,7 @@ export default class BaseClass {
   /* Cleanup */
   /***********************/
   dispose = (obj) => {
+    if (obj === undefined) return;
     Object.keys(obj).forEach((key) => {
       if (obj[key] && typeof obj[key].dispose === 'function') {
         try {

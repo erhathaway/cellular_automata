@@ -1,0 +1,114 @@
+import { PointsMaterial, Geometry, Points, Vector3 } from 'three';
+
+import BaseClass from './BaseClass';
+
+function AttributeNotDefined(message) {
+  this.message = message;
+  this.name = 'AttributeNotDefined';
+}
+
+export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
+  constructor({ containerElId, populationShape, retrieveNextGeneration }) {
+    if (populationShape === undefined) { throw new AttributeNotDefined('A population shape objects must be passed to the constructor') }
+
+    super({ containerElId, populationShape, type: 'two-dimension-in-two-dimensions', retrieveNextGeneration })
+
+    this.currentGenerationCount = 0;
+    this.populationShape = populationShape;
+  }
+
+  /*******************************/
+  /* REQUIRED BY PARENT CLASS */
+  /*******************************/
+
+  handleWindowResize() {
+    this.updateCellShape();
+  }
+
+  // method to control how a generation is added to a scene
+  addGeneration() {
+    const material = new PointsMaterial( { color: 'white', size: this.cellShape.x, sizeAttenuation: true } );
+    this.materials.push(material);
+    const geometry = new Geometry();
+    this.geometries.push(geometry);
+
+    const generationState = this.retrieveNextGeneration();
+
+    if (this._populationShape.x !== generationState.length) {
+      this.populationShape = { x: generationState.length };
+    }
+
+    const xOffset = this.containerWidth / 2;
+    const yOffset = this.containerHeight / 2;
+
+
+    generationState.forEach((row, rowNumber) => {
+      const startY = (this.cellShape.y * rowNumber) - yOffset;
+
+      row.forEach((cellState, cellNumber) => {
+        if (cellState === 1) {
+          const startX = (this.cellShape.x * cellNumber) - xOffset;
+
+          this.createPoint({ startX, startY, geometry });
+        }
+      })
+    });
+
+    const pointField = new Points(geometry, material);
+    this.meshes.push(pointField);
+    this.scene.add(pointField);
+
+    this.currentGenerationCount += 1;
+  }
+
+  // method to control how a generation is removed from a scene
+  removeGeneration() {
+    if (this.meshes.length > 1) { // mesh + camera
+      const mesh = this.meshes[0];
+
+      this.cleanUpRefsByMesh(mesh, true)
+    }
+  }
+
+  // method to initialize lights, sky, background, etc on the initial scene creation
+  initialize() {
+
+  }
+
+  // method to control what happens on each render update
+  updateFn() {
+    this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+    this.addGeneration(); // atempt to add a generation if the view is full already
+  }
+
+  // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+  // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
+  updateCellShape(cellShape) {
+    if (cellShape) {
+      this.cellShape = cellShape;
+    }
+    else {
+      const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
+      this.cellShape = { x: diameter, y: diameter };
+    }
+  }
+
+  // ex: { x: 100 } or { x: 100, y 200 }
+  set populationShape(populationShape) {
+    this._populationShape = populationShape;
+    this.updateCellShape()
+  }
+
+  /*******************************/
+  /* CUSTOM METHODS */
+  /*******************************/
+
+  createPoint = ({ startX, startY, geometry }) => {
+    const vertex = new Vector3();
+    vertex.x = startX;
+    vertex.y = startY;
+    vertex.z = 0;
+
+    geometry.vertices.push(vertex);
+  }
+}

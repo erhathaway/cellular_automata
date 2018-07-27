@@ -8,7 +8,7 @@ function AttributeNotDefined(message) {
 }
 
 
-export default class OneDimensionViewer extends BaseClass {
+export default class OneDimensionViewerInTwoDimensions extends BaseClass {
   constructor({ containerElId, populationShape, retrieveNextGeneration }) {
     if (populationShape === undefined) { throw new AttributeNotDefined('A population shape objects must be passed to the constructor') }
 
@@ -20,7 +20,7 @@ export default class OneDimensionViewer extends BaseClass {
     this._animationStepsPerUpdate = 2;
     this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
     this.populationShape = populationShape;
-    this.padding = { top: 20, bottom: 20 };
+    this.padding = { top: -40, bottom: -40 };
   }
 
   /*******************************/
@@ -145,7 +145,6 @@ export default class OneDimensionViewer extends BaseClass {
   createPoint = ({ startX, startY, geometry }) => {
     const vertex = new Vector3();
     vertex.x = startX;
-    // vertex.y = startY;
     vertex.z = 0;
 
     geometry.vertices.push(vertex);
