@@ -223,7 +223,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.updateCellShape()
   }
 
-  customObjectCleanups() {
+  customObjectsCleanup() {
     this.cleanUpRefsByMesh(this.floor)
   }
 

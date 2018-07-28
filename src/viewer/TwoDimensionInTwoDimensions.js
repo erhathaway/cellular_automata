@@ -1,4 +1,4 @@
-import { PointsMaterial, Geometry, Points, Vector3 } from 'three';
+import { PointsMaterial, Geometry, Points, Vector3, Color } from 'three';
 
 import BaseClass from './base';
 
@@ -27,7 +27,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
-    const material = new PointsMaterial( { color: 'black', size: this.cellShape.x, sizeAttenuation: true } );
+    const material = new PointsMaterial( { color: new Color('hsl(234, 70%, 40%)'), size: this.cellShape.x, sizeAttenuation: true } );
     this.materials.push(material);
     const geometry = new Geometry();
     this.geometries.push(geometry);
@@ -74,7 +74,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    if (this.meshes.length > 1) { // mesh + camera
+    if (this.meshes.length > 20) { // mesh + camera
       const mesh = this.meshes[0];
 
       this.cleanUpRefsByMesh(mesh, true)
@@ -90,6 +90,13 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   animateUpdateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
     this.addGeneration(); // atempt to add a generation if the view is full already
+    const colorable = this.meshes.slice(-10);
+    colorable.forEach((m, i) => {
+      // const color = new Color(`hsl(0%, 100%, ${100/(i+1)}%)`)
+      const color = new Color(`hsl(234, 70%, ${60-((i+1)*2)}%)`)
+      m.material.color.set(color)
+      m.position.z = (1/(i+1));
+    })
   }
 
   // method to control what happens on each render update regardless if the animation is running
@@ -113,6 +120,10 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   set populationShape(populationShape) {
     this._populationShape = populationShape;
     this.updateCellShape()
+  }
+
+  customObjectsCleanup() {
+
   }
 
   /*******************************/

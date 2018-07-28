@@ -49491,7 +49491,8 @@
         if (this.debug) console.log('running quit viewer code');
         this.cancelRender();
         this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
-        this.customObjectCleanups().this.dispose(this.camera);
+        this.customObjectsCleanup();
+        this.dispose(this.camera);
         this.dispose(this.light);
         this.dispose(this.scene);
         this.dispose(this.renderer);
@@ -49687,8 +49688,8 @@
     } // for disposing of custom objects like a floor or sky etc..
 
 
-    customObjectCleanups() {
-      throw new MethodNotDefined('updateFn not defined in child class');
+    customObjectsCleanup() {
+      throw new MethodNotDefined('customObjectsCleanup not defined in child class');
     }
 
   }
@@ -49860,6 +49861,8 @@
       this._populationShape = populationShape;
       this.updateCellShape();
     }
+
+    customObjectsCleanup() {}
     /*******************************/
 
     /* CUSTOM METHODS */
@@ -49938,7 +49941,7 @@
 
     addGeneration() {
       const material = new PointsMaterial({
-        color: 'black',
+        color: new Color('hsl(234, 70%, 40%)'),
         size: this.cellShape.x,
         sizeAttenuation: true
       });
@@ -49988,7 +49991,7 @@
 
 
     removeGeneration() {
-      if (this.meshes.length > 1) {
+      if (this.meshes.length > 20) {
         // mesh + camera
         const mesh = this.meshes[0];
         this.cleanUpRefsByMesh(mesh, true);
@@ -50003,6 +50006,14 @@
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
 
       this.addGeneration(); // atempt to add a generation if the view is full already
+
+      const colorable = this.meshes.slice(-10);
+      colorable.forEach((m, i) => {
+        // const color = new Color(`hsl(0%, 100%, ${100/(i+1)}%)`)
+        const color = new Color(`hsl(234, 70%, ${60 - (i + 1) * 2}%)`);
+        m.material.color.set(color);
+        m.position.z = 1 / (i + 1);
+      });
     } // method to control what happens on each render update regardless if the animation is running
 
 
@@ -50027,6 +50038,8 @@
       this._populationShape = populationShape;
       this.updateCellShape();
     }
+
+    customObjectsCleanup() {}
     /*******************************/
 
     /* CUSTOM METHODS */
@@ -51294,7 +51307,7 @@
       this.updateCellShape();
     }
 
-    customObjectCleanups() {
+    customObjectsCleanup() {
       this.cleanUpRefsByMesh(this.floor);
     }
     /*******************************/
@@ -51324,7 +51337,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '2Din3D',
+    _viewerType: '2D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -51337,12 +51350,10 @@
     _setRule: function (rule) {
       this._generationMaker.rule = rule;
     },
-    _setDimension: function (value) {
-      if (this._viewerType !== value) {
-        this._viewerType = value;
-
-        this._setViewer();
-      }
+    _setDimension: function (value) {// if (this._viewerType !== value) {
+      //   this._viewerType = value;
+      //   this._setViewer();
+      // }
     },
     _setNeighbors: function (value) {
       this._neighbors = +value;

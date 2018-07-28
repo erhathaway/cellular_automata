@@ -166,11 +166,11 @@ export default class BaseClass {
   set populationShape(shape) { throw new MethodNotDefined('updateCellShape not defined in child class') }
 
   // for disposing of custom objects like a floor or sky etc..
-  customObjectCleanups() { throw new MethodNotDefined('updateFn not defined in child class') }
+  customObjectsCleanup() { throw new MethodNotDefined('customObjectsCleanup not defined in child class') }
 
   _updateFn = () => {
     this.renderUpdateFn();
-    
+
     if (this.runSimulation === true) {
       if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: TRUE')
       if(this.updateRateInMS) {
@@ -266,7 +266,7 @@ export default class BaseClass {
 
     this.cancelRender();
     this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
-    this.customObjectCleanups().
+    this.customObjectsCleanup();
     this.dispose(this.camera);
     this.dispose(this.light);
     this.dispose(this.scene);

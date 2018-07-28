@@ -143,6 +143,10 @@ export default class OneDimensionViewerInTwoDimensions extends BaseClass {
     this.updateCellShape()
   }
 
+  customObjectsCleanup() {
+
+  }
+
   /*******************************/
   /* CUSTOM METHODS */
   /*******************************/
