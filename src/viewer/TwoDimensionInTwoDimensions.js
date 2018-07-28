@@ -86,10 +86,15 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   }
 
-  // method to control what happens on each render update
-  updateFn() {
+  // method to control what happens on each render update for the animation
+  animateUpdateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
     this.addGeneration(); // atempt to add a generation if the view is full already
+  }
+
+  // method to control what happens on each render update regardless if the animation is running
+  renderUpdateFn() {
+
   }
 
   // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'

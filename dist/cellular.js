@@ -23090,7 +23090,7 @@
    * @author tschw
    */
 
-  function PerspectiveCamera$1( fov, aspect, near, far ) {
+  function PerspectiveCamera( fov, aspect, near, far ) {
 
   	Camera.call( this );
 
@@ -23113,9 +23113,9 @@
 
   }
 
-  PerspectiveCamera$1.prototype = Object.assign( Object.create( Camera.prototype ), {
+  PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), {
 
-  	constructor: PerspectiveCamera$1,
+  	constructor: PerspectiveCamera,
 
   	isPerspectiveCamera: true,
 
@@ -23326,13 +23326,13 @@
 
   function ArrayCamera( array ) {
 
-  	PerspectiveCamera$1.call( this );
+  	PerspectiveCamera.call( this );
 
   	this.cameras = array || [];
 
   }
 
-  ArrayCamera.prototype = Object.assign( Object.create( PerspectiveCamera$1.prototype ), {
+  ArrayCamera.prototype = Object.assign( Object.create( PerspectiveCamera.prototype ), {
 
   	constructor: ArrayCamera,
 
@@ -23368,11 +23368,11 @@
   	var tempQuaternion = new Quaternion();
   	var tempPosition = new Vector3();
 
-  	var cameraL = new PerspectiveCamera$1();
+  	var cameraL = new PerspectiveCamera();
   	cameraL.bounds = new Vector4( 0.0, 0.0, 0.5, 1.0 );
   	cameraL.layers.enable( 1 );
 
-  	var cameraR = new PerspectiveCamera$1();
+  	var cameraR = new PerspectiveCamera();
   	cameraR.bounds = new Vector4( 0.5, 0.0, 0.5, 1.0 );
   	cameraR.layers.enable( 2 );
 
@@ -23734,11 +23734,11 @@
 
   	//
 
-  	var cameraL = new PerspectiveCamera$1();
+  	var cameraL = new PerspectiveCamera();
   	cameraL.layers.enable( 1 );
   	cameraL.viewport = new Vector4();
 
-  	var cameraR = new PerspectiveCamera$1();
+  	var cameraR = new PerspectiveCamera();
   	cameraR.layers.enable( 2 );
   	cameraR.viewport = new Vector4();
 
@@ -36436,7 +36436,7 @@
 
   function SpotLightShadow() {
 
-  	LightShadow.call( this, new PerspectiveCamera$1( 50, 1, 0.5, 500 ) );
+  	LightShadow.call( this, new PerspectiveCamera( 50, 1, 0.5, 500 ) );
 
   }
 
@@ -36564,7 +36564,7 @@
   	this.distance = ( distance !== undefined ) ? distance : 0;
   	this.decay = ( decay !== undefined ) ? decay : 1;	// for physically correct lights, should be 2.
 
-  	this.shadow = new LightShadow( new PerspectiveCamera$1( 90, 1, 0.5, 500 ) );
+  	this.shadow = new LightShadow( new PerspectiveCamera( 90, 1, 0.5, 500 ) );
 
   }
 
@@ -40325,7 +40325,7 @@
 
   			case 'PerspectiveCamera':
 
-  				object = new PerspectiveCamera$1( data.fov, data.aspect, data.near, data.far );
+  				object = new PerspectiveCamera( data.fov, data.aspect, data.near, data.far );
 
   				if ( data.focus !== undefined ) object.focus = data.focus;
   				if ( data.zoom !== undefined ) object.zoom = data.zoom;
@@ -41209,11 +41209,11 @@
 
   	this.eyeSep = 0.064;
 
-  	this.cameraL = new PerspectiveCamera$1();
+  	this.cameraL = new PerspectiveCamera();
   	this.cameraL.layers.enable( 1 );
   	this.cameraL.matrixAutoUpdate = false;
 
-  	this.cameraR = new PerspectiveCamera$1();
+  	this.cameraR = new PerspectiveCamera();
   	this.cameraR.layers.enable( 2 );
   	this.cameraR.matrixAutoUpdate = false;
 
@@ -41304,32 +41304,32 @@
 
   	var fov = 90, aspect = 1;
 
-  	var cameraPX = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraPX = new PerspectiveCamera( fov, aspect, near, far );
   	cameraPX.up.set( 0, - 1, 0 );
   	cameraPX.lookAt( new Vector3( 1, 0, 0 ) );
   	this.add( cameraPX );
 
-  	var cameraNX = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraNX = new PerspectiveCamera( fov, aspect, near, far );
   	cameraNX.up.set( 0, - 1, 0 );
   	cameraNX.lookAt( new Vector3( - 1, 0, 0 ) );
   	this.add( cameraNX );
 
-  	var cameraPY = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraPY = new PerspectiveCamera( fov, aspect, near, far );
   	cameraPY.up.set( 0, 0, 1 );
   	cameraPY.lookAt( new Vector3( 0, 1, 0 ) );
   	this.add( cameraPY );
 
-  	var cameraNY = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraNY = new PerspectiveCamera( fov, aspect, near, far );
   	cameraNY.up.set( 0, 0, - 1 );
   	cameraNY.lookAt( new Vector3( 0, - 1, 0 ) );
   	this.add( cameraNY );
 
-  	var cameraPZ = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraPZ = new PerspectiveCamera( fov, aspect, near, far );
   	cameraPZ.up.set( 0, - 1, 0 );
   	cameraPZ.lookAt( new Vector3( 0, 0, 1 ) );
   	this.add( cameraPZ );
 
-  	var cameraNZ = new PerspectiveCamera$1( fov, aspect, near, far );
+  	var cameraNZ = new PerspectiveCamera( fov, aspect, near, far );
   	cameraNZ.up.set( 0, - 1, 0 );
   	cameraNZ.lookAt( new Vector3( 0, 0, - 1 ) );
   	this.add( cameraNZ );
@@ -48076,7 +48076,7 @@
 
   //
 
-  PerspectiveCamera$1.prototype.setLens = function ( focalLength, filmGauge ) {
+  PerspectiveCamera.prototype.setLens = function ( focalLength, filmGauge ) {
 
   	console.warn( "THREE.PerspectiveCamera.setLens is deprecated. " +
   			"Use .setFocalLength and .filmGauge for a photographic setup." );
@@ -49007,7 +49007,7 @@
     LightShadow: LightShadow,
     Light: Light,
     StereoCamera: StereoCamera,
-    PerspectiveCamera: PerspectiveCamera$1,
+    PerspectiveCamera: PerspectiveCamera,
     OrthographicCamera: OrthographicCamera,
     CubeCamera: CubeCamera,
     ArrayCamera: ArrayCamera,
@@ -49396,27 +49396,6 @@
       populationShape,
       retrieveNextGeneration
     }) {
-      this.initScene = () => {
-        this.scene = new Scene();
-        this.updateScene();
-        if (this.debug) console.log('initialized scene');
-      };
-
-      this.updateScene = () => {};
-
-      this.initRenderer = () => {
-        this.renderer = new WebGLRenderer({
-          alpha: true,
-          antialias: true
-        });
-        this.renderer.shadowMap.enabled = true; // assign render El a DOM id
-
-        this.elID = this.type + '-automata-viewer';
-        this.renderer.domElement.id = this.elID;
-        this.updateRenderer();
-        if (this.debug) console.log('initialized renderer');
-      };
-
       this.updateRenderer = ({
         width,
         height
@@ -49424,35 +49403,16 @@
         this.renderer.setSize(this.containerWidth, this.containerHeight);
       };
 
-      this.initCamera = () => {
-        const CONTAINER_WIDTH = this.containerWidth;
-        const CONTAINER_HEIGHT = this.containerHeight;
-        const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-        const VIEW_ANGLE = 91;
-        const NEAR = 0.1;
-        const FAR = 500;
-        this.camera = new PerspectiveCamera$1(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
-        this.scene.add(this.camera);
-        this.camera.position.set(0, 0, 360);
-        this.camera.lookAt(this.scene.position);
-        this.updateCamera();
-        if (this.debug) console.log('initialized camera');
-      };
-
-      this.updateCamera = () => {};
-
-      this.turnSimulationOff = () => this.runSimulation = false;
-
-      this.turnSimulationOn = () => this.runSimulation = true;
-
       this._handleWindowResize = () => {
         this.handleWindowResize();
         this.updateRenderer();
         this.camera.aspect = this.containerWidth / this.containerHeight;
-        this.camera.updateProjectionMatrix();
+        this.updateCamera();
       };
 
       this._updateFn = () => {
+        this.renderUpdateFn();
+
         if (this.runSimulation === true) {
           if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: TRUE');
 
@@ -49462,10 +49422,10 @@
 
             if (currentTime - this.updateStartTime >= this.updateRateInMS) {
               this.updateStartTime = currentTime;
-              this.updateFn();
+              this.animateUpdateFn();
             }
           } else {
-            this.updateFn();
+            this.animateUpdateFn();
           }
         } else {
           if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: FALSE');
@@ -49476,11 +49436,8 @@
         this.initialize();
         this.containerEl.appendChild(this.renderer.domElement);
 
-        if (this.debug) {
-          console.log('renderer dom element', this.renderer.domElement);
-          console.log('scene', this.scene);
-          console.log('camera', this.camera);
-          console.log('updateFn', this._updateFn);
+        if (this.debug === 'VERBOSE') {
+          console.log('attempting scene rendering with main objects...', "\n renderer:", this.renderer, "\n scene:", this.scene, "\n camera:", this.camera, "\n updateFn:", this.updateFn, "\n light:", this.light);
         }
 
         this.cancelRender = render({
@@ -49534,7 +49491,7 @@
         if (this.debug) console.log('running quit viewer code');
         this.cancelRender();
         this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
-        this.dispose(this.camera);
+        this.customObjectCleanups().this.dispose(this.camera);
         this.dispose(this.light);
         this.dispose(this.scene);
         this.dispose(this.renderer);
@@ -49552,7 +49509,8 @@
       };
 
       // INFO, VERBOSE
-      // this.debug = 'VERBOSE';
+      this.debug = 'VERBOSE';
+
       if (this.debug === 'VERBOSE') {
         console.log("constructor called with args... \n", "\ncontainerElId:", containerElId, "\ntype:", type, "\npopulationShape:", populationShape, "\nretrieveNextGeneration:", retrieveNextGeneration);
       }
@@ -49599,11 +49557,77 @@
     /*********************/
 
 
+    initScene() {
+      this.scene = new Scene();
+      this.updateScene();
+      if (this.debug) console.log('initialized scene');
+    }
+
+    updateScene() {}
+    /*********************/
+
+    /* RENDERER */
+
+    /*********************/
+
+
+    initRenderer() {
+      this.renderer = new WebGLRenderer({
+        alpha: true,
+        antialias: true
+      });
+      this.renderer.shadowMap.enabled = true; // assign render El a DOM id
+
+      this.elID = this.type + '-automata-viewer';
+      this.renderer.domElement.id = this.elID;
+      this.updateRenderer();
+      if (this.debug) console.log('initialized renderer');
+    }
+
+    /*********************/
+
+    /* CAMERA */
+
+    /*********************/
+    initCamera() {
+      const CONTAINER_WIDTH = this.containerWidth;
+      const CONTAINER_HEIGHT = this.containerHeight;
+      const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
+      const VIEW_ANGLE = 91;
+      const NEAR = 0.1;
+      const FAR = 500;
+      this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
+      this.scene.add(this.camera);
+      this.camera.position.set(0, 0, 360);
+      this.camera.lookAt(this.scene.position);
+      this.updateCamera();
+      if (this.debug) console.log('initialized camera');
+    }
+
+    updateCamera() {
+      this.camera.updateProjectionMatrix();
+    }
+    /************************/
+
+    /* Simulation controls */
+
+    /***********************/
+
+
+    turnSimulationOff() {
+      this.runSimulation = false;
+    }
+
+    turnSimulationOn() {
+      this.runSimulation = true;
+    }
     /************************/
 
     /* Sizing */
 
     /***********************/
+
+
     get containerWidth() {
       return this.containerEl.clientWidth;
     }
@@ -49639,11 +49663,16 @@
 
     initialize() {
       throw new MethodNotDefined('initialize not defined in child class');
-    } // method to control what happens on each render update
+    } // method to control what happens on each render update for the animation
 
 
-    updateFn() {
-      throw new MethodNotDefined('updateFn not defined in child class');
+    animateUpdateFn() {
+      throw new MethodNotDefined('animateUpdateFn not defined in child class');
+    } // method to control what happens on each render update regardless if the animation is running
+
+
+    renderUpdateFn() {
+      throw new MethodNotDefined('renderUpdateFn not defined in child class');
     } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
     // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
 
@@ -49655,6 +49684,11 @@
 
     set populationShape(shape) {
       throw new MethodNotDefined('updateCellShape not defined in child class');
+    } // for disposing of custom objects like a floor or sky etc..
+
+
+    customObjectCleanups() {
+      throw new MethodNotDefined('updateFn not defined in child class');
     }
 
   }
@@ -49784,10 +49818,10 @@
     } // method to initialize lights, sky, background, etc on the initial scene creation
 
 
-    initialize() {} // method to control what happens on each render update
+    initialize() {} // method to control what happens on each render update for the animation
 
 
-    updateFn() {
+    animateUpdateFn() {
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
 
       this.addGeneration(); // atempt to add a generation if the view is full already
@@ -49799,7 +49833,10 @@
         this.scene.translateY(-this.distanceToMoveOnAnimation);
         this.totalDistanceToMovePerAnimation -= this.distanceToMoveOnAnimation;
       }
-    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    } // method to control what happens on each render update regardless if the animation is running
+
+
+    renderUpdateFn() {} // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
     // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
 
 
@@ -49959,14 +49996,17 @@
     } // method to initialize lights, sky, background, etc on the initial scene creation
 
 
-    initialize() {} // method to control what happens on each render update
+    initialize() {} // method to control what happens on each render update for the animation
 
 
-    updateFn() {
+    animateUpdateFn() {
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
 
       this.addGeneration(); // atempt to add a generation if the view is full already
-    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    } // method to control what happens on each render update regardless if the animation is running
+
+
+    renderUpdateFn() {} // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
     // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
 
 
@@ -51007,7 +51047,7 @@
     this.name = 'AttributeNotDefined';
   }
 
-  class TwoDimensionViewerInTwoDimensions$1 extends BaseClass {
+  class TwoDimensionViewerInThreeDimensions extends BaseClass {
     constructor({
       containerElId,
       populationShape,
@@ -51024,24 +51064,6 @@
         retrieveNextGeneration
       });
 
-      this.initCamera = () => {
-        const CONTAINER_WIDTH = this.containerWidth;
-        const CONTAINER_HEIGHT = this.containerHeight;
-        const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-        const VIEW_ANGLE = 140;
-        const NEAR = 0.1;
-        const FAR = 8500;
-        this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
-        this.scene.add(this.camera);
-        this.camera.position.set(0, 100, -460);
-        this.camera.lookAt(this.scene.position);
-        this.updateCamera();
-      };
-
-      this.updateScene = () => {
-        this.scene.position.y = -20;
-      };
-
       this.createPoint = ({
         startX,
         startY,
@@ -51050,19 +51072,31 @@
         material,
         singleGeometry
       }) => {
-        const cube = new Mesh(geometry, material);
-        cube.castShadow = true; //default is false
+        const cube = new Mesh(geometry, material); // cube.castShadow = true; //default is false
 
         cube.receiveShadow = true; //default
 
-        cube.position.set(startX, startZ, startY);
+        cube.position.set(startX, 0, startY);
         cube.updateMatrix();
         singleGeometry.merge(cube.geometry, cube.matrix);
       };
 
+      this.createFloor = () => {
+        const floorMaterial = new MeshBasicMaterial({
+          color: 'gray',
+          side: DoubleSide
+        });
+        const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
+        this.floor = new Mesh(floorGeometry, floorMaterial); // floor.castShadow = true; //default is false
+        // this.floor.receiveShadow = true; //default
+
+        this.floor.position.y = -0.5;
+        this.floor.rotation.x = Math.PI / 2;
+        this.scene.add(this.floor);
+      };
+
       this.currentGenerationCount = 0;
-      this.populationShape = populationShape;
-      this.updateRateInMS = 100;
+      this.populationShape = populationShape; // this.updateRateInMS = 300;
     }
     /*******************************/
 
@@ -51071,11 +51105,37 @@
     /*******************************/
 
 
+    initCamera() {
+      // const CONTAINER_WIDTH =  this.containerWidth;
+      // const CONTAINER_HEIGHT = this.containerHeight;
+      // const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
+      // const VIEW_ANGLE = 140;
+      // const NEAR = 0.1;
+      // const FAR = 8500;
+      // this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
+      //
+      // this.scene.add(this.camera);
+      // this.camera.position.set(-1000, 450, 260);
+      // // this.camera.lookAt(this.scene.position);
+      // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
+      this.camera = new OrthographicCamera(this.containerWidth / -2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / -2, 1, 10000);
+      this.camera.position.set(-450, 400, 900);
+      this.camera.lookAt(new Vector3(1, 0.57, -0.73));
+      this.camera.zoom = 0.3;
+      this.updateCamera();
+    }
+
+    updateScene() {
+      this.scene.position.y = 100;
+      this.scene.position.z = -600;
+    }
     /*******************************/
 
     /* REQUIRED BY PARENT CLASS */
 
     /*******************************/
+
+
     handleWindowResize() {
       this.updateCellShape();
     } // method to control how a generation is added to a scene
@@ -51137,6 +51197,9 @@
       singleGeometry.computeFaceNormals();
       singleGeometry.verticesNeedUpdate = true;
       const singleMesh = new Mesh(singleGeometry, singleMaterial);
+      singleMesh.position.y = startZ; // singleMesh.castShadow = true;
+      // singleMesh.recieveShadow = true;
+
       this.meshes.push(singleMesh);
       this.scene.add(singleMesh);
       this.currentGenerationCount += 1;
@@ -51144,37 +51207,70 @@
 
 
     removeGeneration() {
-      if (this.meshes.length > 1000) {
-        // mesh + camera
-        const mesh = this.meshes[0];
-        this.cleanUpRefsByMesh(mesh, true);
-      }
+      // if (this.meshes.length > 50) { // mesh + camera
+      const mesh = this.meshes[0];
+      this.scene.remove(this.camera);
+      this.cleanUpRefsByMesh(mesh, true); // }
     } // method to initialize lights, sky, background, etc on the initial scene creation
 
 
     initialize() {
-      this.light = new PointLight('yellow');
-      this.light.castShadow = true; // default false
+      // this.light = new PointLight('yellow');
+      // this.light.castShadow = true;            // default false
+      // this.light.position.set(this.camera.position);
+      // this.light.intensity = 1;
+      // this.light.lookAt(this.scene.position)
+      this.light2 = new HemisphereLight(0xffffbb, 0x080820, 1);
+      this.scene.add(this.light2); // this.light.castShadow = true;
 
-      this.light.position.set(-100, 200, 0);
-      this.light.intensity = 1;
+      this.light = new SpotLight('yellow');
+      this.light.position.set(0, 1000, 100); // this.light.position.set(this.camera.position);
+      // this.light.lookAt(this.scene.position);
+
+      this.light.castShadow = true;
+      this.light.shadow.mapSize.width = 1024;
+      this.light.shadow.mapSize.height = 1024;
+      this.light.shadow.camera.near = 500;
+      this.light.shadow.camera.far = 4000;
+      this.light.shadow.camera.fov = 170;
       this.scene.add(this.light);
       this.controls = new OrbitControls(this.camera);
-    } // method to control what happens on each render update
+      this.createFloor();
+    } // method to control what happens on each render update for the animation
 
 
-    updateFn() {
-      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-
+    animateUpdateFn() {
       this.addGeneration(); // atempt to add a generation if the view is full already
 
-      this.camera.position.y += this.cellShape.y;
-      this.camera.lookAt(this.scene.position);
-      this.light.position.y += this.cellShape.y;
-      this.updateCamera();
-      this.controls.update();
-      console.log('scene position', this.scene.position);
-      console.log('camera position', this.camera.position);
+      if (this.meshes.length > 50) {
+        // mesh + camera
+        this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+        // this.meshes.forEach(m => m.translateY(-this.cellShape.y))
+
+        this.scene.translateY(-this.cellShape.y);
+        this.floor.position.y += this.cellShape.y;
+      } // this.camera.position.y += this.cellShape.y;
+      // this.camera.setViewOffset(0,0,0, this.camera.view.y + this.cellShape.y)
+      // const scenePosition = this.scene.position
+      // scenePosition.y += this.cellShape.y;
+      // scenePosition.z = 0;
+      // this.controls.pan(0, this.cellShape.y)
+      // this.light.position.y += this.cellShape.y;
+      // this.light.updateProjectionMatrix();
+      // this.camera.lookAt(scenePosition)
+      // this.camera.lookAt(this.scene.position);
+      // this.camera.lookAt(this.scene.chilren.slice(-1)[0].position);
+      // this.updateCamera();
+      // this.light.position.y += this.cellShape.y;
+      // this.light.position.set(this.camera.position);
+      // this.light.lookAt(this.scene.children.slice(-1)[0].position)
+
+    } // method to control what happens on each render update regardless if the animation is running
+
+
+    renderUpdateFn() {
+      this.controls.update(); // console.log('scene position', this.scene.position)
+      // console.log("\ncamera position", this.camera.position, "\nlooking at", this.camera.getWorldDirection(this.scene.position), "\nzoom: ", this.camera.zoom, "\nfov", this.camera.fov, "\nmatrix", this.camera.matrix)
     } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
     // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
 
@@ -51196,6 +51292,10 @@
     set populationShape(populationShape) {
       this._populationShape = populationShape;
       this.updateCellShape();
+    }
+
+    customObjectCleanups() {
+      this.cleanUpRefsByMesh(this.floor);
     }
     /*******************************/
 
@@ -51397,12 +51497,12 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 30,
-            y: 30
+            x: 100,
+            y: 100
           };
           this._populationHistorySize = 100;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
-          this._viewer = new TwoDimensionViewerInTwoDimensions$1({
+          this._viewer = new TwoDimensionViewerInThreeDimensions({
             containerElId: this.id,
             populationShape: this._populationShape,
             retrieveNextGeneration: this._retrieveNextGeneration

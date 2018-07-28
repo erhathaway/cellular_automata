@@ -14,7 +14,7 @@ function AttributeNotDefined(message) {
 export default class BaseClass {
   constructor({ containerElId, type, populationShape, retrieveNextGeneration }) {
     // INFO, VERBOSE
-    // this.debug = 'VERBOSE';
+    this.debug = 'VERBOSE';
     if (this.debug === 'VERBOSE') { console.log(
       "constructor called with args... \n",
       "\ncontainerElId:", containerElId,
@@ -55,19 +55,19 @@ export default class BaseClass {
   /*********************/
   /* SCENE */
   /*********************/
-  initScene = () => {
+  initScene() {
     this.scene = new Scene();
     this.updateScene();
     if (this.debug) console.log('initialized scene')
   }
 
-  updateScene = () => {
+  updateScene() {
   }
 
   /*********************/
   /* RENDERER */
   /*********************/
-  initRenderer = () => {
+  initRenderer() {
     this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
     this.renderer.shadowMap.enabled = true;
 
@@ -87,7 +87,7 @@ export default class BaseClass {
   /*********************/
   /* CAMERA */
   /*********************/
-  initCamera = () => {
+  initCamera() {
     const CONTAINER_WIDTH =  this.containerWidth;
     const CONTAINER_HEIGHT = this.containerHeight;
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
@@ -104,15 +104,15 @@ export default class BaseClass {
     if (this.debug) console.log('initialized camera')
   }
 
-  updateCamera = () => {
-
+  updateCamera() {
+    this.camera.updateProjectionMatrix();
   }
 
   /************************/
   /* Simulation controls */
   /***********************/
-  turnSimulationOff = () => this.runSimulation = false;
-  turnSimulationOn = () => this.runSimulation = true;
+  turnSimulationOff() { this.runSimulation = false; }
+  turnSimulationOn() { this.runSimulation = true; }
 
   /************************/
   /* Sizing */
@@ -133,7 +133,7 @@ export default class BaseClass {
     this.handleWindowResize();
     this.updateRenderer();
     this.camera.aspect = this.containerWidth / this.containerHeight;
-    this.camera.updateProjectionMatrix();
+    this.updateCamera();
   }
 
   /************************/
@@ -151,8 +151,12 @@ export default class BaseClass {
   // method to initialize lights, sky, background, etc on the initial scene creation
   initialize() { throw new MethodNotDefined('initialize not defined in child class') }
 
-  // method to control what happens on each render update
-  updateFn() { throw new MethodNotDefined('updateFn not defined in child class') }
+  // method to control what happens on each render update for the animation
+  animateUpdateFn() { throw new MethodNotDefined('animateUpdateFn not defined in child class') }
+
+
+  // method to control what happens on each render update regardless if the animation is running
+  renderUpdateFn() { throw new MethodNotDefined('renderUpdateFn not defined in child class') }
 
   // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
   // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
@@ -161,7 +165,12 @@ export default class BaseClass {
   // population is used to figure out cell shape usually
   set populationShape(shape) { throw new MethodNotDefined('updateCellShape not defined in child class') }
 
+  // for disposing of custom objects like a floor or sky etc..
+  customObjectCleanups() { throw new MethodNotDefined('updateFn not defined in child class') }
+
   _updateFn = () => {
+    this.renderUpdateFn();
+    
     if (this.runSimulation === true) {
       if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: TRUE')
       if(this.updateRateInMS) {
@@ -169,10 +178,10 @@ export default class BaseClass {
         const currentTime = new Date().getTime();
         if (currentTime - this.updateStartTime >= this.updateRateInMS) {
           this.updateStartTime = currentTime;
-          this.updateFn();
+          this.animateUpdateFn();
         }
       } else {
-        this.updateFn();
+        this.animateUpdateFn();
       }
     } else {
       if (this.debug && this.debug === 'VERBOSE') console.log('Run simulation is: FALSE')
@@ -187,11 +196,15 @@ export default class BaseClass {
     this.initialize();
     this.containerEl.appendChild( this.renderer.domElement );
 
-    if (this.debug) {
-      console.log('renderer dom element', this.renderer.domElement)
-      console.log('scene', this.scene)
-      console.log('camera', this.camera)
-      console.log('updateFn', this._updateFn)
+    if (this.debug === 'VERBOSE') {
+      console.log(
+        'attempting scene rendering with main objects...',
+        "\n renderer:", this.renderer,
+        "\n scene:", this.scene,
+        "\n camera:", this.camera,
+        "\n updateFn:", this.updateFn,
+        "\n light:", this.light,
+      )
     }
 
     this.cancelRender = render({
@@ -253,6 +266,7 @@ export default class BaseClass {
 
     this.cancelRender();
     this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
+    this.customObjectCleanups().
     this.dispose(this.camera);
     this.dispose(this.light);
     this.dispose(this.scene);
