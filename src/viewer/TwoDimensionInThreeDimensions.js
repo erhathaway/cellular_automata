@@ -48,15 +48,17 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
 
     this.camera = new OrthographicCamera( this.containerWidth / - 2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / - 2, 1, 10000 );
-    this.camera.position.set(-450, 400, 900);
-    this.camera.lookAt(new Vector3(1, 0.57, -0.73))
-    this.camera.zoom = 0.3
+    this.camera.position.set(429, 676, 585);
+    // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
+    this.camera.lookAt(new Vector3(1, 0.50, -0.73))
+    this.camera.zoom = 1;
     this.updateCamera();
+    // this.scene.add(this.camera)
   }
 
   updateScene() {
-    this.scene.position.y = 100;
-    this.scene.position.z = -600;
+    this.scene.translateY(-200);
+    // this.scene.position.z = -600;
   }
 
   /*******************************/
@@ -108,7 +110,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
         if (cellState === 1) {
           const startY = (this.cellShape.y * cellNumber) - yOffset;
 
-          this.createPoint({ startX, startY, startZ, geometry, material, singleGeometry });
+          this.createCube({ startX, startY, startZ, geometry, material, singleGeometry });
         }
       })
     });
@@ -131,7 +133,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   removeGeneration() {
     // if (this.meshes.length > 50) { // mesh + camera
       const mesh = this.meshes[0];
-      this.scene.remove(this.camera)
+      // this.scene.remove(this.camera)
       this.cleanUpRefsByMesh(mesh, true)
     // }
   }
@@ -148,11 +150,13 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // this.light.castShadow = true;
 
     this.light = new SpotLight('yellow' );
-    this.light.position.set(0, 1000, 100);
+    this.light.position.set(0, 1000, 600);
+    // this.light.target.position.set( 0, 1, -1 );
+    // this.light.position.copy( this.camera.position );
     // this.light.position.set(this.camera.position);
     // this.light.lookAt(this.scene.position);
     this.light.castShadow = true;
-
+    // console.log(this.light)
     this.light.shadow.mapSize.width = 1024;
     this.light.shadow.mapSize.height = 1024;
 
@@ -164,38 +168,37 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.scene.add(this.light)
 
     this.controls = new OrbitControls(this.camera)
-
-    this.createFloor();
+    console.log(this.camera)
+    console.log(this.controls)
+    // this.createFloor();
+    // this.scene.remove(this.camera)
   }
 
   // method to control what happens on each render update for the animation
   animateUpdateFn() {
-    this.addGeneration(); // atempt to add a generation if the view is full already
-    if (this.meshes.length > 50) { // mesh + camera
-      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-      // this.meshes.forEach(m => m.translateY(-this.cellShape.y))
-      this.scene.translateY(-this.cellShape.y)
-      this.floor.position.y += this.cellShape.y;
+    const numberOfCellsPerHeight =  this.containerHeight / this.cellShape.y;
+    const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight)
+    const middleIndex = Math.ceil(heightMeshes.length / 2);
+    const middleMesh = heightMeshes[middleIndex]
+    if (middleMesh) {
+      console.log(middleMesh.position.y)
+      this.controls.target.y = middleMesh.position.y
+      this.light.translateY(this.cellShape.y);
+
+      if (this.controls.target.x < 200) {
+        this.controls.target.x += 1
+      } {
+        // this.controls.target.z += 10
+      }
     }
-
-
-    // this.camera.position.y += this.cellShape.y;
-    // this.camera.setViewOffset(0,0,0, this.camera.view.y + this.cellShape.y)
-    // const scenePosition = this.scene.position
-    // scenePosition.y += this.cellShape.y;
-    // scenePosition.z = 0;
-    // this.controls.pan(0, this.cellShape.y)
-    // this.light.position.y += this.cellShape.y;
-    // this.light.updateProjectionMatrix();
-    // this.camera.lookAt(scenePosition)
-    // this.camera.lookAt(this.scene.position);
-    // this.camera.lookAt(this.scene.chilren.slice(-1)[0].position);
-    // this.updateCamera();
-
-    // this.light.position.y += this.cellShape.y;
-    // this.light.position.set(this.camera.position);
-    // this.light.lookAt(this.scene.children.slice(-1)[0].position)
-
+    this.addGeneration(); // atempt to add a generation if the view is full already
+    if (this.meshes.length > 200) { // mesh + camera
+      this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+      this.camera.translateY(this.cellShape.y)
+      // this.scene.translateY(-this.cellShape.y)
+      // this.floor.translateY(this.cellShape.y);
+    }
+    this.updateCamera();
   }
 
   // method to control what happens on each render update regardless if the animation is running
@@ -231,7 +234,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   /* CUSTOM METHODS */
   /*******************************/
 
-  createPoint = ({ startX, startY, startZ, geometry, material, singleGeometry }) => {
+  createCube = ({ startX, startY, startZ, geometry, material, singleGeometry }) => {
     const cube = new Mesh(geometry, material);
     // cube.castShadow = true; //default is false
     cube.receiveShadow = true; //default
@@ -242,12 +245,12 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   }
 
   createFloor = () => {
-    const floorMaterial = new MeshBasicMaterial( { color: 'gray', side: THREE.DoubleSide } );
+    const floorMaterial = new MeshBasicMaterial( { color: 'white', side: THREE.DoubleSide } );
     const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
     // floor.castShadow = true; //default is false
     // this.floor.receiveShadow = true; //default
-  	this.floor.position.y = -0.5;
+  	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);
   };

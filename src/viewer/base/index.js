@@ -14,7 +14,7 @@ function AttributeNotDefined(message) {
 export default class BaseClass {
   constructor({ containerElId, type, populationShape, retrieveNextGeneration }) {
     // INFO, VERBOSE
-    this.debug = 'VERBOSE';
+    // this.debug = 'VERBOSE';
     if (this.debug === 'VERBOSE') { console.log(
       "constructor called with args... \n",
       "\ncontainerElId:", containerElId,
