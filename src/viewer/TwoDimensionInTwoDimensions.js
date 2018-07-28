@@ -74,7 +74,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    if (this.meshes.length > 20) { // mesh + camera
+    if (this.meshes.length > 40) { // mesh + camera
       const mesh = this.meshes[0];
 
       this.cleanUpRefsByMesh(mesh, true)
@@ -89,14 +89,14 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   // method to control what happens on each render update for the animation
   animateUpdateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-    this.addGeneration(); // atempt to add a generation if the view is full already
-    const colorable = this.meshes.slice(-10);
+    const colorable = this.meshes.slice(-40);
     colorable.forEach((m, i) => {
       // const color = new Color(`hsl(0%, 100%, ${100/(i+1)}%)`)
-      const color = new Color(`hsl(234, 70%, ${60-((i+1)*2)}%)`)
+      const color = new Color(`hsl(234, 70%, ${100-((i+1)*1)}%)`)
       m.material.color.set(color)
       m.position.z = (1/(i+1));
     })
+    this.addGeneration(); // atempt to add a generation if the view is full already
   }
 
   // method to control what happens on each render update regardless if the animation is running
