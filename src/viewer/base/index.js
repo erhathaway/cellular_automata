@@ -243,17 +243,21 @@ export default class BaseClass {
   }
 
   cleanUpRefsByMesh = (mesh, deleteMesh) => {
+    if(mesh === undefined) return;
     if (deleteMesh) {
       this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
     }
 
     const geometry = mesh.geometry;
-    this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+    if (geometry) {
+      this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+    }
 
 
     const material = mesh.material;
-    this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
-
+    if (material) {
+      this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+    }
 
     this.scene.remove(mesh);
     this.dispose(geometry);

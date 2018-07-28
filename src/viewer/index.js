@@ -163,7 +163,7 @@ const app = {
         console.log('2Din3D case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 100, y: 20 };
+        this._populationShape = { x: 140, y: 110 };
         this._populationHistorySize = 20;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });

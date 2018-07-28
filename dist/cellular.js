@@ -49473,14 +49473,24 @@
       };
 
       this.cleanUpRefsByMesh = (mesh, deleteMesh) => {
+        if (mesh === undefined) return;
+
         if (deleteMesh) {
           this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
         }
 
         const geometry = mesh.geometry;
-        this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+
+        if (geometry) {
+          this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+        }
+
         const material = mesh.material;
-        this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+
+        if (material) {
+          this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+        }
+
         this.scene.remove(mesh);
         this.dispose(geometry);
         this.dispose(material);
@@ -51162,9 +51172,9 @@
         transparent: false,
         opacity: 1
       });
-      const singleGeometry = new Geometry();
-      this.materials.push(singleMaterial);
-      this.geometries.push(singleGeometry);
+      const singleGeometry = new Geometry(); // this.materials.push(singleMaterial);
+      // this.geometries.push(singleGeometry);
+
       const generationState = this.retrieveNextGeneration();
 
       if (this._populationShape.x !== generationState.length) {
@@ -51206,6 +51216,7 @@
       });
       singleGeometry.computeMorphNormals();
       singleGeometry.computeFaceNormals();
+      singleGeometry.mergeVertices();
       singleGeometry.verticesNeedUpdate = true;
       const singleMesh = new Mesh(singleGeometry, singleMaterial);
       singleMesh.position.y = startZ; // singleMesh.castShadow = true;
@@ -51220,6 +51231,7 @@
     removeGeneration() {
       // if (this.meshes.length > 50) { // mesh + camera
       const mesh = this.meshes[0]; // this.scene.remove(this.camera)
+      // console.log(mesh)
 
       this.cleanUpRefsByMesh(mesh, true); // }
     } // method to initialize lights, sky, background, etc on the initial scene creation
@@ -51231,9 +51243,9 @@
       // this.light.position.set(this.camera.position);
       // this.light.intensity = 1;
       // this.light.lookAt(this.scene.position)
-      this.light2 = new HemisphereLight(0xffffbb, 0x080820, 1);
-      this.scene.add(this.light2); // this.light.castShadow = true;
-
+      // this.light2 = new HemisphereLight( 0xffffbb, 0x080820, 1 );
+      // this.scene.add(this.light2)
+      // this.light.castShadow = true;
       this.light = new SpotLight('yellow');
       this.light.position.set(0, 1000, 600); // this.light.target.position.set( 0, 1, -1 );
       // this.light.position.copy( this.camera.position );
@@ -51248,47 +51260,39 @@
       this.light.shadow.camera.far = 4000;
       this.light.shadow.camera.fov = 170;
       this.scene.add(this.light);
-      this.controls = new OrbitControls(this.camera);
-      console.log(this.camera);
-      console.log(this.controls); // this.createFloor();
+      this.controls = new OrbitControls(this.camera); // console.log(this.camera)
+      // console.log(this.controls)
+      // this.createFloor();
       // this.scene.remove(this.camera)
     } // method to control what happens on each render update for the animation
 
 
     animateUpdateFn() {
-      const numberOfCellsPerHeight = this.containerHeight / this.cellShape.y;
-      const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight);
-      const middleIndex = Math.ceil(heightMeshes.length / 2);
-      const middleMesh = heightMeshes[middleIndex];
-
-      if (middleMesh) {
-        console.log(middleMesh.position.y);
-        this.controls.target.y = middleMesh.position.y;
-        this.light.translateY(this.cellShape.y);
-
-        if (this.controls.target.x < 200) {
-          this.controls.target.x += 1;
-        }
-      }
+      // const numberOfCellsPerHeight =  this.containerHeight / this.cellShape.y;
+      // const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight)
+      // const middleIndex = Math.ceil(heightMeshes.length / 2);
+      // const middleMesh = heightMeshes[middleIndex]
+      const lastMesh = this.meshes.slice(-1)[0];
 
       this.addGeneration(); // atempt to add a generation if the view is full already
 
-      if (this.meshes.length > 200) {
+      this.light.translateY(this.cellShape.y);
+      this.scene.translateY(-this.cellShape.y);
+
+      if (this.meshes.length > 5) {
         // mesh + camera
         this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-
-        this.camera.translateY(this.cellShape.y); // this.scene.translateY(-this.cellShape.y)
+        // this.camera.translateY(this.cellShape.y)
         // this.floor.translateY(this.cellShape.y);
-      }
+      } // this.updateCamera();
 
-      this.updateCamera();
     } // method to control what happens on each render update regardless if the animation is running
 
 
-    renderUpdateFn() {
-      this.controls.update(); // console.log('scene position', this.scene.position)
-      // console.log("\ncamera position", this.camera.position, "\nlooking at", this.camera.getWorldDirection(this.scene.position), "\nzoom: ", this.camera.zoom, "\nfov", this.camera.fov, "\nmatrix", this.camera.matrix)
-    } // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    renderUpdateFn() {} // this.controls.update()
+    // console.log('scene position', this.scene.position)
+    // console.log("\ncamera position", this.camera.position, "\nlooking at", this.camera.getWorldDirection(this.scene.position), "\nzoom: ", this.camera.zoom, "\nfov", this.camera.fov, "\nmatrix", this.camera.matrix)
+    // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
     // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
 
 
@@ -51514,8 +51518,8 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 100,
-            y: 20
+            x: 140,
+            y: 110
           };
           this._populationHistorySize = 20;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;

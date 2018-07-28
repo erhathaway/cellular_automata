@@ -76,8 +76,8 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     const singleMaterial = new MeshPhongMaterial({color: 'green', transparent: false, opacity: 1});
     const singleGeometry = new Geometry();
 
-    this.materials.push(singleMaterial);
-    this.geometries.push(singleGeometry);
+    // this.materials.push(singleMaterial);
+    // this.geometries.push(singleGeometry);
 
     const generationState = this.retrieveNextGeneration();
 
@@ -117,8 +117,8 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
     singleGeometry.computeMorphNormals();
     singleGeometry.computeFaceNormals();
+    singleGeometry.mergeVertices()
     singleGeometry.verticesNeedUpdate = true
-
     const singleMesh = new Mesh(singleGeometry, singleMaterial);
     singleMesh.position.y = startZ;
     // singleMesh.castShadow = true;
@@ -134,6 +134,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // if (this.meshes.length > 50) { // mesh + camera
       const mesh = this.meshes[0];
       // this.scene.remove(this.camera)
+      // console.log(mesh)
       this.cleanUpRefsByMesh(mesh, true)
     // }
   }
@@ -145,8 +146,8 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // this.light.position.set(this.camera.position);
     // this.light.intensity = 1;
     // this.light.lookAt(this.scene.position)
-    this.light2 = new HemisphereLight( 0xffffbb, 0x080820, 1 );
-    this.scene.add(this.light2)
+    // this.light2 = new HemisphereLight( 0xffffbb, 0x080820, 1 );
+    // this.scene.add(this.light2)
     // this.light.castShadow = true;
 
     this.light = new SpotLight('yellow' );
@@ -168,42 +169,44 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.scene.add(this.light)
 
     this.controls = new OrbitControls(this.camera)
-    console.log(this.camera)
-    console.log(this.controls)
+    // console.log(this.camera)
+    // console.log(this.controls)
     // this.createFloor();
     // this.scene.remove(this.camera)
   }
 
   // method to control what happens on each render update for the animation
   animateUpdateFn() {
-    const numberOfCellsPerHeight =  this.containerHeight / this.cellShape.y;
-    const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight)
-    const middleIndex = Math.ceil(heightMeshes.length / 2);
-    const middleMesh = heightMeshes[middleIndex]
-    if (middleMesh) {
-      console.log(middleMesh.position.y)
-      this.controls.target.y = middleMesh.position.y
-      this.light.translateY(this.cellShape.y);
+    // const numberOfCellsPerHeight =  this.containerHeight / this.cellShape.y;
+    // const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight)
+    // const middleIndex = Math.ceil(heightMeshes.length / 2);
+    // const middleMesh = heightMeshes[middleIndex]
+    const lastMesh = this.meshes.slice(-1)[0]
+    if (lastMesh) {
+      // console.log(middleMesh.position.y)
+      // this.controls.target.y = middleMesh.position.y
 
-      if (this.controls.target.x < 200) {
-        this.controls.target.x += 1
-      } {
-        // this.controls.target.z += 10
-      }
+      // if (this.controls.target.x < 200) {
+      //   this.controls.target.x += 1
+      // } {
+      //   // this.controls.target.z += 10
+      // }
+      // this.camera.lookAt(lastMesh)
     }
     this.addGeneration(); // atempt to add a generation if the view is full already
-    if (this.meshes.length > 200) { // mesh + camera
+    this.light.translateY(this.cellShape.y);
+    this.scene.translateY(-this.cellShape.y)
+    if (this.meshes.length > 5) { // mesh + camera
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
-      this.camera.translateY(this.cellShape.y)
-      // this.scene.translateY(-this.cellShape.y)
+      // this.camera.translateY(this.cellShape.y)
       // this.floor.translateY(this.cellShape.y);
     }
-    this.updateCamera();
+    // this.updateCamera();
   }
 
   // method to control what happens on each render update regardless if the animation is running
   renderUpdateFn() {
-    this.controls.update()
+    // this.controls.update()
     // console.log('scene position', this.scene.position)
     // console.log("\ncamera position", this.camera.position, "\nlooking at", this.camera.getWorldDirection(this.scene.position), "\nzoom: ", this.camera.zoom, "\nfov", this.camera.fov, "\nmatrix", this.camera.matrix)
   }
