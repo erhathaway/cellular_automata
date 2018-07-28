@@ -50008,7 +50008,7 @@
       const colorable = this.meshes.slice(-40);
       colorable.forEach((m, i) => {
         // const color = new Color(`hsl(0%, 100%, ${100/(i+1)}%)`)
-        const color = new Color(`hsl(234, 70%, ${100 - (i + 1) * 1}%)`);
+        const color = new Color(`hsl(234, 70%, ${100 - (i + 5) * 1}%)`);
         m.material.color.set(color);
         m.position.z = 1 / (i + 1);
       });
