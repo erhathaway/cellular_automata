@@ -27,6 +27,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
     this.updateRateInMS = 16;
+    this.generationsToShow = 60;
   }
 
 
@@ -115,28 +116,9 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   // method to initialize lights, sky, background, etc on the initial scene creation
   initialize() {
-    this.ambientLight = new THREE.AmbientLight( 0xE5E5E5 ); // soft white light 0x404040
-    this.scene.add( this.ambientLight );
-
-    this.light = new SpotLight(0xffffff);
-    this.light.angle = 200;
-    this.light.position.set(45, 1000, 600);
-    this.light.castShadow = true;
-
-    this.light.intensity = 0.4
-    this.light.shadow.mapSize.width = 1024;
-    this.light.shadow.mapSize.height = 1024;
-    this.light.shadow.camera.near = 500;
-    this.light.shadow.camera.far = 4000;
-    this.light.shadow.camera.fov = 170;
-
-    this.scene.add(this.light)
-
     this.controls = new OrbitControls(this.camera)
 
-    // console.log(this.camera)
-    // console.log(this.controls)
-    console.log(this.light)
+    this.createLight();
     this.createFloor();
   }
 
@@ -160,8 +142,9 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     }
     this.addGeneration(); // atempt to add a generation if the view is full already
     this.light.translateY(this.cellShape.y);
+    // this.backLight.translateY(this.cellShape.y);
     this.scene.translateY(-this.cellShape.y)
-    if (this.meshes.length > 100) { // mesh + camera
+    if (this.meshes.length > this.generationsToShow) { // mesh + camera
       this.floor.position.setY(this.floor.position.y + this.cellShape.y);
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       // this.camera.translateY(this.cellShape.y)
@@ -205,6 +188,25 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   /*******************************/
   /* CUSTOM METHODS */
   /*******************************/
+
+  createLight = () => {
+    this.ambientLight = new THREE.AmbientLight( 0xE5E5E5 ); // soft white light 0x404040
+    this.scene.add( this.ambientLight );
+
+    this.light = new SpotLight(0xffffff);
+    this.light.angle = 200;
+    this.light.position.set(45, this.cellShape.y * this.generationsToShow + 200, 600);
+    this.light.castShadow = true;
+
+    this.light.intensity = 0.4
+    this.light.shadow.mapSize.width = 1024;
+    this.light.shadow.mapSize.height = 1024;
+    this.light.shadow.camera.near = 500;
+    this.light.shadow.camera.far = 4000;
+    this.light.shadow.camera.fov = 170;
+
+    this.scene.add(this.light)
+  }
 
   createCube = ({ startX, startY, startZ, geometry, material, group }) => {
     const cube = new Mesh(geometry, material);
