@@ -1,7 +1,7 @@
 import {
-  Geometry, BoxGeometry, PlaneGeometry,
+  Geometry, BoxGeometry, PlaneGeometry, Face3,
   Vector3,
-  Mesh,
+  Mesh, Line,
   MeshLambertMaterial, MeshPhongMaterial, MeshBasicMaterial,
   PointLight, HemisphereLight, SpotLight,
   PerspectiveCamera, OrthographicCamera
@@ -48,7 +48,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
 
     this.camera = new OrthographicCamera( this.containerWidth / - 2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / - 2, 1, 10000 );
-    this.camera.position.set(429, 676, 585);
+    this.camera.position.set(0, 85, 585);
     // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
     this.camera.lookAt(new Vector3(1, 0.50, -0.73))
     this.camera.zoom = 1;
@@ -71,13 +71,14 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
+    const diameter = this.cellShape.x
     const material = new MeshLambertMaterial( {color: 0x8888ff} );
-    const geometry = new BoxGeometry(this.cellShape.x, this.cellShape.y, this.cellShape.z);
-    const singleMaterial = new MeshPhongMaterial({color: 'green', transparent: false, opacity: 1});
-    const singleGeometry = new Geometry();
+    const geometry = new THREE.BoxBufferGeometry( diameter, diameter, diameter );
+    const group = new THREE.Group();
 
-    // this.materials.push(singleMaterial);
-    // this.geometries.push(singleGeometry);
+
+    this.materials.push(this.material);
+    this.geometries.push(this.geometry);
 
     const generationState = this.retrieveNextGeneration();
 
@@ -110,57 +111,31 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
         if (cellState === 1) {
           const startY = (this.cellShape.y * cellNumber) - yOffset;
 
-          this.createCube({ startX, startY, startZ, geometry, material, singleGeometry });
+          this.createCube({ startX, startY, startZ, geometry, material, group });
         }
       })
     });
 
-    singleGeometry.computeMorphNormals();
-    singleGeometry.computeFaceNormals();
-    singleGeometry.mergeVertices()
-    singleGeometry.verticesNeedUpdate = true
-    const singleMesh = new Mesh(singleGeometry, singleMaterial);
-    singleMesh.position.y = startZ;
-    // singleMesh.castShadow = true;
-    // singleMesh.recieveShadow = true;
-    this.meshes.push(singleMesh);
-    this.scene.add(singleMesh)
-
+    group.position.y = startZ;
+    this.scene.add(group)
+    this.meshes.push(group)
     this.currentGenerationCount += 1;
   }
 
   // method to control how a generation is removed from a scene
   removeGeneration() {
-    // if (this.meshes.length > 50) { // mesh + camera
-      const mesh = this.meshes[0];
-      // this.scene.remove(this.camera)
-      // console.log(mesh)
-      this.cleanUpRefsByMesh(mesh, true)
-    // }
+    const mesh = this.meshes[0];
+    this.cleanUpRefsByMesh(mesh, true)
   }
 
   // method to initialize lights, sky, background, etc on the initial scene creation
   initialize() {
-    // this.light = new PointLight('yellow');
-    // this.light.castShadow = true;            // default false
-    // this.light.position.set(this.camera.position);
-    // this.light.intensity = 1;
-    // this.light.lookAt(this.scene.position)
-    // this.light2 = new HemisphereLight( 0xffffbb, 0x080820, 1 );
-    // this.scene.add(this.light2)
-    // this.light.castShadow = true;
-
-    this.light = new SpotLight('yellow' );
-    this.light.position.set(0, 1000, 600);
-    // this.light.target.position.set( 0, 1, -1 );
-    // this.light.position.copy( this.camera.position );
-    // this.light.position.set(this.camera.position);
-    // this.light.lookAt(this.scene.position);
+    this.light = new SpotLight('white');
+    this.light.position.set(45, 1000, 600);
     this.light.castShadow = true;
-    // console.log(this.light)
+
     this.light.shadow.mapSize.width = 1024;
     this.light.shadow.mapSize.height = 1024;
-
     this.light.shadow.camera.near = 500;
     this.light.shadow.camera.far = 4000;
     this.light.shadow.camera.fov = 170;
@@ -171,8 +146,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.controls = new OrbitControls(this.camera)
     // console.log(this.camera)
     // console.log(this.controls)
-    // this.createFloor();
-    // this.scene.remove(this.camera)
+    this.createFloor();
   }
 
   // method to control what happens on each render update for the animation
@@ -196,12 +170,12 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.addGeneration(); // atempt to add a generation if the view is full already
     this.light.translateY(this.cellShape.y);
     this.scene.translateY(-this.cellShape.y)
-    if (this.meshes.length > 5) { // mesh + camera
+    this.floor.translateY(this.cellShape.y);
+    if (this.meshes.length > 100) { // mesh + camera
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       // this.camera.translateY(this.cellShape.y)
-      // this.floor.translateY(this.cellShape.y);
     }
-    // this.updateCamera();
+    this.updateCamera();
   }
 
   // method to control what happens on each render update regardless if the animation is running
@@ -237,22 +211,22 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   /* CUSTOM METHODS */
   /*******************************/
 
-  createCube = ({ startX, startY, startZ, geometry, material, singleGeometry }) => {
+  createCube = ({ startX, startY, startZ, geometry, material, group }) => {
     const cube = new Mesh(geometry, material);
-    // cube.castShadow = true; //default is false
+
+    cube.castShadow = true; //default is false
     cube.receiveShadow = true; //default
     cube.position.set(startX, 0, startY);
 
-    cube.updateMatrix();
-    singleGeometry.merge(cube.geometry, cube.matrix);
+    group.add(cube)
   }
 
   createFloor = () => {
-    const floorMaterial = new MeshBasicMaterial( { color: 'white', side: THREE.DoubleSide } );
+    const floorMaterial = new MeshLambertMaterial( { color: 'yellow', side: THREE.DoubleSide } );
     const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
     // floor.castShadow = true; //default is false
-    // this.floor.receiveShadow = true; //default
+    this.floor.receiveShadow = true; //default
   	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);

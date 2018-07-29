@@ -49606,8 +49606,8 @@
       const VIEW_ANGLE = 91;
       const NEAR = 0.1;
       const FAR = 500;
-      this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
-      this.scene.add(this.camera);
+      this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR); // this.scene.add(this.camera);
+
       this.camera.position.set(0, 0, 360);
       this.camera.lookAt(this.scene.position);
       this.updateCamera();
@@ -51091,25 +51091,26 @@
         startZ,
         geometry,
         material,
-        singleGeometry
+        group
       }) => {
-        const cube = new Mesh(geometry, material); // cube.castShadow = true; //default is false
+        const cube = new Mesh(geometry, material);
+        cube.castShadow = true; //default is false
 
         cube.receiveShadow = true; //default
 
         cube.position.set(startX, 0, startY);
-        cube.updateMatrix();
-        singleGeometry.merge(cube.geometry, cube.matrix);
+        group.add(cube);
       };
 
       this.createFloor = () => {
-        const floorMaterial = new MeshBasicMaterial({
-          color: 'white',
+        const floorMaterial = new MeshLambertMaterial({
+          color: 'yellow',
           side: DoubleSide
         });
         const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
         this.floor = new Mesh(floorGeometry, floorMaterial); // floor.castShadow = true; //default is false
-        // this.floor.receiveShadow = true; //default
+
+        this.floor.receiveShadow = true; //default
 
         this.floor.position.y = -100;
         this.floor.rotation.x = Math.PI / 2;
@@ -51140,7 +51141,7 @@
       // // this.camera.lookAt(this.scene.position);
       // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
       this.camera = new OrthographicCamera(this.containerWidth / -2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / -2, 1, 10000);
-      this.camera.position.set(429, 676, 585); // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
+      this.camera.position.set(0, 85, 585); // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
 
       this.camera.lookAt(new Vector3(1, 0.50, -0.73));
       this.camera.zoom = 1;
@@ -51163,18 +51164,14 @@
 
 
     addGeneration() {
+      const diameter = this.cellShape.x;
       const material = new MeshLambertMaterial({
         color: 0x8888ff
       });
-      const geometry = new BoxGeometry(this.cellShape.x, this.cellShape.y, this.cellShape.z);
-      const singleMaterial = new MeshPhongMaterial({
-        color: 'green',
-        transparent: false,
-        opacity: 1
-      });
-      const singleGeometry = new Geometry(); // this.materials.push(singleMaterial);
-      // this.geometries.push(singleGeometry);
-
+      const geometry = new BoxBufferGeometry(diameter, diameter, diameter);
+      const group = new Group();
+      this.materials.push(this.material);
+      this.geometries.push(this.geometry);
       const generationState = this.retrieveNextGeneration();
 
       if (this._populationShape.x !== generationState.length) {
@@ -51209,51 +51206,28 @@
               startZ,
               geometry,
               material,
-              singleGeometry
+              group
             });
           }
         });
       });
-      singleGeometry.computeMorphNormals();
-      singleGeometry.computeFaceNormals();
-      singleGeometry.mergeVertices();
-      singleGeometry.verticesNeedUpdate = true;
-      const singleMesh = new Mesh(singleGeometry, singleMaterial);
-      singleMesh.position.y = startZ; // singleMesh.castShadow = true;
-      // singleMesh.recieveShadow = true;
-
-      this.meshes.push(singleMesh);
-      this.scene.add(singleMesh);
+      group.position.y = startZ;
+      this.scene.add(group);
+      this.meshes.push(group);
       this.currentGenerationCount += 1;
     } // method to control how a generation is removed from a scene
 
 
     removeGeneration() {
-      // if (this.meshes.length > 50) { // mesh + camera
-      const mesh = this.meshes[0]; // this.scene.remove(this.camera)
-      // console.log(mesh)
-
-      this.cleanUpRefsByMesh(mesh, true); // }
+      const mesh = this.meshes[0];
+      this.cleanUpRefsByMesh(mesh, true);
     } // method to initialize lights, sky, background, etc on the initial scene creation
 
 
     initialize() {
-      // this.light = new PointLight('yellow');
-      // this.light.castShadow = true;            // default false
-      // this.light.position.set(this.camera.position);
-      // this.light.intensity = 1;
-      // this.light.lookAt(this.scene.position)
-      // this.light2 = new HemisphereLight( 0xffffbb, 0x080820, 1 );
-      // this.scene.add(this.light2)
-      // this.light.castShadow = true;
-      this.light = new SpotLight('yellow');
-      this.light.position.set(0, 1000, 600); // this.light.target.position.set( 0, 1, -1 );
-      // this.light.position.copy( this.camera.position );
-      // this.light.position.set(this.camera.position);
-      // this.light.lookAt(this.scene.position);
-
-      this.light.castShadow = true; // console.log(this.light)
-
+      this.light = new SpotLight('white');
+      this.light.position.set(45, 1000, 600);
+      this.light.castShadow = true;
       this.light.shadow.mapSize.width = 1024;
       this.light.shadow.mapSize.height = 1024;
       this.light.shadow.camera.near = 500;
@@ -51262,8 +51236,8 @@
       this.scene.add(this.light);
       this.controls = new OrbitControls(this.camera); // console.log(this.camera)
       // console.log(this.controls)
-      // this.createFloor();
-      // this.scene.remove(this.camera)
+
+      this.createFloor();
     } // method to control what happens on each render update for the animation
 
 
@@ -51278,14 +51252,15 @@
 
       this.light.translateY(this.cellShape.y);
       this.scene.translateY(-this.cellShape.y);
+      this.floor.translateY(this.cellShape.y);
 
-      if (this.meshes.length > 5) {
+      if (this.meshes.length > 100) {
         // mesh + camera
         this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
         // this.camera.translateY(this.cellShape.y)
-        // this.floor.translateY(this.cellShape.y);
-      } // this.updateCamera();
+      }
 
+      this.updateCamera();
     } // method to control what happens on each render update regardless if the animation is running
 
 
@@ -51498,7 +51473,7 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 400,
+            x: 500,
             y: 200
           };
           this._populationHistorySize = 2;
@@ -51518,8 +51493,8 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 140,
-            y: 110
+            x: 100,
+            y: 50
           };
           this._populationHistorySize = 20;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;

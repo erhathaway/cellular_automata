@@ -153,7 +153,7 @@ const app = {
         console.log('2d case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 400, y: 200 };
+        this._populationShape = { x: 500, y: 200 };
         this._populationHistorySize = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
@@ -163,7 +163,7 @@ const app = {
         console.log('2Din3D case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 140, y: 110 };
+        this._populationShape = { x: 100, y: 50 };
         this._populationHistorySize = 20;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });

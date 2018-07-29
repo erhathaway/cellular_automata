@@ -96,7 +96,7 @@ export default class BaseClass {
     const FAR = 500;
     this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
 
-    this.scene.add(this.camera);
+    // this.scene.add(this.camera);
     this.camera.position.set(0, 0, 360);
     this.camera.lookAt(this.scene.position);
     this.updateCamera();
