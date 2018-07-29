@@ -49400,7 +49400,11 @@
         width,
         height
       } = {}) => {
-        this.renderer.setSize(this.containerWidth, this.containerHeight);
+        try {
+          this.renderer.setSize(this.containerWidth, this.containerHeight);
+        } catch (e) {
+          console.warn(e);
+        }
       };
 
       this._handleWindowResize = () => {
@@ -49475,20 +49479,32 @@
       this.cleanUpRefsByMesh = (mesh, deleteMesh) => {
         if (mesh === undefined) return;
 
-        if (deleteMesh) {
-          this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+        if (deleteMesh && mesh.uuid) {
+          try {
+            this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+          } catch (e) {
+            console.warn(e);
+          }
         }
 
         const geometry = mesh.geometry;
 
-        if (geometry) {
-          this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+        if (geometry && geometry.uudi) {
+          try {
+            this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+          } catch (e) {
+            console.warn(e);
+          }
         }
 
         const material = mesh.material;
 
-        if (material) {
-          this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+        if (material && material.uuid) {
+          try {
+            this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+          } catch (e) {
+            console.warn(e);
+          }
         }
 
         this.scene.remove(mesh);
@@ -49499,6 +49515,7 @@
 
       this.quit = () => {
         if (this.debug) console.log('running quit viewer code');
+        this.turnSimulationOff();
         this.cancelRender();
         this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
         this.customObjectsCleanup();
@@ -51104,21 +51121,22 @@
 
       this.createFloor = () => {
         const floorMaterial = new MeshLambertMaterial({
-          color: 'yellow',
+          color: 'white',
           side: DoubleSide
         });
-        const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
-        this.floor = new Mesh(floorGeometry, floorMaterial); // floor.castShadow = true; //default is false
-
+        const floorGeometry = new PlaneGeometry(30000, 30000, 1, 1);
+        this.floor = new Mesh(floorGeometry, floorMaterial);
         this.floor.receiveShadow = true; //default
 
         this.floor.position.y = -100;
         this.floor.rotation.x = Math.PI / 2;
         this.scene.add(this.floor);
+        console.log(this.floor);
       };
 
       this.currentGenerationCount = 0;
-      this.populationShape = populationShape; // this.updateRateInMS = 300;
+      this.populationShape = populationShape;
+      this.updateRateInMS = 16;
     }
     /*******************************/
 
@@ -51128,24 +51146,11 @@
 
 
     initCamera() {
-      // const CONTAINER_WIDTH =  this.containerWidth;
-      // const CONTAINER_HEIGHT = this.containerHeight;
-      // const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-      // const VIEW_ANGLE = 140;
-      // const NEAR = 0.1;
-      // const FAR = 8500;
-      // this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
-      //
-      // this.scene.add(this.camera);
-      // this.camera.position.set(-1000, 450, 260);
-      // // this.camera.lookAt(this.scene.position);
-      // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
       this.camera = new OrthographicCamera(this.containerWidth / -2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / -2, 1, 10000);
-      this.camera.position.set(0, 85, 585); // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
-
+      this.camera.position.set(-350, 800, 685);
       this.camera.lookAt(new Vector3(1, 0.50, -0.73));
       this.camera.zoom = 1;
-      this.updateCamera(); // this.scene.add(this.camera)
+      this.updateCamera();
     }
 
     updateScene() {
@@ -51158,15 +51163,14 @@
     /*******************************/
 
 
-    handleWindowResize() {
-      this.updateCellShape();
-    } // method to control how a generation is added to a scene
+    handleWindowResize() {} // this.updateCellShape();
+    // method to control how a generation is added to a scene
 
 
     addGeneration() {
       const diameter = this.cellShape.x;
       const material = new MeshLambertMaterial({
-        color: 0x8888ff
+        color: 'orange'
       });
       const geometry = new BoxBufferGeometry(diameter, diameter, diameter);
       const group = new Group();
@@ -51225,9 +51229,14 @@
 
 
     initialize() {
-      this.light = new SpotLight('white');
+      this.ambientLight = new AmbientLight(0xE5E5E5); // soft white light 0x404040
+
+      this.scene.add(this.ambientLight);
+      this.light = new SpotLight(0xffffff);
+      this.light.angle = 200;
       this.light.position.set(45, 1000, 600);
       this.light.castShadow = true;
+      this.light.intensity = 0.4;
       this.light.shadow.mapSize.width = 1024;
       this.light.shadow.mapSize.height = 1024;
       this.light.shadow.camera.near = 500;
@@ -51237,6 +51246,7 @@
       this.controls = new OrbitControls(this.camera); // console.log(this.camera)
       // console.log(this.controls)
 
+      console.log(this.light);
       this.createFloor();
     } // method to control what happens on each render update for the animation
 
@@ -51252,10 +51262,10 @@
 
       this.light.translateY(this.cellShape.y);
       this.scene.translateY(-this.cellShape.y);
-      this.floor.translateY(this.cellShape.y);
 
       if (this.meshes.length > 100) {
         // mesh + camera
+        this.floor.position.setY(this.floor.position.y + this.cellShape.y);
         this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
         // this.camera.translateY(this.cellShape.y)
       }
@@ -51291,6 +51301,8 @@
     }
 
     customObjectsCleanup() {
+      this.scene.remove(this.ambientLight);
+      this.dispose(this.ambientLight);
       this.cleanUpRefsByMesh(this.floor);
     }
     /*******************************/
@@ -51494,7 +51506,7 @@
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
             x: 100,
-            y: 50
+            y: 30
           };
           this._populationHistorySize = 20;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;

@@ -81,7 +81,11 @@ export default class BaseClass {
   }
 
   updateRenderer = ({ width, height } = {}) => {
-    this.renderer.setSize(this.containerWidth, this.containerHeight);
+    try {
+      this.renderer.setSize(this.containerWidth, this.containerHeight);
+    } catch(e) {
+      console.warn(e)
+    }
   }
 
   /*********************/
@@ -244,19 +248,31 @@ export default class BaseClass {
 
   cleanUpRefsByMesh = (mesh, deleteMesh) => {
     if(mesh === undefined) return;
-    if (deleteMesh) {
-      this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+    if (deleteMesh && mesh.uuid) {
+      try {
+        this.meshes = this.meshes.filter(obj => obj.uuid !== mesh.uuid);
+      } catch(e) {
+        console.warn(e)
+      }
     }
 
     const geometry = mesh.geometry;
-    if (geometry) {
-      this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+    if (geometry && geometry.uudi) {
+      try {
+        this.geometries = this.geometries.filter(obj => obj.uuid !== geometry.uuid);
+      } catch(e) {
+        console.warn(e)
+      }
     }
 
 
     const material = mesh.material;
-    if (material) {
-      this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+    if (material && material.uuid) {
+      try {
+        this.materials = this.materials.filter(obj => obj.uuid !== material.uuid);
+      } catch(e) {
+        console.warn(e)
+      }
     }
 
     this.scene.remove(mesh);
@@ -267,6 +283,7 @@ export default class BaseClass {
 
   quit = () => {
     if (this.debug) console.log('running quit viewer code')
+    this.turnSimulationOff();
 
     this.cancelRender();
     this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));

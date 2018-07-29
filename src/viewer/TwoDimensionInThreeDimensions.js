@@ -26,7 +26,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
-    // this.updateRateInMS = 300;
+    this.updateRateInMS = 16;
   }
 
 
@@ -34,26 +34,11 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   /* SPECIAL OVERRIDES OF PARENT CLASS */
   /*******************************/
   initCamera() {
-    // const CONTAINER_WIDTH =  this.containerWidth;
-    // const CONTAINER_HEIGHT = this.containerHeight;
-    // const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-    // const VIEW_ANGLE = 140;
-    // const NEAR = 0.1;
-    // const FAR = 8500;
-    // this.camera = new PerspectiveCamera( VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR );
-    //
-    // this.scene.add(this.camera);
-    // this.camera.position.set(-1000, 450, 260);
-    // // this.camera.lookAt(this.scene.position);
-    // this.camera.lookAt(new Vector3(1, -0.5, -0.1))
-
     this.camera = new OrthographicCamera( this.containerWidth / - 2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / - 2, 1, 10000 );
-    this.camera.position.set(0, 85, 585);
-    // this.camera.position = new Vector3(736.8930611289219, 393.216440052488, 536.7644484682672)
+    this.camera.position.set(-350, 800, 685);
     this.camera.lookAt(new Vector3(1, 0.50, -0.73))
     this.camera.zoom = 1;
     this.updateCamera();
-    // this.scene.add(this.camera)
   }
 
   updateScene() {
@@ -66,13 +51,13 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   /*******************************/
 
   handleWindowResize() {
-    this.updateCellShape();
+    // this.updateCellShape();
   }
 
   // method to control how a generation is added to a scene
   addGeneration() {
     const diameter = this.cellShape.x
-    const material = new MeshLambertMaterial( {color: 0x8888ff} );
+    const material = new MeshLambertMaterial( {color: 'orange'} );
     const geometry = new THREE.BoxBufferGeometry( diameter, diameter, diameter );
     const group = new THREE.Group();
 
@@ -130,22 +115,28 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   // method to initialize lights, sky, background, etc on the initial scene creation
   initialize() {
-    this.light = new SpotLight('white');
+    this.ambientLight = new THREE.AmbientLight( 0xE5E5E5 ); // soft white light 0x404040
+    this.scene.add( this.ambientLight );
+
+    this.light = new SpotLight(0xffffff);
+    this.light.angle = 200;
     this.light.position.set(45, 1000, 600);
     this.light.castShadow = true;
 
+    this.light.intensity = 0.4
     this.light.shadow.mapSize.width = 1024;
     this.light.shadow.mapSize.height = 1024;
     this.light.shadow.camera.near = 500;
     this.light.shadow.camera.far = 4000;
     this.light.shadow.camera.fov = 170;
 
-
     this.scene.add(this.light)
 
     this.controls = new OrbitControls(this.camera)
+
     // console.log(this.camera)
     // console.log(this.controls)
+    console.log(this.light)
     this.createFloor();
   }
 
@@ -170,11 +161,12 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.addGeneration(); // atempt to add a generation if the view is full already
     this.light.translateY(this.cellShape.y);
     this.scene.translateY(-this.cellShape.y)
-    this.floor.translateY(this.cellShape.y);
     if (this.meshes.length > 100) { // mesh + camera
+      this.floor.position.setY(this.floor.position.y + this.cellShape.y);
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       // this.camera.translateY(this.cellShape.y)
     }
+
     this.updateCamera();
   }
 
@@ -204,6 +196,9 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   }
 
   customObjectsCleanup() {
+    this.scene.remove(this.ambientLight)
+    this.dispose(this.ambientLight)
+
     this.cleanUpRefsByMesh(this.floor)
   }
 
@@ -222,14 +217,15 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   }
 
   createFloor = () => {
-    const floorMaterial = new MeshLambertMaterial( { color: 'yellow', side: THREE.DoubleSide } );
-    const floorGeometry = new PlaneGeometry(3000, 3000, 1, 1);
+    const floorMaterial = new MeshLambertMaterial( { color: 'white', side: THREE.DoubleSide } );
+    const floorGeometry = new PlaneGeometry(30000, 30000, 1, 1);
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    // floor.castShadow = true; //default is false
+
     this.floor.receiveShadow = true; //default
   	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);
+    console.log(this.floor)
   };
 
 }
