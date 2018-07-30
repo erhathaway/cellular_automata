@@ -68,11 +68,11 @@ const createCoordinateExtractors = (serializedCoordinates) => {
       }
     } else if (coordinateExtractors.length === 2) {
       return ({x, y}, arr) => {
-        return coordinateExtractors[0](x, coordinateExtractors[1](y, arr))
+        return coordinateExtractors[1](y, coordinateExtractors[0](x, arr))
       }
     } else if (coordinateExtractors.length === 3) {
       return ({x, y, z}, arr) => {
-        return coordinateExtractors[0](x, coordinateExtractors[1](y, coordinateExtractors[2](z, arr)))
+        return coordinateExtractors[2](z, coordinateExtractors[1](y, coordinateExtractors[0](x, arr)))
       }
     }
   })
@@ -108,43 +108,17 @@ const twentySixNeighboorsThreeDimensions = createCoordinateExtractors([
 
 
 
-// cellIndex: Int
+// cellCoords: { x: Int }
 // neighborhoodArr: [Int, Int, ...]
-const oneDimension = (cellIndex, neighborhoodArr) => {
-  // const NEIGHBORS = [
-  //   { name: 'leftNeighbor', stateFn: (index, arr) => {
-  //       const state = arr[index-1];
-  //       return state === undefined ? arr.slice(-1)[0] : state;
-  //     }
-  //   },
-  //   { name: 'rightNeighbor', stateFn: (index, arr) => {
-  //       const state = arr[index+1];
-  //       return state === undefined ? arr[0] : state;
-  //     }
-  //   },
-  // ];
-  // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellIndex, neighborhoodArr));
-  const neighbors = twoNeighboorsOneDimension.map(fn => fn({ x: cellIndex }, neighborhoodArr))
-  const cell = neighborhoodArr[cellIndex];
+const oneDimension = (cellCoords, neighborhoodArr) => {
+  const neighbors = twoNeighboorsOneDimension.map(fn => fn(cellCoords, neighborhoodArr))
+  const cell = neighborhoodArr[cellCoords.x];
   return { neighbors, cell }
 }
 
 const twoDimension = (cellCoords, neighborhoodMatrix) => {
-  // const NEIGHBORS = [
-  //   { name: 'top', stateFn: ({ x, y }, mat) => getBefore(y, mat)[x] },
-  //   { name: 'topRight', stateFn: ({ x, y }, mat) => getAfter(x, getBefore(y, mat)) },
-  //   { name: 'right', stateFn: ({ x, y }, mat) => getAfter(x, mat[y]) },
-  //   { name: 'bottomRight', stateFn: ({ x, y }, mat) => getAfter(x, getAfter(y, mat)) },
-  //   { name: 'bottom', stateFn: ({ x, y }, mat) => getAfter(y, mat)[x] },
-  //   { name: 'bottomLeft', stateFn: ({ x, y }, mat) => getBefore(x, getAfter(y, mat)) },
-  //   { name: 'left', stateFn: ({ x, y }, mat) => getBefore(x, mat[y]) },
-  //   { name: 'topLeft', stateFn: ({ x, y }, mat) => getBefore(x, getBefore(y, mat)) },
-  // ];
-  // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
-  // console.log(eightNeighboorsTwoDimensions)
-
   const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
-  const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
+  const cell = neighborhoodMatrix[cellCoords.x][cellCoords.y];
   return { neighbors, cell }
 }
 

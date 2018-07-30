@@ -75,7 +75,7 @@ const contents = {
   class: 'mdc-drawer__content',
   $components: [
     textInputSelection({ labelName: 'Rule (0-255)', cellName: 'rule', updateFn: '_setRule', validations: ruleValidations, inputElementAttributes: inputRuleElementAttributes }),
-    buttonSelection({ labelName: 'Dimension', cellName: 'dimension', updateFn: '_setDimension', selections: ['2Din3D', '2D'] }),
+    buttonSelection({ labelName: 'Dimension', cellName: 'dimension', updateFn: '_setDimension', selections: ['1D', '2D'] }),
     textInputSelection({ labelName: 'Neighbors (1+)', cellName: 'neighbors', updateFn: '_setNeighbors', inputElementAttributes: inputNeighborsElementAttributes }),
     textInputSelection({ labelName: 'Population Count', cellName: 'population', updateFn: '_setPopulation', inputElementAttributes: inputPopulationElementAttributes }),
     buttonSelection({ labelName: 'Growth', cellName: 'growth', updateFn: '_setGrowth', selections: ['Fixed', 'Continuous'] }),

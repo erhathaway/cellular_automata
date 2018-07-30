@@ -21,8 +21,8 @@ export default class GenerationMaker {
     return this._rule;
   }
 
-  runPopulationSeed(populationSape) {
-    return this._populationSeed(populationSape);
+  runPopulationSeed(populationShape) {
+    return this._populationSeed(populationShape);
   }
 
   useOneDimensionGenerator() {
@@ -51,26 +51,26 @@ export default class GenerationMaker {
   _run(currentPopulation) {
     let newPopulation = [];
 
-    for (let y = 0; y < currentPopulation.length; y++) {
-      const row = currentPopulation[y];
+    for (let x = 0; x < currentPopulation.length; x++) {
+      const column = currentPopulation[x];
 
       // if 2D
-      if (Array.isArray(row)) {
-        const columnStates = [];
-        for (let x = 0; x < row.length; x++) {
+      if (Array.isArray(column)) {
+        const rowStates = [];
+        for (let y = 0; y < column.length; y++) {
           const coords = { x, y };
           const state = this._computeStateOffCoords(coords, currentPopulation);
-          columnStates.push(state)
+          rowStates.push(state)
         }
-        newPopulation.push(columnStates)
+        newPopulation.push(rowStates)
       // if 1D
       } else {
-        const state = this._computeStateOffCoords(y, currentPopulation);
+        const coords = { x }
+        const state = this._computeStateOffCoords(coords, currentPopulation);
         newPopulation.push(state)
       }
 
     }
-
     return newPopulation
   }
 

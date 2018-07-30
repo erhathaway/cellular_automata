@@ -1611,7 +1611,7 @@
           x,
           y
         }, arr) => {
-          return coordinateExtractors[0](x, coordinateExtractors[1](y, arr));
+          return coordinateExtractors[1](y, coordinateExtractors[0](x, arr));
         };
       } else if (coordinateExtractors.length === 3) {
         return ({
@@ -1619,7 +1619,7 @@
           y,
           z
         }, arr) => {
-          return coordinateExtractors[0](x, coordinateExtractors[1](y, coordinateExtractors[2](z, arr)));
+          return coordinateExtractors[2](z, coordinateExtractors[1](y, coordinateExtractors[0](x, arr)));
         };
       }
     });
@@ -1640,27 +1640,12 @@
   'x|y+1', 'x+1|y+1', 'x+1|y', 'x+1|y-1', 'x|y-1', 'x-1|y-1', 'x-1|y', 'x-1|y+1']); // 3D
 
   const sixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y|z', 'x|y-1|z', 'x-1|y|z', 'x|y|z+1', 'x|y|z-1']);
-  const twentySixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y+1|z', 'x+1|y|z', 'x+1|y-1|z', 'x|y-1|z', 'x-1|y-1|z', 'x-1|y|z', 'x-1|y+1|z', 'x|y+1|z+1', 'x+1|y+1|z+1', 'x+1|y|z+1', 'x+1|y-1|z+1', 'x|y-1|z+1', 'x-1|y-1|z+1', 'x-1|y|z+1', 'x-1|y+1|z+1', 'x|y|z+1', 'x|y+1|z-1', 'x+1|y+1|z-1', 'x+1|y|z-1', 'x+1|y-1|z-1', 'x|y-1|z-1', 'x-1|y-1|z-1', 'x-1|y|z-1', 'x-1|y+1|z-1', 'x|y|z-1']); // cellIndex: Int
+  const twentySixNeighboorsThreeDimensions = createCoordinateExtractors(['x|y+1|z', 'x+1|y+1|z', 'x+1|y|z', 'x+1|y-1|z', 'x|y-1|z', 'x-1|y-1|z', 'x-1|y|z', 'x-1|y+1|z', 'x|y+1|z+1', 'x+1|y+1|z+1', 'x+1|y|z+1', 'x+1|y-1|z+1', 'x|y-1|z+1', 'x-1|y-1|z+1', 'x-1|y|z+1', 'x-1|y+1|z+1', 'x|y|z+1', 'x|y+1|z-1', 'x+1|y+1|z-1', 'x+1|y|z-1', 'x+1|y-1|z-1', 'x|y-1|z-1', 'x-1|y-1|z-1', 'x-1|y|z-1', 'x-1|y+1|z-1', 'x|y|z-1']); // cellCoords: { x: Int }
   // neighborhoodArr: [Int, Int, ...]
 
-  const oneDimension = (cellIndex, neighborhoodArr) => {
-    // const NEIGHBORS = [
-    //   { name: 'leftNeighbor', stateFn: (index, arr) => {
-    //       const state = arr[index-1];
-    //       return state === undefined ? arr.slice(-1)[0] : state;
-    //     }
-    //   },
-    //   { name: 'rightNeighbor', stateFn: (index, arr) => {
-    //       const state = arr[index+1];
-    //       return state === undefined ? arr[0] : state;
-    //     }
-    //   },
-    // ];
-    // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellIndex, neighborhoodArr));
-    const neighbors = twoNeighboorsOneDimension.map(fn => fn({
-      x: cellIndex
-    }, neighborhoodArr));
-    const cell = neighborhoodArr[cellIndex];
+  const oneDimension = (cellCoords, neighborhoodArr) => {
+    const neighbors = twoNeighboorsOneDimension.map(fn => fn(cellCoords, neighborhoodArr));
+    const cell = neighborhoodArr[cellCoords.x];
     return {
       neighbors,
       cell
@@ -1668,20 +1653,8 @@
   };
 
   const twoDimension = (cellCoords, neighborhoodMatrix) => {
-    // const NEIGHBORS = [
-    //   { name: 'top', stateFn: ({ x, y }, mat) => getBefore(y, mat)[x] },
-    //   { name: 'topRight', stateFn: ({ x, y }, mat) => getAfter(x, getBefore(y, mat)) },
-    //   { name: 'right', stateFn: ({ x, y }, mat) => getAfter(x, mat[y]) },
-    //   { name: 'bottomRight', stateFn: ({ x, y }, mat) => getAfter(x, getAfter(y, mat)) },
-    //   { name: 'bottom', stateFn: ({ x, y }, mat) => getAfter(y, mat)[x] },
-    //   { name: 'bottomLeft', stateFn: ({ x, y }, mat) => getBefore(x, getAfter(y, mat)) },
-    //   { name: 'left', stateFn: ({ x, y }, mat) => getBefore(x, mat[y]) },
-    //   { name: 'topLeft', stateFn: ({ x, y }, mat) => getBefore(x, getBefore(y, mat)) },
-    // ];
-    // const neighbors = NEIGHBORS.map(({ stateFn }) => stateFn(cellCoords, neighborhoodMatrix));
-    // console.log(eightNeighboorsTwoDimensions)
     const neighbors = eightNeighboorsTwoDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
-    const cell = neighborhoodMatrix[cellCoords.y][cellCoords.x];
+    const cell = neighborhoodMatrix[cellCoords.x][cellCoords.y];
     return {
       neighbors,
       cell
@@ -1825,9 +1798,9 @@
     const dimensionPopulation = shape[firstDimension]; // if only dimension left in shape, generate states
 
     if (dimensions.length === 1) {
-      return [...new Array(shape[firstDimension])].map(newState); // if more dimensions left, map over those dimensions first
+      return [...new Array(dimensionPopulation)].map(newState); // if more dimensions left, map over those dimensions first
     } else {
-      const newShape = shape;
+      const newShape = Object.assign({}, shape);
       delete newShape[firstDimension];
       return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
     }
@@ -1851,8 +1824,8 @@
       return this._rule;
     }
 
-    runPopulationSeed(populationSape) {
-      return this._populationSeed(populationSape);
+    runPopulationSeed(populationShape) {
+      return this._populationSeed(populationShape);
     }
 
     useOneDimensionGenerator() {
@@ -1887,13 +1860,13 @@
     _run(currentPopulation) {
       let newPopulation = [];
 
-      for (let y = 0; y < currentPopulation.length; y++) {
-        const row = currentPopulation[y]; // if 2D
+      for (let x = 0; x < currentPopulation.length; x++) {
+        const column = currentPopulation[x]; // if 2D
 
-        if (Array.isArray(row)) {
-          const columnStates = [];
+        if (Array.isArray(column)) {
+          const rowStates = [];
 
-          for (let x = 0; x < row.length; x++) {
+          for (let y = 0; y < column.length; y++) {
             const coords = {
               x,
               y
@@ -1901,12 +1874,16 @@
 
             const state = this._computeStateOffCoords(coords, currentPopulation);
 
-            columnStates.push(state);
+            rowStates.push(state);
           }
 
-          newPopulation.push(columnStates); // if 1D
+          newPopulation.push(rowStates); // if 1D
         } else {
-          const state = this._computeStateOffCoords(y, currentPopulation);
+          const coords = {
+            x
+          };
+
+          const state = this._computeStateOffCoords(coords, currentPopulation);
 
           newPopulation.push(state);
         }
@@ -51148,7 +51125,6 @@
         this.floor.position.y = -100;
         this.floor.rotation.x = Math.PI / 2;
         this.scene.add(this.floor);
-        console.log(this.floor);
       };
 
       this.currentGenerationCount = 0;
@@ -51317,6 +51293,250 @@
 
   }
 
+  const OrbitControls$1 = threeOrbitControls(THREE$1);
+
+  function AttributeNotDefined$4(message) {
+    this.message = message;
+    this.name = 'AttributeNotDefined';
+  }
+
+  class ThreeDimensionViewerInThreeDimensions extends BaseClass {
+    constructor({
+      containerElId,
+      populationShape,
+      retrieveNextGeneration
+    }) {
+      if (populationShape === undefined) {
+        throw new AttributeNotDefined$4('A population shape objects must be passed to the constructor');
+      }
+
+      super({
+        containerElId,
+        populationShape,
+        type: 'three-dimension-in-three-dimensions',
+        retrieveNextGeneration
+      });
+
+      this.createLight = () => {
+        this.ambientLight = new AmbientLight(0xE5E5E5); // soft white light 0x404040
+
+        this.scene.add(this.ambientLight);
+        this.light = new SpotLight(0xffffff);
+        this.light.angle = 200;
+        this.light.position.set(45, this.cellShape.y * this.generationsToShow + 200, 600);
+        this.light.castShadow = true;
+        this.light.intensity = 0.4;
+        this.light.shadow.mapSize.width = 1024;
+        this.light.shadow.mapSize.height = 1024;
+        this.light.shadow.camera.near = 500;
+        this.light.shadow.camera.far = 4000;
+        this.light.shadow.camera.fov = 170;
+        this.scene.add(this.light);
+      };
+
+      this.createCube = ({
+        startX,
+        startY,
+        startZ,
+        geometry,
+        material,
+        group
+      }) => {
+        const cube = new Mesh(geometry, material);
+        cube.castShadow = true; //default is false
+
+        cube.receiveShadow = true; //default
+
+        cube.position.set(startX, startZ, startY);
+        group.add(cube);
+      };
+
+      this.createFloor = () => {
+        const floorMaterial = new MeshLambertMaterial({
+          color: 'white',
+          side: DoubleSide
+        });
+        const floorGeometry = new PlaneGeometry(30000, 30000, 1, 1);
+        this.floor = new Mesh(floorGeometry, floorMaterial);
+        this.floor.receiveShadow = true; //default
+
+        this.floor.position.y = -100;
+        this.floor.rotation.x = Math.PI / 2;
+        this.scene.add(this.floor);
+        console.log(this.floor);
+      };
+
+      this.currentGenerationCount = 0;
+      this.populationShape = populationShape;
+      this.updateRateInMS = 1600;
+      this.generationsToShow = 60;
+    }
+    /*******************************/
+
+    /* SPECIAL OVERRIDES OF PARENT CLASS */
+
+    /*******************************/
+
+
+    initCamera() {
+      this.camera = new OrthographicCamera(this.containerWidth / -2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / -2, 1, 10000);
+      this.camera.position.set(-350, 800, 685);
+      this.camera.lookAt(new Vector3(1, 0.50, -0.73));
+      this.camera.zoom = 1;
+      this.updateCamera();
+    }
+
+    updateScene() {
+      this.scene.translateY(-200); // this.scene.position.z = -600;
+    }
+    /*******************************/
+
+    /* REQUIRED BY PARENT CLASS */
+
+    /*******************************/
+
+
+    handleWindowResize() {} // this.updateCellShape();
+    // method to control how a generation is added to a scene
+
+
+    addGeneration() {
+      const diameter = this.cellShape.x;
+      const material = new MeshLambertMaterial({
+        color: 'orange'
+      });
+      const geometry = new BoxBufferGeometry(diameter, diameter, diameter);
+      const group = new Group();
+      this.materials.push(this.material);
+      this.geometries.push(this.geometry);
+      const generationState = this.retrieveNextGeneration();
+
+      if (this._populationShape.x !== generationState.length) {
+        this.populationShape = {
+          x: generationState.length
+        };
+      }
+
+      const xOffset = this.containerWidth / 2;
+      const yOffset = this.containerHeight / 2;
+      const zOffset = this.containerWidth / 2;
+      /* coordinate system
+      ┌─────────────────────────────┐
+      │ ┌─────┐                     │
+      │ │┌───┐│                     │
+      │ ││ z ││                     │
+      │ │└───┘│                     │
+      │ │     │                     │
+      │ │  y  │             x       │
+      │ └─────┘                     │
+      └─────────────────────────────┘
+      */
+
+      const startZ = this.currentGenerationCount * this.cellShape.z;
+      console.log(generationState);
+      generationState.forEach((column, columnNumber) => {
+        const startX = this.cellShape.x * columnNumber - xOffset;
+        column.forEach((row, rowNumber) => {
+          const startY = this.cellShape.y * rowNumber - yOffset;
+          row.forEach((cellState, cellNumber) => {
+            if (cellState === 1) {
+              const startZ = this.cellShape.z * cellNumber - zOffset;
+              this.createCube({
+                startX,
+                startY,
+                startZ,
+                geometry,
+                material,
+                group
+              });
+            }
+          });
+        });
+      }); // group.position.y = startZ;
+
+      this.scene.add(group);
+      this.meshes.push(group);
+      this.currentGenerationCount += 1;
+    } // method to control how a generation is removed from a scene
+
+
+    removeGeneration() {
+      const mesh = this.meshes[0];
+      this.cleanUpRefsByMesh(mesh, true);
+    } // method to initialize lights, sky, background, etc on the initial scene creation
+
+
+    initialize() {
+      this.controls = new OrbitControls$1(this.camera);
+      this.createLight();
+      this.createFloor();
+    } // method to control what happens on each render update for the animation
+
+
+    animateUpdateFn() {
+      // const numberOfCellsPerHeight =  this.containerHeight / this.cellShape.y;
+      // const heightMeshes = this.meshes.slice(-numberOfCellsPerHeight)
+      // const middleIndex = Math.ceil(heightMeshes.length / 2);
+      // const middleMesh = heightMeshes[middleIndex]
+      const lastMesh = this.meshes.slice(-1)[0];
+
+      this.addGeneration(); // atempt to add a generation if the view is full already
+
+      this.light.translateY(this.cellShape.y); // this.backLight.translateY(this.cellShape.y);
+
+      this.scene.translateY(-this.cellShape.y);
+
+      if (this.meshes.length > this.generationsToShow) {
+        // mesh + camera
+        this.floor.position.setY(this.floor.position.y + this.cellShape.y);
+        this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
+        // this.camera.translateY(this.cellShape.y)
+      }
+
+      this.updateCamera();
+    } // method to control what happens on each render update regardless if the animation is running
+
+
+    renderUpdateFn() {} // this.controls.update()
+    // console.log('scene position', this.scene.position)
+    // console.log("\ncamera position", this.camera.position, "\nlooking at", this.camera.getWorldDirection(this.scene.position), "\nzoom: ", this.camera.zoom, "\nfov", this.camera.fov, "\nmatrix", this.camera.matrix)
+    // should set the cellShape attribute '{ x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT}'
+    // can be used for things like reconfiguring how many steps to move per animation step and reseting total distance moved per animation to make sure steps are reconfigured when size changes
+
+
+    updateCellShape(cellShape) {
+      if (cellShape) {
+        this.cellShape = cellShape;
+      } else {
+        const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
+        this.cellShape = {
+          x: diameter,
+          y: diameter,
+          z: diameter
+        };
+      }
+    } // ex: { x: 100 } or { x: 100, y 200 }
+
+
+    set populationShape(populationShape) {
+      this._populationShape = populationShape;
+      this.updateCellShape();
+    }
+
+    customObjectsCleanup() {
+      this.scene.remove(this.ambientLight);
+      this.dispose(this.ambientLight);
+      this.cleanUpRefsByMesh(this.floor);
+    }
+    /*******************************/
+
+    /* CUSTOM METHODS */
+
+    /*******************************/
+
+
+  }
+
   const className = css`
   background-color: white;
   position: absolute;
@@ -51335,7 +51555,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '2D',
+    _viewerType: '2Din3D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -51348,12 +51568,10 @@
     _setRule: function (rule) {
       this._generationMaker.rule = rule;
     },
-    _setDimension: function (value) {
-      if (this._viewerType !== value) {
-        this._viewerType = value;
-
-        this._setViewer();
-      }
+    _setDimension: function (value) {// if (this._viewerType !== value) {
+      //   this._viewerType = value;
+      //   this._setViewer();
+      // }
     },
     _setNeighbors: function (value) {
       this._neighbors = +value;
@@ -51488,8 +51706,8 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 500,
-            y: 200
+            x: 200,
+            y: 150
           };
           this._populationHistorySize = 2;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
@@ -51508,12 +51726,33 @@
           if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 100,
+            x: 200,
             y: 50
           };
           this._populationHistorySize = 20;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
           this._viewer = new TwoDimensionViewerInThreeDimensions({
+            containerElId: this.id,
+            populationShape: this._populationShape,
+            retrieveNextGeneration: this._retrieveNextGeneration
+          });
+
+          this._generationMaker.useLifeLikeGenerator();
+
+          break;
+
+        case '3Din3D':
+          console.log('3Din3D case');
+          if (this._viewer && this._viewer.type === 'three-dimension-in-three-dimensions') break;
+          if (this._viewer) this._viewer.quit();
+          this._populationShape = {
+            x: 10,
+            y: 3,
+            z: 5
+          };
+          this._populationHistorySize = 20;
+          this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
+          this._viewer = new ThreeDimensionViewerInThreeDimensions({
             containerElId: this.id,
             populationShape: this._populationShape,
             retrieveNextGeneration: this._retrieveNextGeneration
@@ -53605,7 +53844,7 @@
       labelName: 'Dimension',
       cellName: 'dimension',
       updateFn: '_setDimension',
-      selections: ['2Din3D', '2D']
+      selections: ['1D', '2D']
     }), createApp({
       labelName: 'Neighbors (1+)',
       cellName: 'neighbors',

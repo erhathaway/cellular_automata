@@ -18,15 +18,15 @@ function AttributeNotDefined(message) {
   this.name = 'AttributeNotDefined';
 }
 
-export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
+export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
   constructor({ containerElId, populationShape, retrieveNextGeneration }) {
     if (populationShape === undefined) { throw new AttributeNotDefined('A population shape objects must be passed to the constructor') }
 
-    super({ containerElId, populationShape, type: 'two-dimension-in-three-dimensions', retrieveNextGeneration })
+    super({ containerElId, populationShape, type: 'three-dimension-in-three-dimensions', retrieveNextGeneration })
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
-    this.updateRateInMS = 16;
+    this.updateRateInMS = 1600;
     this.generationsToShow = 60;
   }
 
@@ -74,6 +74,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
     const xOffset = this.containerWidth / 2;
     const yOffset = this.containerHeight / 2;
+    const zOffset = this.containerWidth / 2;
 
 
     /* coordinate system
@@ -89,20 +90,23 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     */
 
     const startZ = this.currentGenerationCount * this.cellShape.z;
-
+    console.log(generationState)
     generationState.forEach((column, columnNumber) => {
       const startX = (this.cellShape.x * columnNumber) - xOffset;
 
-      column.forEach((cellState, cellNumber) => {
-        if (cellState === 1) {
-          const startY = (this.cellShape.y * cellNumber) - yOffset;
+      column.forEach((row, rowNumber) => {
+        const startY = (this.cellShape.y * rowNumber) - yOffset;
 
-          this.createCube({ startX, startY, startZ, geometry, material, group });
-        }
-      })
+        row.forEach((cellState, cellNumber) => {
+          if (cellState === 1) {
+          const startZ = (this.cellShape.z * cellNumber) - zOffset;
+            this.createCube({ startX, startY, startZ, geometry, material, group });
+          }
+        });
+      });
     });
 
-    group.position.y = startZ;
+    // group.position.y = startZ;
     this.scene.add(group)
     this.meshes.push(group)
     this.currentGenerationCount += 1;
@@ -213,7 +217,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
     cube.castShadow = true; //default is false
     cube.receiveShadow = true; //default
-    cube.position.set(startX, 0, startY);
+    cube.position.set(startX, startZ, startY);
 
     group.add(cube)
   }
@@ -227,6 +231,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);
+    console.log(this.floor)
   };
 
 }
