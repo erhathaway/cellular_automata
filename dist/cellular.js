@@ -1661,6 +1661,15 @@
     };
   };
 
+  const threeDimension = (cellCoords, neighborhoodMatrix) => {
+    const neighbors = twentySixNeighboorsThreeDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+    const cell = neighborhoodMatrix[cellCoords.x][cellCoords.y][cellCoords.z];
+    return {
+      neighbors,
+      cell
+    };
+  };
+
   const oneDimension$1 = ({
     neighbors,
     cell
@@ -1809,7 +1818,8 @@
   class GenerationMaker {
     constructor() {
       this.useLifeLikeGenerator();
-      this.useOneDimensionGenerator(); // this.generationRate = 0;
+      this.useOneDimensionGenerator();
+      this.useThreeDimensionGenerator(); // this.generationRate = 0;
 
       this.totalTimeSpentGenerating = 0;
       this.generationNumber = 0;
@@ -1846,23 +1856,29 @@
       this._ruleApplicator = new LifeLike();
     }
 
+    useThreeDimensionGenerator() {
+      this._generatorType = 'threeDimension';
+      this._populationSeed = newDimension;
+      this._neighborStateExtractor = threeDimension;
+      this._stateReducer = lifeLike;
+      this._ruleApplicator = new LifeLike();
+      this._ruleApplicator.rule = {
+        survive: [5, 6],
+        born: [1]
+      };
+    }
+
     _computeStateOffCoords(coords, currentPopulation) {
-      try {
-        // console.log('coords', coords, 'currentpopulation', currentPopulation)
-        const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
+      const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
 
-        const reducedState = this._stateReducer({
-          neighbors: neighborhoodState.neighbors,
-          cell: neighborhoodState.cell
-        });
+      const reducedState = this._stateReducer({
+        neighbors: neighborhoodState.neighbors,
+        cell: neighborhoodState.cell
+      });
 
-        const cellState = this._ruleApplicator.run(reducedState);
+      const cellState = this._ruleApplicator.run(reducedState);
 
-        return cellState;
-      } catch (e) {
-        console.warn(e);
-        return 0;
-      }
+      return cellState;
     } // resizes a population along one dimension
 
 
@@ -1927,7 +1943,7 @@
       }
     }
 
-    _run(currentPopulation, populationShape, existingCoords = {}) {
+    _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
       const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
 
       const dimensionKey = dimensions[0]; // if only dimension left in shape, generate states
@@ -1937,24 +1953,24 @@
           const coords = Object.assign({
             [dimensionKey]: cellPosition
           }, existingCoords);
-          return this._computeStateOffCoords(coords, currentPopulation);
+          return this._computeStateOffCoords(coords, fullPopulation);
         }); // other dimensions, recursively call this function
       } else {
         const newShape = Object.assign({}, populationShape);
         delete newShape[dimensionKey];
-        return currentPopulation.map((_, arrPosition) => {
+        return currentPopulation.map((arr, arrPosition) => {
           const newCoords = Object.assign({
             [dimensionKey]: arrPosition
           }, existingCoords);
-          return this._run(currentPopulation, newShape, newCoords);
+          return this._run(arr, fullPopulation, newShape, newCoords);
         });
       }
     }
 
     run(currentPopulation) {
-      const t0 = performance.now();
+      const t0 = performance.now(); // this.populationAdjuster(currentPopulation, this.populationShape)
 
-      const newPopulation = this._run(this.populationAdjuster(currentPopulation, this.populationShape), this.populationShape);
+      const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
 
       const t1 = performance.now();
 
@@ -51384,7 +51400,7 @@
         this.light.angle = 200;
         this.light.position.set(45, this.cellShape.y * this.generationsToShow + 200, 600);
         this.light.castShadow = true;
-        this.light.intensity = 0.4;
+        this.light.intensity = 0.8;
         this.light.shadow.mapSize.width = 1024;
         this.light.shadow.mapSize.height = 1024;
         this.light.shadow.camera.near = 500;
@@ -51421,14 +51437,13 @@
 
         this.floor.position.y = -100;
         this.floor.rotation.x = Math.PI / 2;
-        this.scene.add(this.floor);
-        console.log(this.floor);
+        this.scene.add(this.floor); // console.log(this.floor)
       };
 
       this.currentGenerationCount = 0;
       this.populationShape = populationShape;
-      this.updateRateInMS = 1600;
-      this.generationsToShow = 60;
+      this.updateRateInMS = 5;
+      this.generationsToShow = 1;
     }
     /*******************************/
 
@@ -51441,7 +51456,7 @@
       this.camera = new OrthographicCamera(this.containerWidth / -2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / -2, 1, 10000);
       this.camera.position.set(-350, 800, 685);
       this.camera.lookAt(new Vector3(1, 0.50, -0.73));
-      this.camera.zoom = 1;
+      this.camera.zoom = 0.5;
       this.updateCamera();
     }
 
@@ -51462,7 +51477,7 @@
     addGeneration() {
       const diameter = this.cellShape.x;
       const material = new MeshLambertMaterial({
-        color: 'orange'
+        color: 'blue'
       });
       const geometry = new BoxBufferGeometry(diameter, diameter, diameter);
       const group = new Group();
@@ -51492,7 +51507,6 @@
       */
 
       const startZ = this.currentGenerationCount * this.cellShape.z;
-      console.log(generationState);
       generationState.forEach((column, columnNumber) => {
         const startX = this.cellShape.x * columnNumber - xOffset;
         column.forEach((row, rowNumber) => {
@@ -51527,8 +51541,7 @@
 
     initialize() {
       this.controls = new OrbitControls$1(this.camera);
-      this.createLight();
-      this.createFloor();
+      this.createLight(); // this.createFloor();
     } // method to control what happens on each render update for the animation
 
 
@@ -51538,19 +51551,26 @@
       // const middleIndex = Math.ceil(heightMeshes.length / 2);
       // const middleMesh = heightMeshes[middleIndex]
       const lastMesh = this.meshes.slice(-1)[0];
+      // this.controls.target.y = middleMesh.position.y
+      // if (this.controls.target.x < 200) {
+      //   this.controls.target.x += 1
+      // } {
+      //   // this.controls.target.z += 10
+      // }
+      // this.camera.lookAt(lastMesh)
+      // this.light.translateY(this.cellShape.y);
+      // this.backLight.translateY(this.cellShape.y);
+      // this.scene.translateY(-this.cellShape.y)
 
-      this.addGeneration(); // atempt to add a generation if the view is full already
 
-      this.light.translateY(this.cellShape.y); // this.backLight.translateY(this.cellShape.y);
-
-      this.scene.translateY(-this.cellShape.y);
-
-      if (this.meshes.length > this.generationsToShow) {
+      if (this.meshes.length >= this.generationsToShow) {
         // mesh + camera
-        this.floor.position.setY(this.floor.position.y + this.cellShape.y);
+        // this.floor.position.setY(this.floor.position.y + this.cellShape.y);
         this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
         // this.camera.translateY(this.cellShape.y)
       }
+
+      this.addGeneration(); // atempt to add a generation if the view is full already
 
       this.updateCamera();
     } // method to control what happens on each render update regardless if the animation is running
@@ -51614,7 +51634,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '1D',
+    _viewerType: '3Din3D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -51805,9 +51825,9 @@
           if (this._viewer && this._viewer.type === 'three-dimension-in-three-dimensions') break;
           if (this._viewer) this._viewer.quit();
           this._populationShape = {
-            x: 10,
-            y: 3,
-            z: 5
+            x: 23,
+            y: 23,
+            z: 23
           };
           this._populationHistorySize = 20;
           this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
@@ -51817,7 +51837,7 @@
             retrieveNextGeneration: this._retrieveNextGeneration
           });
 
-          this._generationMaker.useLifeLikeGenerator();
+          this._generationMaker.useThreeDimensionGenerator();
 
           break;
       }

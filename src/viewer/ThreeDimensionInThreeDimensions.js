@@ -26,8 +26,8 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
-    this.updateRateInMS = 1600;
-    this.generationsToShow = 60;
+    this.updateRateInMS = 5;
+    this.generationsToShow = 1;
   }
 
 
@@ -38,7 +38,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
     this.camera = new OrthographicCamera( this.containerWidth / - 2, this.containerWidth / 2, this.containerHeight / 2, this.containerHeight / - 2, 1, 10000 );
     this.camera.position.set(-350, 800, 685);
     this.camera.lookAt(new Vector3(1, 0.50, -0.73))
-    this.camera.zoom = 1;
+    this.camera.zoom = 0.5;
     this.updateCamera();
   }
 
@@ -58,7 +58,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
   // method to control how a generation is added to a scene
   addGeneration() {
     const diameter = this.cellShape.x
-    const material = new MeshLambertMaterial( {color: 'orange'} );
+    const material = new MeshLambertMaterial( {color: 'blue'} );
     const geometry = new THREE.BoxBufferGeometry( diameter, diameter, diameter );
     const group = new THREE.Group();
 
@@ -90,7 +90,6 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
     */
 
     const startZ = this.currentGenerationCount * this.cellShape.z;
-    console.log(generationState)
     generationState.forEach((column, columnNumber) => {
       const startX = (this.cellShape.x * columnNumber) - xOffset;
 
@@ -123,7 +122,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
     this.controls = new OrbitControls(this.camera)
 
     this.createLight();
-    this.createFloor();
+    // this.createFloor();
   }
 
   // method to control what happens on each render update for the animation
@@ -144,15 +143,15 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
       // }
       // this.camera.lookAt(lastMesh)
     }
-    this.addGeneration(); // atempt to add a generation if the view is full already
-    this.light.translateY(this.cellShape.y);
+    // this.light.translateY(this.cellShape.y);
     // this.backLight.translateY(this.cellShape.y);
-    this.scene.translateY(-this.cellShape.y)
-    if (this.meshes.length > this.generationsToShow) { // mesh + camera
-      this.floor.position.setY(this.floor.position.y + this.cellShape.y);
+    // this.scene.translateY(-this.cellShape.y)
+    if (this.meshes.length >= this.generationsToShow) { // mesh + camera
+      // this.floor.position.setY(this.floor.position.y + this.cellShape.y);
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       // this.camera.translateY(this.cellShape.y)
     }
+    this.addGeneration(); // atempt to add a generation if the view is full already
 
     this.updateCamera();
   }
@@ -202,7 +201,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
     this.light.position.set(45, this.cellShape.y * this.generationsToShow + 200, 600);
     this.light.castShadow = true;
 
-    this.light.intensity = 0.4
+    this.light.intensity = 0.8
     this.light.shadow.mapSize.width = 1024;
     this.light.shadow.mapSize.height = 1024;
     this.light.shadow.camera.near = 500;
@@ -231,7 +230,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
   	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);
-    console.log(this.floor)
+    // console.log(this.floor)
   };
 
 }

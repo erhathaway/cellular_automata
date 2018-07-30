@@ -1,4 +1,8 @@
-import { oneDimension as oneDimensionNeighborhoodStateExtractor, twoDimension as twoDimensionNeighborhoodStateExtractor } from './neighborhoodStateExtractor';
+import {
+  oneDimension as oneDimensionNeighborhoodStateExtractor,
+  twoDimension as twoDimensionNeighborhoodStateExtractor,
+  threeDimension as threeDimensionNeighborhoodStateExtractor
+} from './neighborhoodStateExtractor';
 import { oneDimension as oneDimensionStateReducer, lifeLike as lifeLikeStateReducer } from './stateReducer';
 import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApplicator } from './ruleApplicator';
 import { populationSeed } from './populationSeed';
@@ -7,6 +11,7 @@ export default class GenerationMaker {
   constructor() {
     this.useLifeLikeGenerator();
     this.useOneDimensionGenerator();
+    this.useThreeDimensionGenerator();
     // this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
@@ -43,17 +48,20 @@ export default class GenerationMaker {
     this._ruleApplicator = new LifeLikeRuleApplicator();
   }
 
+  useThreeDimensionGenerator() {
+    this._generatorType = 'threeDimension';
+    this._populationSeed = populationSeed;
+    this._neighborStateExtractor = threeDimensionNeighborhoodStateExtractor;
+    this._stateReducer = lifeLikeStateReducer;
+    this._ruleApplicator = new LifeLikeRuleApplicator();
+    this._ruleApplicator.rule = { survive: [5,6], born: [1] };
+  }
+
   _computeStateOffCoords(coords, currentPopulation) {
-    try {
-      // console.log('coords', coords, 'currentpopulation', currentPopulation)
-      const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
-      const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-      const cellState = this._ruleApplicator.run(reducedState);
-      return cellState
-    } catch(e) {
-      console.warn(e)
-      return 0
-    }
+    const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
+    const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
+    const cellState = this._ruleApplicator.run(reducedState);
+    return cellState
   }
 
   // resizes a population along one dimension
@@ -102,7 +110,7 @@ export default class GenerationMaker {
     }
   }
 
-  _run(currentPopulation, populationShape, existingCoords = {}) {
+  _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
     const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
     const dimensionKey = dimensions[0];
 
@@ -110,22 +118,24 @@ export default class GenerationMaker {
     if (dimensions.length === 1) {
       return currentPopulation.map((cellState, cellPosition) => {
         const coords = { [dimensionKey]: cellPosition, ...existingCoords };
-        return this._computeStateOffCoords(coords, currentPopulation)
+        return this._computeStateOffCoords(coords, fullPopulation)
       })
     // other dimensions, recursively call this function
     } else {
       const newShape = { ...populationShape };
       delete newShape[dimensionKey]
-      return currentPopulation.map((_, arrPosition) => {
+      return currentPopulation.map((arr, arrPosition) => {
         const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
-        return this._run(currentPopulation, newShape, newCoords)
+        return this._run(arr, fullPopulation, newShape, newCoords)
       })
     }
   }
 
   run(currentPopulation) {
     const t0 = performance.now();
-    const newPopulation = this._run(this.populationAdjuster(currentPopulation, this.populationShape), this.populationShape);
+    // this.populationAdjuster(currentPopulation, this.populationShape)
+    const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
+
     const t1 = performance.now();
 
     if (this.generationNumber % 100 === 0) {

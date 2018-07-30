@@ -122,4 +122,10 @@ const twoDimension = (cellCoords, neighborhoodMatrix) => {
   return { neighbors, cell }
 }
 
-export { oneDimension, twoDimension }
+const threeDimension = (cellCoords, neighborhoodMatrix) => {
+  const neighbors = twentySixNeighboorsThreeDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+  const cell = neighborhoodMatrix[cellCoords.x][cellCoords.y][cellCoords.z];
+  return { neighbors, cell }
+}
+
+export { oneDimension, twoDimension, threeDimension }
