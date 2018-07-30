@@ -10,6 +10,7 @@ export default class GenerationMaker {
     // this.generationRate = 0;
     this.totalTimeSpentGenerating = 0;
     this.generationNumber = 0;
+    this.populationShape = {};
   }
 
   set rule(rule) {
@@ -22,6 +23,7 @@ export default class GenerationMaker {
   }
 
   runPopulationSeed(populationShape) {
+    this.populationShape = populationShape;
     return this._populationSeed(populationShape);
   }
 
@@ -48,35 +50,49 @@ export default class GenerationMaker {
     return cellState
   }
 
-  _run(currentPopulation) {
-    let newPopulation = [];
+  dimensionPopulationAdjuster(dimensionPopulation, desiredSize, { isContainerDimension } = { isContainerDimension: false }) {
+    const scaleDiff = desiredSize - dimensionPopulation.length
+    return dimensionPopulation // TODO placeholder
 
-    for (let x = 0; x < currentPopulation.length; x++) {
-      const column = currentPopulation[x];
-
-      // if 2D
-      if (Array.isArray(column)) {
-        const rowStates = [];
-        for (let y = 0; y < column.length; y++) {
-          const coords = { x, y };
-          const state = this._computeStateOffCoords(coords, currentPopulation);
-          rowStates.push(state)
-        }
-        newPopulation.push(rowStates)
-      // if 1D
-      } else {
-        const coords = { x }
-        const state = this._computeStateOffCoords(coords, currentPopulation);
-        newPopulation.push(state)
-      }
-
+    if (scaleDiff > 0) {
+      const filler = new Array(scaleDiff).fill(isContainerDimension ? [] : 0)
+      return [...dimensionPopulation, ...filler]
+    } else if (scaleDiff < 0) {
+      return dimensionPopulation.slice(0, desiredSize)
+    } else {
+      return dimensionPopulation
     }
-    return newPopulation
+  }
+
+  _run(currentPopulation, desiredPopulationShape, existingCoords = {}) {
+    const dimensions = Object.keys(desiredPopulationShape).sort(); // built up in terms of x, y, z etc...
+    const dimensionKey = dimensions[0];
+    const desiredDimensionPopulationSize = desiredPopulationShape[dimensionKey];
+    const actualDimensionPopulation = currentPopulation;
+
+
+    // if only dimension left in shape, generate states
+    if (dimensions.length === 1) {
+      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(actualDimensionPopulation, desiredDimensionPopulationSize);
+      return adjustedDimensionPopulation.map((cellState, cellPosition) => {
+        const coords = { [dimensionKey]: cellPosition, ...existingCoords };
+        return this._computeStateOffCoords(coords, adjustedDimensionPopulation)
+      })
+    // other dimensions, recursively call this function
+    } else {
+      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(actualDimensionPopulation, desiredDimensionPopulationSize, { isContainerDimension: true });
+      return adjustedDimensionPopulation.map((arr, arrPosition) => {
+        const newShape = { ...desiredPopulationShape };
+        delete newShape[dimensionKey]
+        const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
+        return this._run(adjustedDimensionPopulation, newShape, newCoords)
+      })
+    }
   }
 
   run(currentPopulation) {
     const t0 = performance.now();
-    const newPopulation = this._run(currentPopulation);
+    const newPopulation = this._run(currentPopulation, this.populationShape);
     const t1 = performance.now();
 
     if (this.generationNumber % 100 === 0) {
