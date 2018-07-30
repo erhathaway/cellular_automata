@@ -1543,6 +1543,11 @@
     this.message = message || '';
   }
 
+  function UndefinedRequiredClassAttribute(message) {
+    this.name = 'UndefinedRequiredClassAttribute';
+    this.message = message || '';
+  }
+
   // neighborhoodMatrix: [[Int, Int...], ...]
   // const getBefore = (i, arr) => {
   //   const state = arr[i - 1];
@@ -1833,8 +1838,65 @@
     return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
   };
 
+  /* coordinate system
+  ┌─────────────────────────────┐
+  │ ┌─────┐                     │
+  │ │┌───┐│                     │
+  │ ││ z ││                     │
+  │ │└───┘│                     │
+  │ │     │                     │
+  │ │  y  │             x       │
+  │ └─────┘                     │
+  └─────────────────────────────┘
+  */
+
+  class PopulationManager {
+    static newState() {
+      return Math.round(Math.random());
+    }
+
+    static seedPopulationByShape(shape) {
+      // built up in terms of x, y, z etc...
+      const dimensions = Object.keys(shape).sort();
+      const firstDimension = dimensions[0];
+      const dimensionPopulation = shape[firstDimension]; // if only dimension left in populationShape, generate states
+
+      if (dimensions.length === 1) {
+        return [...new Array(dimensionPopulation)].map(PopulationManager.newState);
+      } // if more dimensions left, map over those dimensions first
+
+
+      const newShape = Object.assign({}, shape);
+      delete newShape[firstDimension];
+      return [...new Array(dimensionPopulation)].map(() => PopulationManager.seedPopulationByShape(newShape));
+    }
+
+    constructor() {
+      this._shape = undefined; // format { x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT }
+    }
+
+    reset() {
+      this._shape = undefined;
+    }
+
+    set populationShape(shape) {
+      this._shape = shape;
+    }
+
+    get populationShape() {
+      return this._shape;
+    }
+
+    seedFirstGeneration() {
+      if (!this.populationShape) throw new UndefinedRequiredClassAttribute('population shape is not defined');
+      return PopulationManager.seedPopulationByShape(this.populationShape);
+    }
+
+  }
+
   class AutomataManager {
     constructor() {
+      this.populationManager = new PopulationManager();
       this.useLifeLikeGenerator();
       this.useOneDimensionGenerator();
       this.useThreeDimensionGenerator(); // this.generationRate = 0;
@@ -1853,12 +1915,17 @@
       return this._rule;
     }
 
+    set populationShape(shape) {
+      this.populationManager.populationShape = shape;
+    }
+
     runPopulationSeed(populationShape) {
       this.populationShape = populationShape;
       return this._populationSeed(populationShape);
     }
 
     useOneDimensionGenerator() {
+      this.populationManager.reset();
       this._generatorType = 'oneDimension';
       this._populationSeed = newDimension;
       this._neighborStateExtractor = oneDimension;
@@ -1867,6 +1934,7 @@
     }
 
     useLifeLikeGenerator() {
+      this.populationManager.reset();
       this._generatorType = 'twoDimension';
       this._populationSeed = newDimension;
       this._neighborStateExtractor = twoDimension;
@@ -1875,6 +1943,7 @@
     }
 
     useThreeDimensionGenerator() {
+      this.populationManager.reset();
       this._generatorType = 'threeDimension';
       this._populationSeed = newDimension;
       this._neighborStateExtractor = threeDimension;
@@ -1991,9 +2060,7 @@
 
     run(currentPopulation) {
       // this.populationAdjuster(currentPopulation, this.populationShape)
-      const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
-
-      return newPopulation;
+      return this._run(currentPopulation, currentPopulation, this.populationManager.populationShape);
     }
 
   }
@@ -51649,11 +51716,11 @@
     _growth: undefined,
     _populationHistorySize: 500,
     _edges: undefined,
-    _initGenerationMaker: function () {
-      this._generationMaker = new AutomataManager();
+    _initAutomataManager: function () {
+      this._automataManager = new AutomataManager();
     },
     _setRule: function (rule) {
-      this._generationMaker.rule = rule;
+      this._automataManager.rule = rule;
     },
     _setDimension: function (value) {// if (this._viewerType !== value) {
       //   this._viewerType = value;
@@ -51718,7 +51785,7 @@
         this._currentPopulation = this._currentPopulation;
       }
 
-      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // save current population to history
+      this._currentPopulation = this._automataManager.run(this._currentPopulation); // save current population to history
       // resize history to width of generationsToShow variable
 
       const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
@@ -51739,7 +51806,7 @@
       //   this._currentPopulation = this._populationHistory.shift()
       //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
       // } else {
-      this._currentPopulation = this._generationMaker.run(this._currentPopulation); // }
+      this._currentPopulation = this._automataManager.run(this._currentPopulation); // }
       // save new population to history
       // resize history to width of generationsToShow variable
 
@@ -51749,7 +51816,11 @@
 
       previousGens.push(binCurrentPopulation);
       this._populationHistory = previousGens;
-      return this._currentPopulation;
+      return this._currentPopulation; // {
+      //   direction: 'forward' | 'reverse',
+      //   population: [],
+      //   generationNumber: INT,
+      // }
     },
     _bulkCreateGenerations: function (numberOfVisibleGenerations) {
       if (this._populationHistory === undefined) {
@@ -51764,7 +51835,8 @@
     },
     _createGenesisGeneration: function () {
       this._populationHistory = [];
-      this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
+      this._automataManager.populationShape = this._populationShape;
+      this._currentPopulation = this._automataManager.populationManager.seedFirstGeneration();
       this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
     },
     _setViewer: function () {
@@ -51784,7 +51856,7 @@
             retrieveNextGeneration: this._retrieveNextGeneration
           });
 
-          this._generationMaker.useOneDimensionGenerator();
+          this._automataManager.useOneDimensionGenerator();
 
           break;
 
@@ -51804,7 +51876,7 @@
             retrieveNextGeneration: this._retrieveNextGeneration
           });
 
-          this._generationMaker.useLifeLikeGenerator();
+          this._automataManager.useLifeLikeGenerator();
 
           break;
 
@@ -51824,7 +51896,7 @@
             retrieveNextGeneration: this._retrieveNextGeneration
           });
 
-          this._generationMaker.useLifeLikeGenerator();
+          this._automataManager.useLifeLikeGenerator();
 
           break;
 
@@ -51845,7 +51917,7 @@
             retrieveNextGeneration: this._retrieveNextGeneration
           });
 
-          this._generationMaker.useThreeDimensionGenerator();
+          this._automataManager.useThreeDimensionGenerator();
 
           break;
       }
@@ -51861,7 +51933,7 @@
       }
     },
     $init: function () {
-      this._initGenerationMaker();
+      this._initAutomataManager();
 
       this._setViewer();
     }

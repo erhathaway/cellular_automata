@@ -3,4 +3,12 @@ function ErrorCreatingCoordinateExtractor(message) {
   this.message = (message || '');
 }
 
-export { ErrorCreatingCoordinateExtractor }
+function UndefinedRequiredClassAttribute(message) {
+  this.name = 'UndefinedRequiredClassAttribute';
+  this.message = (message || '');
+}
+
+export {
+  ErrorCreatingCoordinateExtractor,
+  UndefinedRequiredClassAttribute,
+};

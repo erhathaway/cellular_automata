@@ -1,5 +1,5 @@
 import { css } from 'emotion';
-import GenerationMaker from '../automata';
+import AutomataManager from '../automata';
 import OneDimensionViewerInTwoDimensions from './OneDimensionInTwoDimensions';
 import TwoDimensionViewerInTwoDimensions from './TwoDimensionInTwoDimensions';
 import TwoDimensionViewerInThreeDimensions from './TwoDimensionInThreeDimensions';
@@ -33,11 +33,11 @@ const app = {
   _growth: undefined,
   _populationHistorySize: 500,
   _edges: undefined,
-  _initGenerationMaker: function() {
-    this._generationMaker = new GenerationMaker()
+  _initAutomataManager: function() {
+    this._automataManager = new AutomataManager()
   },
   _setRule: function(rule) {
-    this._generationMaker.rule = rule;
+    this._automataManager.rule = rule;
   },
   _setDimension: function(value) {
     // if (this._viewerType !== value) {
@@ -92,7 +92,7 @@ const app = {
       this._currentPopulation = this._currentPopulation;
     }
 
-    this._currentPopulation = this._generationMaker.run(this._currentPopulation);
+    this._currentPopulation = this._automataManager.run(this._currentPopulation);
 
     // save current population to history
     // resize history to width of generationsToShow variable
@@ -114,7 +114,7 @@ const app = {
     //   this._currentPopulation = this._populationHistory.shift()
     //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
     // } else {
-      this._currentPopulation = this._generationMaker.run(this._currentPopulation);
+      this._currentPopulation = this._automataManager.run(this._currentPopulation);
     // }
 
     // save new population to history
@@ -124,6 +124,12 @@ const app = {
     previousGens.push(binCurrentPopulation)
     this._populationHistory = previousGens;
     return this._currentPopulation;
+
+    // {
+    //   direction: 'forward' | 'reverse',
+    //   population: [],
+    //   generationNumber: INT,
+    // }
   },
   _bulkCreateGenerations: function(numberOfVisibleGenerations) {
     if (this._populationHistory === undefined) { this._createGenesisGeneration(); }
@@ -135,7 +141,8 @@ const app = {
   },
   _createGenesisGeneration: function() {
     this._populationHistory = [];
-    this._currentPopulation = this._generationMaker.runPopulationSeed(this._populationShape);
+    this._automataManager.populationShape = this._populationShape;
+    this._currentPopulation = this._automataManager.populationManager.seedFirstGeneration();
     this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
   },
   _setViewer: function() {
@@ -148,7 +155,7 @@ const app = {
         this._populationHistorySize = 1500;
         this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
         this._viewer = new OneDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-        this._generationMaker.useOneDimensionGenerator();
+        this._automataManager.useOneDimensionGenerator();
         break;
       case '2D' :
         console.log('2d case')
@@ -158,7 +165,7 @@ const app = {
         this._populationHistorySize = 2;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-        this._generationMaker.useLifeLikeGenerator();
+        this._automataManager.useLifeLikeGenerator();
         break;
       case '2Din3D' :
         console.log('2Din3D case')
@@ -168,7 +175,7 @@ const app = {
         this._populationHistorySize = 20;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-        this._generationMaker.useLifeLikeGenerator();
+        this._automataManager.useLifeLikeGenerator();
         break;
       case '3Din3D' :
         console.log('3Din3D case')
@@ -178,7 +185,7 @@ const app = {
         this._populationHistorySize = 20;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new ThreeDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
-        this._generationMaker.useThreeDimensionGenerator();
+        this._automataManager.useThreeDimensionGenerator();
         break;
     }
 
@@ -190,7 +197,7 @@ const app = {
     }
   },
   $init: function() {
-    this._initGenerationMaker();
+    this._initAutomataManager();
     this._setViewer();
   }
 }

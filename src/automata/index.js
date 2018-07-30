@@ -6,9 +6,11 @@ import {
 import { oneDimension as oneDimensionStateReducer, lifeLike as lifeLikeStateReducer } from './stateReducer';
 import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApplicator } from './ruleApplicator';
 import { populationSeed } from './populationSeed';
+import PopulationManager from './populationManager';
 
 class AutomataManager {
   constructor() {
+    this.populationManager = new PopulationManager();
     this.useLifeLikeGenerator();
     this.useOneDimensionGenerator();
     this.useThreeDimensionGenerator();
@@ -27,12 +29,17 @@ class AutomataManager {
     return this._rule;
   }
 
+  set populationShape(shape) {
+    this.populationManager.populationShape = shape;
+  }
+
   runPopulationSeed(populationShape) {
     this.populationShape = populationShape;
     return this._populationSeed(populationShape);
   }
 
   useOneDimensionGenerator() {
+    this.populationManager.reset();
     this._generatorType = 'oneDimension';
     this._populationSeed = populationSeed;
     this._neighborStateExtractor = oneDimensionNeighborhoodStateExtractor;
@@ -41,6 +48,8 @@ class AutomataManager {
   }
 
   useLifeLikeGenerator() {
+    this.populationManager.reset();
+
     this._generatorType = 'twoDimension';
     this._populationSeed = populationSeed;
     this._neighborStateExtractor = twoDimensionNeighborhoodStateExtractor;
@@ -49,6 +58,8 @@ class AutomataManager {
   }
 
   useThreeDimensionGenerator() {
+    this.populationManager.reset();
+
     this._generatorType = 'threeDimension';
     this._populationSeed = populationSeed;
     this._neighborStateExtractor = threeDimensionNeighborhoodStateExtractor;
@@ -147,8 +158,7 @@ class AutomataManager {
 
   run(currentPopulation) {
     // this.populationAdjuster(currentPopulation, this.populationShape)
-    const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
-    return newPopulation;
+    return this._run(currentPopulation, currentPopulation, this.populationManager.populationShape);
   }
 }
 
