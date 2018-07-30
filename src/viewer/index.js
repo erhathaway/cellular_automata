@@ -26,7 +26,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '2Din3D',
+  _viewerType: '1D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,
@@ -164,7 +164,7 @@ const app = {
         console.log('2Din3D case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
         if (this._viewer) this._viewer.quit();
-        this._populationShape = { x: 100, y: 50 };
+        this._populationShape = { x: 10, y: 20 };
         this._populationHistorySize = 20;
         this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });

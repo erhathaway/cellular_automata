@@ -44,55 +44,88 @@ export default class GenerationMaker {
   }
 
   _computeStateOffCoords(coords, currentPopulation) {
-    const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
-    const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
-    const cellState = this._ruleApplicator.run(reducedState);
-    return cellState
-  }
-
-  dimensionPopulationAdjuster(dimensionPopulation, desiredSize, { isContainerDimension } = { isContainerDimension: false }) {
-    const scaleDiff = desiredSize - dimensionPopulation.length
-    return dimensionPopulation // TODO placeholder
-
-    if (scaleDiff > 0) {
-      const filler = new Array(scaleDiff).fill(isContainerDimension ? [] : 0)
-      return [...dimensionPopulation, ...filler]
-    } else if (scaleDiff < 0) {
-      return dimensionPopulation.slice(0, desiredSize)
-    } else {
-      return dimensionPopulation
+    try {
+      // console.log('coords', coords, 'currentpopulation', currentPopulation)
+      const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
+      const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
+      const cellState = this._ruleApplicator.run(reducedState);
+      return cellState
+    } catch(e) {
+      console.warn(e)
+      return 0
     }
   }
 
-  _run(currentPopulation, desiredPopulationShape, existingCoords = {}) {
+  // resizes a population along one dimension
+  dimensionPopulationAdjuster(dimensionPopulation, desiredSize, { isContainerDimension, resize, sizeDiff } = { isContainerDimension: false }) {
+    switch(resize) {
+      case 'GROW':
+        const filler = new Array(sizeDiff).fill(isContainerDimension ? [] : 0)
+        return [...dimensionPopulation, ...filler]
+      case 'SHRINK':
+        return dimensionPopulation.slice(0, desiredSize)
+      default:
+        return dimensionPopulation
+    }
+  }
+
+  // resizes a multidimensional population
+  populationAdjuster(currentPopulation, desiredPopulationShape) {
+    // figure out which dimension (x, y, z, etc...) of the population this is based on the desired populationShape
     const dimensions = Object.keys(desiredPopulationShape).sort(); // built up in terms of x, y, z etc...
     const dimensionKey = dimensions[0];
     const desiredDimensionPopulationSize = desiredPopulationShape[dimensionKey];
-    const actualDimensionPopulation = currentPopulation;
 
+    // figure out how to resize this dimension of the population
+    const sizeDiff = desiredDimensionPopulationSize - currentPopulation.length;
+    let resize;
+    if (sizeDiff === 0) {
+      resize = 'NONE';
+    } else {
+      resize = sizeDiff > 0 ? 'GROW' : 'SHRINK';
+    }
+    // if only dimension left in shape, generate states
+    if (dimensions.length === 1) {
+      // resize population along this dimension
+      return this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, { sizeDiff, resize });
+    // other dimensions, recursively call this function
+    } else {
+      // resize population along this dimension
+      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, { isContainerDimension: true, sizeDiff, resize });
+      // remove the current dimension
+      const newShape = { ...desiredPopulationShape };
+      delete newShape[dimensionKey]
+      // for the next dimension, recursively call this function
+      return adjustedDimensionPopulation.map((arr, arrPosition) => {
+        return this.populationAdjuster(arr, newShape)
+      })
+    }
+  }
+
+  _run(currentPopulation, populationShape, existingCoords = {}) {
+    const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
+    const dimensionKey = dimensions[0];
 
     // if only dimension left in shape, generate states
     if (dimensions.length === 1) {
-      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(actualDimensionPopulation, desiredDimensionPopulationSize);
-      return adjustedDimensionPopulation.map((cellState, cellPosition) => {
+      return currentPopulation.map((cellState, cellPosition) => {
         const coords = { [dimensionKey]: cellPosition, ...existingCoords };
-        return this._computeStateOffCoords(coords, adjustedDimensionPopulation)
+        return this._computeStateOffCoords(coords, currentPopulation)
       })
     // other dimensions, recursively call this function
     } else {
-      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(actualDimensionPopulation, desiredDimensionPopulationSize, { isContainerDimension: true });
-      return adjustedDimensionPopulation.map((arr, arrPosition) => {
-        const newShape = { ...desiredPopulationShape };
-        delete newShape[dimensionKey]
+      const newShape = { ...populationShape };
+      delete newShape[dimensionKey]
+      return currentPopulation.map((_, arrPosition) => {
         const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
-        return this._run(adjustedDimensionPopulation, newShape, newCoords)
+        return this._run(currentPopulation, newShape, newCoords)
       })
     }
   }
 
   run(currentPopulation) {
     const t0 = performance.now();
-    const newPopulation = this._run(currentPopulation, this.populationShape);
+    const newPopulation = this._run(this.populationAdjuster(currentPopulation, this.populationShape), this.populationShape);
     const t1 = performance.now();
 
     if (this.generationNumber % 100 === 0) {
