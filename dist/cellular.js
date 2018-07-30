@@ -1999,13 +1999,10 @@
         return cellState;
       };
 
-      this.populationManager = new PopulationManager();
-      this.useLifeLikeGenerator();
-      this.useOneDimensionGenerator();
-      this.useThreeDimensionGenerator(); // this.generationRate = 0;
+      this.useLifeLikeGenerator(); // this.useOneDimensionGenerator();
+      // this.useThreeDimensionGenerator();
 
-      this.totalTimeSpentGenerating = 0;
-      this.generationNumber = 0;
+      this._currentPopulation = undefined;
       this.populationShape = {};
       this.populationShapeChanged = false;
     }
@@ -2031,11 +2028,12 @@
     }
 
     getSeedPopulation() {
-      return PopulationManager.seedPopulationByShape(this.populationShape);
+      this.currentPopulation = PopulationManager.seedPopulationByShape(this.populationShape);
+      return this.currentPopulation;
     }
 
-    resizeCurrentPopulation(curentPopulation) {
-      return PopulationManager.resizePopulation(curentPopulation, this.populationShape);
+    resizeCurrentPopulation() {
+      this.currentPopulation = PopulationManager.resizePopulation(this.currentPopulation, this.populationShape);
     }
 
     useOneDimensionGenerator() {
@@ -2066,35 +2064,18 @@
       };
     }
 
-    // _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
-    //   const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
-    //   const dimensionKey = dimensions[0];
-    //
-    //   // if only dimension left in shape, generate states
-    //   if (dimensions.length === 1) {
-    //     return currentPopulation.map((cellState, cellPosition) => {
-    //       const coords = { [dimensionKey]: cellPosition, ...existingCoords };
-    //       return this._computeStateOffCoords(coords, fullPopulation);
-    //     });
-    //   // other dimensions, recursively call this function
-    //   }
-    //
-    //   const newShape = { ...populationShape };
-    //   delete newShape[dimensionKey];
-    //
-    //   return currentPopulation.map((arr, arrPosition) => {
-    //     const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
-    //     return this._run(arr, fullPopulation, newShape, newCoords);
-    //   });
-    // }
-    run(currentPopulation) {
+    generateNextPopulationFromCurrent() {
+      this.currentPopulation = PopulationManager.generateNextPopulationFromCurrent(this.currentPopulation, this.currentPopulation, this._populationShape, this._computeStateOffCoords);
+    }
+
+    run() {
       if (this.populationShapeChanged) {
-        const resizedPopulation = this.resizeCurrentPopulation(currentPopulation);
+        this.resizeCurrentPopulation();
         this.populationShapeChanged = false;
-        return PopulationManager.generateNextPopulationFromCurrent(resizedPopulation, resizedPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
       }
 
-      return PopulationManager.generateNextPopulationFromCurrent(currentPopulation, currentPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
+      this.generateNextPopulationFromCurrent();
+      return this.currentPopulation;
     }
 
   }

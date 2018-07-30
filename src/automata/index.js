@@ -10,13 +10,10 @@ import PopulationManager from './populationManager';
 
 class AutomataManager {
   constructor() {
-    this.populationManager = new PopulationManager();
     this.useLifeLikeGenerator();
-    this.useOneDimensionGenerator();
-    this.useThreeDimensionGenerator();
-    // this.generationRate = 0;
-    this.totalTimeSpentGenerating = 0;
-    this.generationNumber = 0;
+    // this.useOneDimensionGenerator();
+    // this.useThreeDimensionGenerator();
+    this._currentPopulation = undefined;
     this.populationShape = {};
     this.populationShapeChanged = false;
   }
@@ -42,11 +39,12 @@ class AutomataManager {
   }
 
   getSeedPopulation() {
-    return PopulationManager.seedPopulationByShape(this.populationShape);
+    this.currentPopulation = PopulationManager.seedPopulationByShape(this.populationShape);
+    return this.currentPopulation;
   }
 
-  resizeCurrentPopulation(curentPopulation) {
-    return PopulationManager.resizePopulation(curentPopulation, this.populationShape)
+  resizeCurrentPopulation() {
+    this.currentPopulation = PopulationManager.resizePopulation(this.currentPopulation, this.populationShape)
   }
 
   useOneDimensionGenerator() {
@@ -74,7 +72,7 @@ class AutomataManager {
     this._ruleApplicator.rule = { survive: [5, 6], born: [1] };
   }
 
-  _computeStateOffCoords =(coords, currentPopulation) => {
+  _computeStateOffCoords = (coords, currentPopulation) => {
     const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
     const reducedState = this._stateReducer({
       neighbors: neighborhoodState.neighbors,
@@ -84,14 +82,17 @@ class AutomataManager {
     return cellState;
   }
 
-  run(currentPopulation) {
-    if (this.populationShapeChanged) {
-      const resizedPopulation = this.resizeCurrentPopulation(currentPopulation);
-      this.populationShapeChanged = false;
-      return PopulationManager.generateNextPopulationFromCurrent(resizedPopulation, resizedPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
-    }
+  generateNextPopulationFromCurrent() {
+    this.currentPopulation = PopulationManager.generateNextPopulationFromCurrent(this.currentPopulation, this.currentPopulation, this._populationShape, this._computeStateOffCoords);
+  }
 
-    return PopulationManager.generateNextPopulationFromCurrent(currentPopulation, currentPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
+  run() {
+    if (this.populationShapeChanged) {
+      this.resizeCurrentPopulation();
+      this.populationShapeChanged = false;
+    }
+    this.generateNextPopulationFromCurrent()
+    return this.currentPopulation
   }
 }
 
