@@ -1,0 +1,9 @@
+class GenerationsManager {
+  constructor() {
+
+  }
+
+  next() {
+    
+  }
+}

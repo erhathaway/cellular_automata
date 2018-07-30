@@ -128,6 +128,7 @@ const app = {
     // {
     //   direction: 'forward' | 'reverse',
     //   population: [],
+    //   shape: { x, y,...}
     //   generationNumber: INT,
     // }
   },

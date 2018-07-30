@@ -1872,24 +1872,44 @@
     }
 
     constructor() {
-      this._shape = undefined; // format { x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT }
+      this._populationShape = undefined; // format { x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT }
+
+      this._recordedGenerations = [];
+      this._generationsToRecord = undefined; // this._recordedGenerationMax = undefined;
+      // this._recordedGenerationMin = undefined;
+      // this._currentGeneration = undefined;
+
+      this._runDirection = 'FORWARD'; // 'FORWARD' | 'BACKWARD'
+
+      this.getStateForCellFn = undefined;
     }
 
     reset() {
-      this._shape = undefined;
+      this._populationShape = undefined;
+      this._recordedGenerations = [];
     }
 
     set populationShape(shape) {
-      this._shape = shape;
+      this._populationShape = shape;
     }
 
     get populationShape() {
-      return this._shape;
+      return this._populationShape;
     }
+    /* SEEDING */
+
 
     seedFirstGeneration() {
       if (!this.populationShape) throw new UndefinedRequiredClassAttribute('population shape is not defined');
       return PopulationManager.seedPopulationByShape(this.populationShape);
+    }
+    /* POPULATION GENERATION */
+
+
+    _nextGeneration() {}
+
+    nextGeneration() {
+      const previousGens = this._recordedGenerations.slice(-this._generationsToRecord);
     }
 
   }
@@ -51819,6 +51839,7 @@
       return this._currentPopulation; // {
       //   direction: 'forward' | 'reverse',
       //   population: [],
+      //   shape: { x, y,...}
       //   generationNumber: INT,
       // }
     },
