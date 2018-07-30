@@ -1,13 +1,13 @@
 import {
   oneDimension as oneDimensionNeighborhoodStateExtractor,
   twoDimension as twoDimensionNeighborhoodStateExtractor,
-  threeDimension as threeDimensionNeighborhoodStateExtractor
+  threeDimension as threeDimensionNeighborhoodStateExtractor,
 } from './neighborhoodStateExtractor';
 import { oneDimension as oneDimensionStateReducer, lifeLike as lifeLikeStateReducer } from './stateReducer';
 import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApplicator } from './ruleApplicator';
 import { populationSeed } from './populationSeed';
 
-export default class GenerationMaker {
+class AutomataManager {
   constructor() {
     this.useLifeLikeGenerator();
     this.useOneDimensionGenerator();
@@ -54,33 +54,40 @@ export default class GenerationMaker {
     this._neighborStateExtractor = threeDimensionNeighborhoodStateExtractor;
     this._stateReducer = lifeLikeStateReducer;
     this._ruleApplicator = new LifeLikeRuleApplicator();
-    this._ruleApplicator.rule = { survive: [5,6], born: [1] };
+    this._ruleApplicator.rule = { survive: [5, 6], born: [1] };
   }
 
   _computeStateOffCoords(coords, currentPopulation) {
     const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
-    const reducedState = this._stateReducer({ neighbors: neighborhoodState.neighbors, cell: neighborhoodState.cell });
+    const reducedState = this._stateReducer({
+      neighbors: neighborhoodState.neighbors,
+      cell: neighborhoodState.cell,
+    });
     const cellState = this._ruleApplicator.run(reducedState);
-    return cellState
+    return cellState;
   }
 
   // resizes a population along one dimension
-  dimensionPopulationAdjuster(dimensionPopulation, desiredSize, { isContainerDimension, resize, sizeDiff } = { isContainerDimension: false }) {
-    switch(resize) {
-      case 'GROW':
-        const filler = new Array(sizeDiff).fill(isContainerDimension ? [] : 0)
-        return [...dimensionPopulation, ...filler]
+  static dimensionPopulationAdjuster(population, desiredSize, { isContainerDimension, resize, sizeDiff } = { isContainerDimension: false }) { // eslint-disable-line max-len
+    switch (resize) {
+      case 'GROW': {
+        const fillType = isContainerDimension ? [] : 0;
+        const filler = new Array(sizeDiff).fill(fillType);
+        return [...population, ...filler];
+      }
       case 'SHRINK':
-        return dimensionPopulation.slice(0, desiredSize)
+        return population.slice(0, desiredSize);
       default:
-        return dimensionPopulation
+        return population;
     }
   }
 
   // resizes a multidimensional population
   populationAdjuster(currentPopulation, desiredPopulationShape) {
-    // figure out which dimension (x, y, z, etc...) of the population this is based on the desired populationShape
-    const dimensions = Object.keys(desiredPopulationShape).sort(); // built up in terms of x, y, z etc...
+    // figure out which dimension (x, y, z, etc...) of the population this is based on
+    // for the desired populationShape
+    // Note: the population is built up in terms of x, y, z etc...
+    const dimensions = Object.keys(desiredPopulationShape).sort();
     const dimensionKey = dimensions[0];
     const desiredDimensionPopulationSize = desiredPopulationShape[dimensionKey];
 
@@ -95,19 +102,25 @@ export default class GenerationMaker {
     // if only dimension left in shape, generate states
     if (dimensions.length === 1) {
       // resize population along this dimension
-      return this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, { sizeDiff, resize });
-    // other dimensions, recursively call this function
-    } else {
-      // resize population along this dimension
-      const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, { isContainerDimension: true, sizeDiff, resize });
-      // remove the current dimension
-      const newShape = { ...desiredPopulationShape };
-      delete newShape[dimensionKey]
-      // for the next dimension, recursively call this function
-      return adjustedDimensionPopulation.map((arr, arrPosition) => {
-        return this.populationAdjuster(arr, newShape)
-      })
+      return AutomataManager.dimensionPopulationAdjuster(
+        currentPopulation, desiredDimensionPopulationSize, { sizeDiff, resize },
+      );
     }
+
+    // if other dimensions still exist, recursively call this function
+    // resize population along this dimension
+    const adjustedDimensionPopulation = AutomataManager.dimensionPopulationAdjuster(
+      currentPopulation,
+      desiredDimensionPopulationSize,
+      { isContainerDimension: true, sizeDiff, resize },
+    );
+
+    // remove the current dimension
+    const newShape = { ...desiredPopulationShape };
+    delete newShape[dimensionKey];
+
+    // for the next dimension, recursively call this function
+    return adjustedDimensionPopulation.map(arr => this.populationAdjuster(arr, newShape));
   }
 
   _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
@@ -118,42 +131,26 @@ export default class GenerationMaker {
     if (dimensions.length === 1) {
       return currentPopulation.map((cellState, cellPosition) => {
         const coords = { [dimensionKey]: cellPosition, ...existingCoords };
-        return this._computeStateOffCoords(coords, fullPopulation)
-      })
+        return this._computeStateOffCoords(coords, fullPopulation);
+      });
     // other dimensions, recursively call this function
-    } else {
-      const newShape = { ...populationShape };
-      delete newShape[dimensionKey]
-      return currentPopulation.map((arr, arrPosition) => {
-        const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
-        return this._run(arr, fullPopulation, newShape, newCoords)
-      })
     }
+
+    const newShape = { ...populationShape };
+    delete newShape[dimensionKey];
+
+    return currentPopulation.map((arr, arrPosition) => {
+      const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
+      return this._run(arr, fullPopulation, newShape, newCoords);
+    });
   }
 
   run(currentPopulation) {
-    const t0 = performance.now();
     // this.populationAdjuster(currentPopulation, this.populationShape)
     const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
-
-    const t1 = performance.now();
-
-    if (this.generationNumber % 100 === 0) {
-        this.generationNumber = 0;
-        this.totalTimeSpentGenerating = 0;
-        // console.log('-------------------reset--------------------')
-    }
-
-    const time = t1 - t0;
-    this.generationNumber += 1;
-    this.totalTimeSpentGenerating += time;
-    this.generationRate = this.totalTimeSpentGenerating / this.generationNumber
-    // console.log('**generation rate**', this.generationRate)
-    // console.log('**generation rate**', time)
-
     return newPopulation;
   }
 }
 
 
-export { GenerationMaker }
+export default AutomataManager;

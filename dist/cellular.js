@@ -1538,7 +1538,11 @@
     return app;
   };
 
-  // cellCoords: { x: Int, y, Int }
+  function ErrorCreatingCoordinateExtractor(message) {
+    this.name = 'ErrorCreatingCoordinateExtractor';
+    this.message = message || '';
+  }
+
   // neighborhoodMatrix: [[Int, Int...], ...]
   // const getBefore = (i, arr) => {
   //   const state = arr[i - 1];
@@ -1561,6 +1565,7 @@
   │ └─────┘                     │
   └─────────────────────────────┘
   */
+
   const before = mag => (i, arr) => {
     const state = arr[i - mag];
     return state === undefined ? arr.slice(-1)[0] : state;
@@ -1571,15 +1576,15 @@
     return state === undefined ? arr[0] : state;
   };
 
-  const same = (i, arr) => {
-    return arr[i];
-  };
+  const same = (i, arr) => arr[i];
   /*
-    serializedCoordinates should be a string in the form 'x|y+1', 'x+1|y', 'x-1|y|z-1', 'x|y|z+2', 'x-3|y|z', etc...
+    serializedCoordinates should be a string in the form:
+      'x|y+1', 'x+1|y', 'x-1|y|z-1', 'x|y|z+2', 'x-3|y|z', etc...
     The coordinate string can specify three dimensions (x, y, z).
     The dimensions must be written in terms of 'x', 'y', or 'z'
     The relative direction should be represented by a plus or minus sign: '+' or '-'
-    The distance from the origin cell can be any integer, for example 'x+3' means the coordinate is 3 cells after the current one
+    The distance from the origin cell can be any integer,
+      for example 'x+3' means the coordinate is 3 cells after the current one
   */
 
 
@@ -1591,37 +1596,41 @@
           const index = d.indexOf('+');
           const magnitude = +d.slice(index + 1);
           return after(magnitude);
-        } else if (d.includes('-')) {
+        }
+
+        if (d.includes('-')) {
           const index = d.indexOf('-');
           const magnitude = +d.slice(index + 1);
           return before(magnitude);
-        } else {
-          return same;
         }
+
+        return same;
       });
 
       if (coordinateExtractors.length === 1) {
         return ({
           x
-        }, arr) => {
-          return coordinateExtractors[0](x, arr);
-        };
-      } else if (coordinateExtractors.length === 2) {
+        }, arr) => coordinateExtractors[0](x, arr);
+      }
+
+      if (coordinateExtractors.length === 2) {
         return ({
           x,
           y
-        }, arr) => {
-          return coordinateExtractors[1](y, coordinateExtractors[0](x, arr));
-        };
-      } else if (coordinateExtractors.length === 3) {
+        }, arr) => coordinateExtractors[1](y, coordinateExtractors[0](x, arr));
+      }
+
+      if (coordinateExtractors.length === 3) {
         return ({
           x,
           y,
           z
-        }, arr) => {
-          return coordinateExtractors[2](z, coordinateExtractors[1](y, coordinateExtractors[0](x, arr)));
-        };
+        }, arr) => coordinateExtractors[2](z, coordinateExtractors[1](y, coordinateExtractors[0](x, arr))); // eslint-disable-line max-len
       }
+
+      return () => {
+        throw new ErrorCreatingCoordinateExtractor();
+      };
     });
   }; // 1D
 
@@ -1662,7 +1671,8 @@
   };
 
   const threeDimension = (cellCoords, neighborhoodMatrix) => {
-    const neighbors = twentySixNeighboorsThreeDimensions.map(fn => fn(cellCoords, neighborhoodMatrix));
+    const neighbors = twentySixNeighboorsThreeDimensions.map(fn => fn(cellCoords, neighborhoodMatrix)); // eslint-disable-line max-len
+
     const cell = neighborhoodMatrix[cellCoords.x][cellCoords.y][cellCoords.z];
     return {
       neighbors,
@@ -1674,10 +1684,13 @@
     neighbors,
     cell
   }) => {
-    const left = neighbors[0] << 2;
-    const self = cell << 1;
+    const left = neighbors[0] << 2; // eslint-disable-line no-bitwise
+
+    const self = cell << 1; // eslint-disable-line no-bitwise
+
     const right = neighbors[1];
-    const ruleKey = left | self | right;
+    const ruleKey = left | self | right; // eslint-disable-line no-bitwise
+
     return {
       ruleKey
     };
@@ -1698,7 +1711,8 @@
     };
   };
 
-  // a simple 1D cellular automata program has two states (0, 1) and three cells ( 2 neighbors and itself)
+  // a simple 1D cellular automata program
+  // which has two states (0, 1) and three cells ( 2 neighbors and itself)
   class OneDimension {
     constructor() {
       this._ruleObject = undefined;
@@ -1736,8 +1750,9 @@
         we want to mask the 6 earlier neighborhoods and
         see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
       */
-      const mask = this.config.states ** neighborhood;
-      return (this.rule & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+      const mask = this.config.states ** neighborhood; // represent the two rule states for a neighborhood
+
+      return (this.rule & mask) === 0 ? 0 : 1; // eslint-disable-line no-bitwise
     }
 
     updateRuleObject() {
@@ -1745,8 +1760,8 @@
         the keys are the neighborhood index
         the value is a state (1 or 0)
       */
-      const neighborhoodVarieties = [...Array(this.config.cells ** this.config.states).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
-
+      // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+      const neighborhoodVarieties = [...Array(this.config.cells ** this.config.states).keys()];
       this._ruleObject = neighborhoodVarieties.reduce((acc, state) => {
         acc[state] = this.neighborhoodRule(state);
         return acc;
@@ -1781,7 +1796,9 @@
       neighborStatesCount,
       cellState
     }) {
-      if (cellState === 1 && this.rule.survive.includes(neighborStatesCount[1])) return 1;else if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;else return 0;
+      if (cellState === 1 && this.rule.survive.includes(neighborStatesCount[1])) return 1;
+      if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;
+      return 0;
     }
 
   }
@@ -1807,15 +1824,16 @@
     const dimensionPopulation = shape[firstDimension]; // if only dimension left in shape, generate states
 
     if (dimensions.length === 1) {
-      return [...new Array(dimensionPopulation)].map(newState); // if more dimensions left, map over those dimensions first
-    } else {
-      const newShape = Object.assign({}, shape);
-      delete newShape[firstDimension];
-      return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
-    }
+      return [...new Array(dimensionPopulation)].map(newState);
+    } // if more dimensions left, map over those dimensions first
+
+
+    const newShape = Object.assign({}, shape);
+    delete newShape[firstDimension];
+    return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
   };
 
-  class GenerationMaker {
+  class AutomataManager {
     constructor() {
       this.useLifeLikeGenerator();
       this.useOneDimensionGenerator();
@@ -1882,31 +1900,36 @@
     } // resizes a population along one dimension
 
 
-    dimensionPopulationAdjuster(dimensionPopulation, desiredSize, {
+    static dimensionPopulationAdjuster(population, desiredSize, {
       isContainerDimension,
       resize,
       sizeDiff
     } = {
       isContainerDimension: false
     }) {
+      // eslint-disable-line max-len
       switch (resize) {
         case 'GROW':
-          const filler = new Array(sizeDiff).fill(isContainerDimension ? [] : 0);
-          return [...dimensionPopulation, ...filler];
+          {
+            const fillType = isContainerDimension ? [] : 0;
+            const filler = new Array(sizeDiff).fill(fillType);
+            return [...population, ...filler];
+          }
 
         case 'SHRINK':
-          return dimensionPopulation.slice(0, desiredSize);
+          return population.slice(0, desiredSize);
 
         default:
-          return dimensionPopulation;
+          return population;
       }
     } // resizes a multidimensional population
 
 
     populationAdjuster(currentPopulation, desiredPopulationShape) {
-      // figure out which dimension (x, y, z, etc...) of the population this is based on the desired populationShape
-      const dimensions = Object.keys(desiredPopulationShape).sort(); // built up in terms of x, y, z etc...
-
+      // figure out which dimension (x, y, z, etc...) of the population this is based on
+      // for the desired populationShape
+      // Note: the population is built up in terms of x, y, z etc...
+      const dimensions = Object.keys(desiredPopulationShape).sort();
       const dimensionKey = dimensions[0];
       const desiredDimensionPopulationSize = desiredPopulationShape[dimensionKey]; // figure out how to resize this dimension of the population
 
@@ -1922,25 +1945,24 @@
 
       if (dimensions.length === 1) {
         // resize population along this dimension
-        return this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
+        return AutomataManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
           sizeDiff,
           resize
-        }); // other dimensions, recursively call this function
-      } else {
-        // resize population along this dimension
-        const adjustedDimensionPopulation = this.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
-          isContainerDimension: true,
-          sizeDiff,
-          resize
-        }); // remove the current dimension
-
-        const newShape = Object.assign({}, desiredPopulationShape);
-        delete newShape[dimensionKey]; // for the next dimension, recursively call this function
-
-        return adjustedDimensionPopulation.map((arr, arrPosition) => {
-          return this.populationAdjuster(arr, newShape);
         });
-      }
+      } // if other dimensions still exist, recursively call this function
+      // resize population along this dimension
+
+
+      const adjustedDimensionPopulation = AutomataManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
+        isContainerDimension: true,
+        sizeDiff,
+        resize
+      }); // remove the current dimension
+
+      const newShape = Object.assign({}, desiredPopulationShape);
+      delete newShape[dimensionKey]; // for the next dimension, recursively call this function
+
+      return adjustedDimensionPopulation.map(arr => this.populationAdjuster(arr, newShape));
     }
 
     _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
@@ -1955,35 +1977,21 @@
           }, existingCoords);
           return this._computeStateOffCoords(coords, fullPopulation);
         }); // other dimensions, recursively call this function
-      } else {
-        const newShape = Object.assign({}, populationShape);
-        delete newShape[dimensionKey];
-        return currentPopulation.map((arr, arrPosition) => {
-          const newCoords = Object.assign({
-            [dimensionKey]: arrPosition
-          }, existingCoords);
-          return this._run(arr, fullPopulation, newShape, newCoords);
-        });
       }
+
+      const newShape = Object.assign({}, populationShape);
+      delete newShape[dimensionKey];
+      return currentPopulation.map((arr, arrPosition) => {
+        const newCoords = Object.assign({
+          [dimensionKey]: arrPosition
+        }, existingCoords);
+        return this._run(arr, fullPopulation, newShape, newCoords);
+      });
     }
 
     run(currentPopulation) {
-      const t0 = performance.now(); // this.populationAdjuster(currentPopulation, this.populationShape)
-
+      // this.populationAdjuster(currentPopulation, this.populationShape)
       const newPopulation = this._run(currentPopulation, currentPopulation, this.populationShape);
-
-      const t1 = performance.now();
-
-      if (this.generationNumber % 100 === 0) {
-        this.generationNumber = 0;
-        this.totalTimeSpentGenerating = 0; // console.log('-------------------reset--------------------')
-      }
-
-      const time = t1 - t0;
-      this.generationNumber += 1;
-      this.totalTimeSpentGenerating += time;
-      this.generationRate = this.totalTimeSpentGenerating / this.generationNumber; // console.log('**generation rate**', this.generationRate)
-      // console.log('**generation rate**', time)
 
       return newPopulation;
     }
@@ -51634,7 +51642,7 @@
     class: className,
     id: 'automata-viewer',
     // automata model
-    _viewerType: '3Din3D',
+    _viewerType: '2D',
     _neighbors: undefined,
     _populationSize: 500,
     _populationShape: undefined,
@@ -51642,7 +51650,7 @@
     _populationHistorySize: 500,
     _edges: undefined,
     _initGenerationMaker: function () {
-      this._generationMaker = new GenerationMaker();
+      this._generationMaker = new AutomataManager();
     },
     _setRule: function (rule) {
       this._generationMaker.rule = rule;

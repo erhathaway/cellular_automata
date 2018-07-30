@@ -26,7 +26,7 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '3Din3D',
+  _viewerType: '2D',
   _neighbors: undefined,
   _populationSize: 500,
   _populationShape: undefined,

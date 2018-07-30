@@ -1,4 +1,5 @@
-// a simple 1D cellular automata program has two states (0, 1) and three cells ( 2 neighbors and itself)
+// a simple 1D cellular automata program
+// which has two states (0, 1) and three cells ( 2 neighbors and itself)
 class OneDimension {
   constructor() {
     this._ruleObject = undefined;
@@ -24,7 +25,7 @@ class OneDimension {
   }
 
   get ruleObject() {
-    return this._ruleObject
+    return this._ruleObject;
   }
 
   neighborhoodRule(neighborhood) {
@@ -34,7 +35,8 @@ class OneDimension {
       see if the remaining neighborhood rule in 110 is >1 or = 0 (indicating rule)
     */
     const mask = this.config.states ** neighborhood;
-    return (this.rule & mask) === 0 ? 0 : 1; // represent the two rule states for a neighborhood
+    // represent the two rule states for a neighborhood
+    return (this.rule & mask) === 0 ? 0 : 1; // eslint-disable-line no-bitwise
   }
 
   updateRuleObject() {
@@ -42,17 +44,18 @@ class OneDimension {
       the keys are the neighborhood index
       the value is a state (1 or 0)
     */
-    const neighborhoodVarieties = [...Array(this.config.cells ** this.config.states).keys()]; // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+    // [0,1,2,3,4,5,6,7] the eight possible neighborhoods
+    const neighborhoodVarieties = [...Array(this.config.cells ** this.config.states).keys()];
     this._ruleObject = neighborhoodVarieties.reduce(
       (acc, state) => {
         acc[state] = this.neighborhoodRule(state);
         return acc;
-      },
-    {});
+      }, {},
+    );
   }
 
   run({ ruleKey }) {
-    return this.ruleObject[ruleKey]
+    return this.ruleObject[ruleKey];
   }
 }
 
@@ -64,15 +67,16 @@ class LifeLike {
   set rule(rule) {
     this._rule = rule;
   }
+
   get rule() {
     return this._rule;
   }
 
   run({ neighborStatesCount, cellState }) {
     if (cellState === 1 && this.rule.survive.includes(neighborStatesCount[1])) return 1;
-    else if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;
-    else return 0;
+    if (cellState === 0 && this.rule.born.includes(neighborStatesCount[1])) return 1;
+    return 0;
   }
 }
 
-export { OneDimension, LifeLike }
+export { OneDimension, LifeLike };
