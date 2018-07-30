@@ -8,7 +8,13 @@ function UndefinedRequiredClassAttribute(message) {
   this.message = (message || '');
 }
 
+function UndefinedRequiredParameter(message) {
+  this.name = 'UndefinedRequiredParameter';
+  this.message = (message || '');
+}
+
 export {
   ErrorCreatingCoordinateExtractor,
   UndefinedRequiredClassAttribute,
+  UndefinedRequiredParameter,
 };

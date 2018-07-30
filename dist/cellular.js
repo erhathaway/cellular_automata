@@ -1543,8 +1543,8 @@
     this.message = message || '';
   }
 
-  function UndefinedRequiredClassAttribute(message) {
-    this.name = 'UndefinedRequiredClassAttribute';
+  function UndefinedRequiredParameter(message) {
+    this.name = 'UndefinedRequiredParameter';
     this.message = message || '';
   }
 
@@ -1851,12 +1851,18 @@
   */
 
   class PopulationManager {
+    /*------------------------*/
+
+    /* SEEDING */
+
+    /*------------------------*/
     static newState() {
       return Math.round(Math.random());
     }
 
     static seedPopulationByShape(shape) {
-      // built up in terms of x, y, z etc...
+      if (!shape) throw new UndefinedRequiredParameter('populationShape is not defined'); // built up in terms of x, y, z etc...
+
       const dimensions = Object.keys(shape).sort();
       const firstDimension = dimensions[0];
       const dimensionPopulation = shape[firstDimension]; // if only dimension left in populationShape, generate states
@@ -1870,123 +1876,12 @@
       delete newShape[firstDimension];
       return [...new Array(dimensionPopulation)].map(() => PopulationManager.seedPopulationByShape(newShape));
     }
+    /*------------------------*/
 
-    constructor() {
-      this._populationShape = undefined; // format { x: INT } | { x: INT, y: INT } | { x: INT, y: INT, z: INT }
+    /* RESIZING */
 
-      this._recordedGenerations = [];
-      this._generationsToRecord = undefined; // this._recordedGenerationMax = undefined;
-      // this._recordedGenerationMin = undefined;
-      // this._currentGeneration = undefined;
-
-      this._runDirection = 'FORWARD'; // 'FORWARD' | 'BACKWARD'
-
-      this.getStateForCellFn = undefined;
-    }
-
-    reset() {
-      this._populationShape = undefined;
-      this._recordedGenerations = [];
-    }
-
-    set populationShape(shape) {
-      this._populationShape = shape;
-    }
-
-    get populationShape() {
-      return this._populationShape;
-    }
-    /* SEEDING */
-
-
-    seedFirstGeneration() {
-      if (!this.populationShape) throw new UndefinedRequiredClassAttribute('population shape is not defined');
-      return PopulationManager.seedPopulationByShape(this.populationShape);
-    }
-    /* POPULATION GENERATION */
-
-
-    _nextGeneration() {}
-
-    nextGeneration() {
-      const previousGens = this._recordedGenerations.slice(-this._generationsToRecord);
-    }
-
-  }
-
-  class AutomataManager {
-    constructor() {
-      this.populationManager = new PopulationManager();
-      this.useLifeLikeGenerator();
-      this.useOneDimensionGenerator();
-      this.useThreeDimensionGenerator(); // this.generationRate = 0;
-
-      this.totalTimeSpentGenerating = 0;
-      this.generationNumber = 0;
-      this.populationShape = {};
-    }
-
-    set rule(rule) {
-      this._rule = rule;
-      this._ruleApplicator.rule = this.rule;
-    }
-
-    get rule() {
-      return this._rule;
-    }
-
-    set populationShape(shape) {
-      this.populationManager.populationShape = shape;
-    }
-
-    runPopulationSeed(populationShape) {
-      this.populationShape = populationShape;
-      return this._populationSeed(populationShape);
-    }
-
-    useOneDimensionGenerator() {
-      this.populationManager.reset();
-      this._generatorType = 'oneDimension';
-      this._populationSeed = newDimension;
-      this._neighborStateExtractor = oneDimension;
-      this._stateReducer = oneDimension$1;
-      this._ruleApplicator = new OneDimension();
-    }
-
-    useLifeLikeGenerator() {
-      this.populationManager.reset();
-      this._generatorType = 'twoDimension';
-      this._populationSeed = newDimension;
-      this._neighborStateExtractor = twoDimension;
-      this._stateReducer = lifeLike;
-      this._ruleApplicator = new LifeLike();
-    }
-
-    useThreeDimensionGenerator() {
-      this.populationManager.reset();
-      this._generatorType = 'threeDimension';
-      this._populationSeed = newDimension;
-      this._neighborStateExtractor = threeDimension;
-      this._stateReducer = lifeLike;
-      this._ruleApplicator = new LifeLike();
-      this._ruleApplicator.rule = {
-        survive: [5, 6],
-        born: [1]
-      };
-    }
-
-    _computeStateOffCoords(coords, currentPopulation) {
-      const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
-
-      const reducedState = this._stateReducer({
-        neighbors: neighborhoodState.neighbors,
-        cell: neighborhoodState.cell
-      });
-
-      const cellState = this._ruleApplicator.run(reducedState);
-
-      return cellState;
-    } // resizes a population along one dimension
+    /*------------------------*/
+    // resizes a population along one dimension
 
 
     static dimensionPopulationAdjuster(population, desiredSize, {
@@ -2014,10 +1909,12 @@
     } // resizes a multidimensional population
 
 
-    populationAdjuster(currentPopulation, desiredPopulationShape) {
-      // figure out which dimension (x, y, z, etc...) of the population this is based on
+    static resizePopulation(currentPopulation, desiredPopulationShape) {
+      if (!currentPopulation) throw new UndefinedRequiredParameter('currentPopulation is not defined');
+      if (!desiredPopulationShape) throw new UndefinedRequiredParameter('desiredPopulationShape is not defined'); // figure out which dimension (x, y, z, etc...) of the population this is based on
       // for the desired populationShape
       // Note: the population is built up in terms of x, y, z etc...
+
       const dimensions = Object.keys(desiredPopulationShape).sort();
       const dimensionKey = dimensions[0];
       const desiredDimensionPopulationSize = desiredPopulationShape[dimensionKey]; // figure out how to resize this dimension of the population
@@ -2034,7 +1931,7 @@
 
       if (dimensions.length === 1) {
         // resize population along this dimension
-        return AutomataManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
+        return PopulationManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
           sizeDiff,
           resize
         });
@@ -2042,7 +1939,7 @@
       // resize population along this dimension
 
 
-      const adjustedDimensionPopulation = AutomataManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
+      const adjustedDimensionPopulation = PopulationManager.dimensionPopulationAdjuster(currentPopulation, desiredDimensionPopulationSize, {
         isContainerDimension: true,
         sizeDiff,
         resize
@@ -2051,10 +1948,17 @@
       const newShape = Object.assign({}, desiredPopulationShape);
       delete newShape[dimensionKey]; // for the next dimension, recursively call this function
 
-      return adjustedDimensionPopulation.map(arr => this.populationAdjuster(arr, newShape));
+      return adjustedDimensionPopulation.map(arr => PopulationManager.resizePopulation(arr, newShape)); // eslint-disable-line max-len
     }
+    /*------------------------*/
 
-    _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
+    /* NEXT POPULATION GENERATION */
+
+    /*------------------------*/
+
+
+    static generateNextPopulationFromCurrent(currentPopulation, fullPopulation, populationShape, computeStateOffCoordsFn, existingCoords = {}) {
+      // eslint-disable-line max-len
       const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
 
       const dimensionKey = dimensions[0]; // if only dimension left in shape, generate states
@@ -2064,7 +1968,7 @@
           const coords = Object.assign({
             [dimensionKey]: cellPosition
           }, existingCoords);
-          return this._computeStateOffCoords(coords, fullPopulation);
+          return computeStateOffCoordsFn(coords, fullPopulation);
         }); // other dimensions, recursively call this function
       }
 
@@ -2074,13 +1978,123 @@
         const newCoords = Object.assign({
           [dimensionKey]: arrPosition
         }, existingCoords);
-        return this._run(arr, fullPopulation, newShape, newCoords);
+        return PopulationManager.generateNextPopulationFromCurrent(arr, fullPopulation, newShape, computeStateOffCoordsFn, newCoords); // eslint-disable-line max-len
       });
     }
 
+  }
+
+  class AutomataManager {
+    constructor() {
+      this._computeStateOffCoords = (coords, currentPopulation) => {
+        const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
+
+        const reducedState = this._stateReducer({
+          neighbors: neighborhoodState.neighbors,
+          cell: neighborhoodState.cell
+        });
+
+        const cellState = this._ruleApplicator.run(reducedState);
+
+        return cellState;
+      };
+
+      this.populationManager = new PopulationManager();
+      this.useLifeLikeGenerator();
+      this.useOneDimensionGenerator();
+      this.useThreeDimensionGenerator(); // this.generationRate = 0;
+
+      this.totalTimeSpentGenerating = 0;
+      this.generationNumber = 0;
+      this.populationShape = {};
+      this.populationShapeChanged = false;
+    }
+
+    set rule(rule) {
+      this._rule = rule;
+      this._ruleApplicator.rule = this.rule;
+    }
+
+    get rule() {
+      return this._rule;
+    }
+
+    set populationShape(shape) {
+      if (JSON.stringify(shape) !== JSON.stringify(this.populationShape)) {
+        this._populationShape = shape;
+        this._populationShapeChanged = true;
+      }
+    }
+
+    get populationShape() {
+      return this._populationShape;
+    }
+
+    getSeedPopulation() {
+      return PopulationManager.seedPopulationByShape(this.populationShape);
+    }
+
+    resizeCurrentPopulation(curentPopulation) {
+      return PopulationManager.resizePopulation(curentPopulation, this.populationShape);
+    }
+
+    useOneDimensionGenerator() {
+      this._generatorType = 'oneDimension';
+      this._populationSeed = newDimension;
+      this._neighborStateExtractor = oneDimension;
+      this._stateReducer = oneDimension$1;
+      this._ruleApplicator = new OneDimension();
+    }
+
+    useLifeLikeGenerator() {
+      this._generatorType = 'twoDimension';
+      this._populationSeed = newDimension;
+      this._neighborStateExtractor = twoDimension;
+      this._stateReducer = lifeLike;
+      this._ruleApplicator = new LifeLike();
+    }
+
+    useThreeDimensionGenerator() {
+      this._generatorType = 'threeDimension';
+      this._populationSeed = newDimension;
+      this._neighborStateExtractor = threeDimension;
+      this._stateReducer = lifeLike;
+      this._ruleApplicator = new LifeLike();
+      this._ruleApplicator.rule = {
+        survive: [5, 6],
+        born: [1]
+      };
+    }
+
+    // _run(currentPopulation, fullPopulation, populationShape, existingCoords = {}) {
+    //   const dimensions = Object.keys(populationShape).sort(); // built up in terms of x, y, z etc...
+    //   const dimensionKey = dimensions[0];
+    //
+    //   // if only dimension left in shape, generate states
+    //   if (dimensions.length === 1) {
+    //     return currentPopulation.map((cellState, cellPosition) => {
+    //       const coords = { [dimensionKey]: cellPosition, ...existingCoords };
+    //       return this._computeStateOffCoords(coords, fullPopulation);
+    //     });
+    //   // other dimensions, recursively call this function
+    //   }
+    //
+    //   const newShape = { ...populationShape };
+    //   delete newShape[dimensionKey];
+    //
+    //   return currentPopulation.map((arr, arrPosition) => {
+    //     const newCoords = { [dimensionKey]: arrPosition, ...existingCoords };
+    //     return this._run(arr, fullPopulation, newShape, newCoords);
+    //   });
+    // }
     run(currentPopulation) {
-      // this.populationAdjuster(currentPopulation, this.populationShape)
-      return this._run(currentPopulation, currentPopulation, this.populationManager.populationShape);
+      if (this.populationShapeChanged) {
+        const resizedPopulation = this.resizeCurrentPopulation(currentPopulation);
+        this.populationShapeChanged = false;
+        return PopulationManager.generateNextPopulationFromCurrent(resizedPopulation, resizedPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
+      }
+
+      return PopulationManager.generateNextPopulationFromCurrent(currentPopulation, currentPopulation, this._populationShape, this._computeStateOffCoords); // eslint-disable-line max-len
     }
 
   }
@@ -51857,7 +51871,7 @@
     _createGenesisGeneration: function () {
       this._populationHistory = [];
       this._automataManager.populationShape = this._populationShape;
-      this._currentPopulation = this._automataManager.populationManager.seedFirstGeneration();
+      this._currentPopulation = this._automataManager.getSeedPopulation();
       this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
     },
     _setViewer: function () {

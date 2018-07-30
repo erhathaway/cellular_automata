@@ -143,7 +143,7 @@ const app = {
   _createGenesisGeneration: function() {
     this._populationHistory = [];
     this._automataManager.populationShape = this._populationShape;
-    this._currentPopulation = this._automataManager.populationManager.seedFirstGeneration();
+    this._currentPopulation = this._automataManager.getSeedPopulation();
     this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
   },
   _setViewer: function() {
