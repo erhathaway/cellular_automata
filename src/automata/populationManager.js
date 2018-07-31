@@ -126,6 +126,19 @@ class PopulationManager {
       return PopulationManager.generateNextPopulationFromCurrent(arr, fullPopulation, newShape, computeStateOffCoordsFn, newCoords); // eslint-disable-line max-len
     });
   }
+
+  /*------------------------*/
+  /* POPULATION COMPRESSION */
+  /*------------------------*/
+  static compressPopulation(population) {
+    if (Array.isArray(population[0])) return population.map(PopulationManager.compressPopulation);
+
+    return population.map(i => i.toString(2)).join('');
+  }
+
+  static decompressPopulation(population) {
+    // TODO fill me in :)
+  }
 }
 
 export default PopulationManager;

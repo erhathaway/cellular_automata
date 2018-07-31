@@ -13,9 +13,14 @@ class AutomataManager {
     this.useLifeLikeGenerator();
     // this.useOneDimensionGenerator();
     // this.useThreeDimensionGenerator();
+    // Current population
     this._currentPopulation = undefined;
     this.populationShape = {};
     this.populationShapeChanged = false;
+
+    // History
+    this.generationHistory = [];
+    this._generationHistorySize = 20; // stores 20 generations in the history
   }
 
   set rule(rule) {
@@ -28,9 +33,9 @@ class AutomataManager {
   }
 
   set populationShape(shape) {
-    if ( JSON.stringify(shape) !== JSON.stringify(this.populationShape)) {
+    if (JSON.stringify(shape) !== JSON.stringify(this.populationShape)) {
       this._populationShape = shape;
-      this._populationShapeChanged = true;
+      this.populationShapeChanged = true;
     }
   }
 
@@ -38,13 +43,36 @@ class AutomataManager {
     return this._populationShape;
   }
 
+  set generationHistorySize(size) {
+    this.generationHistory = this.generationHistory.slice(-size)
+    this._generationHistorySize = size;
+  }
+
+  get generationHistorySize() {
+    return this._generationHistorySize
+  }
+
   getSeedPopulation() {
     this.currentPopulation = PopulationManager.seedPopulationByShape(this.populationShape);
     return this.currentPopulation;
   }
 
+  set currentPopulation(population) {
+    this.generationHistory = this.generationHistory.slice(-this.generationHistorySize)
+
+    this.generationHistory.push(PopulationManager.compressPopulation(population));
+    this._currentPopulation = population;
+  }
+
+  get currentPopulation() {
+    return this._currentPopulation;
+  }
+
   resizeCurrentPopulation() {
-    this.currentPopulation = PopulationManager.resizePopulation(this.currentPopulation, this.populationShape)
+    console.log('resizing population', this.populationShape)
+
+    // don't use setter because we dont want to add the resized population to the history since timetravel would look weird
+    this._currentPopulation = PopulationManager.resizePopulation(this.currentPopulation, this.populationShape);
   }
 
   useOneDimensionGenerator() {

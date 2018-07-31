@@ -26,9 +26,8 @@ const app = {
   id: 'automata-viewer',
 
   // automata model
-  _viewerType: '2D',
+  _viewerType: '1D',
   _neighbors: undefined,
-  _populationSize: 500,
   _populationShape: undefined,
   _growth: undefined,
   _populationHistorySize: 500,
@@ -46,7 +45,7 @@ const app = {
     // }
   },
   _setNeighbors: function(value) { this._neighbors = +value; },
-  _setPopulation: function(value) { this._populationSize = +value }, // this._viewer.setPopulationCount(this._populationSize); },
+  _setPopulation: function(value) { this._automataManager.populationShape = { x: +value } }, // this._viewer.setPopulationCount(this._populationSize); },
   _setGrowth: function(value) { this._growth = +value; },
   _setGenerations: function(value) { this._populationHistorySize = +value; this._runSimulation(); },
   _setEdges: function(value) { this._edges = +value; },
@@ -59,7 +58,7 @@ const app = {
   _viewer: undefined,
   _calcCellDimensions: function(e) {
     const { width } = this.getBoundingClientRect();
-    this._cellDimension = width / this._populationSize;
+    this._cellDimension = width / this._populationShape.x;
   },
   $components: undefined,
   _changeRunningState: function(shouldRun) {
@@ -75,56 +74,9 @@ const app = {
   _stopSimulation: function() {
     this._viewer.turnSimulationOff();
   },
-  _retrieveNextGeneration: undefined,
-  _retrieveNextGenerationOneDimension: function() {
-    const genCopy = this._populationHistory;
-
-    const scaleDiff = this._populationSize - this._currentPopulation.length;
-    let currentGen;
-
-    // on view resizing we need to add filler cells or subtract existing cells
-    if (scaleDiff > 0) {
-      const filler = new Array(scaleDiff).fill(0)
-      this._currentPopulation = [...this._currentPopulation, ...filler]
-    } else if (scaleDiff < 0) {
-      this._currentPopulation = this._currentPopulation.slice(0, this._populationSize)
-    } else {
-      this._currentPopulation = this._currentPopulation;
-    }
-
-    this._currentPopulation = this._automataManager.run(this._currentPopulation);
-
-    // save current population to history
-    // resize history to width of generationsToShow variable
-    const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation);
-    const previousGens = this._populationHistory.slice(-this._populationHistorySize)
-    previousGens.push(binCurrentPopulation)
-    this._populationHistory = previousGens;
-
+  _retrieveNextGeneration: function() {
+    this._currentPopulation = this._automataManager.run();
     return this._currentPopulation;
-  },
-  _convertArrayStateDataToBinaryString: function(arr) {
-    if (Array.isArray(arr[0])) return arr.map(this._convertArrayStateDataToBinaryString);
-
-    return arr.map(i => i.toString(2)).join('');
-  },
-  _retrieveNextGenerationTwoDimension: function() {
-    // create new population
-    // if (this._populationHistory.length === this._populationHistorySize) {
-    //   this._currentPopulation = this._populationHistory.shift()
-    //   this._currentPopulation = this._currentPopulation.map(x => x.split('').map(x => +x));
-    // } else {
-      this._currentPopulation = this._automataManager.run(this._currentPopulation);
-    // }
-
-    // save new population to history
-    // resize history to width of generationsToShow variable
-    const binCurrentPopulation = this._convertArrayStateDataToBinaryString(this._currentPopulation)
-    const previousGens = this._populationHistory.slice(-this._populationHistorySize)
-    previousGens.push(binCurrentPopulation)
-    this._populationHistory = previousGens;
-    return this._currentPopulation;
-
     // {
     //   direction: 'forward' | 'reverse',
     //   population: [],
@@ -133,18 +85,14 @@ const app = {
     // }
   },
   _bulkCreateGenerations: function(numberOfVisibleGenerations) {
-    if (this._populationHistory === undefined) { this._createGenesisGeneration(); }
-
     let generationCount;
     for (generationCount = 0; generationCount < numberOfVisibleGenerations; generationCount++ ) {
       this._viewer.addGeneration()
     }
   },
   _createGenesisGeneration: function() {
-    this._populationHistory = [];
     this._automataManager.populationShape = this._populationShape;
-    this._currentPopulation = this._automataManager.getSeedPopulation();
-    this._populationHistory = [this._convertArrayStateDataToBinaryString(this._currentPopulation)];
+    this._automataManager.getSeedPopulation();
   },
   _setViewer: function() {
     switch(this._viewerType) {
@@ -153,40 +101,37 @@ const app = {
         if (this._viewer && this._viewer.type === 'one-dimension') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 300 };
-        this._populationHistorySize = 1500;
-        this._retrieveNextGeneration = this._retrieveNextGenerationOneDimension;
         this._viewer = new OneDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._automataManager.useOneDimensionGenerator();
+        this._automataManager.generationHistorySize = 1500;
         break;
       case '2D' :
         console.log('2d case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-two-dimensions') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 200, y: 150 };
-        this._populationHistorySize = 2;
-        this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInTwoDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._automataManager.useLifeLikeGenerator();
+        this._automataManager.generationHistorySize = 2;
         break;
       case '2Din3D' :
         console.log('2Din3D case')
         if (this._viewer && this._viewer.type === 'two-dimension-in-three-dimensions') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 10, y: 20 };
-        this._populationHistorySize = 20;
-        this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new TwoDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._automataManager.useLifeLikeGenerator();
+        this._automataManager.generationHistorySize = 20;
+
         break;
       case '3Din3D' :
         console.log('3Din3D case')
         if (this._viewer && this._viewer.type === 'three-dimension-in-three-dimensions') break;
         if (this._viewer) this._viewer.quit();
         this._populationShape = { x: 23, y: 23, z: 23 };
-        this._populationHistorySize = 20;
-        this._retrieveNextGeneration = this._retrieveNextGenerationTwoDimension;
         this._viewer = new ThreeDimensionViewerInThreeDimensions({ containerElId: this.id, populationShape: this._populationShape, retrieveNextGeneration: this._retrieveNextGeneration });
         this._automataManager.useThreeDimensionGenerator();
+        this._automataManager.generationHistorySize = 20;
         break;
     }
 
