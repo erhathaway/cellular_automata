@@ -24,15 +24,15 @@ const Bottom = styled('div')`
 
 const BottomPadding = styled('div')`
   width: 10px;
-`
+`;
 
 export default () => (
   <Container>
     <Intro />
     <Bottom>
-      <LearnMore/>
-      <BottomPadding/>
-      <Start/>
+      <LearnMore />
+      <BottomPadding />
+      <Start />
     </Bottom>
   </Container>
-)
+);

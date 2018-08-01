@@ -1,6 +1,8 @@
 {
     "extends": "airbnb",
     "rules": {
-      "no-underscore-dangle": [2, { "allowAfterThis": true }]
+      "no-underscore-dangle": [2, { "allowAfterThis": true }],
+      "implicit-arrow-linebreak": 0,
+      "react/jsx-filename-extension": 0
     }
 }
