@@ -46,6 +46,12 @@ const Bottom = styled('div')`
   display: flex;
   justify-content: flex-end;
   height: 65px;
+  margin-right: 80px;
+
+  @media (max-width: 420px) {
+    justify-content: center;
+    margin-right: 0px;
+  }
 `;
 
 export default () => (

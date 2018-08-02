@@ -2,33 +2,32 @@ import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
 
-const Container = styled('div')`
-  position: relative;
+const Container = styled('p')`
+  color: gray;
   display: flex;
-  width: 100%;
-  opacity: 0;
+  justify-content: center;
+  text-align: center;
   margin-top: ${({ marginTop }) => marginTop || '0px'};
   margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
-`;
 
-const Image = styled('div')`
-  width: 150px;
-  height: 150px;
-  background-color: gray;
-  margin-left: ${({ marginLeft }) => marginLeft || 20}px;
+
+  font-size: 15px;
+  color: #4e5220;
+  line-height: 28px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
 `;
 
 export default class Component extends React.Component {
   static animateIn() {
     anime({
-      targets: '.landing-images',
-      top: [-500, 0],
-      left: [-300, 0],
+      targets: '.landing-description',
+      top: [300, 0],
       opacity: [0, 1],
       duration: 1500,
       elasticity: 100,
-      scale: [0, 1],
       easing: 'easeOutQuint',
+      delay: 500,
     });
   }
 
@@ -38,11 +37,8 @@ export default class Component extends React.Component {
 
   render() {
     return (
-      <Container className="landing-images" {...this.props}>
-        <Image />
-        <Image marginLeft={20} />
-        <Image marginLeft={20} />
-        <Image marginLeft={20} />
+      <Container className="landing-description" {...this.props}>
+        {'a social cellular automata & generative art experiment'}
       </Container>
     );
   }

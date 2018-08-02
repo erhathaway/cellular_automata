@@ -1,21 +1,35 @@
-import React, { Component } from 'react';
-import styled from 'react-emotion';
+import React from 'react';
+import queryString from 'query-string';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { IntroModal, DocumentationModal } from '../features';
+import ViewScene from './View';
+import ExploreScene from './Explore';
 
-import { LandingModal } from '../features';
+const QueryStringHandler = ({ location }) => {
+  const parsedQuery = queryString.parse(location.search, { decode: true })
 
-const Container = styled('div')`
-  display: flex;
-`;
+  const showDocumentation = parsedQuery.documentation === 'true';
+  const showIntro = parsedQuery.intro === 'true' || true;
 
-class App extends Component {
-  render() {
-    return (
-      <Container>
-        <p> Hello world </p>
-        <LandingModal/>
-      </Container>
-    );
-  }
-}
+  return (
+    <div>
+      <Switch>
+        { showDocumentation && <Route path="*" component={DocumentationModal} /> }
+        { showIntro && <Route path="*" component={IntroModal} /> }
+      </Switch>
+      <Switch>
+        <Route path="/explore" component={ExploreScene} />
+        <Route path="*" component={ViewScene} />
+      </Switch>
+    </div>
+  );
+};
 
-export default App;
+
+export default () => {
+  return (
+    <BrowserRouter>
+      <Route path="*" component={QueryStringHandler} />
+    </BrowserRouter>
+  );
+};

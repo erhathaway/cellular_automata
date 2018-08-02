@@ -1,1 +1,2 @@
-export { default as LandingModal } from './LandingModal';
+export { default as IntroModal } from './IntroModal';
+export { default as DocumentationModal } from './DocumentationModal';

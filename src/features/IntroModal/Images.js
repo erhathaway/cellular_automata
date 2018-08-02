@@ -3,25 +3,32 @@ import styled from 'react-emotion';
 import anime from 'animejs';
 
 const Container = styled('div')`
-  color: gray;
+  position: relative;
   display: flex;
-  justify-content: center;
-  text-align: center;
-  letter-spacing: 5px;
+  width: 100%;
+  opacity: 0;
   margin-top: ${({ marginTop }) => marginTop || '0px'};
   margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
+`;
+
+const Image = styled('div')`
+  width: 150px;
+  height: 150px;
+  background-color: #131313;
+  margin-left: ${({ marginLeft }) => marginLeft || 20}px;
 `;
 
 export default class Component extends React.Component {
   static animateIn() {
     anime({
-      targets: '.landing-description',
-      top: [300, 0],
+      targets: '.landing-images',
+      top: [-500, 0],
+      left: [-300, 0],
       opacity: [0, 1],
       duration: 1500,
       elasticity: 100,
+      scale: [0, 1],
       easing: 'easeOutQuint',
-      delay: 500,
     });
   }
 
@@ -31,8 +38,11 @@ export default class Component extends React.Component {
 
   render() {
     return (
-      <Container className="landing-description" {...this.props}>
-        {'a cellular automata & generative art experiment'}
+      <Container className="landing-images" {...this.props}>
+        <Image />
+        <Image marginLeft={20} />
+        <Image marginLeft={20} />
+        <Image marginLeft={20} />
       </Container>
     );
   }

@@ -18,8 +18,9 @@ const Container = css`
     cursor: pointer;
   }
 
-  @media (min-width: 420px) {
-    width: 300px;
+  @media (max-width: 420px) {
+    // width: 300px;
+
   }
 `;
 
