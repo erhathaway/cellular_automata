@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
-import { Landing } from '../features';
+import styled from 'react-emotion';
+
+import { LandingModal } from '../features';
+
+const Container = styled('div')`
+  display: flex;
+`;
 
 class App extends Component {
   render() {
     return (
-      // <div className="App">
-        <Landing/>
-      // </div>
+      <Container>
+        <p> Hello world </p>
+        <LandingModal/>
+      </Container>
     );
   }
 }

@@ -1,1 +1,1 @@
-export { default as Landing } from './Landing';
+export { default as LandingModal } from './LandingModal';
