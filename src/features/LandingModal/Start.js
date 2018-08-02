@@ -20,6 +20,12 @@ const Container = styled('button')`
   margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
   border-radius: 1px;
 
+  &:hover {
+    border-color: green;
+    color: green;
+    cursor: pointer;
+  }
+
   @media (min-width: 420px) {
     width: 300px;
   }

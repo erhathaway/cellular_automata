@@ -16,6 +16,13 @@ const Container = styled('div')`
   letter-spacing: 3.5px;
   margin-top: ${({ marginTop }) => marginTop || '0px'};
   margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
+  padding: 20px;
+
+  &:hover {
+    border-color: green;
+    color: green;
+    cursor: pointer;
+  }
 `;
 
 export default class Component extends React.Component {

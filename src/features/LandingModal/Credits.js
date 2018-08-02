@@ -14,6 +14,10 @@ const Container = css`
   color: white;
   height: 30px;
 
+  &:hover {
+    cursor: pointer;
+  }
+
   @media (min-width: 420px) {
     width: 300px;
   }

@@ -32,7 +32,7 @@ export default class Component extends React.Component {
   render() {
     return (
       <Container className="landing-description" {...this.props}>
-        {'a cellular automata experiment'}
+        {'a cellular automata & generative art experiment'}
       </Container>
     );
   }

@@ -55,7 +55,7 @@ export default () => (
       <Images marginBottom={100} />
       <Description marginTop="45px" marginBottom="120px" />
       <Start marginTop="0px" marginBottom="0px" />
-      <OrDivider marginTop="15px" marginBottom="15px" />
+      <OrDivider marginTop="15px" marginBottom="0px" />
       <LearnMore marginTop="0px" marginBottom="0px" />
     </Middle>
     <Bottom>
