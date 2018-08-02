@@ -1,21 +1,43 @@
 import queryString from 'query-string';
 
+class LocationHistory {
+  constructor() {
+    this.history = [];
+  }
+
+  lastLocation() {
+    return this.history.splice(-1)[0];
+  }
+
+  addLocation(location) {
+    this.history.push(location);
+  }
+}
+
+const locationHistory = new LocationHistory();
+
 const router = {
+  /* NAV */
+
   navToView(history) {
     history.push({ pathname: '/view', search: '?intro=true', state: { hideIntro: true } });
+    locationHistory.addLocation(history.location);
   },
   navToDocumentation(history) {
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
+    locationHistory.addLocation(history.location);
   },
-  shouldShowDocumentationModal(history) {
-    const parsedQuery = queryString.parse(history.location.search, { decode: true });
+
+  /* CURRENT LOCATION */
+  shouldShowDocumentationModal(location) {
+    const parsedQuery = queryString.parse(location.search, { decode: true });
     const showDocumentation = parsedQuery.documentation === 'true';
     return showDocumentation;
   },
-  shouldShowIntroModal(history) {
-    const parsedQuery = queryString.parse(history.location.search, { decode: true });
+  shouldShowIntroModal(location) {
+    const parsedQuery = queryString.parse(location.search, { decode: true });
 
-    const hideIntro = (history.location && history.location.state && history.location.state.hideIntro === true) || false; // eslint-disable-line max-len
+    const hideIntro = (location && location.state && location.state.hideIntro === true) || false; // eslint-disable-line max-len
     const showIntro = !hideIntro && (parsedQuery.intro === 'true' || !parsedQuery.intro);
 
     return showIntro;
@@ -26,6 +48,18 @@ const router = {
   isRoutingToExplore(history) {
 
   },
+  /* PREIVOUS LOCATION */
+  isComingFromDocumentationModal() {
+    const lastLocation = locationHistory.lastLocation();
+    console.log(lastLocation)
+    if (lastLocation && this.shouldShowDocumentationModal(lastLocation)) {
+      console.log('is coming: true')
+
+      return true;
+    }
+    console.log('is coming: false')
+    return false;
+  }
 };
 
 export default router;

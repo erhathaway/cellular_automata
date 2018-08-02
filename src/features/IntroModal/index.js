@@ -59,54 +59,62 @@ const Bottom = styled('div')`
 
 export default class Component extends React.Component {
   static animateIn() {
-    anime({
-      targets: '.intro-modal.in',
-      top: [-500, 0],
-      left: [-300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      scale: [0, 1],
-      easing: 'easeOutQuint',
-    });
+    if (routerService.isComingFromDocumentationModal()) {
+      anime({
+        targets: '.intro-modal',
+        translateX: [-500, 0],
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+      });
+    } else {
+      anime({
+        targets: '.intro-modal.in',
+        top: [-500, 0],
+        left: [-300, 0],
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
+        scale: [0, 1],
+        easing: 'easeOutQuint',
+      });
 
-    anime({
-      targets: '.intro-modal.stagger-in-bottom',
-      bottom: [-300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 600,
-    });
+      anime({
+        targets: '.intro-modal.stagger-in-bottom',
+        bottom: [-300, 0],
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 600,
+      });
 
-    anime({
-      targets: '.intro-modal.delay-appear-in',
-      top: [300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 500,
-    })
+      anime({
+        targets: '.intro-modal.delay-appear-in',
+        top: [300, 0],
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 500,
+      });
 
-    anime({
-      targets: '.intro-modal.credits',
-      right: [-300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 1500,
-    });
+      anime({
+        targets: '.intro-modal.credits',
+        right: [-300, 0],
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 1500,
+      });
+    }
   }
 
 
   componentDidMount() {
-    const { inState } = this.props;
-    if (inState === 'entering' || 'entered') {
-      Component.animateIn();
-    }
+    Component.animateIn();
   }
 
   componentWillUpdate({ inState }) {
@@ -114,13 +122,13 @@ export default class Component extends React.Component {
   }
 
   animateOut() {
-    const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history)
+    const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history.location)
     if (willShowDocumentationMoal) {
       anime({
         translateX: [0, -900],
         targets: '.intro-modal',
         opacity: [1, 0],
-        duration: 1000,
+        duration: 2000,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 0,
@@ -152,7 +160,7 @@ export default class Component extends React.Component {
           <LearnMore className="intro-modal stagger-in-bottom" history={history} marginTop="0px" marginBottom="0px" />
         </Middle>
         <Bottom className="intro-modal credits">
-          <Credits />
+          <Credits className="intro-modal credits" />
         </Bottom>
       </Container>
     );

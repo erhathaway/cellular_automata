@@ -12,11 +12,11 @@ const combineProps = (Scene, initialProps) => props => (
   <Scene {...initialProps} {...props} />
 );
 
-const duration = 2000;
+const duration = 1000;
 
 const QueryStringHandler = ({ location, history }) => {
-  const showDocumentation = routerService.shouldShowDocumentationModal(history);
-  const showIntro = routerService.shouldShowIntroModal(history);
+  const showDocumentation = routerService.shouldShowDocumentationModal(history.location);
+  const showIntro = routerService.shouldShowIntroModal(history.location);
 
   return (
     <div>
