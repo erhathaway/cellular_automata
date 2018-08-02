@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'react-emotion';
-import anime from 'animejs';
 
 const Container = styled('div')`
   position: relative;
@@ -33,32 +32,12 @@ const DividerText = styled('div')`
   margin: 10px;
 `;
 
-export default class Component extends React.Component {
-  static animateIn() {
-    anime({
-      targets: '.landing-or-divider',
-      top: [300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 500,
-    });
-  }
-
-  componentDidMount() {
-    Component.animateIn();
-  }
-
-  render() {
-    return (
-      <Container className="landing-or-divider" {...this.props}>
-        <Divider />
-        <DividerText>
-          or
-        </DividerText>
-        <Divider />
-      </Container>
-    );
-  }
-}
+export default props => (
+  <Container className="landing-or-divider" {...props}>
+    <Divider />
+    <DividerText>
+      or
+    </DividerText>
+    <Divider />
+  </Container>
+);

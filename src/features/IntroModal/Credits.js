@@ -1,26 +1,20 @@
 import React from 'react';
-import styled, { css } from 'react-emotion';
-import anime from 'animejs';
+import styled from 'react-emotion';
 
 import github from '../../assets/github.svg';
 
-const Container = css`
+const Container = styled('div')`
   position: relative;
   background: inherit;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  opacity: 0;
+  opacity: 1;
   color: white;
   height: 30px;
 
   &:hover {
     cursor: pointer;
-  }
-
-  @media (max-width: 420px) {
-    // width: 300px;
-
   }
 `;
 
@@ -39,31 +33,11 @@ const Name = styled('div')`
   margin-bottom: 5px;
 `;
 
-export default class Component extends React.Component {
-  static animateIn() {
-    anime({
-      targets: `.${Container}`,
-      right: [-300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 1500,
-    });
-  }
-
-  componentDidMount() {
-    Component.animateIn();
-  }
-
-  render() {
-    return (
-      <div className={Container}>
-        <Name>
-          Ethan Hathaway
-        </Name>
-        <LinkIcon src={github} alt="github" />
-      </div>
-    );
-  }
-}
+export default () => (
+  <Container>
+    <Name>
+      Ethan Hathaway
+    </Name>
+    <LinkIcon src={github} alt="github" />
+  </Container>
+);

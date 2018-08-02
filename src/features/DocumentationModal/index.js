@@ -1,7 +1,9 @@
 import React from 'react';
 
-export default () => (
-  <div>
+export default (props) => {
+  return (
+    <div>
     documentation
-  </div>
-);
+    </div>
+  );
+}

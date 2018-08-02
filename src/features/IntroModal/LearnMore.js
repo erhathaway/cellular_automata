@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
-import anime from 'animejs';
+
+import { router as routerSerivce } from '../../services';
 
 const Container = styled('div')`
   position: relative;
@@ -26,25 +27,21 @@ const Container = styled('div')`
 `;
 
 export default class Component extends React.Component {
-  static animateIn() {
-    anime({
-      targets: '.landing-learn-more',
-      bottom: [-300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 600,
-    });
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  componentDidMount() {
-    Component.animateIn();
+
+  handleClick() {
+    const { history } = this.props;
+    routerSerivce.navToDocumentation(history);
   }
 
   render() {
     return (
-      <Container className="landing-learn-more" {...this.props}>
+      <Container onClick={this.handleClick} className="landing-learn-more" {...this.props}>
         Learn about cellular automata
       </Container>
     );

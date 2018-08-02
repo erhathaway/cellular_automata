@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'react-emotion';
-import anime from 'animejs';
 
 const Container = styled('p')`
   color: gray;
@@ -18,28 +17,8 @@ const Container = styled('p')`
   text-transform: uppercase;
 `;
 
-export default class Component extends React.Component {
-  static animateIn() {
-    anime({
-      targets: '.landing-description',
-      top: [300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 500,
-    });
-  }
-
-  componentDidMount() {
-    Component.animateIn();
-  }
-
-  render() {
-    return (
-      <Container className="landing-description" {...this.props}>
-        {'a social cellular automata & generative art experiment'}
-      </Container>
-    );
-  }
-}
+export default props => (
+  <Container className="landing-description" {...props}>
+    {'a social cellular automata & generative art experiment'}
+  </Container>
+);

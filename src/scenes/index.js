@@ -1,22 +1,38 @@
 import React from 'react';
-import queryString from 'query-string';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { TransitionGroup, Transition } from 'react-transition-group';
+
+import { router as routerService } from '../services';
+
 import { IntroModal, DocumentationModal } from '../features';
 import ViewScene from './View';
 import ExploreScene from './Explore';
 
-const QueryStringHandler = ({ location }) => {
-  const parsedQuery = queryString.parse(location.search, { decode: true })
+const combineProps = (Scene, initialProps) => props => (
+  <Scene {...initialProps} {...props} />
+);
 
-  const showDocumentation = parsedQuery.documentation === 'true';
-  const showIntro = parsedQuery.intro === 'true' || true;
+const duration = 2000;
+
+const QueryStringHandler = ({ location, history }) => {
+  const showDocumentation = routerService.shouldShowDocumentationModal(history);
+  const showIntro = routerService.shouldShowIntroModal(history);
 
   return (
     <div>
-      <Switch>
-        { showDocumentation && <Route path="*" component={DocumentationModal} /> }
-        { showIntro && <Route path="*" component={IntroModal} /> }
-      </Switch>
+      <TransitionGroup>
+        <Transition
+          key={location.pathname}
+          timeout={duration}
+        >
+          {inState => (
+            <Switch location={location}>
+              { showDocumentation && <Route path="*" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />}
+              { showIntro && <Route path="*" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />}
+            </Switch>
+          )}
+        </Transition>
+      </TransitionGroup>
       <Switch>
         <Route path="/explore" component={ExploreScene} />
         <Route path="*" component={ViewScene} />

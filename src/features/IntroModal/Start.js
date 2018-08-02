@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
-import anime from 'animejs';
+
+import { router as routerSerivce } from '../../services';
 
 const Container = styled('button')`
   position: relative;
@@ -32,26 +33,20 @@ const Container = styled('button')`
 `;
 
 export default class Component extends React.Component {
-  static animateIn() {
-    anime({
-      targets: '.landing-start-button',
-      top: [300, 0],
-      opacity: [0, 1],
-      duration: 1500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 400,
-    });
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  componentDidMount() {
-    Component.animateIn();
+  handleClick() {
+    const { history } = this.props;
+    routerSerivce.navToView(history);
   }
-
 
   render() {
     return (
-      <Container className="landing-start-button" {...this.props}>
+      <Container onClick={this.handleClick} className="landing-start-button" {...this.props}>
         Start
       </Container>
     );

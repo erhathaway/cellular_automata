@@ -1,5 +1,8 @@
 import React from 'react';
 import styled from 'react-emotion';
+import anime from 'animejs';
+
+import { router as routerService } from '../../services';
 
 import Title from './Title';
 import Images from './Images';
@@ -54,18 +57,104 @@ const Bottom = styled('div')`
   }
 `;
 
-export default () => (
-  <Container>
-    <Middle>
-      <Title marginTop="0px" marginBottom="10px" />
-      <Images marginBottom={100} />
-      <Description marginTop="45px" marginBottom="120px" />
-      <Start marginTop="0px" marginBottom="0px" />
-      <OrDivider marginTop="15px" marginBottom="0px" />
-      <LearnMore marginTop="0px" marginBottom="0px" />
-    </Middle>
-    <Bottom>
-      <Credits />
-    </Bottom>
-  </Container>
-);
+export default class Component extends React.Component {
+  static animateIn() {
+    anime({
+      targets: '.intro-modal.in',
+      top: [-500, 0],
+      left: [-300, 0],
+      opacity: [0, 1],
+      duration: 1500,
+      elasticity: 100,
+      scale: [0, 1],
+      easing: 'easeOutQuint',
+    });
+
+    anime({
+      targets: '.intro-modal.stagger-in-bottom',
+      bottom: [-300, 0],
+      opacity: [0, 1],
+      duration: 1500,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 600,
+    });
+
+    anime({
+      targets: '.intro-modal.delay-appear-in',
+      top: [300, 0],
+      opacity: [0, 1],
+      duration: 1500,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 500,
+    })
+
+    anime({
+      targets: '.intro-modal.credits',
+      right: [-300, 0],
+      opacity: [0, 1],
+      duration: 1500,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 1500,
+    });
+  }
+
+
+  componentDidMount() {
+    const { inState } = this.props;
+    if (inState === 'entering' || 'entered') {
+      Component.animateIn();
+    }
+  }
+
+  componentWillUpdate({ inState }) {
+    if (inState === 'exiting') { this.animateOut(); }
+  }
+
+  animateOut() {
+    const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history)
+    if (willShowDocumentationMoal) {
+      anime({
+        translateX: [0, -900],
+        targets: '.intro-modal',
+        opacity: [1, 0],
+        duration: 1000,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 0,
+      });
+    } else {
+      anime({
+        targets: '.intro-modal',
+        translateY: [0, -600],
+        translateX: [0, 600],
+        opacity: [1, 0],
+        duration: 1500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 400,
+      });
+    }
+  }
+
+  render() {
+    const { history } = this.props;
+    return (
+      <Container>
+        <Middle>
+          <Title className="intro-modal in" marginTop="0px" marginBottom="10px" />
+          <Images className="intro-modal in" marginBottom={100} />
+          <Description className="intro-modal delay-appear-in" marginTop="45px" marginBottom="120px" />
+          <Start className="intro-modal stagger-in-bottom" history={history} marginTop="0px" marginBottom="0px" />
+          <OrDivider className="intro-modal stagger-in-bottom" marginTop="15px" marginBottom="0px" />
+          <LearnMore className="intro-modal stagger-in-bottom" history={history} marginTop="0px" marginBottom="0px" />
+        </Middle>
+        <Bottom className="intro-modal credits">
+          <Credits />
+        </Bottom>
+      </Container>
+    );
+  }
+}
