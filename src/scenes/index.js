@@ -1,9 +1,11 @@
 import React from 'react';
+import styled from 'react-emotion';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { TransitionGroup, Transition } from 'react-transition-group';
 
 import { router as routerService, locationHistory } from '../services';
 
+import './main.css';
 import { IntroModal, DocumentationModal } from '../features';
 import ViewScene from './View';
 import ExploreScene from './Explore';
@@ -16,6 +18,12 @@ import ExploreScene from './Explore';
 //   }
 // }
 
+const Container = styled('div')`
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+`;
+
 const combineProps = (Scene, initialProps) => props => (
   <Scene {...initialProps} {...props} />
 );
@@ -27,7 +35,7 @@ const QueryStringHandler = ({ location, history }) => {
   const showIntro = routerService.shouldShowIntroModal(history.location);
 
   return (
-    <div>
+    <Container>
       <TransitionGroup>
         <Transition
           key={location.pathname}
@@ -45,7 +53,7 @@ const QueryStringHandler = ({ location, history }) => {
         <Route path="/explore" component={ExploreScene} />
         <Route path="*" component={ViewScene} />
       </Switch>
-    </div>
+    </Container>
   );
 };
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import styled from 'react-emotion';
 import ReactMarkdown from 'react-markdown';
 import anime from 'animejs';
