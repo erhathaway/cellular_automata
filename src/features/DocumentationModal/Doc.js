@@ -24,7 +24,7 @@ class Doc extends React.Component {
 
   render() {
     const { text } = this.state;
-    return <ReactMarkdown source={this.state.text} />
+    return <ReactMarkdown className="markdown" source={this.state.text} />
   }
 }
 

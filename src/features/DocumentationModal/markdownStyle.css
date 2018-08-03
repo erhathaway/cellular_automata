@@ -1,7 +1,11 @@
 body .doc {
   color: white;
   font-family: 'Roboto', sans-serif;
+}
 
+.markdown {
+  margin-top: 200px;
+  margin-bottom: 100px;
 }
 
 .doc h1 {
@@ -15,6 +19,14 @@ body .doc {
   letter-spacing: 6px;
 }
 
+.doc h5 {
+  margin-top: 50px;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  border-bottom: 1px solid rgba(55, 55, 55);
+  padding-bottom: 20px;
+}
+
 .doc p {
   margin-top: 30px;
   line-height: 25px;
@@ -24,4 +36,36 @@ body .doc {
 
 .doc em {
   color: rgba(200, 200, 200, 1);
+}
+
+.doc table {
+  /* remove padding between cells */
+  border-collapse: collapse;
+}
+
+.doc pre > code {
+  color: #989868;
+}
+
+.doc ul {
+  line-height: 30px;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+.markdown li > :first-child {
+  color: #82827b;
+  /* color: white; */
+  /* color: rgba(156, 156, 156, 1); */
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+.doc td {
+  border: 1px solid rgba(56, 56, 56, 0.9);
+  padding: -1px;
+  margin: 0px;
+  height: 30px;
+  width: 30px;
+  text-align: center;
 }

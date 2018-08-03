@@ -9,27 +9,28 @@ import { router as routerService } from '../../services';
 import doc from '../../docs/what-is-a-automata.md';
 
 const Container = styled('div')`
-  position: fixed;
+  position: absolute;
   background-color: black;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   z-index: 1;
+  overflow: none;
 `;
 
 const NavContainer = styled('div')`
-  height: 100%;
+  position: fixed;
+  left: 100px;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const DocContainer = styled('div')`
-  width: 500px;
   height: 100%;
-  margin-top: 10%;
+  width: 500px;
   padding-left: 150px;
   margin-left: 10px;
 `;
