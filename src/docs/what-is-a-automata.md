@@ -9,7 +9,7 @@ It's a group of ***cells*** that ***evolve*** from one generation to the next by
 
 ##### Cells
 
-Cells exist in a geometric pattern, usually a grid
+Cells exist in a geometric pattern, usually a grid. Here is 1 cell in a 5x3 grid
 
 |   |   |   |   |   |
 |---|---|---|---|---|
@@ -20,7 +20,7 @@ Cells exist in a geometric pattern, usually a grid
 ##### Cells & Neighbors
 
 Cells have ***neighboring*** cells.
-For example, this center cell has 3 neighbors.
+For example, the center cell has 3 neighbors.
 
 |   |   |   |   |   |
 |---|---|---|---|---|
@@ -50,13 +50,13 @@ As another example, here is a center cell with 3 immediate neighbors:
 
 Cells have a ***state***. Usually, states are defined by numbers, such as 0, 1, 2...
 
-Lets say that cells match to a state in the following:
+Lets say that cells match to a state in the following way:
 
 ◯ --> 0
 
 ◉ --> 1
 
-Thus, based on the above mapping, we could say the following middle cell has the *0* state, and the cell to its left has a *1* state, etc...
+Based on the above mapping, we could say the following middle cell has the *0* state, and the cell to its left has the *1* state, etc...
 
 ```
 Cell representation:
@@ -104,7 +104,7 @@ In the above example, it's important to note that the middle cell only has ***tw
 
 ##### Cells & Rules
 
-A rule describes how each cell changes or *evolves* over time. Usually the same rule is applied to each cell.
+A rule describes how each cell changes (or *evolves*) over time. Usually the same rule is applied to each cell.
 
 Lets start with a simple rule...
 
@@ -163,7 +163,7 @@ Generation 3:
 | 1 | 1 | 1 |
 
 
-From the way *Generation 3* looks, We can say our population of cells evolves to a steady state of all *1s* after two generations
+From the way *Generation 3* looks, we can say our population of cells evolves to a steady state of all *1s* after two generations
 
 ##### Conclusion
 
