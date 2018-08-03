@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import { router as routerSerivce } from '../../services';
+import { router as routerService } from '../../services';
 
 const Container = styled('nav')`
   display: flex;
   justify-content: center;
   align-items: center;
   color: rgba(156, 156, 156, 1);
-  letter-spacing: 8px;
+  letter-spacing: 6px;
   margin: 10px;
   padding-bottom: 10px;
   margin-right: 50px;
@@ -27,7 +27,7 @@ export default class Component extends React.Component {
 
   handleClick() {
     const { history, pageRouterName, pageDisplayName } = this.props;
-    routerSerivce.navToDocumentationPage(history, pageRouterName);
+    routerService.navToDocumentationPage(history, pageRouterName);
   }
 
   render() {

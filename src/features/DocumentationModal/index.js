@@ -4,7 +4,8 @@ import anime from 'animejs';
 import { TransitionGroup, Transition } from 'react-transition-group';
 import uuid from 'uuid';
 
-import View from './View';
+import Page from './Page';
+import PageMenu from './PageMenu';
 import SideBar from './SideBar';
 import SideBarSection from './SideBarSection';
 
@@ -18,7 +19,7 @@ const PAGES = [
     id: uuid(), pageDisplayName: 'Introduction', pageRouterName: 'introduction', pagePath: introductionDoc,
   },
   {
-    id: uuid(), pageDisplayName: 'Dimension', pageRouterName: 'dimension', pagePath: dimensionDoc,
+    id: uuid(), pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
   },
 ];
 
@@ -139,7 +140,7 @@ export default class Component extends React.Component {
             { PAGES.map(({ pageRouterName, pageDisplayName }) => (
               <SideBarSection
                 key={`doc-nav-${pageRouterName}`}
-                isSelected={selectedDocPage === pageRouterName}
+                isSelected={selectedDocPage.pageRouterName === pageRouterName}
                 pageRouterName={pageRouterName}
                 pageDisplayName={pageDisplayName}
               />
@@ -148,13 +149,11 @@ export default class Component extends React.Component {
         </NavContainer>
         <DocContainer className="doc-container">
           <TransitionGroup>
-            { PAGES.filter(page => page.pageRouterName === selectedDocPage).map(({ id, pageRouterName, pagePath }) => ( // eslint-disable-line max-len
+            { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath }) => ( // eslint-disable-line max-len
               <Transition key={id} timeout={duration}>
                 { inState => (
-                  <View
+                  <Page
                     inState={inState}
-                    isSelected={selectedDocPage === pageRouterName}
-                    pageRouterName={pageRouterName}
                     filePath={pagePath}
                   />)
                 }
@@ -162,6 +161,7 @@ export default class Component extends React.Component {
             ))
             }
           </TransitionGroup>
+          <PageMenu history={history} />
         </DocContainer>
       </Container>
     );

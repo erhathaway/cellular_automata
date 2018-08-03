@@ -88,9 +88,24 @@ const router = {
   },
   getSelectedDocumentationPage(location) {
     const parsedQuery = queryString.parse(location.search, { decode: true });
-    const page = parsedQuery.docPage;
-    if (!page && this.documentationPages[0]) return this.documentationPages[0].pageRouterName;
+    const pageRouterName = parsedQuery.docPage;
+    const page = this.documentationPages.find(p => p.pageRouterName === pageRouterName);
+    if (!page) return this.documentationPages[0];
     return page;
+  },
+  getPreviousDocumentationPage(location) {
+    const currentPage = this.getSelectedDocumentationPage(location);
+    const currentIndex = this.documentationPages.findIndex(p => p.pageRouterName === currentPage.pageRouterName); // eslint-disable-line max-len
+
+    if (currentIndex === 0 || currentIndex === undefined) return undefined;
+    return this.documentationPages[currentIndex - 1];
+  },
+  getNextDocumentationPage(location) {
+    const currentPage = this.getSelectedDocumentationPage(location);
+    const currentIndex = this.documentationPages.findIndex(p => p.pageRouterName === currentPage.pageRouterName); // eslint-disable-line max-len
+    
+    if (currentIndex === (this.documentationPages.length - 1) || currentIndex === undefined) return undefined; // eslint-disable-line max-len
+    return this.documentationPages[currentIndex + 1];
   },
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import { router as routerSerivce } from '../../services';
+import { router as routerService } from '../../services';
 
 const Container = styled('button')`
   position: relative;
@@ -41,7 +41,7 @@ export default class Component extends React.Component {
 
   handleClick() {
     const { history } = this.props;
-    routerSerivce.navToView(history);
+    routerService.navToView(history);
   }
 
   render() {
