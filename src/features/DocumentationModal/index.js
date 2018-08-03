@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
 import { Switch, Route } from 'react-router-dom';
+import { TransitionGroup, Transition } from 'react-transition-group';
+import uuid from 'uuid';
 
 import Doc from './Doc';
 import SideBar from './SideBar';
@@ -13,12 +15,8 @@ import introductionDoc from '../../docs/what-is-a-automata.md';
 import dimensionDoc from '../../docs/dimension.md';
 
 const PAGES = [
-  { displayName: 'Introduction', routerName: 'introduction', path: introductionDoc },
-  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
-  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
-  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
-  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
-
+  { id: uuid(), pageDisplayName: 'Introduction', pageRouterName: 'introduction', pagePath: introductionDoc },
+  { id: uuid(), pageDisplayName: 'Dimension', pageRouterName: 'dimension', pagePath: dimensionDoc },
 ];
 
 routerService.registerDocumentationPages(PAGES);
@@ -126,33 +124,74 @@ export default class Component extends React.Component {
 
   render() {
     const { location, history } = this.props;
-    const documentationPage = routerService.getDocumentationPage(location);
+    const selectedDocPage = routerService.getSelectedDocumentationPage(location);
+    const duration = 200;
 
     return (
       <Container className="doc doc-modal">
         <NavContainer className="doc-nav">
           <SideBar history={history}>
-            { PAGES.map(({ routerName, displayName }) => (
+            { PAGES.map(({ pageRouterName, pageDisplayName }) => (
               <SideBarSection
-                isActive={documentationPage === routerName}
-                routerName={routerName}
-                displayName={displayName}
+                key={`doc-nav-${pageRouterName}`}
+                isSelected={selectedDocPage === pageRouterName}
+                pageRouterName={pageRouterName}
+                pageDisplayName={pageDisplayName}
               />
             ))}
           </SideBar>
         </NavContainer>
         <DocContainer className="doc-container">
-          <Switch location={location}>
-            { PAGES.map(({ routerName, path }) => {
-              if (documentationPage === routerName) {
-                return <Route path="*" render={combineProps(Doc, { filePath: path })} />
-              }
-              return null
-            })}
-            <Route path="*" render={combineProps(Doc, { filePath: PAGES[0].path })} />
-          </Switch>
+          <TransitionGroup>
+            { PAGES.filter(page => page.pageRouterName === selectedDocPage).map(({ id, pageRouterName, pagePath }) => (
+              <Transition key={id} timeout={duration}>
+                { inState => <Doc inState={inState} isSelected={selectedDocPage === pageRouterName} filePath={pagePath} />  }
+              </Transition>
+            ))
+            }
+          </TransitionGroup>
         </DocContainer>
       </Container>
     );
   }
 }
+
+// <Transition
+//   key={'documentation-view-transition-key'}
+//   timeout={duration}
+// >
+//   { inState => (
+//     <div>
+//       <Doc key={`doc-view-${PAGES[0].pageRouterName}`} inState={inState} isSelected={selectedDocPage === PAGES[0].pageRouterName} filePath={PAGES[0].pagePath} />
+//       <Doc key={`doc-view-${PAGES[1].pageRouterName}`} inState={inState} isSelected={selectedDocPage === PAGES[1].pageRouterName} filePath={PAGES[1].pagePath} />
+//     </div>
+//   )}
+// </Transition>
+// { inState => () }
+
+// { PAGES.map(({ pageRouterName, pagePath }) => <Doc inState={inState} isSelected={selectedDocPage === pageRouterName} filePath={pagePath} />) }
+
+// <div location={location}>
+// </div>
+
+// { PAGES.map(({ pageRouterName, pagePath }) => (
+//   <Route
+//     key={`doc-view-${pageRouterName}`}
+//     path="*"
+//     children={({ match, ...rest }) => ( // eslint-disable-line react/no-children-prop, max-len
+//       <Doc inState={inState} isSelected={selectedDocPage === pageRouterName} filePath={pagePath} match={match} {...rest} />
+//     )}
+//   />
+// ))}
+// <Route key={`doc-view-undefined`}path="*" render={combineProps(Doc,{ inState })} />
+
+// { PAGES.map(({ pageRouterName, pagePath }) => {
+//     return <Route key={`doc-view-${pageRouterName}`} path="*" params={{ docPage: pageRouterName }}render={combineProps(Doc, { inState, filePath: pagePath })} />
+//
+// })}
+// <Route key={`doc-view-undefined`}path="*" render={combineProps(Doc,{ inState })} />
+
+// <Route path="*" render={combineProps(Doc, { filePath: PAGES[0].pagePath })} />
+
+// { selectedDocPage === PAGES[0].pageRouterName && <Route key={`doc-view-${PAGES[0].pageRouterName}`} path="*" render={combineProps(Doc, { inState, filePath: PAGES[0].pagePath })} />}
+// { selectedDocPage === PAGES[1].pageRouterName && <Route key={`doc-view-${PAGES[1].pageRouterName}`} path="*" render={combineProps(Doc, { inState, filePath: PAGES[1].pagePath })} />}

@@ -12,10 +12,10 @@ const Container = styled('nav')`
   margin: 10px;
   padding-bottom: 10px;
   margin-right: 50px;
-  ${({ isActive }) => (isActive && 'border-bottom: 1px solid white;')}
-  ${({ isActive }) => (isActive && 'margin-bottom: 30px; margin-top: 30px;')}
+  ${({ isSelected }) => (isSelected && 'border-bottom: 1px solid white;')}
+  ${({ isSelected }) => (isSelected && 'margin-bottom: 30px; margin-top: 30px;')}
 
-  ${({ isActive }) => !isActive && '&:hover {border-color: green; color: green; cursor: pointer; }'}
+  ${({ isSelected }) => !isSelected && '&:hover {border-color: green; color: green; cursor: pointer; }'}
 `;
 
 export default class Component extends React.Component {
@@ -26,15 +26,15 @@ export default class Component extends React.Component {
   }
 
   handleClick() {
-    const { history, routerName, displayName } = this.props;
-    routerSerivce.navToDocumentationPage(routerName);
+    const { history, pageRouterName, pageDisplayName } = this.props;
+    routerSerivce.navToDocumentationPage(history, pageRouterName);
   }
 
   render() {
-    const { displayName, isActive } = this.props
+    const { pageDisplayName, isSelected } = this.props
     return (
-      <Container onClick={this.handleClick} isActive={isActive}>
-        { displayName }
+      <Container onClick={this.handleClick} isSelected={isSelected}>
+        { pageDisplayName }
       </Container>
     );
   }

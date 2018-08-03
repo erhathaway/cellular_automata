@@ -21,7 +21,7 @@ A one dimension population has cells positioned only along one dimension.
 
 ## Two Dimensions
 
-A one dimension population has cells positioned along two dimensions.
+A two dimension population has cells positioned along two dimensions.
 
 ```
 5x4 population
