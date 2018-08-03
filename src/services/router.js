@@ -10,22 +10,25 @@ class LocationHistory {
   }
 
   addLocation(location) {
-    this.history.push(location);
+    this.history.push({ ...location });
   }
 }
 
 const locationHistory = new LocationHistory();
 
 const router = {
+  logRouting(location)  {
+    locationHistory.addLocation(location);
+  },
   /* NAV */
 
   navToView(history) {
+    this.logRouting(history.location);
     history.push({ pathname: '/view', search: '?intro=true', state: { hideIntro: true } });
-    locationHistory.addLocation(history.location);
   },
   navToDocumentation(history) {
+    this.logRouting(history.location);
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
-    locationHistory.addLocation(history.location);
   },
 
   /* CURRENT LOCATION */
@@ -51,15 +54,15 @@ const router = {
   /* PREIVOUS LOCATION */
   isComingFromDocumentationModal() {
     const lastLocation = locationHistory.lastLocation();
-    console.log(lastLocation)
-    if (lastLocation && this.shouldShowDocumentationModal(lastLocation)) {
-      console.log('is coming: true')
-
-      return true;
-    }
-    console.log('is coming: false')
+    console.log('from doc', lastLocation)
+    if (lastLocation && this.shouldShowDocumentationModal(lastLocation)) { return true; }
+    return false;
+  },
+  isComingFromIntroModal() {
+    const lastLocation = locationHistory.lastLocation();
+    if (lastLocation && this.shouldShowIntroModal(lastLocation)) { return true; }
     return false;
   }
 };
 
-export default router;
+export { router, locationHistory };

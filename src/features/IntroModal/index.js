@@ -122,6 +122,8 @@ export default class Component extends React.Component {
   }
 
   animateOut() {
+    if (routerService.isComingFromDocumentationModal()) { return } // safety check in case browser history and back button action aren't in sync
+
     const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history.location)
     if (willShowDocumentationMoal) {
       anime({

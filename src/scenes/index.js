@@ -2,11 +2,19 @@ import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { TransitionGroup, Transition } from 'react-transition-group';
 
-import { router as routerService } from '../services';
+import { router as routerService, locationHistory } from '../services';
 
 import { IntroModal, DocumentationModal } from '../features';
 import ViewScene from './View';
 import ExploreScene from './Explore';
+
+// class LocationHistoryComponent extends React.Component {
+//   componentWillReceiveProps() {
+//     const { location } = this.props;
+//     console.log('reciveing props')
+//     locationHistory.addLocation(location);
+//   }
+// }
 
 const combineProps = (Scene, initialProps) => props => (
   <Scene {...initialProps} {...props} />

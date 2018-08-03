@@ -1,0 +1,12 @@
+body .doc {
+  color: white;
+}
+
+.doc h1 {
+  margin-top: 20px;
+}
+
+.doc h2 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
