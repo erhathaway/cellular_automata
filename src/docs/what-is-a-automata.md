@@ -1,4 +1,4 @@
-## What is a cellular automata?
+# What is a cellular automata?
 
 It's a group of ***cells*** that ***evolve*** from one generation to the next by way of a ***rule***. The rule uses a cell's current state and the state of certain neighbors to figure out the next generation.
 
@@ -7,7 +7,7 @@ It's a group of ***cells*** that ***evolve*** from one generation to the next by
 
 
 
-##### Cells
+## Cells
 
 Cells exist in a geometric pattern, usually a grid. Here is 1 cell in a 5x3 grid
 
@@ -17,7 +17,7 @@ Cells exist in a geometric pattern, usually a grid. Here is 1 cell in a 5x3 grid
 |   |   | ◯ |   |   |
 |   |   |   |   |   |
 
-##### Cells & Neighbors
+## Cells & Neighbors
 
 Cells have ***neighboring*** cells.
 For example, the center cell has 3 neighbors.
@@ -46,7 +46,7 @@ As another example, here is a center cell with 3 immediate neighbors:
 |   | ◉ | ◯ |   |   |
 |   |   | ◍ |   |   |
 
-##### Cells & State
+## Cells & State
 
 Cells have a ***state***. Usually, states are defined by numbers, such as 0, 1, 2...
 
@@ -102,7 +102,7 @@ State representation:
 
 In the above example, it's important to note that the middle cell only has ***two immediate*** neighbors with the *1* state.
 
-##### Cells & Rules
+## Cells & Rules
 
 A rule describes how each cell changes (or *evolves*) over time. Usually the same rule is applied to each cell.
 
@@ -165,7 +165,7 @@ Generation 3:
 
 From the way *Generation 3* looks, we can say our population of cells evolves to a steady state of all *1s* after two generations
 
-##### Conclusion
+## Conclusion
 
 
 By now you should understand that a cellular automata is a ***population of cells*** that ***evolve*** together, from one ***generation*** to the next, based on some rule that looks at the ***state*** of the ***neighboring*** cells!

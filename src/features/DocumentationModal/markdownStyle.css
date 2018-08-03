@@ -9,22 +9,19 @@ body .doc {
 }
 
 .doc h1 {
-  margin-top: 20px;
-  letter-spacing: 8px;
-}
-
-.doc h2 {
   margin-top: 10px;
   margin-bottom: 10px;
   letter-spacing: 6px;
+  font-size: 1.5em;
 }
 
-.doc h5 {
+.doc h2 {
   margin-top: 50px;
   text-transform: uppercase;
   letter-spacing: 5px;
   border-bottom: 1px solid rgba(55, 55, 55);
   padding-bottom: 20px;
+  font-size: 0.83em;
 }
 
 .doc p {
@@ -43,6 +40,14 @@ body .doc {
   border-collapse: collapse;
 }
 
+.doc td {
+  border: 1px solid rgba(56, 56, 56, 0.9);
+  height: 30px;
+  width: 30px;
+  /* align content in center of table cell */
+  text-align: center;
+}
+
 .doc pre > code {
   color: #989868;
 }
@@ -55,17 +60,14 @@ body .doc {
 
 .markdown li > :first-child {
   color: #82827b;
-  /* color: white; */
-  /* color: rgba(156, 156, 156, 1); */
   letter-spacing: 2px;
   font-size: 14px;
 }
 
-.doc td {
-  border: 1px solid rgba(56, 56, 56, 0.9);
-  padding: -1px;
-  margin: 0px;
-  height: 30px;
-  width: 30px;
-  text-align: center;
+.markdown > blockquote > blockquote em {
+  color: #4f6079;
+}
+
+.markdown > blockquote > blockquote p {
+  color: #6f88ad;
 }

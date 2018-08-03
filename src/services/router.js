@@ -30,6 +30,9 @@ const router = {
     this.logRouting(history.location);
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
   },
+  navToDocumentationPage(history) {
+    console.log('naving to doc page')
+  },
 
   /* CURRENT LOCATION */
   shouldShowDocumentationModal(location) {
@@ -62,7 +65,27 @@ const router = {
     const lastLocation = locationHistory.lastLocation();
     if (lastLocation && this.shouldShowIntroModal(lastLocation)) { return true; }
     return false;
-  }
+  },
+
+  /* Documentation page handling */
+  documentationPages: [],
+  // a page is an object in the form { displayName, routerName, path }
+  //  the display name is used by the UI
+  //  the router name is used to match routes and is what is shown in the querystring
+  //  the path is the path to the documentation markdown file. It is used by the markdown component
+  registerDocumentationPages(pages) {
+    if (Array.isArray(pages)) {
+      this.documentationPages = this.documentationPages.concat(pages);
+    } else {
+      this.documentationPage.push(pages);
+    }
+  },
+  getDocumentationPage(location) {
+    const parsedQuery = queryString.parse(location.search, { decode: true });
+    const page = parsedQuery.docPage;
+    if (!page && this.documentationPages[0]) return this.documentationPages[0].routerName;
+    return page;
+  },
 };
 
 export { router, locationHistory };

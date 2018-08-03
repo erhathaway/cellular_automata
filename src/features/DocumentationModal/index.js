@@ -1,12 +1,27 @@
 import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
+import { Switch, Route } from 'react-router-dom';
 
 import Doc from './Doc';
 import SideBar from './SideBar';
+import SideBarSection from './SideBarSection';
+
 import { router as routerService } from '../../services';
 
-import doc from '../../docs/what-is-a-automata.md';
+import introductionDoc from '../../docs/what-is-a-automata.md';
+import dimensionDoc from '../../docs/dimension.md';
+
+const PAGES = [
+  { displayName: 'Introduction', routerName: 'introduction', path: introductionDoc },
+  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
+  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
+  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
+  { displayName: 'Dimension', routerName: 'dimension', path: dimensionDoc },
+
+];
+
+routerService.registerDocumentationPages(PAGES);
 
 const Container = styled('div')`
   position: absolute;
@@ -21,10 +36,9 @@ const Container = styled('div')`
 
 const NavContainer = styled('div')`
   position: fixed;
-  left: 100px;
+  left: 150px;
   height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
 `;
 
@@ -34,6 +48,10 @@ const DocContainer = styled('div')`
   padding-left: 150px;
   margin-left: 10px;
 `;
+
+const combineProps = (Scene, initialProps) => props => (
+  <Scene {...initialProps} {...props} />
+);
 
 export default class Component extends React.Component {
   static animateIn() {
@@ -107,13 +125,32 @@ export default class Component extends React.Component {
   }
 
   render() {
+    const { location, history } = this.props;
+    const documentationPage = routerService.getDocumentationPage(location);
+
     return (
       <Container className="doc doc-modal">
         <NavContainer className="doc-nav">
-          <SideBar />
+          <SideBar history={history}>
+            { PAGES.map(({ routerName, displayName }) => (
+              <SideBarSection
+                isActive={documentationPage === routerName}
+                routerName={routerName}
+                displayName={displayName}
+              />
+            ))}
+          </SideBar>
         </NavContainer>
         <DocContainer className="doc-container">
-          <Doc filePath={doc} />
+          <Switch location={location}>
+            { PAGES.map(({ routerName, path }) => {
+              if (documentationPage === routerName) {
+                return <Route path="*" render={combineProps(Doc, { filePath: path })} />
+              }
+              return null
+            })}
+            <Route path="*" render={combineProps(Doc, { filePath: PAGES[0].path })} />
+          </Switch>
         </DocContainer>
       </Container>
     );
