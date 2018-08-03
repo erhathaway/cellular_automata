@@ -27,7 +27,7 @@ const NavContainer = styled('div')`
 `;
 
 const DocContainer = styled('div')`
-  width: 800px;
+  width: 500px;
   height: 100%;
   margin-top: 10%;
   padding-left: 150px;

@@ -10,6 +10,7 @@ const Container = styled('nav')`
   align-items: center;
   border-right: 1px solid rgba(56, 56, 56, 0.6);
   color: rgba(156, 156, 156, 1);
+  letter-spacing: 8px;
 `;
 
 export default class Component extends React.Component {
