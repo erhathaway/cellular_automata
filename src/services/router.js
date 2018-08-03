@@ -31,12 +31,18 @@ const router = {
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
   },
   navToDocumentationPage(history, pageRouterName) {
-    // console.log('naving to doc page')
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     parsedQuery.docPage = pageRouterName
     const location = {...history.location}
     location.search = queryString.stringify(parsedQuery)
-    // console.log(location)
+    history.push(location)
+  },
+  closeDocumentationModal(history) {
+    const parsedQuery = queryString.parse(history.location.search, { decode: true });
+    delete parsedQuery.docPage;
+    delete parsedQuery.documentation;
+    const location = {...history.location}
+    location.search = queryString.stringify(parsedQuery)
     history.push(location)
   },
 
@@ -103,7 +109,7 @@ const router = {
   getNextDocumentationPage(location) {
     const currentPage = this.getSelectedDocumentationPage(location);
     const currentIndex = this.documentationPages.findIndex(p => p.pageRouterName === currentPage.pageRouterName); // eslint-disable-line max-len
-    
+
     if (currentIndex === (this.documentationPages.length - 1) || currentIndex === undefined) return undefined; // eslint-disable-line max-len
     return this.documentationPages[currentIndex + 1];
   },

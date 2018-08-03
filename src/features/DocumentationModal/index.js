@@ -8,6 +8,7 @@ import Page from './Page';
 import PageMenu from './PageMenu';
 import SideBar from './SideBar';
 import SideBarSection from './SideBarSection';
+import ExitButton from './ExitButton';
 
 import { router as routerService } from '../../services';
 
@@ -39,9 +40,11 @@ const Container = styled('div')`
 const NavContainer = styled('div')`
   position: fixed;
   left: 150px;
-  height: 100vh;
+  height: 80vh;
   display: flex;
   align-items: center;
+  flex-direction: column;
+  margin-top: 10vh;
 `;
 
 const DocContainer = styled('div')`
@@ -136,6 +139,7 @@ export default class Component extends React.Component {
     return (
       <Container className="doc doc-modal">
         <NavContainer className="doc-nav">
+          <ExitButton history={history} />
           <SideBar history={history}>
             { PAGES.map(({ pageRouterName, pageDisplayName }) => (
               <SideBarSection
