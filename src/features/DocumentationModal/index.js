@@ -165,19 +165,17 @@ export default class Component extends React.Component {
           </SideBar>
         </NavContainer>
         <DocContainer className="doc-container">
-          <TransitionGroup>
-            { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath }) => ( // eslint-disable-line max-len
-              <Transition key={id} timeout={duration}>
-                { inState => (
-                  <Page
-                    inState={inState}
-                    filePath={pagePath}
-                  />)
-                }
-              </Transition>
-            ))
-            }
-          </TransitionGroup>
+          { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath }) => ( // eslint-disable-line max-len
+            <Transition key={id} timeout={duration}>
+              { inState => (
+                <Page
+                  inState={inState}
+                  filePath={pagePath}
+                />)
+              }
+            </Transition>
+          ))
+          }
           <PageMenu history={history} />
         </DocContainer>
       </Container>
