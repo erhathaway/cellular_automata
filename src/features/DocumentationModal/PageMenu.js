@@ -65,7 +65,7 @@ export default class Component extends React.Component {
 
     const prevPage = routerService.getPreviousDocumentationPage(history.location);
     const nextPage = routerService.getNextDocumentationPage(history.location);
-    console.log(prevPage)
+
     return (
       <Container className="landing-start-button" {...this.props}>
           { prevPage && (

@@ -12,7 +12,7 @@ const Container = styled('div')`
   align-items: center;
 `;
 
-const IconContainer = styled('button')`
+const IconContainer = styled('span')`
   width: 50px;
   height: 50px;
   font-family: 'Roboto', sans-serif;
@@ -25,6 +25,7 @@ const IconContainer = styled('button')`
   color: rgba(56, 56, 56, 0.9);
   display: flex;
   justify-content: center;
+  align-items: center;
   margin: 10px;
 
   &:hover {
@@ -55,10 +56,10 @@ export default class Component extends React.Component {
   render() {
     return (
       <Container>
-        <IconContainer onClick={this.handleExitClick}>
+        <IconContainer role="img" onClick={this.handleExitClick}>
           ❌
         </IconContainer>
-        <IconContainer onClick={this.handleNavtoHomeClick}>
+        <IconContainer role="img" onClick={this.handleNavtoHomeClick}>
           🏠
         </IconContainer>
       </Container>

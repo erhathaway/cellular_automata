@@ -15,6 +15,7 @@ const Container = styled('p')`
   line-height: 28px;
   letter-spacing: 5px;
   text-transform: uppercase;
+  width: 150%;
 `;
 
 export default props => (

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
-import { TransitionGroup, Transition } from 'react-transition-group';
+import { Transition } from 'react-transition-group';
 import uuid from 'uuid';
 
 import Page from './Page';
@@ -72,10 +72,6 @@ const DocContainer = styled('div')`
   margin-left: 10px;
   overflow: hidden;
 `;
-
-const combineProps = (Scene, initialProps) => props => (
-  <Scene {...initialProps} {...props} />
-);
 
 export default class Component extends React.Component {
   static animateIn() {
