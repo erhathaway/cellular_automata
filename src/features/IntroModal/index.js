@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
 
+import { locationHistory as locationHistoryService } from '../../services';
+
 import Title from './Title';
 import Images from './Images';
 import Description from './Description';
@@ -69,8 +71,9 @@ export default class Component extends React.Component {
   animateIn() {
     const { history: { location: { state } } } = this.props;
     const previousLocationName = state ? state.fromLocation : undefined;
+    const locationHistoryLength = locationHistoryService.history.length;
 
-    if (previousLocationName === 'documentation') {
+    if (locationHistoryLength > 1 && previousLocationName === 'documentation') {
       anime({
         targets: '.intro-modal',
         translateX: [-500, 0],
@@ -126,7 +129,7 @@ export default class Component extends React.Component {
   animateOut() {
     const { history: { location: { state } } } = this.props;
     const goingToLocationName = state ? state.atLocation : undefined;
-
+    console.log('exiting')
     if (goingToLocationName === 'documentation') {
       anime({
         translateX: [0, -900],
@@ -146,7 +149,7 @@ export default class Component extends React.Component {
         duration: 1500,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 400,
+        delay: 0,
       });
     }
   }

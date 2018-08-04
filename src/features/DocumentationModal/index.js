@@ -10,7 +10,7 @@ import SideBar from './SideBar';
 import SideBarSection from './SideBarSection';
 import ExitButton from './ExitButton';
 
-import { router as routerService } from '../../services';
+import { router as routerService, locationHistory as locationHistoryService } from '../../services';
 
 import introductionDoc from '../../docs/what-is-a-automata.md';
 import dimensionDoc from '../../docs/dimension.md';
@@ -85,9 +85,9 @@ export default class Component extends React.Component {
   animateIn() {
     const { history: { location: { state } } } = this.props;
     const previousLocationName = state ? state.fromLocation : undefined;
-    // console.log(previousLocationName)
-    // console.log(state)
-    if (previousLocationName === 'intro') {
+    const locationHistoryLength = locationHistoryService.history.length;
+
+    if (locationHistoryLength > 1 && previousLocationName === 'intro') {
       anime({
         targets: '.doc-modal',
         translateX: [1500, 0],
