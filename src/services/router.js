@@ -32,18 +32,28 @@ const router = {
   },
   navToDocumentationPage(history, pageRouterName) {
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
-    parsedQuery.docPage = pageRouterName
-    const location = {...history.location}
-    location.search = queryString.stringify(parsedQuery)
-    history.push(location)
+    parsedQuery.docPage = pageRouterName;
+    const location = { ...history.location };
+    location.search = queryString.stringify(parsedQuery);
+    history.push(location);
   },
   closeDocumentationModal(history) {
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     delete parsedQuery.docPage;
     delete parsedQuery.documentation;
-    const location = {...history.location}
-    location.search = queryString.stringify(parsedQuery)
-    history.push(location)
+    const location = { ...history.location };
+    location.search = queryString.stringify(parsedQuery);
+    history.push(location);
+  },
+  navToIntroModalFromDocumentationModal(history) {
+    const parsedQuery = queryString.parse(history.location.search, { decode: true });
+    delete parsedQuery.docPage;
+    delete parsedQuery.documentation;
+    parsedQuery.intro = true;
+    const location = { ...history.location };
+    location.search = queryString.stringify(parsedQuery);
+    location.state.hideIntro = false;
+    history.push(location);
   },
 
   /* CURRENT LOCATION */

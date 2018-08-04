@@ -1,4 +1,4 @@
-# Dimensions of a automata population
+# Dimensions of an automata population
 
 A population of cells can exist in any number of dimensions.
 

@@ -13,7 +13,7 @@ const Container = styled('nav')`
   padding-bottom: 10px;
   margin-right: 50px;
   ${({ isSelected }) => (isSelected && 'border-bottom: 1px solid white;')}
-  ${({ isSelected }) => (isSelected && 'margin-bottom: 30px; margin-top: 30px;')}
+  ${({ isSelected }) => (isSelected && 'margin-bottom: 15px; margin-top: 10px;')}
 
   ${({ isSelected }) => !isSelected && '&:hover {border-color: green; color: green; cursor: pointer; }'}
 `;

@@ -25,6 +25,7 @@ const IconContainer = styled('button')`
   color: rgba(56, 56, 56, 0.9);
   display: flex;
   justify-content: center;
+  margin: 10px;
 
   &:hover {
     border-color: green;
@@ -37,19 +38,28 @@ export default class Component extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClick = this.handleClick.bind(this);
+    this.handleExitClick = this.handleExitClick.bind(this);
+    this.handleNavtoHomeClick = this.handleNavtoHomeClick.bind(this);
   }
 
-  handleClick() {
+  handleExitClick() {
     const { history } = this.props;
     routerService.closeDocumentationModal(history);
+  }
+
+  handleNavtoHomeClick() {
+    const { history } = this.props;
+    routerService.navToIntroModalFromDocumentationModal(history);
   }
 
   render() {
     return (
       <Container>
-        <IconContainer onClick={this.handleClick}>
+        <IconContainer onClick={this.handleExitClick}>
           ❌
+        </IconContainer>
+        <IconContainer onClick={this.handleNavtoHomeClick}>
+          🏠
         </IconContainer>
       </Container>
     );

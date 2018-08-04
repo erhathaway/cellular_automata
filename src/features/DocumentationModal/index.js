@@ -14,6 +14,9 @@ import { router as routerService } from '../../services';
 
 import introductionDoc from '../../docs/what-is-a-automata.md';
 import dimensionDoc from '../../docs/dimension.md';
+import stateDoc from '../../docs/state.md';
+import viewerDoc from '../../docs/viewer.md';
+import neighborsDoc from '../../docs/neighbors.md';
 
 const PAGES = [
   {
@@ -22,19 +25,30 @@ const PAGES = [
   {
     id: uuid(), pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
   },
+  {
+    id: uuid(), pageDisplayName: 'Neighbors', pageRouterName: 'neighbors', pagePath: neighborsDoc,
+  },
+  {
+    id: uuid(), pageDisplayName: 'State', pageRouterName: 'state', pagePath: stateDoc,
+  },
+  {
+    id: uuid(), pageDisplayName: 'Viewer', pageRouterName: 'viewer', pagePath: viewerDoc,
+  },
 ];
 
 routerService.registerDocumentationPages(PAGES);
 
 const Container = styled('div')`
-  position: absolute;
+  position: relative;
   background-color: black;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   z-index: 1;
-  overflow: hidden;
+  overflow-y: scroll;
+  height: 100vh;
+
 `;
 
 const NavContainer = styled('div')`
@@ -49,7 +63,6 @@ const NavContainer = styled('div')`
 
 const DocContainer = styled('div')`
   position: relative;
-  height: 100%;
   width: 500px;
   padding-left: 150px;
   margin-left: 10px;
