@@ -23,10 +23,10 @@ export default class Component extends React.Component {
   static animateIn() {
     anime({
       targets: '.markdown-container',
-      left: [50, 0],
+      left: [20, 0],
       opacity: [0, 1],
       duration: 500,
-      elasticity: 100,
+      elasticity: 500,
       easing: 'easeOutQuint',
       delay: 0,
     });

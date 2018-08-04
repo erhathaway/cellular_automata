@@ -106,7 +106,7 @@ In the above example, it's important to note that the middle cell only has ***tw
 
 A rule describes how each cell changes (or *evolves*) over time. Usually the same rule is applied to each cell.
 
-Lets start with a simple rule...
+Lets run through with a simple rule...
 
 
 ```
@@ -170,4 +170,4 @@ From the way *Generation 3* looks, we can say our population of cells evolves to
 
 By now you should understand that a cellular automata is a ***population of cells*** that ***evolve*** together, from one ***generation*** to the next, based on some rule that looks at the ***state*** of the ***neighboring*** cells!
 
-The following topics investigate neighborhoods, cell states, common rules in more detail.
+Read on for a more through discussion about dimensions, neighborhoods, cell states, and common rules...

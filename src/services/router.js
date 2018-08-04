@@ -24,13 +24,17 @@ const router = {
 
   navToView(history) {
     this.logRouting(history.location);
+
     history.push({ pathname: '/view', search: '?intro=true', state: { hideIntro: true } });
   },
   navToDocumentation(history) {
     this.logRouting(history.location);
+
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
   },
   navToDocumentationPage(history, pageRouterName) {
+    this.logRouting(history.location);
+
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     parsedQuery.docPage = pageRouterName;
     const location = { ...history.location };
@@ -38,6 +42,8 @@ const router = {
     history.push(location);
   },
   closeDocumentationModal(history) {
+    this.logRouting(history.location);
+
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     delete parsedQuery.docPage;
     delete parsedQuery.documentation;
@@ -46,6 +52,8 @@ const router = {
     history.push(location);
   },
   navToIntroModalFromDocumentationModal(history) {
+    this.logRouting(history.location);
+
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     delete parsedQuery.docPage;
     delete parsedQuery.documentation;

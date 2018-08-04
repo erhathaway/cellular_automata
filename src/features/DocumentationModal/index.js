@@ -14,6 +14,7 @@ import { router as routerService } from '../../services';
 
 import introductionDoc from '../../docs/what-is-a-automata.md';
 import dimensionDoc from '../../docs/dimension.md';
+import generationsDoc from '../../docs/generations.md';
 import stateDoc from '../../docs/state.md';
 import viewerDoc from '../../docs/viewer.md';
 import neighborsDoc from '../../docs/neighbors.md';
@@ -26,13 +27,16 @@ const PAGES = [
     id: uuid(), pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
   },
   {
+    id: uuid(), pageDisplayName: 'Generations', pageRouterName: 'generations', pagePath: generationsDoc,
+  },
+  {
+    id: uuid(), pageDisplayName: 'Viewer', pageRouterName: 'viewer', pagePath: viewerDoc,
+  },
+  {
     id: uuid(), pageDisplayName: 'Neighbors', pageRouterName: 'neighbors', pagePath: neighborsDoc,
   },
   {
     id: uuid(), pageDisplayName: 'State', pageRouterName: 'state', pagePath: stateDoc,
-  },
-  {
-    id: uuid(), pageDisplayName: 'Viewer', pageRouterName: 'viewer', pagePath: viewerDoc,
   },
 ];
 

@@ -1,6 +1,6 @@
-# Dimensions of an automata population
+# Dimensions of an automata
 
-A population of cells can exist in any number of dimensions.
+A population of cells (the cellular automata) can exist in any number of dimensions.
 
 Traditionally, a population is represented in either ***One***, ***Two***, or ***Three*** dimensions.
 
@@ -16,7 +16,7 @@ A one dimension population has cells positioned only along one dimension.
 |---|---|---|---|---|
 | ◉ | ◯ | ◯ | ◉ | ◯ |
 
- If using a grid, this is represented by having a Y axis that is only one grid unit high. Here, this grid is 5x1 in size.
+ This is represented by having a Y axis that is only one grid unit high. Here, this grid is 5x1 in size.
 
 
 ## Two Dimensions
@@ -34,4 +34,4 @@ A two dimension population has cells positioned along two dimensions.
 | ◯ | ◯ | ◉ | ◯ | ◉ |
 | ◉ | ◉ | ◯ | ◯ | ◯ |
 
-If using a grid, this is represented by having an X and Y axis that are multiple grid units in length. Here, the grid is 5x4 in size. Thus, this automata population is 5x5 in size.
+This is represented by having an X and Y axis that are one or more grid units in length. Here, the grid is 5x4 in size. Thus, this automata population is 5x4 in size.

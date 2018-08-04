@@ -22,6 +22,7 @@ const Container = styled('div')`
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  z-index: 1;
 `;
 
 const Middle = styled('div')`
