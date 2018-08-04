@@ -3,10 +3,12 @@ import queryString from 'query-string';
 class LocationHistory {
   constructor() {
     this.history = [];
+    this.maxHistoryLength = 100;
   }
 
   lastLocation() {
-    return this.history.splice(-1)[0];
+    this.history.splice(-this.maxHistoryLength);
+    return this.history.slice(-1)[0];
   }
 
   addLocation(location) {
@@ -17,24 +19,15 @@ class LocationHistory {
 const locationHistory = new LocationHistory();
 
 const router = {
-  logRouting(location)  {
-    locationHistory.addLocation(location);
-  },
   /* NAV */
 
   navToView(history) {
-    this.logRouting(history.location);
-
     history.push({ pathname: '/view', search: '?intro=true', state: { hideIntro: true } });
   },
   navToDocumentation(history) {
-    this.logRouting(history.location);
-
     history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
   },
   navToDocumentationPage(history, pageRouterName) {
-    this.logRouting(history.location);
-
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     parsedQuery.docPage = pageRouterName;
     const location = { ...history.location };
@@ -42,8 +35,6 @@ const router = {
     history.push(location);
   },
   closeDocumentationModal(history) {
-    this.logRouting(history.location);
-
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     delete parsedQuery.docPage;
     delete parsedQuery.documentation;
@@ -52,8 +43,6 @@ const router = {
     history.push(location);
   },
   navToIntroModalFromDocumentationModal(history) {
-    this.logRouting(history.location);
-
     const parsedQuery = queryString.parse(history.location.search, { decode: true });
     delete parsedQuery.docPage;
     delete parsedQuery.documentation;
@@ -87,7 +76,7 @@ const router = {
   /* PREIVOUS LOCATION */
   isComingFromDocumentationModal() {
     const lastLocation = locationHistory.lastLocation();
-    console.log('from doc', lastLocation)
+    // console.log('from doc', lastLocation)
     if (lastLocation && this.shouldShowDocumentationModal(lastLocation)) { return true; }
     return false;
   },

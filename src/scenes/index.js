@@ -10,13 +10,23 @@ import { IntroModal, DocumentationModal } from '../features';
 import ViewScene from './View';
 import ExploreScene from './Explore';
 
-// class LocationHistoryComponent extends React.Component {
-//   componentWillReceiveProps() {
-//     const { location } = this.props;
-//     console.log('reciveing props')
-//     locationHistory.addLocation(location);
-//   }
-// }
+// treats all router location changes as a continual movement forward in history
+//  regardless if the backbutton is used
+//  this allows us to use the routerService.locationHistory to accurately tell where we came from
+class LocationHistoryRecorder extends React.Component {
+  componentWillUpdate({ history: { location: newLocation } }) {
+    const { location: currentLocation } = this.props;
+
+    if (JSON.stringify(currentLocation) !== JSON.stringify(newLocation)) {
+      locationHistory.addLocation(currentLocation);
+    }
+  }
+
+  render() {
+    const { children } = this.props;
+    return children;
+  }
+}
 
 const Container = styled('div')`
   height: 100vh;
@@ -58,10 +68,16 @@ const QueryStringHandler = ({ location, history }) => {
 };
 
 
+const MainRoute = (props) => (
+  <LocationHistoryRecorder {...props}>
+    <QueryStringHandler {...props}/>
+  </LocationHistoryRecorder>
+)
+
 export default () => {
   return (
     <BrowserRouter>
-      <Route path="*" component={QueryStringHandler} />
+        <Route path="*" component={MainRoute} />
     </BrowserRouter>
   );
 };
