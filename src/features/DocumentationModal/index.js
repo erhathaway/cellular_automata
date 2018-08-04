@@ -79,6 +79,8 @@ export default class Component extends React.Component {
   }
 
   componentWillUpdate({ inState }) {
+    console.log('doc modal - inState:', inState);
+
     if (inState === 'exiting') { this.animateOut(); }
   }
 
@@ -94,7 +96,7 @@ export default class Component extends React.Component {
         opacity: [0, 1],
         duration: 1000,
         elasticity: 100,
-        delay: 0,
+        delay: 500,
         easing: 'easeOutQuint',
       });
     } else {
@@ -170,7 +172,7 @@ export default class Component extends React.Component {
         </NavContainer>
         <DocContainer className="doc-container">
           { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath }) => ( // eslint-disable-line max-len
-            <Transition key={id} timeout={duration}>
+            <Transition key={location.key+1} timeout={duration}>
               { inState => (
                 <Page
                   inState={inState}

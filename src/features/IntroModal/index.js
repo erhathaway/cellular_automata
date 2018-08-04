@@ -65,6 +65,7 @@ export default class Component extends React.Component {
   }
 
   componentWillUpdate({ inState }) {
+    console.log('intro modal - inState:', inState);
     if (inState === 'exiting') { this.animateOut(); }
   }
 
@@ -129,7 +130,7 @@ export default class Component extends React.Component {
   animateOut() {
     const { history: { location: { state } } } = this.props;
     const goingToLocationName = state ? state.atLocation : undefined;
-    console.log('exiting')
+
     if (goingToLocationName === 'documentation') {
       anime({
         translateX: [0, -900],

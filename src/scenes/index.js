@@ -47,34 +47,118 @@ const combineProps = (Scene, initialProps) => props => (
   <Scene {...initialProps} {...props} />
 );
 
+const renderMe = (Scene, initialProps) =>  (
+  <Scene {...initialProps}/>
+);
+
+
 const duration = 1000;
 
 const QueryStringHandler = ({ location, history }) => {
   const showDocumentation = routerService.isShowingDocumentationModal(history.location);
   const showIntro = routerService.isShowingIntroModal(history.location);
+  console.log('showintro', showIntro, "\n", 'showdoc', showDocumentation);
 
+  const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
+  // console.log('at loc', atLocation)
   return (
     <Container>
       <TransitionGroup>
         <Transition
-          key={location.pathname}
+          key={`modal-transition-${atLocation}`}
           timeout={duration}
         >
           {inState => (
-            <Switch location={location}>
-              { showDocumentation && <Route path="*" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />}
-              { showIntro && <Route path="*" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />}
+            <Switch key="567890" location={location}>
+              { showDocumentation && <Route path="*" key="1234" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />}
+              { showIntro && <Route path="*" key="4567" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />}
             </Switch>
           )}
         </Transition>
       </TransitionGroup>
-      <Switch>
+      <Switch key="123" location={location}>
         <Route path="/explore" component={ExploreScene} />
         <Route path="*" component={ViewScene} />
       </Switch>
     </Container>
   );
 };
+
+
+// <Container>
+//   <TransitionGroup>
+//       <Transition
+//         key={location.key}
+//         timeout={duration}
+//         in={showDocumentation}
+//       >
+//         { inState => showDocumentation && <DocumentationModal history={history} location={location} inState={inState} transitionDuration={duration} /> }
+//       </Transition>
+//       <Transition
+//         key={location.key+'1'}
+//         timeout={duration}
+//         in={showIntro}
+//       >
+//         { inState => showIntro && <IntroModal history={history} location={location} inState={inState} transitionDuration={duration} /> }
+//       </Transition>
+//   </TransitionGroup>
+//   <Switch>
+//     <Route path="/explore" component={ExploreScene} />
+//     <Route path="*" component={ViewScene} />
+//   </Switch>
+// </Container>
+
+
+// <Container>
+//   <TransitionGroup>
+//     <Transition
+//       key={location.key}
+//       timeout={duration}
+//     >
+//       {inState => (
+//         <Switch key="switch-1-key" location={{ ...location, pathname: `/${atLocation}` }}>
+//           <Route path="/documentation" key="1234" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />
+//           <Route path="/intro" key="4567" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />
+//         </Switch>
+//       )}
+//     </Transition>
+//   </TransitionGroup>
+//   <Switch key="switch-2-key" location={location}>
+//     <Route path="/explore" component={ExploreScene} />
+//     <Route path="*" component={ViewScene} />
+//   </Switch>
+// </Container>
+
+// <Container>
+//   <TransitionGroup>
+//     {
+//       [{ scene: DocumentationModal, show: showDocumentation }, { scene: IntroModal, show: showIntro }].map(({ scene, show }) => {
+//         if (show) return (
+//           <Transition
+//             key={location.pathname}
+//             timeout={duration}
+//             in={show}
+//           >
+//             {
+//               (inState) => renderMe(scene, { inState, history, location, transitionDuration: duration })
+//             }
+//           </Transition>
+//         )
+//         return null;
+//       })
+//     }
+//   </TransitionGroup>
+//   <Switch>
+//     <Route path="/explore" component={ExploreScene} />
+//     <Route path="*" component={ViewScene} />
+//   </Switch>
+// </Container>
+
+
+
+
+
+
 
 
 const MainRoute = (props) => (
