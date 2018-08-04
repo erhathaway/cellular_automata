@@ -36,7 +36,7 @@ export default class Component extends React.Component {
 
   handleClick() {
     const { history } = this.props;
-    routerSerivce.navToDocumentation(history);
+    routerSerivce.openDocumentationModalPage(history);
   }
 
   render() {

@@ -41,8 +41,8 @@ const combineProps = (Scene, initialProps) => props => (
 const duration = 1000;
 
 const QueryStringHandler = ({ location, history }) => {
-  const showDocumentation = routerService.shouldShowDocumentationModal(history.location);
-  const showIntro = routerService.shouldShowIntroModal(history.location);
+  const showDocumentation = routerService.isShowingDocumentationModal(history.location);
+  const showIntro = routerService.isShowingIntroModal(history.location);
 
   return (
     <Container>

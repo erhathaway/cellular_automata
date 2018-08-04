@@ -75,7 +75,8 @@ const DocContainer = styled('div')`
 
 export default class Component extends React.Component {
   static animateIn() {
-    if (routerService.isComingFromIntroModal()) {
+    const previousLocationName = routerService.previousLocationName();
+    if (previousLocationName === 'intro') {
       anime({
         targets: '.doc-modal',
         translateX: [1500, 0],
@@ -118,7 +119,7 @@ export default class Component extends React.Component {
 
   animateOut() {
     const { history: { location } } = this.props;
-    const willShowDocumentationMoal = routerService.shouldShowIntroModal(location);
+    const willShowDocumentationMoal = routerService.isShowingDocumentationModal(location);
 
     if (willShowDocumentationMoal) {
       anime({

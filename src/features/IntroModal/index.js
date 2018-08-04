@@ -61,7 +61,9 @@ const Bottom = styled('div')`
 
 export default class Component extends React.Component {
   static animateIn() {
-    if (routerService.isComingFromDocumentationModal()) {
+    const previousLocationName = routerService.previousLocationName();
+
+    if (previousLocationName === 'documentation') {
       anime({
         targets: '.intro-modal',
         translateX: [-500, 0],
@@ -124,10 +126,11 @@ export default class Component extends React.Component {
   }
 
   animateOut() {
-    if (routerService.isComingFromDocumentationModal()) { return } // safety check in case browser history and back button action aren't in sync
+    // if (routerService.isComingFromDocumentationModal()) { return } // safety check in case browser history and back button action aren't in sync
 
-    const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history.location)
-    if (willShowDocumentationMoal) {
+    const goingToLocationName = routerService.getLocationName(this.props.history.location);
+    // const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history.location)
+    if (goingToLocationName === 'documentation') {
       anime({
         translateX: [0, -900],
         targets: '.intro-modal',

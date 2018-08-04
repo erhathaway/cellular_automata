@@ -2,12 +2,12 @@ import queryString from 'query-string';
 
 class LocationHistory {
   constructor() {
-    this.history = [];
+    this.history = [{ pathname: '/', search: '', state: {} }];
     this.maxHistoryLength = 100;
   }
 
   lastLocation() {
-    this.history.splice(-this.maxHistoryLength);
+    this.history = this.history.slice(-this.maxHistoryLength);
     return this.history.slice(-1)[0];
   }
 
@@ -19,74 +19,109 @@ class LocationHistory {
 const locationHistory = new LocationHistory();
 
 const router = {
+  /* ------------------------ */
+  /* UTILITIES */
+  /* ------------------------ */
+
+  updateLocationToCloseModals(location) {
+    // hide intro in state field
+    const newState = { ...location.state };
+    newState.hideIntro = true;
+
+    // remove modal info from query string
+    const parsedQuery = queryString.parse(location.search, { decode: true });
+    delete parsedQuery.modal;
+    delete parsedQuery.docPage;
+
+    // create new location object
+    const newLocation = { ...location };
+    newLocation.search = queryString.stringify(parsedQuery);
+    newLocation.state = newState;
+
+    return newLocation;
+  },
+  addToQueryString(exitingQueryString, objs) {
+    const parsedQuery = queryString.parse(exitingQueryString, { decode: true });
+    const newQuery = { ...parsedQuery, ...objs };
+    return queryString.stringify(newQuery);
+  },
+  getLocationName(location) {
+    if (this.isShowingIntroModal(location)) { return 'intro'; }
+    if (this.isShowingDocumentationModal(location)) { return 'documentation'; }
+    if (this.isAtView(location)) { return 'view'; }
+    if (this.isAtExplore(location)) { return 'explore'; }
+    return 'intro';
+  },
+
+  /* ------------------------ */
   /* NAV */
+  /* ------------------------ */
 
   navToView(history) {
-    history.push({ pathname: '/view', search: '?intro=true', state: { hideIntro: true } });
+    const newLocation = this.updateLocationToCloseModals(history.location);
+    history.push({ pathname: '/view', search: newLocation.search, state: newLocation.state });
   },
-  navToDocumentation(history) {
-    history.push({ pathname: '/view', search: '?documentation=true', state: { hideIntro: true } });
+  navToExplore(history) {
+    const newLocation = this.updateLocationToCloseModals(history.location);
+    history.push({ pathname: '/explore', search: newLocation.search, state: newLocation.state });
   },
-  navToDocumentationPage(history, pageRouterName) {
-    const parsedQuery = queryString.parse(history.location.search, { decode: true });
-    parsedQuery.docPage = pageRouterName;
-    const location = { ...history.location };
-    location.search = queryString.stringify(parsedQuery);
-    history.push(location);
+  openIntroModal(history) {
+    const newLocation = this.updateLocationToCloseModals(history.location);
+    const newSearch = this.addToQueryString(newLocation.search, { modal: 'intro' }); // modals are shown via the 'modal' field in the query string
+    history.push({ pathname: newLocation.pathname, search: newSearch, state: newLocation.state }); // pass on all pathname and state info
   },
-  closeDocumentationModal(history) {
-    const parsedQuery = queryString.parse(history.location.search, { decode: true });
-    delete parsedQuery.docPage;
-    delete parsedQuery.documentation;
-    const location = { ...history.location };
-    location.search = queryString.stringify(parsedQuery);
-    history.push(location);
+  openDocumentationModalPage(history, pageRouterName) {
+    const newLocation = this.updateLocationToCloseModals(history.location);
+    const newSearch = this.addToQueryString(newLocation.search, { modal: 'documentation', docPage: pageRouterName }); // modals are shown via the 'modal' field in the query string
+    history.push({ pathname: newLocation.pathname, search: newSearch, state: newLocation.state }); // pass on all pathname and state info
   },
-  navToIntroModalFromDocumentationModal(history) {
-    const parsedQuery = queryString.parse(history.location.search, { decode: true });
-    delete parsedQuery.docPage;
-    delete parsedQuery.documentation;
-    parsedQuery.intro = true;
-    const location = { ...history.location };
-    location.search = queryString.stringify(parsedQuery);
-    location.state.hideIntro = false;
-    history.push(location);
+  closeModal(history) {
+    const newLocation = this.updateLocationToCloseModals(history.location);
+    history.push(newLocation);
   },
 
+  /* ------------------------ */
   /* CURRENT LOCATION */
-  shouldShowDocumentationModal(location) {
-    const parsedQuery = queryString.parse(location.search, { decode: true });
-    const showDocumentation = parsedQuery.documentation === 'true';
-    return showDocumentation;
-  },
-  shouldShowIntroModal(location) {
-    const parsedQuery = queryString.parse(location.search, { decode: true });
+  /* ------------------------ */
+  isAtView(location) {
+    if (this.isShowingModal(location)) return false;
 
+    return location.pathname === '/view';
+  },
+  isAtExplore(location) {
+    if (this.isShowingModal(location)) return false;
+
+    return location.pathname === '/view';
+  },
+  isShowingModal(location) {
+    return this.isShowingIntroModal(location) || this.isShowingDocumentationModal(location);
+  },
+  isShowingDocumentationModal(location) {
+    const parsedQuery = queryString.parse(location.search, { decode: true });
+    return parsedQuery.modal === 'documentation';
+  },
+  isShowingIntroModal(location) {
+    const parsedQuery = queryString.parse(location.search, { decode: true });
     const hideIntro = (location && location.state && location.state.hideIntro === true) || false; // eslint-disable-line max-len
-    const showIntro = !hideIntro && (parsedQuery.intro === 'true' || !parsedQuery.intro);
 
-    return showIntro;
+    return parsedQuery.modal === 'intro' || !hideIntro;
   },
-  isRoutingToView(history) {
+  currentLocationName(location) {
+    return this.getLocationName(location);
+  },
 
-  },
-  isRoutingToExplore(history) {
-
-  },
+  /* ------------------------ */
   /* PREIVOUS LOCATION */
-  isComingFromDocumentationModal() {
+  /* ------------------------ */
+
+  previousLocationName() {
     const lastLocation = locationHistory.lastLocation();
-    // console.log('from doc', lastLocation)
-    if (lastLocation && this.shouldShowDocumentationModal(lastLocation)) { return true; }
-    return false;
-  },
-  isComingFromIntroModal() {
-    const lastLocation = locationHistory.lastLocation();
-    if (lastLocation && this.shouldShowIntroModal(lastLocation)) { return true; }
-    return false;
+    return this.getLocationName(lastLocation);
   },
 
+  /* ----------------------------*/
   /* Documentation page handling */
+  /* ----------------------------*/
   documentationPages: [],
   // a page is an object in the form { pageDisplayName, pageRouterName, pagePath }
   //  the display name is used by the UI
@@ -97,7 +132,7 @@ const router = {
       this.documentationPages = this.documentationPages.concat(pages);
     } else {
       this.documentationPage.push(pages);
-    }
+     }
   },
   getSelectedDocumentationPage(location) {
     const parsedQuery = queryString.parse(location.search, { decode: true });

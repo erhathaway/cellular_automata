@@ -45,12 +45,12 @@ export default class Component extends React.Component {
 
   handleExitClick() {
     const { history } = this.props;
-    routerService.closeDocumentationModal(history);
+    routerService.closeModal(history);
   }
 
   handleNavtoHomeClick() {
     const { history } = this.props;
-    routerService.navToIntroModalFromDocumentationModal(history);
+    routerService.openIntroModal(history);
   }
 
   render() {

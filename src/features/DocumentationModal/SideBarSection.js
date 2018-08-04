@@ -27,7 +27,7 @@ export default class Component extends React.Component {
 
   handleClick() {
     const { history, pageRouterName } = this.props;
-    routerService.navToDocumentationPage(history, pageRouterName);
+    routerService.openDocumentationModalPage(history, pageRouterName);
   }
 
   render() {
