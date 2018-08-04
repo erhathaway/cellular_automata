@@ -12,7 +12,9 @@ class LocationHistory {
   }
 
   addLocation(location) {
-    this.history.push({ ...location });
+    if (JSON.stringify(this.lastLocation()) !== JSON.stringify(location)) {
+      this.history.push({ ...location });
+    }
   }
 }
 
@@ -50,7 +52,28 @@ const router = {
     if (this.isShowingDocumentationModal(location)) { return 'documentation'; }
     if (this.isAtView(location)) { return 'view'; }
     if (this.isAtExplore(location)) { return 'explore'; }
-    return 'intro';
+    return 'view';
+  },
+  extractRelevantInfoFromLocationForChangeComparison(location) {
+    return {
+      pathname: location.pathname,
+      search: location.search,
+      state: { ...location.state, fromLocation: undefined, atLocation: undefined },
+    };
+  },
+
+  /* ------------------------ */
+  /* History */
+  /* ------------------------ */
+  updateStateHistory(history, from, at) {
+    const updatedLocation = { ...history.location };
+    updatedLocation.state = { ...updatedLocation.state, fromLocation: from, atLocation: at };
+    history.replace(updatedLocation); // use 'replace' instead of 'push' to prevent rerender
+  },
+  hasLocationChanged(newLocation, oldLocation) {
+    const newLoc = this.extractRelevantInfoFromLocationForChangeComparison(newLocation);
+    const oldLoc = this.extractRelevantInfoFromLocationForChangeComparison(oldLocation);
+    return JSON.stringify(newLoc) !== JSON.stringify(oldLoc);
   },
 
   /* ------------------------ */

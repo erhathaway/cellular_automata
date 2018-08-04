@@ -14,12 +14,21 @@ import ExploreScene from './Explore';
 //  regardless if the backbutton is used
 //  this allows us to use the routerService.locationHistory to accurately tell where we came from
 class LocationHistoryRecorder extends React.Component {
-  componentWillUpdate({ history: { location: newLocation } }) {
+  shouldComponentUpdate({ history: newHistory }) {
     const { location: currentLocation } = this.props;
+    const { location: newLocation } = newHistory;
 
-    if (JSON.stringify(currentLocation) !== JSON.stringify(newLocation)) {
+    if (routerService.hasLocationChanged(newLocation, currentLocation)) {
       locationHistory.addLocation(currentLocation);
+      const from = routerService.previousLocationName();
+      const at = routerService.getLocationName(newLocation);
+      routerService.updateStateHistory(newHistory, from, at);
+      return false
     }
+    // console.log('from:', newHistory.location.state.fromLocation)
+    // console.log('at:', newHistory.location.state.atLocation)
+
+    return true
   }
 
   render() {

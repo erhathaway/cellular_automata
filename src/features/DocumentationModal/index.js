@@ -74,8 +74,19 @@ const DocContainer = styled('div')`
 `;
 
 export default class Component extends React.Component {
-  static animateIn() {
-    const previousLocationName = routerService.previousLocationName();
+  componentDidMount() {
+    this.animateIn();
+  }
+
+  componentWillUpdate({ inState }) {
+    if (inState === 'exiting') { this.animateOut(); }
+  }
+
+  animateIn() {
+    const { history: { location: { state } } } = this.props;
+    const previousLocationName = state ? state.fromLocation : undefined;
+    // console.log(previousLocationName)
+    // console.log(state)
     if (previousLocationName === 'intro') {
       anime({
         targets: '.doc-modal',
@@ -109,19 +120,11 @@ export default class Component extends React.Component {
     }
   }
 
-  componentDidMount() {
-    Component.animateIn();
-  }
-
-  componentWillUpdate({ inState }) {
-    if (inState === 'exiting') { this.animateOut(); }
-  }
-
   animateOut() {
-    const { history: { location } } = this.props;
-    const willShowDocumentationMoal = routerService.isShowingDocumentationModal(location);
+    const { history: { location: { state } } } = this.props;
+    const atLocationName = state ? state.atLocation : undefined;
 
-    if (willShowDocumentationMoal) {
+    if (atLocationName === 'documentation') {
       anime({
         translateX: [0, 900],
         targets: '.doc-modal',

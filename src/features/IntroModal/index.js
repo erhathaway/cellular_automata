@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
 
-import { router as routerService } from '../../services';
-
 import Title from './Title';
 import Images from './Images';
 import Description from './Description';
@@ -60,8 +58,17 @@ const Bottom = styled('div')`
 `;
 
 export default class Component extends React.Component {
-  static animateIn() {
-    const previousLocationName = routerService.previousLocationName();
+  componentDidMount() {
+    this.animateIn();
+  }
+
+  componentWillUpdate({ inState }) {
+    if (inState === 'exiting') { this.animateOut(); }
+  }
+
+  animateIn() {
+    const { history: { location: { state } } } = this.props;
+    const previousLocationName = state ? state.fromLocation : undefined;
 
     if (previousLocationName === 'documentation') {
       anime({
@@ -116,20 +123,10 @@ export default class Component extends React.Component {
     }
   }
 
-
-  componentDidMount() {
-    Component.animateIn();
-  }
-
-  componentWillUpdate({ inState }) {
-    if (inState === 'exiting') { this.animateOut(); }
-  }
-
   animateOut() {
-    // if (routerService.isComingFromDocumentationModal()) { return } // safety check in case browser history and back button action aren't in sync
+    const { history: { location: { state } } } = this.props;
+    const goingToLocationName = state ? state.atLocation : undefined;
 
-    const goingToLocationName = routerService.getLocationName(this.props.history.location);
-    // const willShowDocumentationMoal = routerService.shouldShowDocumentationModal(this.props.history.location)
     if (goingToLocationName === 'documentation') {
       anime({
         translateX: [0, -900],
