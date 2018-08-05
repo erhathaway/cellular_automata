@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
-import { Transition } from 'react-transition-group';
+import { TransitionGroup, Transition } from 'react-transition-group';
+import { Switch, Route } from 'react-router-dom';
+
 import uuid from 'uuid';
 
 import Page from './Page';
@@ -42,14 +44,21 @@ const PAGES = [
 
 routerService.registerDocumentationPages(PAGES);
 
+const combineProps = (Scene, initialProps) => props => (
+  <Scene {...initialProps} {...props} />
+);
+
 const Container = styled('div')`
-  position: relative;
-  background-color: black;
+  position: fixed;
+  left: 0,
+  top: 0,
+  opacity: 1;
+  background-color: rgba(0,0,0,0.9);
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  z-index: 1;
+  z-index: 2;
   overflow-y: scroll;
   height: 100vh;
 
@@ -66,7 +75,7 @@ const NavContainer = styled('div')`
 `;
 
 const DocContainer = styled('div')`
-  position: relative;
+  position: static;
   width: 500px;
   padding-left: 150px;
   margin-left: 10px;
@@ -92,11 +101,11 @@ export default class Component extends React.Component {
     if (locationHistoryLength > 1 && previousLocationName === 'intro') {
       anime({
         targets: '.doc-modal',
-        translateX: [1500, 0],
+        translateX: [500, 0],
         opacity: [0, 1],
-        duration: 1000,
-        elasticity: 100,
-        delay: 500,
+        duration: 1500,
+        elasticity: 0,
+        delay: 300,
         easing: 'easeOutQuint',
       });
     } else {
@@ -126,7 +135,7 @@ export default class Component extends React.Component {
     const { history: { location: { state } } } = this.props;
     const atLocationName = state ? state.atLocation : undefined;
 
-    if (atLocationName === 'documentation') {
+    if (atLocationName === 'intro') {
       anime({
         translateX: [0, 900],
         targets: '.doc-modal',
@@ -153,7 +162,7 @@ export default class Component extends React.Component {
   render() {
     const { location, history } = this.props;
     const selectedDocPage = routerService.getSelectedDocumentationPage(location);
-    const duration = 500;
+    const duration = 1500;
 
     return (
       <Container className="doc doc-modal">
@@ -171,20 +180,39 @@ export default class Component extends React.Component {
           </SideBar>
         </NavContainer>
         <DocContainer className="doc-container">
-          { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath }) => ( // eslint-disable-line max-len
-            <Transition key={location.key+1} timeout={duration}>
-              { inState => (
-                <Page
-                  inState={inState}
-                  filePath={pagePath}
-                />)
-              }
+          <TransitionGroup key="123">
+            <Transition
+              key={`doc-page-modal-transition-${selectedDocPage.pageRouterName}` }
+              timeout={{
+                enter: 500,
+                exit: 0,
+              }}
+              unmountOnExit
+            >
+              {inState => (
+                <Switch key="switch-1-key" location={{ ...location, pathname: `/${selectedDocPage.pageRouterName}` }}>
+                  { PAGES.map(({ id, pagePath, pageRouterName }) => (
+                    <Route path={`/${pageRouterName}`} key={`route-key-doc-page-${pageRouterName}`} render={combineProps(Page, { inState, filePath: pagePath })} />
+                  ))}
+                </Switch>
+              )}
             </Transition>
-          ))
-          }
+          </TransitionGroup>
           <PageMenu history={history} />
         </DocContainer>
       </Container>
     );
   }
 }
+
+// { PAGES.filter(page => page.pageRouterName === selectedDocPage.pageRouterName).map(({ id, pagePath, pageRouterName }) => ( // eslint-disable-line max-len
+//   <Transition key={`transition-key-doc-page-${pageRouterName}`} timeout={duration}>
+//     { inState => (
+//       <Page
+//         inState={inState}
+//         filePath={pagePath}
+//       />)
+//     }
+//   </Transition>
+// ))
+// }

@@ -13,7 +13,9 @@ import LearnMore from './LearnMore';
 import Credits from './Credits';
 
 const Container = styled('div')`
-  position: absolute;
+  position: fixed;
+  left: 0,
+  top: 0,
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.95);
@@ -65,7 +67,6 @@ export default class Component extends React.Component {
   }
 
   componentWillUpdate({ inState }) {
-    console.log('intro modal - inState:', inState);
     if (inState === 'exiting') { this.animateOut(); }
   }
 
@@ -79,7 +80,7 @@ export default class Component extends React.Component {
         targets: '.intro-modal',
         translateX: [-500, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 1000,
         elasticity: 100,
         easing: 'easeOutQuint',
       });
@@ -136,7 +137,7 @@ export default class Component extends React.Component {
         translateX: [0, -900],
         targets: '.intro-modal',
         opacity: [1, 0],
-        duration: 2000,
+        duration: 1500,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 0,

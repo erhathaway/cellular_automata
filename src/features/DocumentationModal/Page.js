@@ -26,11 +26,23 @@ export default class Component extends React.Component {
       left: [20, 0],
       opacity: [0, 1],
       duration: 500,
-      elasticity: 500,
+      elasticity: 1500,
       easing: 'easeOutQuint',
-      delay: 0,
+      delay: 500,
     });
   }
+
+  // static animateOut() {
+  //   anime({
+  //     targets: '.markdown-container',
+  //     translateX: [2000, 0],
+  //     opacity: [1, 0],
+  //     duration: 1500,
+  //     elasticity: 500,
+  //     easing: 'easeOutQuint',
+  //     delay: 0,
+  //   });
+  // }
 
   constructor(props) {
     super(props);
@@ -54,6 +66,11 @@ export default class Component extends React.Component {
     Component.animateIn();
     window.scrollTo(0, 0);
   }
+
+  // componentWillUpdate({ inState }) {
+  //   if (inState === 'exiting') { Component.animateOut(); }
+  // }
+
 
   render() {
     const { text } = this.state;
