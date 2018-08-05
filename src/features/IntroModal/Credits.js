@@ -4,7 +4,7 @@ import styled from 'react-emotion';
 import github from '../../assets/github.svg';
 
 const Container = styled('div')`
-  position: relative;
+  position: fixed;
   background: inherit;
   display: flex;
   align-items: flex-end;
@@ -12,6 +12,8 @@ const Container = styled('div')`
   opacity: 1;
   color: white;
   height: 30px;
+  width: 250px;
+  right: 0px;
 
   &:hover {
     cursor: pointer;
@@ -31,6 +33,7 @@ const Name = styled('div')`
   text-align: right;
   margin-right: 30px;
   margin-bottom: 5px;
+  width: 100px;
 `;
 
 export default () => (

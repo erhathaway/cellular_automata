@@ -88,8 +88,6 @@ export default class Component extends React.Component {
   }
 
   componentWillUpdate({ inState }) {
-    console.log('doc modal - inState:', inState);
-
     if (inState === 'exiting') { this.animateOut(); }
   }
 
