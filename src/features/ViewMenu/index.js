@@ -100,6 +100,8 @@ export default class Component extends React.Component {
       showPlacementOutline: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
       width: undefined, // window.width
       height: undefined, // window.height
+      menuX: 50,
+      menuY: 70,
     };
 
     this.myRef = React.createRef();
@@ -133,9 +135,10 @@ export default class Component extends React.Component {
     this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
   }
 
-  onStartDragEvent() {
+  onStartDragEvent({ clientX: x, clientY: y }, data) {
+    console.log(x, y)
     const { showPlacementOutline: placement } = this.state;
-    if (placement !== undefined) { this.animateUnDock() }
+    if (placement !== undefined) { this.animateUnDock(x, y) }
   }
 
   onDragEvent(e, { x, y }) {
@@ -220,7 +223,7 @@ export default class Component extends React.Component {
     })
   }
 
-  animateUnDock() {
+  animateUnDock(left, top) {
     anime({
       targets: '.view-menu-container',
       height: 500,
@@ -286,7 +289,26 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { showPlacementOutline: placement } = this.state;
+    const { showPlacementOutline: placement, menuX, menuY, width } = this.state;
+    let position
+    switch(placement) {
+      case 'hasDockedLeft': {
+        position = { x: 0, y: 0 };
+        break;
+      }
+      case 'hasDockedTop': {
+        position = { x: 0, y: 0 };
+        break;
+      }
+      case 'hasDockedRight': {
+        position = { x: (width - MENU_WIDTH), y: 0 };
+        break;
+      }
+    }
+
+    const positionProp = position ? { position } : {};
+    console.log(positionProp)
+
     return (
       <Container>
       <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${MENU_WIDTH}px`} top="0" left="0"/>
@@ -300,6 +322,7 @@ export default class Component extends React.Component {
         onStart={this.onStartDragEvent}
         onDrag={this.onDragEvent}
         onStop={this.onStopDragEvent}
+        {...positionProp}
       >
         <Menu className="view-menu-container">
           <MenuControllerContainer>
