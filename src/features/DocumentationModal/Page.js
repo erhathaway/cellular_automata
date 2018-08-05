@@ -25,10 +25,10 @@ export default class Component extends React.Component {
       targets: '.markdown-container',
       left: [20, 0],
       opacity: [0, 1],
-      duration: 500,
+      duration: 1000,
       elasticity: 1500,
       easing: 'easeOutQuint',
-      delay: 500,
+      delay: 0,
     });
   }
 

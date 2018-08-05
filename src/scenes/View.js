@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
-import { ViewOptions } from '../features';
+import { ViewMenu } from '../features';
 
 const Container = styled('div')`
   position: relative;
@@ -10,8 +10,8 @@ const Container = styled('div')`
   z-index: 0;
 `;
 
-export default () => (
+export default (props) => (
   <Container>
-    <ViewOptions />
+    <ViewMenu {...props}/>
   </Container>
 );

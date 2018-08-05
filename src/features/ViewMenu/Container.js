@@ -12,4 +12,4 @@ const Container = styled('nav')`
   border-radius: 11px;
 `;
 
-export default () => <Container />;
+export default ({ props }) => <Container {...props} />;
