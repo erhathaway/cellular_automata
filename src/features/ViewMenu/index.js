@@ -5,7 +5,8 @@ import Draggable from 'react-draggable';
 import styled, { css } from 'react-emotion';
 
 const MENU_WIDTH = 160;
-const MENU_BORDER_RADIUS = '11px';
+const MENU_BORDER_RADIUS = '8px';
+const DOCKED_VERTICAL_MENU_WIDTH = '70';
 
 const Container = styled('div')`
   height: 100vh;
@@ -52,8 +53,8 @@ const RouterContainerHorizontal = css`
 // dock left or right
 const RouterContainerVertical = css`
   width: 100%;
-  flex-direction: row;
-  height: 50px;
+  flex-direction: column;
+  height: 100px;
   left: 0px;
 `;
 
@@ -91,14 +92,18 @@ const FAIconHorizontal = css`
 
 // dock left or right
 const FAIconVertical = css`
-  padding: 10px;
-`;
+  height: 50%;
+  width: 100%;
 
-const FAIconNotDocked = css`
-  padding: 10px;
   &:hover {
     border-radius: 0px;
   }
+`;
+
+// not docked
+const FAIconNotDocked = css`
+  padding: 10px;
+
 `;
 
 const FAIcon = styled('div')`
@@ -138,7 +143,8 @@ const MenuControllerContainerHorizontal = css`
 const MenuControllerContainerVertical = css`
   left: 0px;
   width: 100%;
-  height: 50px;
+  height: 100px;
+  flex-direction: column;
   border-radius: 0px;
 `;
 
@@ -173,7 +179,7 @@ const MenuDraggableContainerHorizontal = css`
 // dock left or right
 const MenuDraggableContainerVertical = css`
   width: 100%;
-  height: 100%;
+  height: 50%;
 `;
 
 // not docked
@@ -217,8 +223,8 @@ const MenuShrinkContainerHorizontal = css`
 
 // dock left or right
 const MenuShrinkContainerVertical = css`
-  width: 70px;
-  height: 100%;
+  width: 100%;
+  height: 50%;
 `;
 
 // not docked
@@ -292,9 +298,12 @@ export default class Component extends React.Component {
   }
 
 
-  onStartDragEvent() {
+  onStartDragEvent({ clientX: x, clientY: y }) {
     const { menuPlacement: placement } = this.state;
-    if (placement !== undefined) { this.animateUnDock(); }
+    if (placement && placement.includes('Docked')) {
+      this.setState(state => ({ ...state, menuPlacement: undefined }))
+      this.animateUnDock(x, y);
+    }
   }
 
   onDragEvent(e, { x, y }) {
@@ -381,7 +390,7 @@ export default class Component extends React.Component {
     })
   }
 
-  animateUnDock() {
+  animateUnDock(x,y) {
     anime({
       targets: '.view-menu-container',
       height: 500,
@@ -391,6 +400,10 @@ export default class Component extends React.Component {
       borderRadius: MENU_BORDER_RADIUS,
       easing: 'easeOutQuint',
       delay: 0,
+      update: () => {
+        const el = document.getElementById('view-menu-container');
+        // el.style.transform = `translate(${x}px, ${y}px)`;
+      }
     })
   }
 
@@ -400,6 +413,7 @@ export default class Component extends React.Component {
       height: '100%',
       top: '0',
       left: '0',
+      width: `${DOCKED_VERTICAL_MENU_WIDTH}px`,
       borderRadius: 0,
       duration: 300,
       elasticity: 100,
@@ -412,7 +426,7 @@ export default class Component extends React.Component {
     anime({
       targets: '.view-menu-container',
       width: '100%',
-      height: '70px',
+      height: '60px',
       top: '0',
       left: '0px',
       borderRadius: 0,
@@ -424,16 +438,22 @@ export default class Component extends React.Component {
   }
 
   animateDockRight() {
+    const { width: screenWidth } = this.state;
     anime({
       targets: '.view-menu-container',
       height: '100%',
-      top: '0',
-      right: '0',
+      width: `${DOCKED_VERTICAL_MENU_WIDTH}px`,
+      top: '0px',
       borderRadius: 0,
       duration: 300,
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 0,
+      update: () => {
+        const el = document.getElementById('view-menu-container');
+        el.style.transform = `translate(${screenWidth - DOCKED_VERTICAL_MENU_WIDTH}px, 0px)`;
+        el.style.left = 'unset';
+      },
     })
   }
 
@@ -481,7 +501,7 @@ export default class Component extends React.Component {
           onStop={this.onStopDragEvent}
           {...positionProp}
         >
-          <Menu className="view-menu-container here" menuPlacement={placement}>
+          <Menu id="view-menu-container" className="view-menu-container here" menuPlacement={placement}>
             <MenuControllerContainer menuPlacement={placement}>
               <MenuDraggableContainer menuPlacement={placement} className="view-menu-draggable-handle">
                 <DraggableIcon />
