@@ -266,8 +266,6 @@ export default class Component extends React.Component {
       menuPlacement: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
       width: undefined, // window.width
       height: undefined, // window.height
-      menuX: 50,
-      menuY: 70,
     };
 
     this.myRef = React.createRef();
@@ -285,10 +283,10 @@ export default class Component extends React.Component {
 
   componentDidMount() {
     if (this.isRouterHere()) { this.openMenu(); }
-    this.updateWindowDimensions()
+    this.updateWindowDimensions();
   }
 
-  componentDidUpdate({ location: { state: prevRouterState} }) {
+  componentDidUpdate({ location: { state: prevRouterState } }) {
     const routerLocationJustChanged = this.hasRouterLocationJustChanged(prevRouterState);
     if (routerLocationJustChanged && this.isRouterHere()) { this.openMenu(); }
   }
@@ -301,7 +299,7 @@ export default class Component extends React.Component {
   onStartDragEvent({ clientX: x, clientY: y }) {
     const { menuPlacement: placement } = this.state;
     if (placement && placement.includes('Docked')) {
-      this.setState(state => ({ ...state, menuPlacement: undefined }))
+      this.setState(state => ({ ...state, menuPlacement: undefined }));
       this.animateUnDock(x, y);
     }
   }
@@ -336,7 +334,7 @@ export default class Component extends React.Component {
 
   updateWindowDimensions() {
     this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
-    this.onStopDragEvent() // rerun stop event dockings in case screen size got changed
+    this.onStopDragEvent(); // rerun stop event dockings in case screen size got changed
   }
 
   isRouterHere() {
@@ -345,11 +343,11 @@ export default class Component extends React.Component {
   }
 
   hasRouterLocationJustChanged(prevRouterState) {
-    const { location: { state: currentRouterState} } = this.props;
+    const { location: { state: currentRouterState } } = this.props;
     const currentAt = currentRouterState ? currentRouterState.atLocation : undefined;
     const prevAt = prevRouterState ? prevRouterState.atLocation : undefined;
 
-    return currentAt !== prevAt
+    return currentAt !== prevAt;
   }
 
   openMenu() {
@@ -377,7 +375,7 @@ export default class Component extends React.Component {
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 100,
-    })
+    });
   }
 
   animateClose() {
@@ -388,10 +386,10 @@ export default class Component extends React.Component {
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 100,
-    })
+    });
   }
 
-  animateUnDock(x,y) {
+  animateUnDock() {
     anime({
       targets: '.view-menu-container',
       height: 500,
@@ -401,11 +399,7 @@ export default class Component extends React.Component {
       borderRadius: MENU_BORDER_RADIUS,
       easing: 'easeOutQuint',
       delay: 0,
-      update: () => {
-        const el = document.getElementById('view-menu-container');
-        // el.style.transform = `translate(${x}px, ${y}px)`;
-      }
-    })
+    });
   }
 
   animateDockLeft() {
@@ -435,7 +429,7 @@ export default class Component extends React.Component {
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 0,
-    })
+    });
   }
 
   animateDockRight() {
@@ -455,7 +449,7 @@ export default class Component extends React.Component {
         el.style.transform = `translate(${screenWidth - DOCKED_VERTICAL_MENU_WIDTH}px, 0px)`;
         el.style.left = 'unset';
       },
-    })
+    });
   }
 
   handleMenuOpenToggleClick() {
@@ -468,9 +462,10 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { menuPlacement: placement, menuX, menuY, width } = this.state;
-    let position
-    switch(placement) {
+    const { menuPlacement: placement, width } = this.state;
+
+    let position;
+    switch (placement) {
       case 'hasDockedLeft': {
         position = { x: 0, y: 0 };
         break;
@@ -481,6 +476,8 @@ export default class Component extends React.Component {
       }
       case 'hasDockedRight': {
         position = { x: (width - MENU_WIDTH), y: 0 };
+        break;
+      } default: {
         break;
       }
     }
@@ -509,7 +506,10 @@ export default class Component extends React.Component {
                 <DraggableIcon />
                 <DraggableIcon />
               </MenuDraggableContainer>
-              <MenuShrinkContainer menuPlacement={placement} onClick={this.handleMenuOpenToggleClick}>
+              <MenuShrinkContainer
+                menuPlacement={placement}
+                onClick={this.handleMenuOpenToggleClick}
+              >
                 <MenuShrinkButton />
               </MenuShrinkContainer>
             </MenuControllerContainer>
