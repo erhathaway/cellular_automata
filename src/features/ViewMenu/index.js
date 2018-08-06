@@ -55,6 +55,12 @@ const RouterContainerHorizontal = css`
 const RouterContainerVertical = css`
   width: 100%;
   flex-direction: row;
+  height: 50px;
+`;
+
+const RouterContainerNotDocked = css`
+  width: 100%;
+  flex-direction: row;
 `;
 
 const RouterContainer = styled('nav')`
@@ -67,7 +73,10 @@ const RouterContainer = styled('nav')`
   background-color: rgba(54, 149, 217, 1);
   border-bottom-left-radius: ${MENU_BORDER_RADIUS};
   border-bottom-right-radius: ${MENU_BORDER_RADIUS};
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') ? RouterContainerHorizontal : RouterContainerVertical) }
+
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && RouterContainerNotDocked) }
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && RouterContainerHorizontal) }
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && RouterContainerVertical) }
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -87,6 +96,13 @@ const FAIconVertical = css`
   padding: 10px;
 `;
 
+const FAIconNotDocked = css`
+  padding: 10px;
+  &:hover {
+    border-radius: 0px;
+  }
+`;
+
 const FAIcon = styled('div')`
   color: gray;
   font-size: 20px;
@@ -103,7 +119,9 @@ const FAIcon = styled('div')`
     ${({ leftOrRight }) => `border-bottom-${leftOrRight}-radius: ${MENU_BORDER_RADIUS};`}
   };
 
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') ? FAIconHorizontal : FAIconVertical)}
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && FAIconNotDocked) }
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && FAIconHorizontal) }
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && FAIconVertical) }
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -122,6 +140,14 @@ const MenuControllerContainerHorizontal = css`
 const MenuControllerContainerVertical = css`
   left: 0px;
   width: 100%;
+  height: 50px;
+  border-radius: 0px;
+`;
+
+// not docked
+const MenuControllerContainerNotDocked = css`
+  left: 0px;
+  width: 100%;
   height: 35px;
 `;
 
@@ -132,7 +158,10 @@ const MenuControllerContainer = styled('div')`
   display: flex;
   justify-content: center;
   align-items: center;
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') ? MenuControllerContainerHorizontal : MenuControllerContainerVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuControllerContainerNotDocked) }
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuControllerContainerHorizontal) }
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuControllerContainerVertical) }
+
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -149,6 +178,12 @@ const MenuDraggableContainerHorizontal = css`
 const MenuDraggableContainerVertical = css`
   width: 100%;
   height: 100%;
+`;
+
+// not docked
+const MenuDraggableContainerNotDocked = css`
+  width: 100%;
+  height: 100%;
   border-top-left-radius: ${MENU_BORDER_RADIUS};
 `;
 
@@ -163,8 +198,11 @@ const MenuDraggableContainer = styled('div')`
     cursor: grab;
   }
 
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') ? MenuDraggableContainerHorizontal : MenuDraggableContainerVertical) }
-`
+
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuDraggableContainerNotDocked) }
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuDraggableContainerHorizontal) }
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuDraggableContainerVertical) }
+`;
 
 const DraggableIcon = styled('div')`
   background-color: gray;
@@ -186,9 +224,14 @@ const MenuShrinkContainerHorizontal = css`
 const MenuShrinkContainerVertical = css`
   width: 70px;
   height: 100%;
-  border-top-right-radius: ${MENU_BORDER_RADIUS};
 `;
 
+// not docked
+const MenuShrinkContainerNotDocked = css`
+  width: 70px;
+  height: 100%;
+  border-top-right-radius: ${MENU_BORDER_RADIUS};
+`;
 
 const MenuShrinkContainer = styled('div')`
   display: flex;
@@ -200,7 +243,9 @@ const MenuShrinkContainer = styled('div')`
     cursor: pointer;
   }
 
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') ? MenuShrinkContainerHorizontal : MenuShrinkContainerVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuShrinkContainerNotDocked) }
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuShrinkContainerHorizontal) }
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuShrinkContainerVertical) }
 `;
 
 const MenuShrinkButton = styled('div')`
