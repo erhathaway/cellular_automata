@@ -35,6 +35,12 @@ const IconContainer = styled('span')`
   }
 `
 
+const HomeIcon = styled('img')`
+  height: 25px;
+  background-color: rgba(56, 56, 56, 0.9);
+
+`
+
 export default class Component extends React.Component {
   constructor(props) {
     super(props);
@@ -57,10 +63,10 @@ export default class Component extends React.Component {
     return (
       <Container>
         <IconContainer role="img" onClick={this.handleExitClick}>
-          ❌
+          <i className="fas fa-times" />
         </IconContainer>
         <IconContainer role="img" onClick={this.handleNavtoHomeClick}>
-          🏠
+          <i className="fas fa-home" />
         </IconContainer>
       </Container>
     );
