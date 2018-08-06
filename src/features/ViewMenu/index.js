@@ -1,9 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import anime from 'animejs';
 import Draggable from 'react-draggable';
-
-// import Container from './Container';
 
 import styled, { css } from 'react-emotion';
 
@@ -36,7 +33,7 @@ const PlacementOutline = styled('nav')`
   z-position: 1;
   background-color: rgba(94, 80, 80, 0.8);
   opacity: 1;
-  opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0) };
+  opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -49,6 +46,7 @@ const RouterContainerHorizontal = css`
   flex-direction: row;
   width: 150px;
   border-radius: 0px;
+  right: 0px;
 `;
 
 // dock left or right
@@ -56,6 +54,7 @@ const RouterContainerVertical = css`
   width: 100%;
   flex-direction: row;
   height: 50px;
+  left: 0px;
 `;
 
 const RouterContainerNotDocked = css`
@@ -66,7 +65,6 @@ const RouterContainerNotDocked = css`
 const RouterContainer = styled('nav')`
   position: absolute;
   bottom: 0px;
-  left: 0px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -74,9 +72,9 @@ const RouterContainer = styled('nav')`
   border-bottom-left-radius: ${MENU_BORDER_RADIUS};
   border-bottom-right-radius: ${MENU_BORDER_RADIUS};
 
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && RouterContainerNotDocked) }
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && RouterContainerHorizontal) }
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && RouterContainerVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && RouterContainerNotDocked)}
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && RouterContainerHorizontal)}
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && RouterContainerVertical)}
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -119,9 +117,9 @@ const FAIcon = styled('div')`
     ${({ leftOrRight }) => `border-bottom-${leftOrRight}-radius: ${MENU_BORDER_RADIUS};`}
   };
 
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && FAIconNotDocked) }
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && FAIconHorizontal) }
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && FAIconVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && FAIconNotDocked)}
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && FAIconHorizontal)}
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && FAIconVertical)}
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -130,7 +128,7 @@ const FAIcon = styled('div')`
 
 // dock top or bottom
 const MenuControllerContainerHorizontal = css`
-  right: 0px;
+  left: 0px;
   height: 100%;
   flex-direction: row;
   width: 150px;
@@ -151,17 +149,15 @@ const MenuControllerContainerNotDocked = css`
   height: 35px;
 `;
 
-
 const MenuControllerContainer = styled('div')`
   position: absolute;
   top: 0px;
   display: flex;
   justify-content: center;
   align-items: center;
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuControllerContainerNotDocked) }
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuControllerContainerHorizontal) }
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuControllerContainerVertical) }
-
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuControllerContainerNotDocked)}
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuControllerContainerHorizontal)}
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuControllerContainerVertical)}
 `;
 
 /* ----------------------------------------------------------------------------*/
@@ -198,10 +194,9 @@ const MenuDraggableContainer = styled('div')`
     cursor: grab;
   }
 
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuDraggableContainerNotDocked) }
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuDraggableContainerHorizontal) }
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuDraggableContainerVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuDraggableContainerNotDocked)}
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuDraggableContainerHorizontal)}
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuDraggableContainerVertical)}
 `;
 
 const DraggableIcon = styled('div')`
@@ -243,9 +238,9 @@ const MenuShrinkContainer = styled('div')`
     cursor: pointer;
   }
 
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuShrinkContainerNotDocked) }
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuShrinkContainerHorizontal) }
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuShrinkContainerVertical) }
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuShrinkContainerNotDocked)}
+  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuShrinkContainerHorizontal)}
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuShrinkContainerVertical)}
 `;
 
 const MenuShrinkButton = styled('div')`
@@ -261,6 +256,7 @@ export default class Component extends React.Component {
     super(props);
     this.state = {
       isOpen: false,
+      // eslint-disable-next-line max-len
       menuPlacement: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
       width: undefined, // window.width
       height: undefined, // window.height
@@ -295,44 +291,42 @@ export default class Component extends React.Component {
     window.removeEventListener('resize', this.updateWindowDimensions);
   }
 
-  updateWindowDimensions() {
-    this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
-  }
 
-  onStartDragEvent({ clientX: x, clientY: y }, data) {
-    console.log(x, y)
+  onStartDragEvent() {
     const { menuPlacement: placement } = this.state;
-    if (placement !== undefined) { this.animateUnDock(x, y) }
+    if (placement !== undefined) { this.animateUnDock(); }
   }
 
   onDragEvent(e, { x, y }) {
     const { menuPlacement: placement, width } = this.state;
 
     if (y < 10) {
-      if (placement !== 'willDockTop' ) this.setState(state => ({ ...state, menuPlacement: 'willDockTop' }))
+      if (placement !== 'willDockTop') this.setState(state => ({ ...state, menuPlacement: 'willDockTop' }));
     } else if (x < 10) {
-      if (placement !== 'willDockLeft' ) this.setState(state => ({ ...state, menuPlacement: 'willDockLeft' }))
+      if (placement !== 'willDockLeft') this.setState(state => ({ ...state, menuPlacement: 'willDockLeft' }));
     } else if (x > (width - MENU_WIDTH - 10)) {
-      if (placement !== 'willDockRight' ) this.setState(state => ({ ...state, menuPlacement: 'willDockRight' }))
-    } else {
-       if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined }))
-    }
+      if (placement !== 'willDockRight') this.setState(state => ({ ...state, menuPlacement: 'willDockRight' }));
+    } else if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined }));
   }
 
   onStopDragEvent(e, { x, y }) {
     const { menuPlacement: placement } = this.state;
     if (placement === 'willDockLeft') {
       this.animateDockLeft();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }))
+      this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }));
     }
     if (placement === 'willDockRight') {
       this.animateDockRight();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedRight' }))
+      this.setState(state => ({ ...state, menuPlacement: 'hasDockedRight' }));
     }
     if (placement === 'willDockTop') {
       this.animateDockTop();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedTop' }))
+      this.setState(state => ({ ...state, menuPlacement: 'hasDockedTop' }));
     }
+  }
+
+  updateWindowDimensions() {
+    this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
   }
 
   isRouterHere() {
@@ -387,7 +381,7 @@ export default class Component extends React.Component {
     })
   }
 
-  animateUnDock(left, top) {
+  animateUnDock() {
     anime({
       targets: '.view-menu-container',
       height: 500,
@@ -471,40 +465,39 @@ export default class Component extends React.Component {
     }
 
     const positionProp = position ? { position } : {};
-    console.log(positionProp)
-    console.log('placmenet', placement)
+
     return (
       <Container>
-      <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${MENU_WIDTH}px`} top="0" left="0"/>
-      <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${MENU_WIDTH}px`} top="0" right="0"/>
-      <PlacementOutline shouldShow={placement === 'willDockTop'} height="70px" width="100vw" top="0" left="0"/>
-      <Draggable
-        handle=".view-menu-draggable-handle"
-        axis="both"
-        bounds="parent"
-        defaultPosition={{ x: 50, y: 70 }}
-        onStart={this.onStartDragEvent}
-        onDrag={this.onDragEvent}
-        onStop={this.onStopDragEvent}
-        {...positionProp}
-      >
-        <Menu className="view-menu-container here" menuPlacement={placement}>
-          <MenuControllerContainer menuPlacement={placement}>
-            <MenuDraggableContainer menuPlacement={placement} className='view-menu-draggable-handle'>
-              <DraggableIcon />
-              <DraggableIcon />
-              <DraggableIcon />
-            </MenuDraggableContainer>
-            <MenuShrinkContainer menuPlacement={placement} onClick={this.handleMenuOpenToggleClick}>
-              <MenuShrinkButton />
-            </MenuShrinkContainer>
-          </MenuControllerContainer>
-          <RouterContainer menuPlacement={placement}>
-            <FAIcon menuPlacement={placement} leftOrRight="left" className="fas fa-home" />
-            <FAIcon menuPlacement={placement} leftOrRight="right" className="fas fa-question" />
-          </RouterContainer>
-        </Menu>
-      </Draggable>
+        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${MENU_WIDTH}px`} top="0" left="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${MENU_WIDTH}px`} top="0" right="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockTop'} height="70px" width="100vw" top="0" left="0"/>
+        <Draggable
+          handle=".view-menu-draggable-handle"
+          axis="both"
+          bounds="parent"
+          defaultPosition={{ x: 50, y: 70 }}
+          onStart={this.onStartDragEvent}
+          onDrag={this.onDragEvent}
+          onStop={this.onStopDragEvent}
+          {...positionProp}
+        >
+          <Menu className="view-menu-container here" menuPlacement={placement}>
+            <MenuControllerContainer menuPlacement={placement}>
+              <MenuDraggableContainer menuPlacement={placement} className="view-menu-draggable-handle">
+                <DraggableIcon />
+                <DraggableIcon />
+                <DraggableIcon />
+              </MenuDraggableContainer>
+              <MenuShrinkContainer menuPlacement={placement} onClick={this.handleMenuOpenToggleClick}>
+                <MenuShrinkButton />
+              </MenuShrinkContainer>
+            </MenuControllerContainer>
+            <RouterContainer menuPlacement={placement}>
+              <FAIcon menuPlacement={placement} leftOrRight="left" className="fas fa-home" />
+              <FAIcon menuPlacement={placement} leftOrRight="right" className="fas fa-question" />
+            </RouterContainer>
+          </Menu>
+        </Draggable>
       </Container>
     );
   }
