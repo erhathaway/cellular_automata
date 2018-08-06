@@ -318,13 +318,13 @@ export default class Component extends React.Component {
     } else if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined }));
   }
 
-  onStopDragEvent(e, { x, y }) {
+  onStopDragEvent() {
     const { menuPlacement: placement } = this.state;
     if (placement === 'willDockLeft') {
       this.animateDockLeft();
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }));
     }
-    if (placement === 'willDockRight') {
+    if (placement === 'willDockRight' || placement === 'hasDockedRight') {
       this.animateDockRight();
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedRight' }));
     }
@@ -336,6 +336,7 @@ export default class Component extends React.Component {
 
   updateWindowDimensions() {
     this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
+    this.onStopDragEvent() // rerun stop event dockings in case screen size got changed
   }
 
   isRouterHere() {
@@ -488,8 +489,8 @@ export default class Component extends React.Component {
 
     return (
       <Container>
-        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${MENU_WIDTH}px`} top="0" left="0"/>
-        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${MENU_WIDTH}px`} top="0" right="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0"/>
         <PlacementOutline shouldShow={placement === 'willDockTop'} height="70px" width="100vw" top="0" left="0"/>
         <Draggable
           handle=".view-menu-draggable-handle"
