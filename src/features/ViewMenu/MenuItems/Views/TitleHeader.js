@@ -32,6 +32,8 @@ const Container = styled('h2')`
   width: 100%;
   text-align: left;
   text-transform: uppercase;
+  letter-spacing: 2.3px;
+
 
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;

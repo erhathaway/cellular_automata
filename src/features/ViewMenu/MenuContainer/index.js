@@ -25,6 +25,13 @@ const MenuHorizontal = css`
 // dock left or right
 const MenuVertical = css`
   flex-direction: column;
+  border-right: 1px solid rgba(56,56,56,0.7);
+  border-left: 1px solid rgba(56,56,56,0.7);
+
+  &:hover {
+    background-color: rgba(0,0,0.8);
+  }
+
 `;
 
 const MenuNotDocked = css`
@@ -32,14 +39,15 @@ const MenuNotDocked = css`
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   border-radius: ${MENU_BORDER_RADIUS};
   border: 1px solid rgba(56,56,56,0.7);
-
+  background-color: black;
 `;
 
 const Menu = styled('nav')`
   position: fixed;
   width: ${MENU_WIDTH}px;
   // background-color: rgba(54, 149, 217, 0.8);
-  background-color: black;
+  // background-color: black;
+  background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.65), rgba(0,0,0,0.6), rgba(0,0,0,0.6));
   z-position: 2;
   display: flex;
   align-items: center;

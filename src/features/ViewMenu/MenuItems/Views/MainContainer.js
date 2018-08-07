@@ -23,6 +23,8 @@ const ContainerVerticalRight = css`
 `;
 
 const Container = styled('div')`
+border-bottom: 1px solid #0e0e0e;
+
   width: 100%;
   margin: 1px;
   // background-color: rgba(54, 149, 217, 1);
