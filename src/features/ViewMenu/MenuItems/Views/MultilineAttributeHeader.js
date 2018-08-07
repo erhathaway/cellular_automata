@@ -18,6 +18,8 @@ const Container = styled('h1')`
   min-width: 100px;
   flex-direction: row;
   font-size: 17px;
+  user-select: none;
+
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
@@ -61,7 +63,7 @@ const Suffix = styled('div')`
   display: flex;
   align-items: center;
   // color: white;
-  color: rgba(56,56,56,0.9);
+  color: #464646;
 `;
 
 const Attribute = styled('a')`

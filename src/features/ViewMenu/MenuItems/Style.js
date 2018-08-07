@@ -3,12 +3,12 @@ import React from 'react';
 import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
 export default props => (
-  <Container {...props}>
+  <Container menuName="style" {...props}>
     <AttributeHeader>
-      No
+      Random
     </AttributeHeader>
     <TitleHeader>
-      Style
+      Genesis
     </TitleHeader>
   </Container>
 );

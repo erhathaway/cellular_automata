@@ -1,5 +1,9 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import styled, { css } from 'react-emotion';
+
+
+import ItemMenu from '../../ItemMenu';
 
 // dock top or bottom
 const ContainerHorizontal = css`
@@ -90,15 +94,75 @@ const Children = styled('div')`
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ChildrenVerticalRight)}
 `;
 
-export default ({ children, menuPlacement, isMenuMoving, ...props }) => {
-  const childrenWithProps = React.Children.map(children, child =>
-    React.cloneElement(child, { menuPlacement, ...props }));
+export default class Component extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <Container menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-      <Children menuPlacement={menuPlacement}>
-        { childrenWithProps }
-      </Children>
-    </Container>
-  );
-};
+    this.state = {
+      showItemMenu: false,
+      parentCoords: {},
+    };
+
+    this.myRef = React.createRef();
+    this.toggleShowItemMenu = this.toggleShowItemMenu.bind(this);
+  }
+
+  componentDidMount() {
+    this.calcParentCoords();
+  }
+
+  componentDidUpdate(_, { parentCoords: prevParentCoords }) {
+    const { parentCoords: currentParentCoords } = this.state;
+    if ( prevParentCoords === currentParentCoords ) {
+      this.calcParentCoords();
+    }
+  }
+
+  toggleShowItemMenu() {
+    this.setState(state => ({ ...state, showItemMenu: !state.showItemMenu }))
+  }
+
+  calcParentCoords() {
+    const coords = ReactDOM
+     .findDOMNode(this.myRef.current)
+     .getBoundingClientRect()
+    this.setState(state => ({ ...state, parentCoords: coords}))
+  }
+
+  render() {
+    const {
+      children,
+      menuPlacement,
+      isMenuMoving,
+      menuName,
+      ...props,
+    } = this.props;
+
+    const { showItemMenu, parentCoords } = this.state;
+
+    const childrenWithProps = React.Children.map(children, child =>
+      React.cloneElement(child, { menuPlacement, ...props }));
+
+    return (
+      <Container ref={this.myRef} onClick={this.toggleShowItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
+        { showItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName}/> }
+        <Children menuPlacement={menuPlacement}>
+          { childrenWithProps }
+        </Children>
+      </Container>
+    );
+  }
+}
+
+// ({ children, menuPlacement, isMenuMoving, ...props }) => {
+//   const childrenWithProps = React.Children.map(children, child =>
+//     React.cloneElement(child, { menuPlacement, ...props }));
+//
+//   return (
+//     <Container menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
+//       <Children menuPlacement={menuPlacement}>
+//         { childrenWithProps }
+//       </Children>
+//     </Container>
+//   );
+// };

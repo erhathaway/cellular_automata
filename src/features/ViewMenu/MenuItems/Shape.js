@@ -8,7 +8,7 @@ import {
 } from './Views';
 
 export default props => (
-  <Container {...props}>
+  <Container menuName="shape" {...props}>
     <HeaderContainer>
       <MultilineAttributeHeader shouldTruncateNumber prefix="x">
         2265173

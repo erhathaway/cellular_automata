@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Container from './MenuContainer';
+import MenuContainer from './MenuContainer';
 
 import {
   Dimensions,
@@ -13,7 +13,7 @@ import {
 } from './MenuItems';
 
 export default props => (
-  <Container {...props}>
+  <MenuContainer {...props}>
     <Dimensions />
     <Viewer />
     <States />
@@ -21,5 +21,5 @@ export default props => (
     <Neighbors />
     <Rule ruleType="sbd" />
     <Style />
-  </Container>
+  </MenuContainer>
 );

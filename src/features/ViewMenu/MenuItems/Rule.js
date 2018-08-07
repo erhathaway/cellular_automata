@@ -11,7 +11,7 @@ import {
 // ruleType: 'stats' = wolfram style; 'sbd' = surive born death (conways game of life style)
 export default ({ ruleType, ...props }) => {
   if (ruleType === 'stats') { return (
-    <Container {...props}>
+    <Container menuName="rule" {...props}>
       <AttributeHeader>
         90012
       </AttributeHeader>
@@ -23,7 +23,7 @@ export default ({ ruleType, ...props }) => {
   }
 
   if (ruleType === 'sbd') { return (
-    <Container {...props}>
+    <Container menuName="rule" {...props}>
       <HeaderContainer>
         <MultilineAttributeHeader prefix="S">
           2, 3, 5
@@ -33,7 +33,7 @@ export default ({ ruleType, ...props }) => {
         </MultilineAttributeHeader>
       </HeaderContainer>
       <TitleHeader>
-        Rule
+        Rule (Conway)
       </TitleHeader>
     </Container>
   );

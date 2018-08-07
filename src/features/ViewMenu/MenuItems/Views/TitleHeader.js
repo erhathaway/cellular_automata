@@ -30,7 +30,7 @@ const ContainerVerticalRight = css`
 const Container = styled('h2')`
   // color: #80CBEC;
   // color: rgba(56,56,56,0.9);
-  color: #3c3c3c;
+  color: #464646;
   font-size: 10px;
   margin: 0px;
   margin-top: 5px;
@@ -39,6 +39,8 @@ const Container = styled('h2')`
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 2.3px;
+  user-select: none;
+
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ContainerHorizontal)}

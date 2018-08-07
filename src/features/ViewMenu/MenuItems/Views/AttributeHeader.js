@@ -28,6 +28,8 @@ const Container = styled('h1')`
   text-align: left;
   min-width: 70px;
   font-size: 20px;
+  user-select: none;
+
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
