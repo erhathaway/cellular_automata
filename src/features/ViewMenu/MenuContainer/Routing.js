@@ -36,7 +36,7 @@ const RouterContainer = styled('nav')`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background-color: rgba(54, 149, 217, 1);
+  // background-color: rgba(54, 149, 217, 1);
   border-bottom-left-radius: ${MENU_BORDER_RADIUS};
   border-bottom-right-radius: ${MENU_BORDER_RADIUS};
 

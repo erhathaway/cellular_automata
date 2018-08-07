@@ -22,13 +22,16 @@ const ContainerVerticalRight = css`
 
 
 const Container = styled('h2')`
-  color: #80CBEC;
+  // color: #80CBEC;
+  // color: rgba(56,56,56,0.9);
+  color: #3c3c3c;
   font-size: 10px;
   margin: 0px;
-  margin-top: 2px;
+  margin-top: 5px;
   margin-bottom: 5px;
   width: 100%;
   text-align: left;
+  text-transform: uppercase;
 
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;

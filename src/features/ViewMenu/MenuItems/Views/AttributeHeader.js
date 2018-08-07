@@ -21,7 +21,8 @@ const ContainerVerticalRight = css`
 `;
 
 const Container = styled('h1')`
-  color: #80CBEC;
+  // color: #80CBEC;
+  color: rgba(156,156,156,1);
   margin: 0px;
   letter-spacing: 3px;
   width: 100%;

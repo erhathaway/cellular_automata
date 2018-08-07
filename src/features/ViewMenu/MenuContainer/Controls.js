@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
 
-const MENU_BORDER_RADIUS = '8px';
+const MENU_BORDER_RADIUS = '4px';
 
 /* ----------------------------------------------------------------------------*/
 /* Menu Control Container
@@ -19,7 +19,7 @@ const ContainerHorizontal = css`
 const ContainerVertical = css`
   left: 0px;
   width: 100%;
-  height: 30px;
+  height: 60px;
   flex-direction: column;
   border-radius: 0px;
 `;
@@ -28,7 +28,7 @@ const ContainerVertical = css`
 const ContainerNotDocked = css`
   left: 0px;
   width: 100%;
-  height: 25px;
+  height: 35px;
 `;
 
 const Container = styled('div')`
@@ -72,7 +72,7 @@ const DraggableContainer = styled('div')`
   justify-content: center;
   align-items: center;
   flex: 2;
-  background-color: rgba(54, 149, 217, 0.7);
+  // background-color: rgba(54, 149, 217, 0.7);
 
   &:hover {
     cursor: grab;
@@ -116,7 +116,7 @@ const ShrinkContainer = styled('div')`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(54, 149, 217, 1);
+  // background-color: rgba(54, 149, 217, 1);
 
   &:hover {
     cursor: pointer;

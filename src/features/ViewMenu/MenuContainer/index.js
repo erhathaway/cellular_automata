@@ -8,7 +8,7 @@ import Routing from './Routing';
 
 const MENU_WIDTH = 160;
 const UNDOCKED_MENU_HEIGHT = '600px';
-const MENU_BORDER_RADIUS = '8px';
+const MENU_BORDER_RADIUS = '4px';
 const DOCKED_VERTICAL_MENU_WIDTH = '160';
 const DOCKED_HORIZONTAL_MENU_HEIGHT = '140';
 
@@ -29,14 +29,17 @@ const MenuVertical = css`
 
 const MenuNotDocked = css`
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  border-radius: ${MENU_BORDER_RADIUS};
+  border: 1px solid rgba(56,56,56,0.7);
+
 `;
 
 const Menu = styled('nav')`
   position: fixed;
   width: ${MENU_WIDTH}px;
-  background-color: rgba(54, 149, 217, 0.8);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  border-radius: ${MENU_BORDER_RADIUS};
+  // background-color: rgba(54, 149, 217, 0.8);
+  background-color: black;
   z-position: 2;
   display: flex;
   align-items: center;
@@ -82,7 +85,7 @@ const PlacementOutline = styled('nav')`
   ${({ width }) => width && `width: ${width};`}
 
   z-position: 1;
-  background-color: rgba(94, 80, 80, 0.8);
+  background-color: rgba(94, 80, 80, 0.2);
   opacity: 1;
   opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
 `;
@@ -337,10 +340,10 @@ export default class Component extends React.Component {
             <ContentContainer menuPlacement={placement}>
               { childrenWithProps }
             </ContentContainer>
-            <Routing menuPlacement={placement} />
           </Menu>
         </Draggable>
       </Container>
     );
   }
 }
+// <Routing menuPlacement={placement} />

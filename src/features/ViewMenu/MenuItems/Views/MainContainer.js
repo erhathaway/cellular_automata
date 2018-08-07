@@ -13,6 +13,7 @@ const ContainerVertical = css`
 
 // has not docked
 const ContainerNotDocked = css`
+border-bottom: 1px solid #0e0e0e;
 
 `;
 
@@ -24,7 +25,7 @@ const ContainerVerticalRight = css`
 const Container = styled('div')`
   width: 100%;
   margin: 1px;
-  background-color: rgba(54, 149, 217, 1);
+  // background-color: rgba(54, 149, 217, 1);
   display: flex;
   justify-content: flex-start;
   align-items: center;

@@ -19,19 +19,22 @@ const Container = styled('h1')`
 
 // dock right
 const PrefixVerticalRight = css`
-  border-right: 0px solid gray;
+  border-right: 0px solid rgba(56,56,56,0.9);
   padding-right: 0px;
   margin-right: 0px;
 
-  border-left: 1px solid gray;
+  border-left: 1px solid rgba(56,56,56,0.9);
   padding-left: 8px;
   margin-left: 8px;
 `;
 
 const Prefix = styled('div')`
-  color: gray;
+  // color: gray;
+  // color: rgba(56,56,56,0.9);
+  color: rgba(156,156,156,1);
+
   min-width: 5px;
-  border-right: 1px solid gray;
+  border-right: 1px solid rgba(56,56,56,0.9);
   padding-right: 8px;
   margin-right: 8px;
   font-size: 14px;
@@ -42,23 +45,22 @@ const Prefix = styled('div')`
 `;
 
 const AttributeAndSuffix = styled('div')`
-  // width: 100%;
   display: flex;
 `;
 
 const Suffix = styled('div')`
   min-width: 10px;
-  // padding-right: 10px;
-  // margin-right: 10px;
   margin-left: 4px;
   font-size: 10px;
   display: flex;
   align-items: center;
-  color: white;
+  // color: white;
+  color: rgba(56,56,56,0.9);
 `;
 
 const Attribute = styled('a')`
-  color: #80CBEC;
+  // color: #80CBEC;
+  color: rgba(156,156,156,1);
   letter-spacing: 3px;
 `;
 
