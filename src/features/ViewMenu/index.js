@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'react-emotion';
 
 import Container from './Container';
+import { Dimensions, Neighbors, Rule, Shape, States, Style, Viewer } from './MenuItems';
 
 const Item = styled('div')`
   height: 100%;
@@ -12,13 +13,12 @@ const Item = styled('div')`
 
 export default (props) => (
   <Container {...props}>
-    <Item />
-    <Item />
-    <Item />
-    <Item />
-    <Item />
-    <Item />
-    <Item />
-    <Item />
+    <Dimensions />
+    <Viewer />
+    <States />
+    <Shape />
+    <Neighbors />
+    <Rule ruleType="sbd"/>
+    <Style />
   </Container>
 );

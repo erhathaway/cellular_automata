@@ -5,15 +5,14 @@ import Draggable from 'react-draggable';
 import styled, { css } from 'react-emotion';
 
 const MENU_WIDTH = 160;
-const UNDOCKED_MENU_HEIGHT = '500px';
+const UNDOCKED_MENU_HEIGHT = '600px';
 const MENU_BORDER_RADIUS = '8px';
-const DOCKED_VERTICAL_MENU_WIDTH = '70';
+const DOCKED_VERTICAL_MENU_WIDTH = '120';
 
 const Container = styled('div')`
   height: 100vh;
   width: 100vw;
 `;
-
 
 // dock top or bottom
 const MenuHorizontal = css`
