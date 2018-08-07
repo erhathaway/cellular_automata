@@ -29,7 +29,7 @@ const MenuVertical = css`
   border-left: 1px solid rgba(56,56,56,0.7);
 
   &:hover {
-    background-color: rgba(0,0,0.8);
+    // background-color: rgba(0,0,0,0.7);
   }
 
 `;
@@ -40,6 +40,7 @@ const MenuNotDocked = css`
   border-radius: ${MENU_BORDER_RADIUS};
   border: 1px solid rgba(56,56,56,0.7);
   background-color: black;
+
 `;
 
 const Menu = styled('nav')`
