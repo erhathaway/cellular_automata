@@ -1,31 +1,55 @@
 import React from 'react';
-import styled from 'react-emotion';
+import styled, { css } from 'react-emotion';
+
+// dock right
+const ContainerVerticalRight = css`
+  flex-direction: row-reverse;
+`;
 
 const Container = styled('h1')`
   margin: 3px;
   width: 100%;
   text-align: left;
-  padding-left: 50px;
   display: flex;
-  justify-content: flex-start;
+  min-width: 100px;
+  flex-direction: row;
+
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
+`;
+
+// dock right
+const PrefixVerticalRight = css`
+  border-right: 0px solid gray;
+  padding-right: 0px;
+  margin-right: 0px;
+
+  border-left: 1px solid gray;
+  padding-left: 8px;
+  margin-left: 8px;
 `;
 
 const Prefix = styled('div')`
   color: gray;
   min-width: 5px;
   border-right: 1px solid gray;
-  padding-right: 10px;
-  margin-left: 30px;
-  margin-right: 10px;
+  padding-right: 8px;
+  margin-right: 8px;
   font-size: 14px;
   display: flex;
   align-items: center;
+
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && PrefixVerticalRight)}
+`;
+
+const AttributeAndSuffix = styled('div')`
+  // width: 100%;
+  display: flex;
 `;
 
 const Suffix = styled('div')`
   min-width: 10px;
-  padding-right: 10px;
-  margin-right: 10px;
+  // padding-right: 10px;
+  // margin-right: 10px;
   margin-left: 4px;
   font-size: 10px;
   display: flex;
@@ -64,7 +88,7 @@ const truncateNumber = (unRoundedNumber) => {
   return { result, suffix };
 };
 
-export default ({ children, prefix, shouldTruncateNumber, suffix }) => { // eslint-disable-line object-curly-newline, max-len
+export default ({ children, menuPlacement, prefix, shouldTruncateNumber, suffix }) => { // eslint-disable-line object-curly-newline, max-len
   let parsedChildren = children;
   let parsedSuffix = suffix;
 
@@ -75,12 +99,13 @@ export default ({ children, prefix, shouldTruncateNumber, suffix }) => { // esli
     parsedSuffix = s;
   }
   return (
-    <Container>
+    <Container menuPlacement={menuPlacement}>
       { prefix && (
-        <Prefix>
+        <Prefix menuPlacement={menuPlacement}>
           { prefix }
         </Prefix>
       )}
+      <AttributeAndSuffix>
       <Attribute>
         { parsedChildren }
       </Attribute>
@@ -89,6 +114,7 @@ export default ({ children, prefix, shouldTruncateNumber, suffix }) => { // esli
           { parsedSuffix }
         </Suffix>
       )}
+      </AttributeAndSuffix>
     </Container>
   );
 };

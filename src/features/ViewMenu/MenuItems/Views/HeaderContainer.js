@@ -10,8 +10,13 @@ const Container = styled('div')`
   margin-bottom: 5px;
 `;
 
-export default ({ children }) => (
-  <Container>
-    { children }
-  </Container>
-);
+export default ({ children, ...props }) => {
+  const childrenWithProps = React.Children.map(children, child =>
+    React.cloneElement(child, { ...props }));
+
+  return (
+    <Container>
+      { childrenWithProps }
+    </Container>
+  );
+};

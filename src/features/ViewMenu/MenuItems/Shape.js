@@ -11,7 +11,7 @@ export default props => (
   <Container {...props}>
     <HeaderContainer>
       <MultilineAttributeHeader shouldTruncateNumber prefix="x">
-        21150
+        2265173
       </MultilineAttributeHeader>
       <MultilineAttributeHeader shouldTruncateNumber prefix="y">
         21

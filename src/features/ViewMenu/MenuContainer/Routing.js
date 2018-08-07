@@ -24,6 +24,7 @@ const RouterContainerVertical = css`
   left: 0px;
 `;
 
+// has not docked
 const RouterContainerNotDocked = css`
   width: 100%;
   flex-direction: row;

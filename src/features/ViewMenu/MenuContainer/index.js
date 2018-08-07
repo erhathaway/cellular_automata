@@ -9,8 +9,8 @@ import Routing from './Routing';
 const MENU_WIDTH = 160;
 const UNDOCKED_MENU_HEIGHT = '600px';
 const MENU_BORDER_RADIUS = '8px';
-const DOCKED_VERTICAL_MENU_WIDTH = '140';
-const DOCKED_HORIZONTAL_MENU_HEIGHT = '90';
+const DOCKED_VERTICAL_MENU_WIDTH = '160';
+const DOCKED_HORIZONTAL_MENU_HEIGHT = '140';
 
 const Container = styled('div')`
   height: 100vh;

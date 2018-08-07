@@ -1,5 +1,24 @@
 import React from 'react';
-import styled from 'react-emotion';
+import styled, { css } from 'react-emotion';
+
+// dock top or bottom
+const ContainerHorizontal = css`
+`;
+
+// dock left or right
+const ContainerVertical = css`
+
+`;
+
+// has not docked
+const ContainerNotDocked = css`
+
+`;
+
+// dock right
+const ContainerVerticalRight = css`
+  text-align: right;
+`;
 
 const Container = styled('h1')`
   color: #80CBEC;
@@ -7,8 +26,11 @@ const Container = styled('h1')`
   letter-spacing: 3px;
   width: 100%;
   text-align: left;
-  padding-left: 50px;
+  min-width: 70px;
+
+  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;
+
 
 const truncateNumber = (unRoundedNumber) => {
     const number = Math.floor(unRoundedNumber);
@@ -29,14 +51,14 @@ const truncateNumber = (unRoundedNumber) => {
     return number;
 }
 
-export default ({ children, shouldTruncateNumber }) => {
+export default ({ children, shouldTruncateNumber, menuPlacement }) => {
   let parsedChildren = children;
   if (shouldTruncateNumber && typeof children === 'string') {
     const number = +children;
     parsedChildren = truncateNumber(number);
   }
   return (
-    <Container>
+    <Container menuPlacement={menuPlacement}>
     { parsedChildren }
     </Container>
   );
