@@ -1,22 +1,14 @@
 import React from 'react';
-import styled from 'react-emotion';
 
-import { AttributeHeader, TitleHeader } from './Views';
-
-const Container = styled('div')`
-  height: 100%;
-  width: 100%;
-  margin: 1px;
-  background-color: rgba(54, 149, 217, 1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
+import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
 export default props => (
   <Container {...props}>
-    <AttributeHeader>No</AttributeHeader>
-    <TitleHeader>Style</TitleHeader>
+    <AttributeHeader>
+      No
+    </AttributeHeader>
+    <TitleHeader>
+      Style
+    </TitleHeader>
   </Container>
 );

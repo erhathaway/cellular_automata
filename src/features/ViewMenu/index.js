@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import Container from './Container';
+import Container from './MenuContainer';
 import { Dimensions, Neighbors, Rule, Shape, States, Style, Viewer } from './MenuItems';
 
 const Item = styled('div')`

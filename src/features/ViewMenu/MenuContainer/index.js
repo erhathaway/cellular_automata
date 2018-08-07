@@ -1,13 +1,16 @@
 import React from 'react';
 import anime from 'animejs';
 import Draggable from 'react-draggable';
-
 import styled, { css } from 'react-emotion';
+
+import Controls from './Controls';
+import Routing from './Routing';
 
 const MENU_WIDTH = 160;
 const UNDOCKED_MENU_HEIGHT = '600px';
 const MENU_BORDER_RADIUS = '8px';
-const DOCKED_VERTICAL_MENU_WIDTH = '120';
+const DOCKED_VERTICAL_MENU_WIDTH = '140';
+const DOCKED_HORIZONTAL_MENU_HEIGHT = '90';
 
 const Container = styled('div')`
   height: 100vh;
@@ -63,6 +66,7 @@ const ContentContainer = styled('div')`
   display: flex;
   align-items: center;
   justify-content: center;
+  align-content: stretch;
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContentContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ContentContainerHorizontal)}
@@ -82,226 +86,6 @@ const PlacementOutline = styled('nav')`
   opacity: 1;
   opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
 `;
-
-/* ----------------------------------------------------------------------------*/
-/* Menu Router Container
-/* ----------------------------------------------------------------------------*/
-
-// dock top or bottom
-const RouterContainerHorizontal = css`
-  height: 100%;
-  flex-direction: row;
-  width: 150px;
-  border-radius: 0px;
-  right: 0px;
-`;
-
-// dock left or right
-const RouterContainerVertical = css`
-  width: 100%;
-  flex-direction: column;
-  height: 100px;
-  left: 0px;
-`;
-
-const RouterContainerNotDocked = css`
-  width: 100%;
-  flex-direction: row;
-`;
-
-const RouterContainer = styled('nav')`
-  position: relative;
-  bottom: 0px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: rgba(54, 149, 217, 1);
-  border-bottom-left-radius: ${MENU_BORDER_RADIUS};
-  border-bottom-right-radius: ${MENU_BORDER_RADIUS};
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && RouterContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && RouterContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && RouterContainerVertical)}
-`;
-
-/* ----------------------------------------------------------------------------*/
-/* Menu Router Features
-/* ----------------------------------------------------------------------------*/
-// dock top or bottom
-const FAIconHorizontal = css`
-  height: 100%;
-
-  &:hover {
-    border-radius: 0px;
-  }
-`;
-
-// dock left or right
-const FAIconVertical = css`
-  height: 50%;
-  width: 100%;
-
-  &:hover {
-    border-radius: 0px;
-  }
-`;
-
-// not docked
-const FAIconNotDocked = css`
-  padding: 10px;
-
-`;
-
-const FAIcon = styled('div')`
-  color: gray;
-  font-size: 20px;
-  font-weight: light;
-  width: 50%;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    color: rgba(54, 149, 217, 1);
-    background-color: gray;
-    ${({ leftOrRight }) => `border-bottom-${leftOrRight}-radius: ${MENU_BORDER_RADIUS};`}
-  };
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && FAIconNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && FAIconHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && FAIconVertical)}
-`;
-
-/* ----------------------------------------------------------------------------*/
-/* Menu Control Container
-/* ----------------------------------------------------------------------------*/
-
-// dock top or bottom
-const MenuControllerContainerHorizontal = css`
-  left: 0px;
-  height: 100%;
-  flex-direction: row;
-  width: 150px;
-`;
-
-// dock left or right
-const MenuControllerContainerVertical = css`
-  left: 0px;
-  width: 100%;
-  height: 100px;
-  flex-direction: column;
-  border-radius: 0px;
-`;
-
-// not docked
-const MenuControllerContainerNotDocked = css`
-  left: 0px;
-  width: 100%;
-  height: 35px;
-`;
-
-const MenuControllerContainer = styled('div')`
-  position: relative;
-  top: 0px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuControllerContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuControllerContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuControllerContainerVertical)}
-`;
-
-/* ----------------------------------------------------------------------------*/
-/* Menu Control Features
-/* ----------------------------------------------------------------------------*/
-
-// dock top or bottom
-const MenuDraggableContainerHorizontal = css`
-  width: 50%;
-  height: 100%;
-`;
-
-// dock left or right
-const MenuDraggableContainerVertical = css`
-  width: 100%;
-  height: 50%;
-`;
-
-// not docked
-const MenuDraggableContainerNotDocked = css`
-  width: 100%;
-  height: 100%;
-  border-top-left-radius: ${MENU_BORDER_RADIUS};
-`;
-
-const MenuDraggableContainer = styled('div')`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 2;
-  background-color: rgba(54, 149, 217, 0.7);
-
-  &:hover {
-    cursor: grab;
-  }
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuDraggableContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuDraggableContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuDraggableContainerVertical)}
-`;
-
-const DraggableIcon = styled('div')`
-  background-color: gray;
-  border-radius: 50%;
-  height: 6px;
-  width: 6px;
-  margin: 5px;
-  margin-left: 3px;
-  margin-right: 3px;
-`;
-
-// dock top or bottom
-const MenuShrinkContainerHorizontal = css`
-  width: 50%;
-  height: 100%;
-`;
-
-// dock left or right
-const MenuShrinkContainerVertical = css`
-  width: 100%;
-  height: 50%;
-`;
-
-// not docked
-const MenuShrinkContainerNotDocked = css`
-  width: 70px;
-  height: 100%;
-  border-top-right-radius: ${MENU_BORDER_RADIUS};
-`;
-
-const MenuShrinkContainer = styled('div')`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(54, 149, 217, 1);
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuShrinkContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuShrinkContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuShrinkContainerVertical)}
-`;
-
-const MenuShrinkButton = styled('div')`
-  width: 20px;
-  background-color: gray;
-  height: 4px;
-  border-radius: 2px;
-`;
-
 
 export default class Component extends React.Component {
   constructor(props) {
@@ -467,7 +251,7 @@ export default class Component extends React.Component {
     anime({
       targets: '.view-menu-container',
       width: '100%',
-      height: '60px',
+      height: `${DOCKED_HORIZONTAL_MENU_HEIGHT}px`,
       top: '0',
       left: '0px',
       borderRadius: 0,
@@ -537,7 +321,7 @@ export default class Component extends React.Component {
       <Container>
         <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0"/>
         <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0"/>
-        <PlacementOutline shouldShow={placement === 'willDockTop'} height="70px" width="100vw" top="0" left="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0"/>
         <Draggable
           handle=".view-menu-draggable-handle"
           axis="both"
@@ -549,26 +333,11 @@ export default class Component extends React.Component {
           {...positionProp}
         >
           <Menu id="view-menu-container" className="view-menu-container here" menuPlacement={placement}>
-            <MenuControllerContainer menuPlacement={placement}>
-              <MenuDraggableContainer menuPlacement={placement} className="view-menu-draggable-handle">
-                <DraggableIcon />
-                <DraggableIcon />
-                <DraggableIcon />
-              </MenuDraggableContainer>
-              <MenuShrinkContainer
-                menuPlacement={placement}
-                onClick={this.handleMenuOpenToggleClick}
-              >
-                <MenuShrinkButton />
-              </MenuShrinkContainer>
-            </MenuControllerContainer>
+            <Controls menuPlacement={placement} />
             <ContentContainer menuPlacement={placement}>
               { childrenWithProps }
             </ContentContainer>
-            <RouterContainer menuPlacement={placement}>
-              <FAIcon menuPlacement={placement} leftOrRight="left" className="fas fa-home" />
-              <FAIcon menuPlacement={placement} leftOrRight="right" className="fas fa-question" />
-            </RouterContainer>
+            <Routing menuPlacement={placement} />
           </Menu>
         </Draggable>
       </Container>
