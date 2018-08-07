@@ -94,6 +94,7 @@ export default class Component extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      isMenuMoving: false, // indicates whether the menu is undergoing a drag event or not
       isOpen: false,
       // eslint-disable-next-line max-len
       menuPlacement: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
@@ -130,7 +131,10 @@ export default class Component extends React.Component {
 
 
   onStartDragEvent({ clientX: x, clientY: y }) {
-    const { menuPlacement: placement } = this.state;
+    const { menuPlacement: placement, isMenuMoving } = this.state;
+
+    if (!isMenuMoving) { this.setState(state => ({ ...state, isMenuMoving: true })); }
+
     if (placement && placement.includes('Docked')) {
       this.setState(state => ({ ...state, menuPlacement: undefined }));
       this.animateUnDock(x, y);
@@ -150,7 +154,10 @@ export default class Component extends React.Component {
   }
 
   onStopDragEvent() {
-    const { menuPlacement: placement } = this.state;
+    const { menuPlacement: placement, isMenuMoving } = this.state;
+
+    if (isMenuMoving) { this.setState(state => ({ ...state, isMenuMoving: false })); }
+
     if (placement === 'willDockLeft') {
       this.animateDockLeft();
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }));
@@ -295,7 +302,7 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { menuPlacement: placement, width, isOpen } = this.state;
+    const { menuPlacement: placement, width, isOpen, isMenuMoving } = this.state;
 
     let position;
     switch (placement) {
@@ -318,7 +325,7 @@ export default class Component extends React.Component {
     const positionProp = position ? { position } : {};
     const { children } = this.props;
     const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: isOpen }));
+      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: isOpen, isMenuMoving }));
 
     return (
       <Container>

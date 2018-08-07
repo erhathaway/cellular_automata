@@ -31,6 +31,10 @@ const Container = styled('div')`
   align-items: center;
   flex-grow: 1;
 
+  &:hover {
+    ${({ isMenuMoving }) => !isMenuMoving && 'background-color: yellow;'}
+  }
+
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ContainerHorizontal)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && ContainerVertical)}
@@ -74,12 +78,12 @@ const Children = styled('div')`
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ChildrenVerticalRight)}
 `;
 
-export default ({ children, menuPlacement, ...props }) => {
+export default ({ children, menuPlacement, isMenuMoving, ...props }) => {
   const childrenWithProps = React.Children.map(children, child =>
     React.cloneElement(child, { menuPlacement, ...props }));
 
   return (
-    <Container menuPlacement={menuPlacement}>
+    <Container menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
       <Children menuPlacement={menuPlacement}>
         { childrenWithProps }
       </Children>
