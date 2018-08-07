@@ -145,7 +145,7 @@ export default class Component extends React.Component {
 
     return (
       <Container ref={this.myRef} onClick={this.toggleShowItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-        { showItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName}/> }
+        { showItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName} hide={this.toggleShowItemMenu}/> }
         <Children menuPlacement={menuPlacement}>
           { childrenWithProps }
         </Children>

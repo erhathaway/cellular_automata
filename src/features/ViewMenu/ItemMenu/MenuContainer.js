@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs';
-import uuid from 'uuid';
+// import uuid from 'uuid';
 
 import styled from 'react-emotion';
 
@@ -12,16 +12,20 @@ const PortalContainer = () => (
   <Container />
 );
 
-const PortalID = (() => uuid())();
+// const PortalID = (() => uuid())();
 
 export default class Component extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      renderPortal: true,
+    }
+
     this.el = document.createElement('div');
 
     const { portalName } = this.props;
-    this.elID = `${PortalID}${portalName ? portalName : ''}`;
+    this.elID = `${'submenu-portal'}${portalName ? '-' + portalName : ''}`;
     this.el.id = this.elID;
 
     this.modalRoot = document.getElementById('view-submenu-modal-root');
@@ -64,13 +68,29 @@ export default class Component extends React.Component {
     });
   }
 
+  // handleClick() {
+  //   console.log('click')
+  // }
+
   render() {
-    const { children } = this.props;
+    const { children, hide } = this.props;
+    const { renderPortal } = this.state;
+
+    console.log(hide)
+    // const coords
     this.positionPortalToParentRef();
 
-    return ReactDOM.createPortal(
-      children,
-      this.el,
-    );
+    // const childrenWithProps = React.Children.map(children, child =>
+    //   React.cloneElement(child, { handleClick: this.handleClick }));
+
+
+    if (renderPortal) {
+      return ReactDOM.createPortal(
+        children,
+        this.el,
+      );
+    }
+
+    return null;
   }
 }
