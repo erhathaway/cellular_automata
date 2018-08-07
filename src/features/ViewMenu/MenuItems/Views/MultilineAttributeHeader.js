@@ -6,6 +6,10 @@ const ContainerVerticalRight = css`
   flex-direction: row-reverse;
 `;
 
+const ContainerNotDocked = css`
+  font-size: 15px;
+`;
+
 const Container = styled('h1')`
   margin: 3px;
   width: 100%;
@@ -13,7 +17,9 @@ const Container = styled('h1')`
   display: flex;
   min-width: 100px;
   flex-direction: row;
+  font-size: 17px;
 
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;
 

@@ -7,12 +7,11 @@ const ContainerHorizontal = css`
 
 // dock left or right
 const ContainerVertical = css`
-
 `;
 
 // has not docked
 const ContainerNotDocked = css`
-
+  font-size: 15px;
 `;
 
 // dock right
@@ -28,7 +27,9 @@ const Container = styled('h1')`
   width: 100%;
   text-align: left;
   min-width: 70px;
+  font-size: 20px;
 
+  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;
 

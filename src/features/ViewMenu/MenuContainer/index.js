@@ -8,13 +8,14 @@ import Routing from './Routing';
 
 const MENU_WIDTH = 160;
 const UNDOCKED_MENU_HEIGHT = '600px';
-const MENU_BORDER_RADIUS = '4px';
+const MENU_BORDER_RADIUS = '6px';
 const DOCKED_VERTICAL_MENU_WIDTH = '160';
 const DOCKED_HORIZONTAL_MENU_HEIGHT = '140';
 
 const Container = styled('div')`
   height: 100vh;
   width: 100vw;
+  z-index: 999;
 `;
 
 // dock top or bottom
@@ -25,8 +26,8 @@ const MenuHorizontal = css`
 // dock left or right
 const MenuVertical = css`
   flex-direction: column;
-  border-right: 1px solid rgba(56,56,56,0.7);
-  border-left: 1px solid rgba(56,56,56,0.7);
+  // border-right: 1px solid rgba(56,56,56,0.7);
+  // border-left: 1px solid rgba(56,56,56,0.7);
 
   &:hover {
     // background-color: rgba(0,0,0,0.7);
@@ -38,7 +39,7 @@ const MenuNotDocked = css`
   flex-direction: column;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   border-radius: ${MENU_BORDER_RADIUS};
-  border: 1px solid rgba(56,56,56,0.7);
+  border: 1px solid rgba(56,56,56,0.6);
   background-color: black;
 
 `;
@@ -48,8 +49,8 @@ const Menu = styled('nav')`
   width: ${MENU_WIDTH}px;
   // background-color: rgba(54, 149, 217, 0.8);
   // background-color: black;
-  background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.65), rgba(0,0,0,0.6), rgba(0,0,0,0.6));
-  z-position: 2;
+  background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
+  z-index: 3;
   display: flex;
   align-items: center;
 

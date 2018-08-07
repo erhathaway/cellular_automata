@@ -4,9 +4,9 @@ import { ViewMenu, ViewPlayer } from '../features';
 
 const Container = styled('div')`
   position: relative;
-  // background-color: black;
   // background-color: chocolate;
   background-color: #2e4d5d;
+  background-color: black;
   height: 100vh;
   width: 100vw;
   z-index: 0;

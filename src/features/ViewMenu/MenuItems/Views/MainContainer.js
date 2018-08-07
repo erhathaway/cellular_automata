@@ -4,6 +4,7 @@ import styled, { css } from 'react-emotion';
 // dock top or bottom
 const ContainerHorizontal = css`
   height: 100%;
+  justify-content: center;
 `;
 
 // dock left or right
@@ -20,10 +21,19 @@ border-bottom: 1px solid #0e0e0e;
 // dock right
 const ContainerVerticalRight = css`
   justify-content: flex-end;
+
+  border-right: 1px solid rgba(0, 0, 0, 0);
+  margin-right: 10px;
+  padding-right: -10px;
+
+    &:hover {
+      border-right: 1px solid rgba(72, 72, 72, 0.5);
+
+    }
 `;
 
 const Container = styled('div')`
-border-bottom: 1px solid #0e0e0e;
+// border-bottom: 1px solid #0e0e0e;
 
   width: 100%;
   margin: 1px;
@@ -34,7 +44,7 @@ border-bottom: 1px solid #0e0e0e;
   flex-grow: 1;
 
   &:hover {
-    ${({ isMenuMoving }) => !isMenuMoving && 'background-color: yellow;'}
+    ${({ isMenuMoving }) => !isMenuMoving && 'background-color: #4040403d;'}
   }
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
