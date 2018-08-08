@@ -99,12 +99,13 @@ export default class Component extends React.Component {
     super(props);
 
     this.state = {
-      showItemMenu: false,
+      shouldShowItemMenu: false,
       parentCoords: {},
     };
 
     this.myRef = React.createRef();
-    this.toggleShowItemMenu = this.toggleShowItemMenu.bind(this);
+    this.showItemMenu = this.showItemMenu.bind(this);
+    this.hideItemMenu = this.hideItemMenu.bind(this);
   }
 
   componentDidMount() {
@@ -118,8 +119,16 @@ export default class Component extends React.Component {
     }
   }
 
-  toggleShowItemMenu() {
-    this.setState(state => ({ ...state, showItemMenu: !state.showItemMenu }))
+  showItemMenu() {
+    const { shouldShowItemMenu } = this.state;
+
+    if (!shouldShowItemMenu) {
+      this.setState(state => ({ ...state, shouldShowItemMenu: true }));
+    }
+  }
+
+  hideItemMenu() {
+    this.setState(state => ({ ...state, shouldShowItemMenu: false }))
   }
 
   calcParentCoords() {
@@ -138,14 +147,14 @@ export default class Component extends React.Component {
       ...props,
     } = this.props;
 
-    const { showItemMenu, parentCoords } = this.state;
+    const { shouldShowItemMenu, parentCoords } = this.state;
 
     const childrenWithProps = React.Children.map(children, child =>
       React.cloneElement(child, { menuPlacement, ...props }));
 
     return (
-      <Container ref={this.myRef} onClick={this.toggleShowItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-        { showItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName} hide={this.toggleShowItemMenu}/> }
+      <Container ref={this.myRef} onClick={this.showItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
+        { shouldShowItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName} shouldHide={this.hideItemMenu}/> }
         <Children menuPlacement={menuPlacement}>
           { childrenWithProps }
         </Children>

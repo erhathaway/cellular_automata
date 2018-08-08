@@ -15,11 +15,20 @@ const PortalContainer = () => (
 // const PortalID = (() => uuid())();
 
 export default class Component extends React.Component {
+  static isClickOutside({ x: clickX, y: clickY }, { x: elX, y: elY, width: elWidth, height: elHeight }) {
+    const MARGIN = 20;
+    const isOutsideX = clickX < elX - MARGIN || clickX > (elX + elWidth + MARGIN);
+    const isOutsideY = clickY < elY - MARGIN || clickY > (elY + elHeight + MARGIN);
+
+    return isOutsideX || isOutsideY;
+  }
+
   constructor(props) {
     super(props);
 
     this.state = {
-      renderPortal: true,
+      renderPortal: false,
+      initialAnimationComplete: false,
     }
 
     this.el = document.createElement('div');
@@ -29,15 +38,27 @@ export default class Component extends React.Component {
     this.el.id = this.elID;
 
     this.modalRoot = document.getElementById('view-submenu-modal-root');
+
+    this.checkIfCursorOutsideEl = this.checkIfCursorOutsideEl.bind(this);
+    this.checkIfClickOutsideEl = this.checkIfClickOutsideEl.bind(this);
+  }
+
+
+  componentWillMount() {
+    this.modalRoot.appendChild(this.el);
+    window.addEventListener('mousemove', this.checkIfCursorOutsideEl);
+    window.addEventListener('click', this.checkIfClickOutsideEl);
   }
 
   componentDidMount() {
-    this.modalRoot.appendChild(this.el);
     this.animateOpen();
+    this.setState(state => ({ renderPortal: true}))
   }
 
   componentWillUnmount() {
     this.modalRoot.removeChild(this.el);
+    window.removeEventListener('mousemove', this.checkIfCursorOutsideEl);
+    window.removeEventListener('click', this.checkIfClickOutsideEl);
   }
 
   positionPortalToParentRef() {
@@ -49,34 +70,56 @@ export default class Component extends React.Component {
       height,
     } = parentCoords;
 
-     this.el.style.position = 'absolute';
-     this.el.style.left = `${x + width}px`;
-     this.el.style.top = `${y}px`;
+    this.el.style.position = 'absolute';
+    this.el.style.left = `${x + width}px`;
+    this.el.style.top = `${y}px`;
+    this.el.style.transformOrigin = 'left';
   }
 
   animateOpen() {
     anime({
       targets: `#${this.elID}`,
       scale: [0, 1],
-      translateX: [-100, 0],
-      translateY: [50, 0],
-      duration: 400,
+      duration: 300,
       opacity: [0, 1],
-      elasticity: 100,
-      easing: 'easeOutQuint',
       delay: 0,
+      elasticity: 0,
+      easing: 'easeOutQuint',
+      complete: () => {
+        this.setState(state => ({ ...state, initialAnimationComplete: true }))
+      }
     });
   }
 
-  // handleClick() {
-  //   console.log('click')
-  // }
+  checkIfCursorOutsideEl(cursorCoords) {
+    const { initialAnimationComplete } = this.state;
+    if (!initialAnimationComplete) return;
+
+    const { shouldHide, parentCoords } = this.props;
+
+    const portalCoords =  this.el.getBoundingClientRect();
+    const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
+    const isOutsideParent = Component.isClickOutside(cursorCoords, parentCoords);
+    if (isOutsidePortal && isOutsideParent) { shouldHide(); }
+  }
+
+  checkIfClickOutsideEl(cursorCoords) {
+    const { initialAnimationComplete } = this.state;
+    if (!initialAnimationComplete) return;
+
+    const { shouldHide } = this.props;
+
+    const portalCoords =  this.el.getBoundingClientRect();
+    const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
+
+    if (isOutsidePortal) { shouldHide(); }
+  }
 
   render() {
-    const { children, hide } = this.props;
+    const { children, shouldHide } = this.props;
     const { renderPortal } = this.state;
 
-    console.log(hide)
+    // console.log(hide)
     // const coords
     this.positionPortalToParentRef();
 
