@@ -1,21 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs';
-// import uuid from 'uuid';
-
-import styled from 'react-emotion';
-
-const Container = styled('div')`
-`;
-
-const PortalContainer = () => (
-  <Container />
-);
-
-// const PortalID = (() => uuid())();
 
 export default class Component extends React.Component {
-  static isClickOutside({ x: clickX, y: clickY }, { x: elX, y: elY, width: elWidth, height: elHeight }) {
+  static isClickOutside({ x: clickX, y: clickY }, { x: elX, y: elY, width: elWidth, height: elHeight }) { // eslint-disable-line max-len, object-curly-newline
     const MARGIN = 20;
     const isOutsideX = clickX < elX - MARGIN || clickX > (elX + elWidth + MARGIN);
     const isOutsideY = clickY < elY - MARGIN || clickY > (elY + elHeight + MARGIN);
@@ -52,7 +40,7 @@ export default class Component extends React.Component {
 
   componentDidMount() {
     this.animateOpen();
-    this.setState(state => ({ renderPortal: true}))
+    this.setState(state => ({ renderPortal: true}));
   }
 
   componentWillUnmount() {
@@ -67,7 +55,6 @@ export default class Component extends React.Component {
       x,
       y,
       width,
-      height,
     } = parentCoords;
 
     this.el.style.position = 'absolute';
@@ -86,8 +73,8 @@ export default class Component extends React.Component {
       elasticity: 0,
       easing: 'easeOutQuint',
       complete: () => {
-        this.setState(state => ({ ...state, initialAnimationComplete: true }))
-      }
+        this.setState(state => ({ ...state, initialAnimationComplete: true }));
+      },
     });
   }
 
@@ -97,7 +84,7 @@ export default class Component extends React.Component {
 
     const { shouldHide, parentCoords } = this.props;
 
-    const portalCoords =  this.el.getBoundingClientRect();
+    const portalCoords = this.el.getBoundingClientRect();
     const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
     const isOutsideParent = Component.isClickOutside(cursorCoords, parentCoords);
     if (isOutsidePortal && isOutsideParent) { shouldHide(); }
@@ -109,23 +96,17 @@ export default class Component extends React.Component {
 
     const { shouldHide } = this.props;
 
-    const portalCoords =  this.el.getBoundingClientRect();
+    const portalCoords = this.el.getBoundingClientRect();
     const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
 
     if (isOutsidePortal) { shouldHide(); }
   }
 
   render() {
-    const { children, shouldHide } = this.props;
+    const { children } = this.props;
     const { renderPortal } = this.state;
 
-    // console.log(hide)
-    // const coords
     this.positionPortalToParentRef();
-
-    // const childrenWithProps = React.Children.map(children, child =>
-    //   React.cloneElement(child, { handleClick: this.handleClick }));
-
 
     if (renderPortal) {
       return ReactDOM.createPortal(

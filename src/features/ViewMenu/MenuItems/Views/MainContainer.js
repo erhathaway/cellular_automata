@@ -114,7 +114,7 @@ export default class Component extends React.Component {
 
   componentDidUpdate(_, { parentCoords: prevParentCoords }) {
     const { parentCoords: currentParentCoords } = this.state;
-    if ( prevParentCoords === currentParentCoords ) {
+    if (prevParentCoords === currentParentCoords) {
       this.calcParentCoords();
     }
   }
@@ -128,14 +128,14 @@ export default class Component extends React.Component {
   }
 
   hideItemMenu() {
-    this.setState(state => ({ ...state, shouldShowItemMenu: false }))
+    this.setState(state => ({ ...state, shouldShowItemMenu: false }));
   }
 
   calcParentCoords() {
     const coords = ReactDOM
-     .findDOMNode(this.myRef.current)
-     .getBoundingClientRect()
-    this.setState(state => ({ ...state, parentCoords: coords}))
+      .findDOMNode(this.myRef.current)
+      .getBoundingClientRect();
+    this.setState(state => ({ ...state, parentCoords: coords }));
   }
 
   render() {
@@ -144,7 +144,7 @@ export default class Component extends React.Component {
       menuPlacement,
       isMenuMoving,
       menuName,
-      ...props,
+      ...props
     } = this.props;
 
     const { shouldShowItemMenu, parentCoords } = this.state;
@@ -162,16 +162,3 @@ export default class Component extends React.Component {
     );
   }
 }
-
-// ({ children, menuPlacement, isMenuMoving, ...props }) => {
-//   const childrenWithProps = React.Children.map(children, child =>
-//     React.cloneElement(child, { menuPlacement, ...props }));
-//
-//   return (
-//     <Container menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-//       <Children menuPlacement={menuPlacement}>
-//         { childrenWithProps }
-//       </Children>
-//     </Container>
-//   );
-// };
