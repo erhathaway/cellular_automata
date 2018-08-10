@@ -7,15 +7,19 @@ const DimensionContainer = styled('div')`
   display: flex;
   width: 80%;
   justify-content: center;
+
 `;
 
 export default props => (
-  <Container {...props} height="150px" width="270px">
+  <Container {...props} height="170px" width="300px">
     <Title>
       {'Population Size Per Dimension'}
     </Title>
     <DimensionContainer>
-      <DimensionLineItem label="x">
+      <DimensionLineItem label="x" value="1000" />
+    </DimensionContainer>
+    <DimensionContainer>
+      <DimensionLineItem label="y" value="10" />
     </DimensionContainer>
   </Container>
 );

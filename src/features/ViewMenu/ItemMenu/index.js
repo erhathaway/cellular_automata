@@ -1,2 +1,2 @@
-import Dimensions from './Dimensions';
-export default Dimensions;
+import Population from './Population';
+export default Population;

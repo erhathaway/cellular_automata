@@ -16,10 +16,10 @@ const Container = styled('div')`
   margin-left: -1px;
 
   color: gray;
-  border: 1px solid white;
+  border: 1px solid #5d5c5c;
   // background-color: gray;
-  ${({ isActive }) => isActive && 'background-color: white;'}
-  ${({ isActive }) => isActive && 'color: black;'}
+  ${({ isActive }) => isActive && 'background-color: #00000047;'}
+  ${({ isActive }) => isActive && 'color: yellow;'}
 
   &:hover {
     color: white;
