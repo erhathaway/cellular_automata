@@ -14,7 +14,12 @@ import {
   Viewer,
 } from '../features/ViewMenuItems';
 
-import { PopupArea } from '../libs/popup';
+import {
+  Dimensions as DimensionsPopup,
+  Viewer as ViewerPopup,
+} from '../features/ViewMenuPopups';
+
+import { PopupArea, PopupManager } from '../libs/popup';
 
 const Container = styled('div')`
   position: relative;
@@ -27,14 +32,15 @@ const Container = styled('div')`
 `;
 
 
-// <ViewMenu {...props} />
 export default props => (
   <Container>
-    <PopupArea id="popup-area"/>
+    <PopupArea id="popup-area" />
 
     <MenuContainer {...props}>
       <Dimensions />
-      <Viewer />
+      <PopupManager component={ViewerPopup}>
+        <Viewer />
+      </PopupManager>
       <States />
       <Shape />
       <Neighbors />

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import { Container, Title, Button } from './Views';
+import { ContainerWithoutPopup as Container, Title, Button } from './Views';
 
 const ButtonContainer = styled('div')`
   display: flex;
@@ -12,7 +12,7 @@ const ButtonContainer = styled('div')`
 export default props => (
   <Container {...props} height="150px" width="270px">
     <Title>
-      {'Dimensions To View Cells In'}
+      {'Dimensions To View Cells In Hello!'}
     </Title>
     <ButtonContainer>
       <Button isActive>

@@ -28,6 +28,7 @@ export default class Component extends React.Component {
     this.el.id = this.elID;
 
     this.modalRoot = document.getElementById(`${portalID ? portalID : PORTAL_ID}`);
+    this.modalRoot.appendChild(this.el);
 
     this.checkIfCursorOutsideEl = this.checkIfCursorOutsideEl.bind(this);
     this.checkIfClickOutsideEl = this.checkIfClickOutsideEl.bind(this);
@@ -35,7 +36,6 @@ export default class Component extends React.Component {
 
 
   componentWillMount() {
-    this.modalRoot.appendChild(this.el);
     window.addEventListener('mousemove', this.checkIfCursorOutsideEl);
     window.addEventListener('click', this.checkIfClickOutsideEl);
   }
