@@ -29,6 +29,7 @@ const Input = styled('input')`
   display: flex;
   justify-content: flex-end;
   flex-grow: 2;
+  letter-spacing: 3px;
 `;
 
 export default ({ label, value }) => (

@@ -1,2 +1,3 @@
-import Population from './Population';
-export default Population;
+export { default as Shape } from './Shape';
+export { default as Dimensions } from './Dimensions';
+export { default as Viewer } from './Viewer';

@@ -1,9 +1,11 @@
 import React from 'react';
 
+import { Dimensions } from '../ItemMenu';
+
 import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
 export default props => (
-  <Container menuName="neighbors" {...props}>
+  <Container popupName="neighbors" popupComponent={Dimensions} {...props}>
     <AttributeHeader>
       8
     </AttributeHeader>

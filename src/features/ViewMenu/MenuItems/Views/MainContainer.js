@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import styled, { css } from 'react-emotion';
 
 
-import ItemMenu from '../../ItemMenu';
+// import ItemMenu from '../../ItemMenu';
+import MenuPopup from './MenuPopup';
 
 // dock top or bottom
 const ContainerHorizontal = css`
@@ -143,7 +144,8 @@ export default class Component extends React.Component {
       children,
       menuPlacement,
       isMenuMoving,
-      menuName,
+      popupName,
+      popupComponent,
       ...props
     } = this.props;
 
@@ -154,7 +156,7 @@ export default class Component extends React.Component {
 
     return (
       <Container ref={this.myRef} onClick={this.showItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-        { shouldShowItemMenu && <ItemMenu parentCoords={parentCoords} portalName={menuName} shouldHide={this.hideItemMenu}/> }
+        <MenuPopup show={shouldShowItemMenu} popupComponent={popupComponent} parentCoords={parentCoords} popupName={popupName} shouldHide={this.hideItemMenu} />
         <Children menuPlacement={menuPlacement}>
           { childrenWithProps }
         </Children>

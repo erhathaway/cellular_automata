@@ -7,6 +7,7 @@ const DimensionContainer = styled('div')`
   display: flex;
   width: 80%;
   justify-content: center;
+  margin-bottom: 10px;
 
 `;
 

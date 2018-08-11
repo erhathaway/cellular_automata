@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import ItemMenuPopup from '../../ItemMenuPopup';
+import { Popup } from '../../../../libs/popup';
 
 const Container = styled('div')`
   background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
@@ -15,15 +15,15 @@ const Container = styled('div')`
   align-items: center;
 `;
 
-export default ({ children, height, width, ...props }) => {
+export default ({ show, children, height, width, ...props }) => {
   const childrenWithProps = React.Children.map(children, child =>
     React.cloneElement(child, props));
 
   return (
-    <ItemMenuPopup {...props}>
+    <Popup show={show} {...props}>
       <Container style={{ height, width }}>
         { childrenWithProps }
       </Container>
-    </ItemMenuPopup>
+    </Popup>
   );
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs';
 
+const PORTAL_ID = 'popup-area';
+
 export default class Component extends React.Component {
   static isClickOutside({ x: clickX, y: clickY }, { x: elX, y: elY, width: elWidth, height: elHeight }) { // eslint-disable-line max-len, object-curly-newline
     const MARGIN = 20;
@@ -21,11 +23,11 @@ export default class Component extends React.Component {
 
     this.el = document.createElement('div');
 
-    const { portalName } = this.props;
-    this.elID = `${'submenu-portal'}${portalName ? '-' + portalName : ''}`;
+    const { popupName, portalID } = this.props;
+    this.elID = `${'submenu-portal'}${popupName ? '-' + popupName : ''}`;
     this.el.id = this.elID;
 
-    this.modalRoot = document.getElementById('view-submenu-modal-root');
+    this.modalRoot = document.getElementById(`${portalID ? portalID : PORTAL_ID}`);
 
     this.checkIfCursorOutsideEl = this.checkIfCursorOutsideEl.bind(this);
     this.checkIfClickOutsideEl = this.checkIfClickOutsideEl.bind(this);
@@ -40,7 +42,7 @@ export default class Component extends React.Component {
 
   componentDidMount() {
     this.animateOpen();
-    this.setState(state => ({ renderPortal: true}));
+    this.setState(state => ({ ...state, renderPortal: true }));
   }
 
   componentWillUnmount() {
