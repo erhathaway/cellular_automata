@@ -2,10 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css } from 'react-emotion';
 
-
-// import ItemMenu from '../../ItemMenu';
-import MenuPopup from './MenuPopup';
-
 // dock top or bottom
 const ContainerHorizontal = css`
   height: 100%;
@@ -95,72 +91,15 @@ const Children = styled('div')`
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ChildrenVerticalRight)}
 `;
 
-export default class Component extends React.Component {
-  constructor(props) {
-    super(props);
+export default ({ children, menuPlacement, isMenuMoving, ...props }) => {
+  const childrenWithProps = React.Children.map(children, child =>
+    React.cloneElement(child, { menuPlacement, ...props }));
 
-    this.state = {
-      shouldShowItemMenu: false,
-      parentCoords: {},
-    };
-
-    this.myRef = React.createRef();
-    this.showItemMenu = this.showItemMenu.bind(this);
-    this.hideItemMenu = this.hideItemMenu.bind(this);
-  }
-
-  componentDidMount() {
-    this.calcParentCoords();
-  }
-
-  componentDidUpdate(_, { parentCoords: prevParentCoords }) {
-    const { parentCoords: currentParentCoords } = this.state;
-    if (prevParentCoords === currentParentCoords) {
-      this.calcParentCoords();
-    }
-  }
-
-  showItemMenu() {
-    const { shouldShowItemMenu } = this.state;
-
-    if (!shouldShowItemMenu) {
-      this.setState(state => ({ ...state, shouldShowItemMenu: true }));
-    }
-  }
-
-  hideItemMenu() {
-    this.setState(state => ({ ...state, shouldShowItemMenu: false }));
-  }
-
-  calcParentCoords() {
-    const coords = ReactDOM
-      .findDOMNode(this.myRef.current)
-      .getBoundingClientRect();
-    this.setState(state => ({ ...state, parentCoords: coords }));
-  }
-
-  render() {
-    const {
-      children,
-      menuPlacement,
-      isMenuMoving,
-      popupName,
-      popupComponent,
-      ...props
-    } = this.props;
-
-    const { shouldShowItemMenu, parentCoords } = this.state;
-
-    const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, { menuPlacement, ...props }));
-
-    return (
-      <Container ref={this.myRef} onClick={this.showItemMenu} menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
-        <MenuPopup show={shouldShowItemMenu} popupComponent={popupComponent} parentCoords={parentCoords} popupName={popupName} shouldHide={this.hideItemMenu} />
-        <Children menuPlacement={menuPlacement}>
-          { childrenWithProps }
-        </Children>
-      </Container>
-    );
-  }
-}
+  return (
+    <Container menuPlacement={menuPlacement} isMenuMoving={isMenuMoving}>
+      <Children menuPlacement={menuPlacement}>
+        { childrenWithProps }
+      </Children>
+    </Container>
+  );
+};

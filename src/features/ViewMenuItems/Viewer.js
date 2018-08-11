@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { Viewer } from '../ViewMenuPopups';
-
-import { MainContainerWithoutPopup as Container, AttributeHeader, TitleHeader } from './Views';
+import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
 export default props => (
   <Container {...props}>

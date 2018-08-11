@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import { ContainerWithoutPopup as Container, Title, Button } from './Views';
+import { Container, Title, Button } from './Views';
 
 const ButtonContainer = styled('div')`
   display: flex;

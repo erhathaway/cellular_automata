@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { Shape } from '../ViewMenuPopups';
-
 import {
   MainContainer as Container,
   MultilineAttributeHeader,
@@ -10,7 +8,7 @@ import {
 } from './Views';
 
 export default props => (
-  <Container popupName="shape" popupComponent={Shape} {...props}>
+  <Container {...props}>
     <HeaderContainer>
       <MultilineAttributeHeader shouldTruncateNumber prefix="x">
         2265173

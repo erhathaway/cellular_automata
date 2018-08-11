@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
 
-import { Popup } from '../../../libs/popup';
-
 const Container = styled('div')`
   background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
 
@@ -20,10 +18,8 @@ export default ({ show, children, height, width, ...props }) => {
     React.cloneElement(child, props));
 
   return (
-    <Popup show={show} {...props}>
-      <Container style={{ height, width }}>
-        { childrenWithProps }
-      </Container>
-    </Popup>
+    <Container style={{ height, width }}>
+      { childrenWithProps }
+    </Container>
   );
 };

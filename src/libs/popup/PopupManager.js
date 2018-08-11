@@ -49,22 +49,26 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { children, component, popupName, ...props } = this.props;
+    const { children, component, popupName, menuPlacement, style: propsStyle, ...props } = this.props;
 
     const { shouldShowItemMenu, parentCoords } = this.state;
 
     const childrenWithProps = React.cloneElement(children, {
+      menuPlacement,
       ...props,
     });
 
     const popup = React.createElement(component, { ...props });
+
+    const orientationStyle = menuPlacement === 'hasDockedTop' ? { height: '100%' } : { width: '100%' };
+    const style = propsStyle || { ...orientationStyle, display: 'flex', flexGrow: '1' };
 
     return (
       <React.Fragment>
         <Popup show={shouldShowItemMenu} parentCoords={parentCoords} popupName={popupName} shouldHide={this.hideItemMenu} >
           { popup }
         </Popup>
-        <div onClick={this.showItemMenu} ref={this.myRef} style={{ width: '100%' }}>
+        <div onClick={this.showItemMenu} ref={this.myRef} style={style}>
           { childrenWithProps }
         </div>
       </React.Fragment>

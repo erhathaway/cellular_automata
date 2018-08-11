@@ -17,6 +17,7 @@ import {
 import {
   Dimensions as DimensionsPopup,
   Viewer as ViewerPopup,
+  Shape as ShapePopup,
 } from '../features/ViewMenuPopups';
 
 import { PopupArea, PopupManager } from '../libs/popup';
@@ -37,15 +38,33 @@ export default props => (
     <PopupArea id="popup-area" />
 
     <MenuContainer {...props}>
-      <Dimensions />
-      <PopupManager component={ViewerPopup}>
+      <PopupManager {...props} popupName="dimensions" component={DimensionsPopup}>
+        <Dimensions />
+      </PopupManager>
+
+      <PopupManager popupName="viewer" component={ViewerPopup}>
         <Viewer />
       </PopupManager>
-      <States />
-      <Shape />
-      <Neighbors />
-      <Rule ruleType="sbd" />
-      <Style />
+
+      <PopupManager popupName="states" component={DimensionsPopup}>
+        <States />
+      </PopupManager>
+
+      <PopupManager popupName="viewer" component={ShapePopup}>
+        <Shape />
+      </PopupManager>
+
+      <PopupManager popupName="viewer" component={DimensionsPopup}>
+        <Neighbors />
+      </PopupManager>
+
+      <PopupManager popupName="viewer" component={DimensionsPopup}>
+        <Rule ruleType="sbd" />
+      </PopupManager>
+
+      <PopupManager popupName="viewer" component={DimensionsPopup}>
+        <Style />
+      </PopupManager>
     </MenuContainer>
 
     <ViewPlayer {...props} />
