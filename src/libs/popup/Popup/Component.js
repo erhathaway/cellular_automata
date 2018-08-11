@@ -19,7 +19,7 @@ export default class Component extends React.Component {
     this.state = {
       renderPortal: false,
       initialAnimationComplete: false,
-    }
+    };
 
     this.el = document.createElement('div');
 
@@ -33,7 +33,6 @@ export default class Component extends React.Component {
     this.checkIfCursorOutsideEl = this.checkIfCursorOutsideEl.bind(this);
     this.checkIfClickOutsideEl = this.checkIfClickOutsideEl.bind(this);
   }
-
 
   componentWillMount() {
     window.addEventListener('mousemove', this.checkIfCursorOutsideEl);

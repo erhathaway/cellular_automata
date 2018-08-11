@@ -12,7 +12,7 @@ const ButtonContainer = styled('div')`
 export default props => (
   <Container {...props} height="150px" width="270px">
     <Title>
-      {'Dimensions To View Cells In Hello!'}
+      {'Dimensions To View Cells In'}
     </Title>
     <ButtonContainer>
       <Button isActive>

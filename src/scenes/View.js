@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
-import { ViewMenu, ViewPlayer } from '../features';
+import { ViewPlayer } from '../features';
 
 import MenuContainer from '../features/ViewMenuContainer';
 
