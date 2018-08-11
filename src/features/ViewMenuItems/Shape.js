@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Shape } from '../ItemMenu';
+import { Shape } from '../ViewMenuPopups';
 
 import {
   MainContainer as Container,

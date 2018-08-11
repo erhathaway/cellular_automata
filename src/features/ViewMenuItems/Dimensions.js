@@ -1,16 +1,16 @@
 import React from 'react';
 
-import { Dimensions } from '../ItemMenu';
+import { Dimensions } from '../ViewMenuPopups';
 
 import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
 export default props => (
-  <Container popupName="neighbors" popupComponent={Dimensions} {...props}>
+  <Container popupName="dimension" popupComponent={Dimensions} {...props}>
     <AttributeHeader>
-      8
+      1D
     </AttributeHeader>
     <TitleHeader>
-      Neighbors
+      Cells
     </TitleHeader>
   </Container>
 );

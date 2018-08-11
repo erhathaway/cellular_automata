@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Dimensions } from '../ItemMenu';
+import { Dimensions } from '../ViewMenuPopups';
 
 import {
   MainContainer as Container,
