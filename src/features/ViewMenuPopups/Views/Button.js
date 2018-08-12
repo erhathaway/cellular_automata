@@ -9,14 +9,13 @@ const Container = styled('div')`
   letter-spacing: 4px;
   font-size: 14px;
   border-radius: 2px;
-
   display: flex;
   justify-content: center;
   align-items: center;
   margin-left: -1px;
-
   color: gray;
   border: 1px solid #5d5c5c;
+  
   ${({ isActive }) => isActive && 'background-color: #00000047;'}
   ${({ isActive }) => isActive && 'color: yellow;'}
 

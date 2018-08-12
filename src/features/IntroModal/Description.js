@@ -8,8 +8,6 @@ const Container = styled('p')`
   text-align: center;
   margin-top: ${({ marginTop }) => marginTop || '0px'};
   margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
-
-
   font-size: 15px;
   color: #4e5220;
   line-height: 28px;

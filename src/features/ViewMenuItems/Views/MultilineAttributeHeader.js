@@ -30,7 +30,6 @@ const PrefixVerticalRight = css`
   border-right: 0px solid rgba(56,56,56,0.9);
   padding-right: 0px;
   margin-right: 0px;
-
   border-left: 1px solid rgba(56,56,56,0.9);
   padding-left: 8px;
   margin-left: 8px;
@@ -63,7 +62,6 @@ const Suffix = styled('div')`
 `;
 
 const Attribute = styled('a')`
-  // color: #80CBEC;
   color: rgba(156,156,156,1);
   letter-spacing: 3px;
 `;

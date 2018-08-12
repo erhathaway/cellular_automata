@@ -73,7 +73,6 @@ const DraggableContainer = styled('div')`
   justify-content: center;
   align-items: center;
   flex: 2;
-  // background-color: rgba(54, 149, 217, 0.7);
 
   &:hover {
     cursor: grab;

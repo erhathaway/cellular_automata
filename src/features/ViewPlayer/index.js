@@ -13,7 +13,6 @@ const Container = styled('aside')`
   height: 95px;
   width: calc(100% - 500px);
   min-width: 400px;
-  // background-color: blue;
 `;
 
 export default props => (
