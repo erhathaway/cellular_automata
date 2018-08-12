@@ -18,6 +18,7 @@ import {
   Dimensions as DimensionsPopup,
   Viewer as ViewerPopup,
   Shape as ShapePopup,
+  States as StatesPopup,
 } from '../features/ViewMenuPopups';
 
 import { PopupArea, PopupManager } from '../libs/popup';
@@ -46,7 +47,7 @@ export default props => (
         <Viewer />
       </PopupManager>
 
-      <PopupManager popupName="states" component={DimensionsPopup}>
+      <PopupManager popupName="states" component={StatesPopup}>
         <States />
       </PopupManager>
 
