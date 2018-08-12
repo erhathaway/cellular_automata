@@ -49,15 +49,39 @@ const Color = styled('div')`
   background-color: ${({ color }) => color || 'white'};
 `;
 
-export default ({ label, color, setPopupCoords, onChangeComplete }) => (
-  <Container>
-    <Label>
-      { label }
-    </Label>
-    <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={<SketchPicker color={"blue"} onChange={onChangeComplete}/>}>
-      <ColorContainer>
-        <Color color={color} />
-      </ColorContainer>
-    </PopupManager>
-  </Container>
-);
+export default class Component extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const { color } = this.props;
+    this.state = {
+      color,
+    };
+
+    this.updateColor = this.updateColor.bind(this);
+  }
+
+  updateColor({ hex: color }) {
+    this.setState(state => ({ ...state, color }));
+
+    const { onChangeComplete } = this.props;
+    onChangeComplete(color);
+  }
+
+  render() {
+    const { label, setPopupCoords } = this.props;
+    const { color: stateColor } = this.state;
+    return (
+      <Container>
+        <Label>
+          { label }
+        </Label>
+        <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={<SketchPicker color={stateColor} onChange={this.updateColor}/>}>
+          <ColorContainer>
+            <Color color={stateColor} />
+          </ColorContainer>
+        </PopupManager>
+      </Container>
+    )
+  }
+};

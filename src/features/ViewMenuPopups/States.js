@@ -54,10 +54,11 @@ export default class Component extends React.Component {
     this.onChangeComplete = this.onChangeComplete.bind(this);
   }
 
-  // shouldComponentUpdate(_, nextState) {
-  //   if (this.state === nextState) return true;
-  //   return false;
-  // }
+  shouldComponentUpdate(_, nextState) {
+    // TODO: dont use this method - temp fix: for some reason the rerender of this component is creating a new instance rather than reusing the same one,
+    if (this.state === nextState) return true;
+    return false;
+  }
 
   onChangeComplete(cellStateNumber) {
     return (color) => {

@@ -15,8 +15,8 @@ export default class Component extends React.Component {
 
     this.myRef = React.createRef();
 
-    this.showItemMenu = this.showItemMenu.bind(this);
-    this.hideItemMenu = this.hideItemMenu.bind(this);
+    this.showPopup = this.showPopup.bind(this);
+    this.hidePopup = this.hidePopup.bind(this);
     this.setExclusionCoords = this.setExclusionCoords.bind(this);
   }
 
@@ -31,7 +31,7 @@ export default class Component extends React.Component {
     }
   }
 
-  showItemMenu() {
+  showPopup() {
     const { shouldShowItemMenu } = this.state;
 
     if (!shouldShowItemMenu) {
@@ -39,7 +39,7 @@ export default class Component extends React.Component {
     }
   }
 
-  hideItemMenu() {
+  hidePopup() {
     this.setState(state => ({ ...state, shouldShowItemMenu: false }));
   }
 
@@ -83,7 +83,7 @@ export default class Component extends React.Component {
     const style = propsStyle || { ...orientationStyle, display: 'flex', flexGrow: '1' };
 
     return (
-      <div onClick={this.showItemMenu} ref={this.myRef} style={style}>
+      <div onClick={this.showPopup} ref={this.myRef} style={style}>
         <Popup
           show={shouldShowItemMenu}
           setPopupCoords={setPopupCoords}
@@ -91,7 +91,7 @@ export default class Component extends React.Component {
           clickExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}
           parentCoords={parentCoords}
           popupName={popupName}
-          shouldHide={this.hideItemMenu}
+          shouldHide={this.hidePopup}
         >
           { popup }
         </Popup>
