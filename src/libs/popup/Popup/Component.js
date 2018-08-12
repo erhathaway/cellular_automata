@@ -26,6 +26,7 @@ export default class Component extends React.Component {
     const { popupName, portalID } = this.props;
     this.elID = `${'submenu-portal'}${popupName ? '-' + popupName : ''}`;
     this.el.id = this.elID;
+    this.el.style.zIndex = '999';
 
     this.modalRoot = document.getElementById(`${portalID ? portalID : PORTAL_ID}`);
     this.modalRoot.appendChild(this.el);

@@ -83,7 +83,7 @@ export default class Component extends React.Component {
     const style = propsStyle || { ...orientationStyle, display: 'flex', flexGrow: '1' };
 
     return (
-      <React.Fragment>
+      <div onClick={this.showItemMenu} ref={this.myRef} style={style}>
         <Popup
           show={shouldShowItemMenu}
           setPopupCoords={setPopupCoords}
@@ -95,10 +95,8 @@ export default class Component extends React.Component {
         >
           { popup }
         </Popup>
-        <div onClick={this.showItemMenu} ref={this.myRef} style={style}>
-          { childrenWithProps }
-        </div>
-      </React.Fragment>
+        { childrenWithProps }
+      </div>
     );
   }
 }

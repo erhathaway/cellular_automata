@@ -21,6 +21,8 @@ const KeyValue = styled('div')`
   // margin-bottom: 10px;
   border-bottom: 1px solid gray;
   color: white;
+  font-size: 12px;
+  letter-spacing: 3px;
 `;
 
 const States = styled('div')`
@@ -38,7 +40,7 @@ export default class Component extends React.Component {
       return 0;
     });
   }
-  
+
   constructor(props) {
     super(props);
 
@@ -51,6 +53,11 @@ export default class Component extends React.Component {
 
     this.onChangeComplete = this.onChangeComplete.bind(this);
   }
+
+  // shouldComponentUpdate(_, nextState) {
+  //   if (this.state === nextState) return true;
+  //   return false;
+  // }
 
   onChangeComplete(cellStateNumber) {
     return (color) => {
@@ -101,7 +108,7 @@ export default class Component extends React.Component {
         </Title>
         <Key>
           <KeyValue>
-            State
+            #
           </KeyValue>
           <KeyValue>
             Color

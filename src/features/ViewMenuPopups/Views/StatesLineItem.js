@@ -21,7 +21,7 @@ const Label = styled('div')`
   text-align: center;
   width: 100%;
   padding: 5px;
-  margin-left: 20px;
+  margin-left: 10px;
   margin-right: 20px;
   margin-bottom: 10px;
 `;
@@ -54,7 +54,7 @@ export default ({ label, color, setPopupCoords, onChangeComplete }) => (
     <Label>
       { label }
     </Label>
-    <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={<SketchPicker color={color} onChangeComplete={onChangeComplete} />}>
+    <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={<SketchPicker color={"blue"} onChange={onChangeComplete}/>}>
       <ColorContainer>
         <Color color={color} />
       </ColorContainer>
