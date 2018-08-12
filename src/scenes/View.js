@@ -39,7 +39,7 @@ export default props => (
     <PopupArea id="popup-area" />
 
     <MenuContainer {...props}>
-      <PopupManager {...props} popupName="dimensions" component={DimensionsPopup}>
+      <PopupManager popupName="dimensions" component={DimensionsPopup}>
         <Dimensions />
       </PopupManager>
 

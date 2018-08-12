@@ -64,6 +64,8 @@ export default class Component extends React.Component {
 
   render() {
     const { cellStates } = this.state;
+    // set the parent popups exclusion coords as this child popups coords so it doesn't close when clicked
+    const { setExclusionCoords } = this.props;
 
     return (
       <Container {...this.props} height="250px" width="300px">
@@ -80,7 +82,7 @@ export default class Component extends React.Component {
         </Key>
         <States>
           { cellStates.map(({ state, color }, i) => (
-            <StatesLineItem key={`cell-state-${state}-${color}`} label={state} color={color} />
+            <StatesLineItem key={`cell-state-${state}-${color}`} setPopupCoords={setExclusionCoords} label={state} color={color} />
           ))}
         </States>
       </Container>

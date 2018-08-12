@@ -50,6 +50,15 @@ export default class Component extends React.Component {
     window.removeEventListener('click', this.checkIfClickOutsideEl);
   }
 
+  sendPopupCoords() {
+    const { setPopupCoords } = this.props;
+
+    if (setPopupCoords && typeof setPopupCoords === 'function') {
+      const portalCoords = this.el.getBoundingClientRect();
+      setPopupCoords(portalCoords);
+    }
+  }
+
   positionPortalToParentRef() {
     const { parentCoords } = this.props;
     const {
@@ -75,6 +84,7 @@ export default class Component extends React.Component {
       easing: 'easeOutQuint',
       complete: () => {
         this.setState(state => ({ ...state, initialAnimationComplete: true }));
+        this.sendPopupCoords();
       },
     });
   }
@@ -83,35 +93,51 @@ export default class Component extends React.Component {
     const { initialAnimationComplete } = this.state;
     if (!initialAnimationComplete) return;
 
-    const { shouldHide, parentCoords } = this.props;
+    const { shouldHide, parentCoords, cursorExclusionCoords: exC } = this.props;
 
     const portalCoords = this.el.getBoundingClientRect();
     const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
     const isOutsideParent = Component.isClickOutside(cursorCoords, parentCoords);
-    if (isOutsidePortal && isOutsideParent) { shouldHide(); }
+
+    // check if other coords were passed to popup to exclude from exiting
+    //  this is useful if you want to render additional popups and go into popup hell
+
+    if (exC && exC.x && exC.y && exC.height && exC.width) {
+      const isOutsideExclusioncoords = Component.isClickOutside(cursorCoords, exC);
+      if (isOutsidePortal && isOutsideParent && isOutsideExclusioncoords) { shouldHide(); }
+    } else if (isOutsidePortal && isOutsideParent) {
+      shouldHide();
+    }
   }
 
   checkIfClickOutsideEl(cursorCoords) {
     const { initialAnimationComplete } = this.state;
     if (!initialAnimationComplete) return;
 
-    const { shouldHide } = this.props;
+    const { shouldHide, clickExclusionCoords: exC } = this.props;
 
     const portalCoords = this.el.getBoundingClientRect();
     const isOutsidePortal = Component.isClickOutside(cursorCoords, portalCoords);
 
-    if (isOutsidePortal) { shouldHide(); }
+    if (exC && exC.x && exC.y && exC.height && exC.width) {
+      const isOutsideExclusioncoords = Component.isClickOutside(cursorCoords, exC);
+      if (isOutsidePortal && isOutsideExclusioncoords) { shouldHide(); }
+    } else if (isOutsidePortal) { shouldHide(); }
   }
 
   render() {
-    const { children } = this.props;
+    const { children, ...props } = this.props;
     const { renderPortal } = this.state;
+
+    const childrenWithProps = React.cloneElement(children, {
+      ...props,
+    });
 
     this.positionPortalToParentRef();
 
     if (renderPortal) {
       return ReactDOM.createPortal(
-        children,
+        childrenWithProps,
         this.el,
       );
     }

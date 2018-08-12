@@ -10,12 +10,14 @@ export default class Component extends React.Component {
     this.state = {
       shouldShowItemMenu: false,
       parentCoords: {},
+      exclusionCoords: {},
     };
 
     this.myRef = React.createRef();
 
     this.showItemMenu = this.showItemMenu.bind(this);
     this.hideItemMenu = this.hideItemMenu.bind(this);
+    this.setExclusionCoords = this.setExclusionCoords.bind(this);
   }
 
   componentDidMount() {
@@ -48,24 +50,47 @@ export default class Component extends React.Component {
     this.setState(state => ({ ...state, parentCoords: coords }));
   }
 
-  render() {
-    const { children, component, popupName, menuPlacement, style: propsStyle, ...props } = this.props;
+  setExclusionCoords(coords) {
+    this.setState(state => ({ ...state, exclusionCoords: coords }));
+  }
 
-    const { shouldShowItemMenu, parentCoords } = this.state;
+
+  render() {
+    const {
+      children,
+      component,
+      popupName,
+      menuPlacement,
+      style: propsStyle,
+      setPopupCoords,
+      exclusionCoords: exclusionCoordsFromProp,
+      ...props,
+    } = this.props;
+
+    const { shouldShowItemMenu, parentCoords, exclusionCoords: exclusionCoordsFromChild } = this.state;
 
     const childrenWithProps = React.cloneElement(children, {
       menuPlacement,
+      setExclusionCoords: this.setExclusionCoords,
       ...props,
     });
 
-    const popup = React.createElement(component, { ...props });
+    const popup = React.createElement(component, { ...childrenWithProps.props, ...props });
 
     const orientationStyle = menuPlacement === 'hasDockedTop' ? { height: '100%' } : { width: '100%' };
     const style = propsStyle || { ...orientationStyle, display: 'flex', flexGrow: '1' };
 
     return (
       <React.Fragment>
-        <Popup show={shouldShowItemMenu} parentCoords={parentCoords} popupName={popupName} shouldHide={this.hideItemMenu} >
+        <Popup
+          show={shouldShowItemMenu}
+          setPopupCoords={setPopupCoords}
+          cursorExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}
+          clickExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}
+          parentCoords={parentCoords}
+          popupName={popupName}
+          shouldHide={this.hideItemMenu}
+        >
           { popup }
         </Popup>
         <div onClick={this.showItemMenu} ref={this.myRef} style={style}>
