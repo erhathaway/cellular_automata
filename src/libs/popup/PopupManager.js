@@ -126,7 +126,7 @@ Component.propTypes = {
 };
 
 Component.defaultProps = {
-  exclusionCoords: {},
+  exclusionCoords: undefined, // default as undefined so it can be overriden if set via instance method passed to child
   setPopupCoords: undefined,
   popupName: undefined,
   menuPlacement: undefined,

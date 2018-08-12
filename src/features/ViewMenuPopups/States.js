@@ -86,7 +86,7 @@ class Component extends React.Component {
     }
   }
 
-  updateCellColor(cellStateNumber, { hex: color }) {
+  updateCellColor(cellStateNumber, color) {
     const { cellStates } = this.state;
     const filteredCellStates = cellStates.filter(s => s.state !== cellStateNumber);
     const newCellStates = Component.sortNewCellStates([

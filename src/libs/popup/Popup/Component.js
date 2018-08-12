@@ -103,7 +103,6 @@ class Component extends React.Component {
 
     // check if other coords were passed to popup to exclude from exiting
     //  this is useful if you want to render additional popups and go into popup hell
-
     if (exC && exC.x && exC.y && exC.height && exC.width) {
       const isOutsideExclusioncoords = Component.isClickOutside(cursorCoords, exC);
       if (isOutsidePortal && isOutsideParent && isOutsideExclusioncoords) { shouldHide(); }
