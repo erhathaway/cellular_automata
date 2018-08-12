@@ -75,7 +75,9 @@ export default class Component extends React.Component {
       ...props,
     });
 
-    const popup = React.createElement(component, { ...childrenWithProps.props, ...props });
+    const popup = React.isValidElement(component)
+      ? React.cloneElement(component,  { ...childrenWithProps.props, ...props })
+      : React.createElement(component, { ...childrenWithProps.props, ...props });
 
     const orientationStyle = menuPlacement === 'hasDockedTop' ? { height: '100%' } : { width: '100%' };
     const style = propsStyle || { ...orientationStyle, display: 'flex', flexGrow: '1' };

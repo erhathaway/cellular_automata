@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { SketchPicker } from 'react-color'
+
 
 import { PopupManager } from '../../../libs/popup';
 
@@ -47,12 +49,12 @@ const Color = styled('div')`
   background-color: ${({ color }) => color || 'white'};
 `;
 
-export default ({ label, color, setPopupCoords }) => (
+export default ({ label, color, setPopupCoords, onChangeComplete }) => (
   <Container>
     <Label>
       { label }
     </Label>
-    <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={ColorContainer}>
+    <PopupManager setPopupCoords={setPopupCoords} popupName={`states-color-picker-${label}`} component={<SketchPicker color={color} onChangeComplete={onChangeComplete} />}>
       <ColorContainer>
         <Color color={color} />
       </ColorContainer>

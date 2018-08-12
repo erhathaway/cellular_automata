@@ -31,6 +31,14 @@ const States = styled('div')`
 `;
 
 export default class Component extends React.Component {
+  static sortNewCellStates(cellStates) {
+    return cellStates.sort((s1, s2) => {
+      if (s1.state > s2.state) return 1;
+      if (s1.state < s2.state) return -1;
+      return 0;
+    });
+  }
+  
   constructor(props) {
     super(props);
 
@@ -40,25 +48,44 @@ export default class Component extends React.Component {
         { state: 1, color: 'black'},
       ],
     };
+
+    this.onChangeComplete = this.onChangeComplete.bind(this);
   }
 
-  addCellState(state, color) {
-    const { cellStates } = this.states;
-    const exists = cellStates.find(s => s.state === state);
+  onChangeComplete(cellStateNumber) {
+    return (color) => {
+      this.updateCellColor(cellStateNumber, color)
+    }
+  }
+
+  addCellState(cellStateNumber, color) {
+    const { cellStates } = this.state;
+    const exists = cellStates.find(s => s.state === cellStateNumber);
 
     if (!exists) {
+      const newCellStates = Component.sortNewCellStates([...cellStates, { state: cellStateNumber, color }]);
       this.setState(state => (
         {
           ...state,
-          cellStates: [...cellStates, { state, color }],
+          cellStates: newCellStates,
         }
       ));
     }
   }
 
+  updateCellColor(cellStateNumber, { hex: color }) {
+    const { cellStates } = this.state;
+    const filteredCellStates = cellStates.filter(s => s.state !== cellStateNumber);
+    const newCellStates = Component.sortNewCellStates([...filteredCellStates, { state: cellStateNumber, color }]);
+
+    this.setState(state => ({ ...state, cellStates: newCellStates }));
+  }
+
   removeCellState(cellStateNumber) {
-    const { cellStates } = this.states;
-    const newCellStates = cellStates.filter(s => s.state !== cellStateNumber);
+    const { cellStates } = this.state;
+    const filteredCellStates = cellStates.filter(s => s.state !== cellStateNumber);
+    const newCellStates = Component.sortNewCellStates(filteredCellStates);
+
     this.setState(state => ({ ...state, cellStates: newCellStates }));
   }
 
@@ -82,7 +109,7 @@ export default class Component extends React.Component {
         </Key>
         <States>
           { cellStates.map(({ state, color }, i) => (
-            <StatesLineItem key={`cell-state-${state}-${color}`} setPopupCoords={setExclusionCoords} label={state} color={color} />
+            <StatesLineItem key={`cell-state-${state}-${color}`} onChangeComplete={(newColor) => this.updateCellColor(state, newColor)} setPopupCoords={setExclusionCoords} label={state} color={color} />
           ))}
         </States>
       </Container>

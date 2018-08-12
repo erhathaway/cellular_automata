@@ -51,19 +51,19 @@ export default props => (
         <States />
       </PopupManager>
 
-      <PopupManager popupName="viewer" component={ShapePopup}>
+      <PopupManager popupName="shape" component={ShapePopup}>
         <Shape />
       </PopupManager>
 
-      <PopupManager popupName="viewer" component={DimensionsPopup}>
+      <PopupManager popupName="neighbors" component={DimensionsPopup}>
         <Neighbors />
       </PopupManager>
 
-      <PopupManager popupName="viewer" component={DimensionsPopup}>
+      <PopupManager popupName="rule" component={DimensionsPopup}>
         <Rule ruleType="sbd" />
       </PopupManager>
 
-      <PopupManager popupName="viewer" component={DimensionsPopup}>
+      <PopupManager popupName="style" component={DimensionsPopup}>
         <Style />
       </PopupManager>
     </MenuContainer>
