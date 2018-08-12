@@ -26,7 +26,7 @@ const Container = styled('div')`
 `;
 
 export default ({ children, callback, isActive, onClick }) => (
-  <Container onClick={callback} isActive={isActive} onClick={onClick}>
+  <Container isActive={isActive} onClick={onClick}>
     { children }
   </Container>
 );

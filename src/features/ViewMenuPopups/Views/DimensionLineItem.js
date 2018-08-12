@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { inject, observer } from 'mobx-react';
 
 const Container = styled('div')`
   height: 30px;
@@ -31,11 +32,19 @@ const Input = styled('input')`
   letter-spacing: 3px;
 `;
 
-export default ({ label, value }) => (
-  <Container>
-    <Label>
-      { label }
-    </Label>
-    <Input value={value} type="number"/>
-  </Container>
-);
+export default inject('automataStore')(observer((props) => {
+  const { automataStore: { populationShape }, id } = props;
+  const dimension = populationShape.value.filter(s => s.id === id)[0];
+
+  const { value, name } = dimension;
+
+  const handleOnChange = ({ target: { value }}) => dimension.setValue(value);
+  return (
+    <Container>
+      <Label>
+        { name }
+      </Label>
+      <Input value={value} onChange={handleOnChange} type="number" />
+    </Container>
+  );
+}));

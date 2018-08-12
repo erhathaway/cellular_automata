@@ -3,8 +3,8 @@ import { inject, observer } from 'mobx-react';
 
 import { MainContainer as Container, AttributeHeader, TitleHeader } from './Views';
 
-export default inject('store')(observer((props) => {
-  const { store: { dimension } } = props;
+export default inject('automataStore')(observer((props) => {
+  const { automataStore: { dimension } } = props;
 
   return (
     <Container {...props}>
