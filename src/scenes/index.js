@@ -5,14 +5,21 @@ import { TransitionGroup, Transition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
+// Services
 import { router as routerService, locationHistory } from '../services';
 
+// CSS
 import './main.css';
-import { DocumentationModal } from '../features';
+
+// Scenes
+import DocumentationModal from './DocumentationModal';
 import IntroModal from './IntroModal';
 import ViewScene from './View';
 import ExploreScene from './Explore';
 
+// ------------------------------------------------
+// Record router history and save on History Object
+// ------------------------------------------------
 // treats all router location changes as a continual movement forward in history
 //  regardless if the backbutton is used
 //  this allows us to use the routerService.locationHistory to accurately tell where we came from
@@ -53,9 +60,11 @@ const combineProps = (Scene, initialProps) => props => (
   <Scene {...initialProps} {...props} />
 );
 
-
 const duration = 1000;
 
+// ------------------------------------------------
+// Interpret router query string and router user to correct modals / scenes
+// ------------------------------------------------
 const QueryStringHandler = ({ location, history }) => {
   const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
 
@@ -91,6 +100,9 @@ QueryStringHandler.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
+// ------------------------------------------------
+// Main route composition
+// ------------------------------------------------
 const MainRoute = props => (
   <LocationHistoryRecorder {...props}>
     <QueryStringHandler {...props} />

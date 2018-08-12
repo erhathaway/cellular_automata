@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerService } from '../../services';
 
@@ -33,15 +34,9 @@ const IconContainer = styled('span')`
     color: green;
     cursor: pointer;
   }
-`
+`;
 
-const HomeIcon = styled('img')`
-  height: 25px;
-  background-color: rgba(56, 56, 56, 0.9);
-
-`
-
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
@@ -72,3 +67,9 @@ export default class Component extends React.Component {
     );
   }
 }
+
+Component.propTypes = {
+  history: ReactRouterPropTypes.history.isRequired,
+};
+
+export default Component;
