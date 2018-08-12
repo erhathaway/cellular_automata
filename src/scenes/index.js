@@ -8,7 +8,8 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { router as routerService, locationHistory } from '../services';
 
 import './main.css';
-import { IntroModal, DocumentationModal } from '../features';
+import { DocumentationModal } from '../features';
+import IntroModal from './IntroModal';
 import ViewScene from './View';
 import ExploreScene from './Explore';
 

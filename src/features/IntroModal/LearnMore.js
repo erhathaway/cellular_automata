@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerSerivce } from '../../services';
 
@@ -26,7 +27,7 @@ const Container = styled('div')`
   }
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
@@ -47,3 +48,9 @@ export default class Component extends React.Component {
     );
   }
 }
+
+Component.propTypes = {
+  history: ReactRouterPropTypes.history.isRequired,
+};
+
+export default Component;

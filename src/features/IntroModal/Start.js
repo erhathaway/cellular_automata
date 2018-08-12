@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerService } from '../../services';
 
@@ -32,7 +33,7 @@ const Container = styled('button')`
   }
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
@@ -52,3 +53,9 @@ export default class Component extends React.Component {
     );
   }
 }
+
+Component.propTypes = {
+  history: ReactRouterPropTypes.history.isRequired,
+};
+
+export default Component;
