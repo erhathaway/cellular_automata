@@ -4,5 +4,9 @@
       "no-underscore-dangle": [2, { "allowAfterThis": true }],
       "implicit-arrow-linebreak": 0,
       "react/jsx-filename-extension": 0
+    },
+    "globals": {
+      "window": true,
+      "document": true
     }
 }

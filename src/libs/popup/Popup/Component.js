@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs';
+import PropTypes from 'prop-types';
 
 const PORTAL_ID = 'popup-area';
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   static isClickOutside({ x: clickX, y: clickY }, { x: elX, y: elY, width: elWidth, height: elHeight }) { // eslint-disable-line max-len, object-curly-newline
     const MARGIN = 20;
     const isOutsideX = clickX < elX - MARGIN || clickX > (elX + elWidth + MARGIN);
@@ -24,11 +25,11 @@ export default class Component extends React.Component {
     this.el = document.createElement('div');
 
     const { popupName, portalID } = this.props;
-    this.elID = `${'submenu-portal'}${popupName ? '-' + popupName : ''}`;
+    this.elID = `${'submenu-portal'}${popupName ? `-${popupName}` : ''}`;
     this.el.id = this.elID;
     this.el.style.zIndex = '999';
 
-    this.modalRoot = document.getElementById(`${portalID ? portalID : PORTAL_ID}`);
+    this.modalRoot = document.getElementById(`${portalID || PORTAL_ID}`);
     this.modalRoot.appendChild(this.el);
 
     this.checkIfCursorOutsideEl = this.checkIfCursorOutsideEl.bind(this);
@@ -146,3 +147,39 @@ export default class Component extends React.Component {
     return null;
   }
 }
+
+Component.propTypes = {
+  children: PropTypes.element.isRequired,
+  shouldHide: PropTypes.func.isRequired,
+  clickExclusionCoords: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    height: PropTypes.number,
+    width: PropTypes.number,
+  }),
+  cursorExclusionCoords: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    height: PropTypes.number,
+    width: PropTypes.number,
+  }),
+  parentCoords: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    height: PropTypes.number,
+    width: PropTypes.number,
+  }).isRequired,
+  setPopupCoords: PropTypes.func,
+  popupName: PropTypes.string,
+  portalID: PropTypes.string,
+};
+
+Component.defaultProps = {
+  clickExclusionCoords: {},
+  cursorExclusionCoords: {},
+  setPopupCoords: undefined,
+  popupName: undefined,
+  portalID: undefined,
+};
+
+export default Component;

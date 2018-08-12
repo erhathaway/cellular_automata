@@ -1,7 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const PORTAL_ID = 'popup-area';
 
-export default ({ id }) => (
-  <div id={`${id ? id : PORTAL_ID}`} />
-)
+const Component = ({ id }) => (
+  <div id={`${id || PORTAL_ID}`} />
+);
+
+Component.propTypes = {
+  id: PropTypes.string,
+};
+
+Component.defaultProps = {
+  id: undefined,
+};
+
+export default Component;
