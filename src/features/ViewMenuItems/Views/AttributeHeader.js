@@ -1,13 +1,6 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
-
-// dock top or bottom
-const ContainerHorizontal = css`
-`;
-
-// dock left or right
-const ContainerVertical = css`
-`;
+import PropTypes from 'prop-types';
 
 // has not docked
 const ContainerNotDocked = css`
@@ -20,7 +13,6 @@ const ContainerVerticalRight = css`
 `;
 
 const Container = styled('h1')`
-  // color: #80CBEC;
   color: rgba(156,156,156,1);
   margin: 0px;
   letter-spacing: 3px;
@@ -37,25 +29,25 @@ const Container = styled('h1')`
 
 
 const truncateNumber = (unRoundedNumber) => {
-    const number = Math.floor(unRoundedNumber);
-    const mils = Math.floor(number / 1000000);
-    const thousands = Math.floor((number - (mils * 1000000)) / 1000);
-    const tens = Math.floor(number - (mils * 1000000) - (thousands * 1000));
+  const number = Math.floor(unRoundedNumber);
+  const mils = Math.floor(number / 1000000);
+  const thousands = Math.floor((number - (mils * 1000000)) / 1000);
+  const tens = Math.floor(number - (mils * 1000000) - (thousands * 1000));
 
-    if (mils > 0) {
-      const hk = thousands > 0 ? Math.floor(thousands / 100) : 0;
-      return hk > 0 ? mils + '.' + hk + ' m' : mils + ' m'
-    }
+  if (mils > 0) {
+    const hk = thousands > 0 ? Math.floor(thousands / 100) : 0;
+    return hk > 0 ? `${mils}.${hk} m` : `${mils} m`;
+  }
 
-    if (thousands > 0) {
-      const h = tens > 0 ? Math.floor(tens / 100) : 0;
-      return h > 0 ? thousands + '.' + h + ' k' : thousands + ' k'
-    }
+  if (thousands > 0) {
+    const h = tens > 0 ? Math.floor(tens / 100) : 0;
+    return h > 0 ? `${thousands}.${h} k` : `${thousands} k`;
+  }
 
-    return number;
-}
+  return number;
+};
 
-export default ({ children, shouldTruncateNumber, menuPlacement }) => {
+const Component = ({ children, shouldTruncateNumber, menuPlacement }) => {
   let parsedChildren = children;
   if (shouldTruncateNumber && typeof children === 'string') {
     const number = +children;
@@ -63,7 +55,24 @@ export default ({ children, shouldTruncateNumber, menuPlacement }) => {
   }
   return (
     <Container menuPlacement={menuPlacement}>
-    { parsedChildren }
+      { parsedChildren }
     </Container>
   );
-}
+};
+
+Component.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+  menuPlacement: PropTypes.string,
+  shouldTruncateNumber: PropTypes.bool,
+
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+  shouldTruncateNumber: false,
+};
+
+export default Component;

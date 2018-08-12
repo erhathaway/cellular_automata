@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
 
 // dock right
 const ContainerVerticalRight = css`
@@ -20,7 +21,6 @@ const Container = styled('h1')`
   font-size: 17px;
   user-select: none;
 
-
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;
@@ -37,10 +37,7 @@ const PrefixVerticalRight = css`
 `;
 
 const Prefix = styled('div')`
-  // color: gray;
-  // color: rgba(56,56,56,0.9);
   color: rgba(156,156,156,1);
-
   min-width: 5px;
   border-right: 1px solid rgba(56,56,56,0.9);
   padding-right: 8px;
@@ -62,7 +59,6 @@ const Suffix = styled('div')`
   font-size: 10px;
   display: flex;
   align-items: center;
-  // color: white;
   color: #464646;
 `;
 
@@ -77,7 +73,6 @@ const truncateNumber = (unRoundedNumber) => {
   const mils = Math.floor(number / 1000000);
   const thousands = Math.floor((number - (mils * 1000000)) / 1000);
   const tens = Math.floor(number - (mils * 1000000) - (thousands * 1000));
-
 
   let result;
   let suffix;
@@ -98,7 +93,7 @@ const truncateNumber = (unRoundedNumber) => {
   return { result, suffix };
 };
 
-export default ({ children, menuPlacement, prefix, shouldTruncateNumber, suffix }) => { // eslint-disable-line object-curly-newline, max-len
+const Component = ({ children, menuPlacement, prefix, shouldTruncateNumber, suffix }) => { // eslint-disable-line object-curly-newline, max-len
   let parsedChildren = children;
   let parsedSuffix = suffix;
 
@@ -116,15 +111,35 @@ export default ({ children, menuPlacement, prefix, shouldTruncateNumber, suffix 
         </Prefix>
       )}
       <AttributeAndSuffix>
-      <Attribute>
-        { parsedChildren }
-      </Attribute>
-      { parsedSuffix && (
-        <Suffix>
-          { parsedSuffix }
-        </Suffix>
-      )}
+        <Attribute>
+          { parsedChildren }
+        </Attribute>
+        { parsedSuffix && (
+          <Suffix>
+            { parsedSuffix }
+          </Suffix>
+        )}
       </AttributeAndSuffix>
     </Container>
   );
 };
+
+Component.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+  menuPlacement: PropTypes.string,
+  prefix: PropTypes.string,
+  shouldTruncateNumber: PropTypes.bool,
+  suffix: PropTypes.string,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+  prefix: undefined,
+  shouldTruncateNumber: false,
+  suffix: undefined,
+};
+
+export default Component;

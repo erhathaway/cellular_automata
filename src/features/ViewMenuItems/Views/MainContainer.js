@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
 
 // dock top or bottom
 const ContainerHorizontal = css`
@@ -10,35 +10,28 @@ const ContainerHorizontal = css`
 
 // dock left or right
 const ContainerVertical = css`
-
 `;
 
 // has not docked
 const ContainerNotDocked = css`
-border-bottom: 1px solid #0e0e0e;
-
+  border-bottom: 1px solid #0e0e0e;
 `;
 
 // dock right
 const ContainerVerticalRight = css`
   justify-content: flex-end;
-
   border-right: 1px solid rgba(0, 0, 0, 0);
   margin-right: 10px;
   padding-right: -10px;
 
-    &:hover {
-      border-right: 1px solid rgba(72, 72, 72, 0.5);
-
-    }
+  &:hover {
+    border-right: 1px solid rgba(72, 72, 72, 0.5);
+  }
 `;
 
 const Container = styled('div')`
-// border-bottom: 1px solid #0e0e0e;
-
   width: 100%;
   margin: 1px;
-  // background-color: rgba(54, 149, 217, 1);
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -65,19 +58,16 @@ const ChildrenHorizontal = css`
 
 // dock left or right
 const ChildrenVertical = css`
-
 `;
 
 // has not docked
 const ChildrenNotDocked = css`
-
 `;
 
 // dock right
 const ChildrenVerticalRight = css`
   margin-left: 0px;
   margin-right: 30px;
-
 `;
 
 const Children = styled('div')`
@@ -91,7 +81,7 @@ const Children = styled('div')`
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ChildrenVerticalRight)}
 `;
 
-export default ({ children, menuPlacement, isMenuMoving, ...props }) => {
+const Component = ({ children, menuPlacement, isMenuMoving, ...props }) => { // eslint-disable-line object-curly-newline, max-len
   const childrenWithProps = React.Children.map(children, child =>
     React.cloneElement(child, { menuPlacement, ...props }));
 
@@ -103,3 +93,19 @@ export default ({ children, menuPlacement, isMenuMoving, ...props }) => {
     </Container>
   );
 };
+
+Component.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+  menuPlacement: PropTypes.string,
+  isMenuMoving: PropTypes.bool,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+  isMenuMoving: false,
+};
+
+export default Component;

@@ -1,24 +1,19 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
 
 // dock top or bottom
 const ContainerHorizontal = css`
-  // &:hover {
-    border-bottom: 1px solid rgba(72, 72, 72, 0.5);
-    padding-bottom: 5px;
-
-  // }
+  border-bottom: 1px solid rgba(72, 72, 72, 0.5);
+  padding-bottom: 5px;
 `;
 
 // dock left or right
 const ContainerVertical = css`
-// border-right: 1px solid rgba(72, 72, 72, 0.8);
-// padding-right: 10px;
 `;
 
 // has not docked
 const ContainerNotDocked = css`
-
 `;
 
 // dock right
@@ -28,8 +23,6 @@ const ContainerVerticalRight = css`
 
 
 const Container = styled('h2')`
-  // color: #80CBEC;
-  // color: rgba(56,56,56,0.9);
   color: #464646;
   font-size: 10px;
   margin: 0px;
@@ -41,15 +34,28 @@ const Container = styled('h2')`
   letter-spacing: 2.3px;
   user-select: none;
 
-
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContainerNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ContainerHorizontal)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && ContainerVertical)}
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedRight')) && ContainerVerticalRight)}
 `;
 
-export default ({ children, menuPlacement }) => (
+const Component = ({ children, menuPlacement }) => (
   <Container menuPlacement={menuPlacement}>
     { children }
   </Container>
 );
+
+Component.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+  menuPlacement: PropTypes.string,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+};
+
+export default Component;
