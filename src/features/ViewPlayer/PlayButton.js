@@ -15,8 +15,6 @@ const Container = styled('aside')`
   justify-content: center;
   text-align: center;
   font-size: 25px;
-  // transform: scale(-1, 1);
-
   background-color: #4040403d;
 
   &:hover {

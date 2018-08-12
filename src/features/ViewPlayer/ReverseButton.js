@@ -29,22 +29,17 @@ const Icon = styled('div')`
   align-items: center;
   text-align: center;
   flex-grow: 3;
-  // margin-bottom: -20px
 `;
-const Direction = styled('p')`
-  // color: white;
 
-  font-size: 9px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  flex-grow: 0;
-  // margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-
-
-`;
+// const Direction = styled('p')`
+//   font-size: 9px;
+//   display: flex;
+//   align-items: center;
+//   text-align: center;
+//   flex-grow: 0;
+//   text-transform: uppercase;
+//   letter-spacing: 2px;
+// `;
 
 export default class Component extends React.Component {
   constructor(props) {
@@ -62,7 +57,7 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { isRunningForward } = this.state;
+    // const { isRunningForward } = this.state;
     // <Direction>
     // { isRunningForward ? 'forward' : 'backwards'}
     // </Direction>
