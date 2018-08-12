@@ -78,7 +78,7 @@ export default class Component extends React.Component {
         <PopupManager
           setPopupCoords={setPopupCoords}
           popupName={`states-color-picker-${label}`}
-          component={<SketchPicker color={stateColor} onChangeComplete={this.updateColor} />}
+          component={<SketchPicker color={stateColor} onChange={this.updateColor} />}
         >
           <ColorContainer>
             <Color color={stateColor} />

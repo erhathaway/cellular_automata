@@ -2,6 +2,7 @@
   "plugins": [
     ["@babel/plugin-proposal-object-rest-spread", { "loose": true, "useBuiltIns": true }],
     ["transform-class-properties"],
-    ["emotion"]
+    ["emotion"],
+    ["transform-decorators-legacy"]
   ],
 }

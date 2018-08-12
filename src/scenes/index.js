@@ -4,6 +4,10 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { TransitionGroup, Transition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import { Provider } from 'mobx-react';
+
+// State
+import observableState from '../state';
 
 // Services
 import { router as routerService, locationHistory } from '../services';
@@ -111,6 +115,8 @@ const MainRoute = props => (
 
 export default () => (
   <BrowserRouter>
-    <Route path="*" component={MainRoute} />
+    <Provider store={observableState}>
+      <Route path="*" component={MainRoute} />
+    </Provider>
   </BrowserRouter>
 );
