@@ -32,6 +32,7 @@ export default class Component extends React.Component {
     });
   }
 
+  // TODO comeup with an animate out animation
   // static animateOut() {
   //   anime({
   //     targets: '.markdown-container',
@@ -66,11 +67,6 @@ export default class Component extends React.Component {
     Component.animateIn();
     window.scrollTo(0, 0);
   }
-
-  // componentWillUpdate({ inState }) {
-  //   if (inState === 'exiting') { Component.animateOut(); }
-  // }
-
 
   render() {
     const { text } = this.state;

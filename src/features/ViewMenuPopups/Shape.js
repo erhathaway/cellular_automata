@@ -8,7 +8,6 @@ const DimensionContainer = styled('div')`
   width: 80%;
   justify-content: center;
   margin-bottom: 10px;
-
 `;
 
 export default props => (

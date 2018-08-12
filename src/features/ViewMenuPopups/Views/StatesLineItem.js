@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'react-emotion';
 import { SketchPicker } from 'react-color'
 
-
 import { PopupManager } from '../../../libs/popup';
 
 const Container = styled('div')`

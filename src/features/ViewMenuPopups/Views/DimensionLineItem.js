@@ -20,7 +20,6 @@ const Label = styled('div')`
 
 const Input = styled('input')`
   height: 30px;
-  // width: 120px;
   background: none;
   border: none;
   outline: none;

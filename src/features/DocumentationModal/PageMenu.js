@@ -46,7 +46,7 @@ const PageButton = styled('button')`
 
 const Arrow = styled('div')`
   font-size: 30px;
-`
+`;
 
 export default class Component extends React.Component {
   constructor(props) {
@@ -68,26 +68,26 @@ export default class Component extends React.Component {
 
     return (
       <Container className="landing-start-button" {...this.props}>
-          { prevPage && (
-            <ButtonContainer onClick={() => this.handleClick(prevPage.pageRouterName)}>
+        { prevPage && (
+          <ButtonContainer onClick={() => this.handleClick(prevPage.pageRouterName)}>
             <Arrow>
             ←
             </Arrow>
-              <PageButton>
-               { prevPage.pageDisplayName }
-              </PageButton>
-            </ButtonContainer>
-          )}
-          { nextPage && (
-            <ButtonContainer onClick={() => this.handleClick(nextPage.pageRouterName)}>
-              <PageButton>
-               { nextPage.pageDisplayName }
-              </PageButton>
-              <Arrow>
-              →
-              </Arrow>
-            </ButtonContainer>
-          )}
+            <PageButton>
+              { prevPage.pageDisplayName }
+            </PageButton>
+          </ButtonContainer>
+        )}
+        { nextPage && (
+          <ButtonContainer onClick={() => this.handleClick(nextPage.pageRouterName)}>
+            <PageButton>
+              { nextPage.pageDisplayName }
+            </PageButton>
+            <Arrow>
+            →
+            </Arrow>
+          </ButtonContainer>
+        )}
       </Container>
     );
   }

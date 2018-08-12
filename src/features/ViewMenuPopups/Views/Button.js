@@ -17,7 +17,6 @@ const Container = styled('div')`
 
   color: gray;
   border: 1px solid #5d5c5c;
-  // background-color: gray;
   ${({ isActive }) => isActive && 'background-color: #00000047;'}
   ${({ isActive }) => isActive && 'color: yellow;'}
 
