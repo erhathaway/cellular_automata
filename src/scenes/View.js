@@ -25,14 +25,11 @@ import { PopupArea, PopupManager } from '../libs/popup';
 
 const Container = styled('div')`
   position: relative;
-  background-color: chocolate;
-  // background-color: #2e4d5d;
-  // background-color: olivedrab;
+  background-color: olivedrab;
   height: 100vh;
   width: 100vw;
   z-index: 0;
 `;
-
 
 export default props => (
   <Container>

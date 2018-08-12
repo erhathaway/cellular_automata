@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'react-emotion';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { TransitionGroup, Transition } from 'react-transition-group';
+import PropTypes from 'prop-types';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerService, locationHistory } from '../services';
 
@@ -23,12 +25,9 @@ class LocationHistoryRecorder extends React.Component {
       const from = routerService.previousLocationName();
       const at = routerService.getLocationName(newLocation);
       routerService.updateStateHistory(newHistory, from, at);
-      return false
+      return false;
     }
-    // console.log('from:', newHistory.location.state.fromLocation)
-    // console.log('at:', newHistory.location.state.atLocation)
-
-    return true
+    return true;
   }
 
   render() {
@@ -36,6 +35,12 @@ class LocationHistoryRecorder extends React.Component {
     return children;
   }
 }
+
+LocationHistoryRecorder.propTypes = {
+  location: ReactRouterPropTypes.location.isRequired,
+  history: ReactRouterPropTypes.history.isRequired,
+  children: PropTypes.element.isRequired,
+};
 
 const Container = styled('div')`
   height: 100vh;
@@ -51,20 +56,16 @@ const combineProps = (Scene, initialProps) => props => (
 const duration = 1000;
 
 const QueryStringHandler = ({ location, history }) => {
-  const showDocumentation = routerService.isShowingDocumentationModal(history.location);
-  const showIntro = routerService.isShowingIntroModal(history.location);
-
   const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
+
   return (
-
-
     <Container>
       <TransitionGroup>
         <Transition
-          key={`modal-transition-${atLocation}` }
+          key={`modal-transition-${atLocation}`}
           timeout={{
-           enter: 1000,
-           exit: 1500,
+            enter: 1000,
+            exit: 1500,
           }}
         >
           {inState => (
@@ -83,39 +84,20 @@ const QueryStringHandler = ({ location, history }) => {
 
   );
 };
-//
-// <Container>
-//   <TransitionGroup>
-//     <Transition
-//       key={`modal-transition-${atLocation}`}
-//       timeout={duration}
-//       unmountOnExit
-//     >
-//       {inState => (
-//         <Switch key="567890" location={location}>
-//           { showDocumentation && <Route path="*" key="1234" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />}
-//           { showIntro && <Route path="*" key="4567" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />}
-//         </Switch>
-//       )}
-//     </Transition>
-//   </TransitionGroup>
-//   <Switch key="123" location={location}>
-//     <Route path="/explore" component={ExploreScene} />
-//     <Route path="*" component={ViewScene} />
-//   </Switch>
-// </Container>
 
-
-const MainRoute = (props) => (
-  <LocationHistoryRecorder {...props}>
-    <QueryStringHandler {...props}/>
-  </LocationHistoryRecorder>
-)
-
-export default () => {
-  return (
-    <BrowserRouter>
-        <Route path="*" component={MainRoute} />
-    </BrowserRouter>
-  );
+QueryStringHandler.propTypes = {
+  location: ReactRouterPropTypes.location.isRequired,
+  history: ReactRouterPropTypes.history.isRequired,
 };
+
+const MainRoute = props => (
+  <LocationHistoryRecorder {...props}>
+    <QueryStringHandler {...props} />
+  </LocationHistoryRecorder>
+);
+
+export default () => (
+  <BrowserRouter>
+    <Route path="*" component={MainRoute} />
+  </BrowserRouter>
+);

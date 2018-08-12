@@ -91,12 +91,20 @@ const router = {
   openIntroModal(history) {
     const newLocation = this.updateLocationToCloseModals(history.location);
     const newSearch = this.addToQueryString(newLocation.search, { modal: 'intro' }); // modals are shown via the 'modal' field in the query string
-    history.push({ pathname: newLocation.pathname, search: newSearch, state: newLocation.state }); // pass on all pathname and state info
+    history.push({ // pass on all pathname and state info
+      pathname: newLocation.pathname,
+      search: newSearch,
+      state: newLocation.state,
+    });
   },
   openDocumentationModalPage(history, pageRouterName) {
     const newLocation = this.updateLocationToCloseModals(history.location);
     const newSearch = this.addToQueryString(newLocation.search, { modal: 'documentation', docPage: pageRouterName }); // modals are shown via the 'modal' field in the query string
-    history.push({ pathname: newLocation.pathname, search: newSearch, state: newLocation.state }); // pass on all pathname and state info
+    history.push({ // pass on all pathname and state info
+      pathname: newLocation.pathname,
+      search: newSearch,
+      state: newLocation.state,
+    });
   },
   closeModal(history) {
     const newLocation = this.updateLocationToCloseModals(history.location);
@@ -155,7 +163,7 @@ const router = {
       this.documentationPages = this.documentationPages.concat(pages);
     } else {
       this.documentationPage.push(pages);
-     }
+    }
   },
   getSelectedDocumentationPage(location) {
     const parsedQuery = queryString.parse(location.search, { decode: true });
