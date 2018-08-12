@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
 
 const MENU_BORDER_RADIUS = '4px';
 
@@ -93,48 +94,7 @@ const DraggableIcon = styled('div')`
   margin-right: 3px;
 `;
 
-// dock top or bottom
-const ShrinkContainerHorizontal = css`
-  width: 50%;
-  height: 100%;
-`;
-
-// dock left or right
-const ShrinkContainerVertical = css`
-  width: 100%;
-  height: 50%;
-`;
-
-// not docked
-const ShrinkContainerNotDocked = css`
-  width: 70px;
-  height: 100%;
-  border-top-right-radius: ${MENU_BORDER_RADIUS};
-`;
-
-const ShrinkContainer = styled('div')`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  // background-color: rgba(54, 149, 217, 1);
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ShrinkContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ShrinkContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && ShrinkContainerVertical)}
-`;
-
-const MenuShrinkButton = styled('div')`
-  width: 20px;
-  background-color: gray;
-  height: 4px;
-  border-radius: 2px;
-`;
-
-export default ({ menuPlacement }) => (
+const Component = ({ menuPlacement }) => (
   <Container menuPlacement={menuPlacement}>
     <DraggableContainer menuPlacement={menuPlacement} className="view-menu-draggable-handle">
       <DraggableIcon />
@@ -144,9 +104,12 @@ export default ({ menuPlacement }) => (
   </Container>
 );
 
-// <ShrinkContainer
-// menuPlacement={menuPlacement}
-// onClick={this.handleMenuOpenToggleClick}
-// >
-// <MenuShrinkButton />
-// </ShrinkContainer>
+Component.propTypes = {
+  menuPlacement: PropTypes.string,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+};
+
+export default Component;

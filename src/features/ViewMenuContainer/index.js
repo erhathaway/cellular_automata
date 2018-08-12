@@ -2,9 +2,10 @@ import React from 'react';
 import anime from 'animejs';
 import Draggable from 'react-draggable';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
+import ReactRouterPropTypes from 'react-router-prop-types';
 
 import Controls from './Controls';
-import Routing from './Routing';
 
 const MENU_WIDTH = 160;
 const UNDOCKED_MENU_HEIGHT = '600px';
@@ -26,13 +27,6 @@ const MenuHorizontal = css`
 // dock left or right
 const MenuVertical = css`
   flex-direction: column;
-  // border-right: 1px solid rgba(56,56,56,0.7);
-  // border-left: 1px solid rgba(56,56,56,0.7);
-
-  &:hover {
-    // background-color: rgba(0,0,0,0.7);
-  }
-
 `;
 
 const MenuNotDocked = css`
@@ -47,8 +41,6 @@ const MenuNotDocked = css`
 const Menu = styled('nav')`
   position: fixed;
   width: ${MENU_WIDTH}px;
-  // background-color: rgba(54, 149, 217, 0.8);
-  // background-color: black;
   background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
   z-index: 3;
   display: flex;
@@ -100,7 +92,73 @@ const PlacementOutline = styled('nav')`
   opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
+  static animateOpen() {
+    anime({
+      targets: '.view-menu-container',
+      height: ['70px', UNDOCKED_MENU_HEIGHT],
+      width: `${MENU_WIDTH}px`,
+      duration: 500,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 100,
+    });
+  }
+
+  static animateClose() {
+    anime({
+      targets: '.view-menu-container',
+      height: [UNDOCKED_MENU_HEIGHT, '70px'],
+      duration: 500,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 100,
+    });
+  }
+
+  static animateUnDock() {
+    anime({
+      targets: '.view-menu-container',
+      height: UNDOCKED_MENU_HEIGHT,
+      width: 160,
+      duration: 200,
+      elasticity: 0,
+      borderRadius: MENU_BORDER_RADIUS,
+      easing: 'easeOutQuint',
+      delay: 0,
+    });
+  }
+
+  static animateDockLeft() {
+    anime({
+      targets: '.view-menu-container',
+      height: '100%',
+      top: '0',
+      left: '0',
+      width: `${DOCKED_VERTICAL_MENU_WIDTH}px`,
+      borderRadius: 0,
+      duration: 300,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 0,
+    });
+  }
+
+  static animateDockTop() {
+    anime({
+      targets: '.view-menu-container',
+      width: '100%',
+      height: `${DOCKED_HORIZONTAL_MENU_HEIGHT}px`,
+      top: '0',
+      left: '0px',
+      borderRadius: 0,
+      duration: 300,
+      elasticity: 100,
+      easing: 'easeOutQuint',
+      delay: 0,
+    });
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -109,7 +167,6 @@ export default class Component extends React.Component {
       // eslint-disable-next-line max-len
       menuPlacement: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
       width: undefined, // window.width
-      height: undefined, // window.height
     };
 
     this.myRef = React.createRef();
@@ -123,7 +180,7 @@ export default class Component extends React.Component {
 
   componentWillMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
-   }
+  }
 
   componentDidMount() {
     if (this.isRouterHere()) { this.openMenu(); }
@@ -147,7 +204,7 @@ export default class Component extends React.Component {
 
     if (placement && placement.includes('Docked')) {
       this.setState(state => ({ ...state, menuPlacement: undefined }));
-      this.animateUnDock(x, y);
+      Component.animateUnDock(x, y);
     }
   }
 
@@ -160,7 +217,7 @@ export default class Component extends React.Component {
       if (placement !== 'willDockLeft') this.setState(state => ({ ...state, menuPlacement: 'willDockLeft' }));
     } else if (x > (width - MENU_WIDTH - 10)) {
       if (placement !== 'willDockRight') this.setState(state => ({ ...state, menuPlacement: 'willDockRight' }));
-    } else if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined }));
+    } else if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined })); // eslint-disable-line max-len
   }
 
   onStopDragEvent() {
@@ -169,7 +226,7 @@ export default class Component extends React.Component {
     if (isMenuMoving) { this.setState(state => ({ ...state, isMenuMoving: false })); }
 
     if (placement === 'willDockLeft') {
-      this.animateDockLeft();
+      Component.animateDockLeft();
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }));
     }
     if (placement === 'willDockRight' || placement === 'hasDockedRight') {
@@ -177,7 +234,7 @@ export default class Component extends React.Component {
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedRight' }));
     }
     if (placement === 'willDockTop') {
-      this.animateDockTop();
+      Component.animateDockTop();
       this.setState(state => ({ ...state, menuPlacement: 'hasDockedTop' }));
     }
   }
@@ -204,7 +261,7 @@ export default class Component extends React.Component {
     const { isOpen } = this.state;
     if (!isOpen) {
       this.setState({ isOpen: true });
-      this.animateOpen();
+      Component.animateOpen();
     }
   }
 
@@ -212,74 +269,8 @@ export default class Component extends React.Component {
     const { isOpen } = this.state;
     if (isOpen) {
       this.setState({ isOpen: false });
-      this.animateClose();
+      Component.animateClose();
     }
-  }
-
-  animateOpen() {
-    anime({
-      targets: '.view-menu-container',
-      height: ['70px', UNDOCKED_MENU_HEIGHT],
-      width: `${MENU_WIDTH}px`,
-      duration: 500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 100,
-    });
-  }
-
-  animateClose() {
-    anime({
-      targets: '.view-menu-container',
-      height: [UNDOCKED_MENU_HEIGHT, '70px'],
-      duration: 500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 100,
-    });
-  }
-
-  animateUnDock() {
-    anime({
-      targets: '.view-menu-container',
-      height: UNDOCKED_MENU_HEIGHT,
-      width: 160,
-      duration: 200,
-      elasticity: 0,
-      borderRadius: MENU_BORDER_RADIUS,
-      easing: 'easeOutQuint',
-      delay: 0,
-    });
-  }
-
-  animateDockLeft() {
-    anime({
-      targets: '.view-menu-container',
-      height: '100%',
-      top: '0',
-      left: '0',
-      width: `${DOCKED_VERTICAL_MENU_WIDTH}px`,
-      borderRadius: 0,
-      duration: 300,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 0,
-    })
-  }
-
-  animateDockTop() {
-    anime({
-      targets: '.view-menu-container',
-      width: '100%',
-      height: `${DOCKED_HORIZONTAL_MENU_HEIGHT}px`,
-      top: '0',
-      left: '0px',
-      borderRadius: 0,
-      duration: 300,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 0,
-    });
   }
 
   animateDockRight() {
@@ -312,7 +303,12 @@ export default class Component extends React.Component {
   }
 
   render() {
-    const { menuPlacement: placement, width, isOpen, isMenuMoving } = this.state;
+    const {
+      menuPlacement: placement,
+      width,
+      isOpen,
+      isMenuMoving,
+    } = this.state;
 
     let position;
     switch (placement) {
@@ -339,9 +335,9 @@ export default class Component extends React.Component {
 
     return (
       <Container>
-        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0"/>
-        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0"/>
-        <PlacementOutline shouldShow={placement === 'willDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0"/>
+        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0" />
+        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0" />
+        <PlacementOutline shouldShow={placement === 'willDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0" />
         <Draggable
           handle=".view-menu-draggable-handle"
           axis="both"
@@ -363,4 +359,19 @@ export default class Component extends React.Component {
     );
   }
 }
-// <Routing menuPlacement={placement} />
+
+Component.propTypes = {
+  menuPlacement: PropTypes.string,
+  history: ReactRouterPropTypes.history.isRequired,
+  location: ReactRouterPropTypes.location.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+};
+
+export default Component;

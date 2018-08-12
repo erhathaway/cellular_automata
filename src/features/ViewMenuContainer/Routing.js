@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { css } from 'react-emotion';
+import PropTypes from 'prop-types';
 
 const MENU_BORDER_RADIUS = '8px';
 
@@ -36,7 +37,6 @@ const RouterContainer = styled('nav')`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  // background-color: rgba(54, 149, 217, 1);
   border-bottom-left-radius: ${MENU_BORDER_RADIUS};
   border-bottom-right-radius: ${MENU_BORDER_RADIUS};
 
@@ -70,7 +70,6 @@ const FAIconVertical = css`
 // not docked
 const FAIconNotDocked = css`
   padding: 10px;
-
 `;
 
 const FAIcon = styled('div')`
@@ -94,9 +93,19 @@ const FAIcon = styled('div')`
   ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && FAIconVertical)}
 `;
 
-export default ({ menuPlacement }) => (
+const Component = ({ menuPlacement }) => (
   <RouterContainer menuPlacement={menuPlacement}>
     <FAIcon menuPlacement={menuPlacement} leftOrRight="left" className="fas fa-home" />
     <FAIcon menuPlacement={menuPlacement} leftOrRight="right" className="fas fa-question" />
   </RouterContainer>
-)
+);
+
+Component.propTypes = {
+  menuPlacement: PropTypes.string,
+};
+
+Component.defaultProps = {
+  menuPlacement: undefined,
+};
+
+export default Component;
