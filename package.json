@@ -1,65 +1,46 @@
 {
-  "name": "cellular",
-  "version": "0.0.0",
-  "description": "",
-  "main": "dist/cellular.js",
-  "scripts": {
-    "test": "jest --config ./jest.config.js",
-    "babel": "babel",
-    "build": "node tools/build.js",
-    "build:watch": "node tools/build.js --watch",
-    "start": "npm run build && node ./dist/cellular.js"
+  "name": "cellular_automata",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "animejs": "^2.2.0",
+    "decode-uri-component": "^0.2.0",
+    "emotion": "^9.2.6",
+    "mobx": "^5.0.3",
+    "mobx-react": "^5.2.5",
+    "mobx-state-tree": "^3.1.1",
+    "prop-types": "^15.6.2",
+    "query-string": "^6.1.0",
+    "react": "^16.4.2",
+    "react-color": "^2.14.1",
+    "react-dom": "^16.4.2",
+    "react-draggable": "^3.0.5",
+    "react-emotion": "^9.2.6",
+    "react-markdown": "^3.4.1",
+    "react-router-dom": "^4.3.1",
+    "react-router-prop-types": "^1.0.4",
+    "react-scripts": "1.1.4",
+    "react-style-proptype": "^3.2.1",
+    "react-transition-group": "^2.4.0",
+    "three": "^0.95.0",
+    "three-orbit-controls": "^82.1.0",
+    "uuid": "^3.3.2"
   },
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "keywords": [
-    ""
-  ],
-  "author": "Ethan Hathaway &lt;erhathaway@gmail.com&gt;",
-  "license": "GPL-2.0",
-  "bugs": {
-    "url": ""
-  },
-  "homepage": "",
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.42",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.51",
-    "@babel/plugin-syntax-throw-expressions": "^7.0.0-beta.54",
-    "@babel/preset-env": "^7.0.0-beta.44",
-    "asyncawait": "^1.0.6",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^22.4.3",
+    "babel-plugin-emotion": "^9.2.6",
     "babel-plugin-transform-class-properties": "^6.24.1",
-    "easy-argument-parser": "^1.0.2",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
-    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-react": "^7.10.0",
-    "jest": "^22.4.3",
-    "node-sass": "^4.9.0",
-    "regenerator-runtime": "^0.11.1",
-    "rollup": "^0.57.1",
-    "rollup-plugin-babel": "^4.0.0-beta.3",
-    "rollup-plugin-collect-sass": "^1.0.9",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-postcss": "^1.6.2"
+    "eslint-plugin-react": "^7.10.0"
   },
-  "dependencies": {
-    "@material/drawer": "^0.36.1",
-    "@material/fab": "^0.36.1",
-    "@material/form-field": "^0.36.0",
-    "@material/icon-button": "^0.36.0",
-    "@material/tabs": "^0.36.0",
-    "@material/textfield": "^0.36.1",
-    "emotion": "^9.2.3",
-    "rollup-plugin-commonjs": "^9.1.3",
-    "rollup-plugin-replace": "^2.0.0",
-    "save-dev": "^2.0.0",
-    "three": "^0.94.0",
-    "three-orbit-controls": "^82.1.0"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   }
 }
