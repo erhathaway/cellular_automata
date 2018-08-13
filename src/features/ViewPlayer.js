@@ -2,6 +2,7 @@ import React from 'react';
 import { inject, observer } from 'mobx-react';
 import styled from 'react-emotion';
 
+import { router as routerService } from '../services';
 import AutomataManager from '../libs/automata';
 
 import OneDimensionViewerInTwoDimensions from '../libs/viewer/OneDimensionInTwoDimensions';
@@ -17,6 +18,7 @@ const Container = styled('div')`
   background-color: white;
 `;
 
+@observer
 class Component extends React.Component {
   constructor(props) {
     super(props)
@@ -30,8 +32,22 @@ class Component extends React.Component {
   }
 
   componentDidMount() {
-    const { automataStore: { dimension, viewer } } = this.props;
+    const { automataStore: { dimension, viewer }, location } = this.props;
+
     this.initalizeViewer(dimension.value, viewer.value)
+    if (routerService.isAtView(location)) {
+      this.runSimulation();
+    }
+  }
+
+  componentWillUpdate({ location: nextLocation }) {
+    const { location: currentLocation } = this.props;
+
+    const currentlyAtView = routerService.isAtView(currentLocation);
+    const willBeAtView = routerService.isAtView(nextLocation);
+    if (currentlyAtView !== willBeAtView && willBeAtView) {
+      this.runSimulation();
+    }
   }
 
   retrieveNextGeneration() {
@@ -105,7 +121,7 @@ class Component extends React.Component {
       this.viewer.createScene();
       this.createGenesisGeneration();
       this.viewer.type === 'one-dimension' && this.bulkCreateGenerations(this.viewer.maxGenerationsToShow * 2);
-      this.runSimulation();
+      // this.runSimulation();
     }
   }
 

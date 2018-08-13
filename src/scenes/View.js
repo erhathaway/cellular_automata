@@ -34,7 +34,7 @@ const Container = styled('div')`
 export default props => (
   <Container>
     <PopupArea id="popup-area" />
-    <ViewPlayer />
+    <ViewPlayer {...props} />
 
     <MenuContainer {...props}>
       <PopupManager popupName="dimensions" component={DimensionsPopup}>
