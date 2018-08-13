@@ -53,7 +53,7 @@ export default props => (
       </PopupManager>
 
       <Neighbors />
-      <Rule ruleType="sbd" />
+      <Rule />
       <Style />
     </MenuContainer>
 

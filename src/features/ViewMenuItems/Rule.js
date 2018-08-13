@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { inject, observer } from 'mobx-react';
 
 import {
   MainContainer as Container,
@@ -10,12 +11,14 @@ import {
 } from './Views';
 
 // ruleType: 'stats' = wolfram style; 'sbd' = surive born death (conways game of life style)
-const Component = ({ ruleType, ...props }) => {
-  if (ruleType === 'stats') {
+const Component = (props) => {
+  const { automataStore: { rule } } = props;
+
+  if (rule.value.name === 'wolfram') {
     return (
       <Container {...props}>
         <AttributeHeader>
-          90012
+          { rule.value.rule }
         </AttributeHeader>
         <TitleHeader>
           Rule
@@ -24,15 +27,15 @@ const Component = ({ ruleType, ...props }) => {
     );
   }
 
-  if (ruleType === 'sbd') {
+  if (rule.value.name === 'conway') {
     return (
       <Container {...props}>
         <HeaderContainer>
           <MultilineAttributeHeader prefix="S">
-            2, 3, 5
+            { rule.value.survive.map(s => `${s} `)}
           </MultilineAttributeHeader>
           <MultilineAttributeHeader prefix="B">
-            4
+            { rule.value.born.map(b => `${b} `)}
           </MultilineAttributeHeader>
         </HeaderContainer>
         <TitleHeader>
@@ -46,7 +49,7 @@ const Component = ({ ruleType, ...props }) => {
 };
 
 Component.propTypes = {
-  ruleType: PropTypes.string.isRequired,
+
 };
 
-export default Component;
+export default inject('automataStore')(observer(Component));
