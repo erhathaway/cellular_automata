@@ -21,6 +21,8 @@ class AutomataManager {
     // History
     this.generationHistory = [];
     this._generationHistorySize = 20; // stores 20 generations in the history
+
+    this._computeStateOffCoords = this._computeStateOffCoords.bind(this);
   }
 
   set rule(rule) {
@@ -69,8 +71,6 @@ class AutomataManager {
   }
 
   resizeCurrentPopulation() {
-    console.log('resizing population', this.populationShape)
-
     // don't use setter because we dont want to add the resized population to the history since timetravel would look weird
     this._currentPopulation = PopulationManager.resizePopulation(this.currentPopulation, this.populationShape);
   }
@@ -100,7 +100,7 @@ class AutomataManager {
     this._ruleApplicator.rule = { survive: [5, 6], born: [1] };
   }
 
-  _computeStateOffCoords = (coords, currentPopulation) => {
+  _computeStateOffCoords(coords, currentPopulation) {
     const neighborhoodState = this._neighborStateExtractor(coords, currentPopulation);
     const reducedState = this._stateReducer({
       neighbors: neighborhoodState.neighbors,

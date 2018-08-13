@@ -11,10 +11,10 @@ import ThreeDimensionViewerInThreeDimensions from '../libs/viewer/ThreeDimension
 
 const Container = styled('div')`
   position: fixed;
-  z-index: 999;
+  z-index: 0;
   width: 100vw;
   height: 100vh;
-  // background-color: blue;
+  background-color: white;
 `;
 
 class Component extends React.Component {
@@ -34,13 +34,14 @@ class Component extends React.Component {
     this.initalizeViewer(dimension.value, viewer.value)
   }
 
+  componentDidUpdate() {
+  }
+
   retrieveNextGeneration() {
-    console.log('retrieving next generation')
     return this.automataManager.run();
   }
 
   runSimulation() {
-    console.log('turning simulation on')
     this.viewer.turnSimulationOn();
   }
 
@@ -71,8 +72,6 @@ class Component extends React.Component {
       retrieveNextGeneration: this.retrieveNextGeneration,
     };
 
-    console.log('viewerConfig', viewerConfig)
-
     if (populationDimension === 1 && viewerDimension === 2) {
       if (this.viewer && this.viewer.type === 'one-dimension') return;
       if (this.viewer) this.viewer.quit();
@@ -84,8 +83,6 @@ class Component extends React.Component {
     else if (populationDimension === 2 && viewerDimension === 2) {
       if (this.viewer && this.viewer.type === 'one-dimension') return;
       if (this.viewer) this.viewer.quit();
-      console.log('2d case')
-
       this.viewer = new TwoDimensionViewerInTwoDimensions(viewerConfig);
       this.automataManager.useLifeLikeGenerator();
       this.automataManager.generationHistorySize = 2;
@@ -95,7 +92,6 @@ class Component extends React.Component {
       this.viewer.createScene();
       this.createGenesisGeneration();
       this.viewer.type === 'one-dimension' && this.bulkCreateGenerations(this.viewer.maxGenerationsToShow * 2);
-      // setTimeout(() => this.runSimulation(), 10000)
       this.runSimulation();
     }
   }

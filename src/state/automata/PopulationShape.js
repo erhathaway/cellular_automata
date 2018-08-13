@@ -49,7 +49,7 @@ const PopulationShape = types
 
 const PopulationShapeInstance = PopulationShape
   .create({
-    value: createPopulationShapeValues(),
+    value: createPopulationShapeValues().slice(0, 2),
   });
 
 export {
