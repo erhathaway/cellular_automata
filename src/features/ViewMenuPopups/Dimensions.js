@@ -12,19 +12,20 @@ const ButtonContainer = styled('div')`
 
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { dimension } } = props;
+
   return (
     <Container {...props} height="150px" width="270px">
       <Title>
         {'Cell Population Dimensions'}
       </Title>
       <ButtonContainer>
-        <Button onClick={() => dimension.setDimension('1D')} isActive={dimension.value === '1D'}>
+        <Button onClick={() => dimension.setValue(1)} isActive={dimension.value === 1}>
           1D
         </Button>
-        <Button onClick={() => dimension.setDimension('2D')} isActive={dimension.value === '2D'}>
+        <Button onClick={() => dimension.setValue(2)} isActive={dimension.value === 2}>
           2D
         </Button>
-        <Button onClick={() => dimension.setDimension('3D')} isActive={dimension.value === '3D'}>
+        <Button onClick={() => dimension.setValue(3)} isActive={dimension.value === 3}>
           3D
         </Button>
       </ButtonContainer>

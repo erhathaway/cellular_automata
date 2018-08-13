@@ -38,7 +38,7 @@ export default inject('automataStore')(observer((props) => {
 
   const { value, name } = dimension;
 
-  const handleOnChange = ({ target: { value }}) => dimension.setValue(value);
+  const handleOnChange = ({ target: { value: newValue } }) => dimension.setValue(newValue);
   return (
     <Container>
       <Label>

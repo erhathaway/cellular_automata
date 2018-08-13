@@ -14,8 +14,8 @@ export default inject('automataStore')(observer((props) => {
   return (
     <Container {...props}>
       <HeaderContainer>
-        { populationShape.value.map(({ name, value }) => (
-          <MultilineAttributeHeader key={`multiline-attibute-header-${name}-pop-shape`} shouldTruncateNumber prefix={name}>
+        { populationShape.value.map(({ name, value }, i) => (
+          <MultilineAttributeHeader key={`multiline-attibute-header-${name}-pop-shape-${i}`} shouldTruncateNumber prefix={name}>
             { value.toString() }
           </MultilineAttributeHeader>
         ))}

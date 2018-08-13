@@ -14,7 +14,7 @@ const DimensionContainer = styled('div')`
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { populationShape } } = props;
   const numberOfDimensions = populationShape.value.length;
-
+  console.log(populationShape)
   return (
     <Container {...props} height={`${110 + numberOfDimensions * 40}px`} width="300px">
       <Title>

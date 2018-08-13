@@ -9,7 +9,7 @@ export default inject('automataStore')(observer((props) => {
   return (
     <Container {...props}>
       <AttributeHeader>
-        { dimension.value }
+        { `${dimension.value}D` }
       </AttributeHeader>
       <TitleHeader>
         Cells
