@@ -9,7 +9,7 @@ export default inject('automataStore')(observer((props) => {
   return (
     <Container {...props}>
       <AttributeHeader>
-        { cellStates.number() }
+        { cellStates.number }
       </AttributeHeader>
       <TitleHeader>
         States

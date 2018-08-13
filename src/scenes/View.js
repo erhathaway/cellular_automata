@@ -52,17 +52,9 @@ export default props => (
         <Shape />
       </PopupManager>
 
-      <PopupManager popupName="neighbors" component={DimensionsPopup}>
-        <Neighbors />
-      </PopupManager>
-
-      <PopupManager popupName="rule" component={DimensionsPopup}>
-        <Rule ruleType="sbd" />
-      </PopupManager>
-
-      <PopupManager popupName="style" component={DimensionsPopup}>
-        <Style />
-      </PopupManager>
+      <Neighbors />
+      <Rule ruleType="sbd" />
+      <Style />
     </MenuContainer>
 
     <ViewPlayer {...props} />
