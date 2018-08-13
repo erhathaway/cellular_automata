@@ -34,9 +34,6 @@ class Component extends React.Component {
     this.initalizeViewer(dimension.value, viewer.value)
   }
 
-  componentDidUpdate() {
-  }
-
   retrieveNextGeneration() {
     return this.automataManager.run();
   }
@@ -81,11 +78,27 @@ class Component extends React.Component {
     }
 
     else if (populationDimension === 2 && viewerDimension === 2) {
-      if (this.viewer && this.viewer.type === 'one-dimension') return;
+      if (this.viewer && this.viewer.type === 'two-dimension-in-two-dimensions') return;
       if (this.viewer) this.viewer.quit();
       this.viewer = new TwoDimensionViewerInTwoDimensions(viewerConfig);
       this.automataManager.useLifeLikeGenerator();
       this.automataManager.generationHistorySize = 2;
+    }
+
+    else if (populationDimension === 2 && viewerDimension === 3) {
+      if (this.viewer && this.viewer.type === 'two-dimension-in-three-dimensions') return;
+      if (this.viewer) this.viewer.quit();
+      this.viewer = new TwoDimensionViewerInThreeDimensions(viewerConfig);
+      this.automataManager.useLifeLikeGenerator();
+      this.automataManager.generationHistorySize = 20;
+    }
+
+    else if (populationDimension === 3 && viewerDimension === 3) {
+      if (this.viewer && this.viewer.type === 'three-dimension-in-three-dimensions') return;
+      if (this.viewer) this.viewer.quit();
+      this.viewer = new ThreeDimensionViewerInThreeDimensions(viewerConfig);
+      this.automataManager.useThreeDimensionGenerator();
+      this.automataManager.generationHistorySize = 20;
     }
 
     if (this.viewer !== undefined) {
