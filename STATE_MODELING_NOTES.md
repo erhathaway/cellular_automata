@@ -3,7 +3,7 @@ Viewer (dependent on Dimension)
 State
 Neighbors
 Population (dependent on Dimension)
-Rule (dependent on Neighbors)
+Rule (dependent on Neighbors & State)
 Genesis (dependent on Dimension & State)
 
 ex:
