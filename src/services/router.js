@@ -1,4 +1,4 @@
-import queryString from 'query-string';
+const queryString = require('../libs/query-string');
 
 class LocationHistory {
   constructor() {

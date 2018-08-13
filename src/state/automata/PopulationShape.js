@@ -16,8 +16,8 @@ const PopulationDimension = types
   }));
 
 const createPopulationShapeValues = () => [
-  PopulationDimension.create({ id: uuid(), name: 'x', value: 1000 }),
-  PopulationDimension.create({ id: uuid(), name: 'y', value: 200000 }),
+  PopulationDimension.create({ id: uuid(), name: 'x', value: 200 }),
+  PopulationDimension.create({ id: uuid(), name: 'y', value: 150 }),
   PopulationDimension.create({ id: uuid(), name: 'z', value: 20 }),
 ];
 
@@ -35,6 +35,14 @@ const PopulationShape = types
     },
     onDimensionChange(dimensionValue) {
       self.setNumberOfDimensions(dimensionValue);
+    },
+  }))
+  .views(self => ({
+    get shape() {
+      return self.value.reduce((acc, d) => {
+        acc[d.name] = d.value;
+        return acc;
+      }, {});
     },
   }));
 

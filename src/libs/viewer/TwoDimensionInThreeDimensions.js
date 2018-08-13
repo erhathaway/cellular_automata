@@ -9,9 +9,10 @@ import {
 import * as THREE from 'three';
 import Orbit from 'three-orbit-controls';
 
+import BaseClass from './base';
+
 const OrbitControls = Orbit(THREE);
 
-import BaseClass from './base';
 
 function AttributeNotDefined(message) {
   this.message = message;

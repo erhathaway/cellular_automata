@@ -7,11 +7,11 @@ import {
   PerspectiveCamera, OrthographicCamera
 } from 'three';
 import * as THREE from 'three';
+import BaseClass from './base';
 import Orbit from 'three-orbit-controls';
 
 const OrbitControls = Orbit(THREE);
 
-import BaseClass from './base';
 
 function AttributeNotDefined(message) {
   this.message = message;

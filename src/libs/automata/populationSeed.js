@@ -12,7 +12,7 @@ const newState = () => Math.round(Math.random());
 └─────────────────────────────┘
 */
 
-const newDimension = (shape) => {
+const populationSeed = (shape) => {
   const dimensions = Object.keys(shape).sort(); // built up in terms of x, y, z etc...
   const firstDimension = dimensions[0];
   const dimensionPopulation = shape[firstDimension];
@@ -24,7 +24,7 @@ const newDimension = (shape) => {
   // if more dimensions left, map over those dimensions first
   const newShape = { ...shape };
   delete newShape[firstDimension];
-  return [...new Array(dimensionPopulation)].map(() => newDimension(newShape));
+  return [...new Array(dimensionPopulation)].map(() => populationSeed(newShape));
 };
 
-export { newDimension as populationSeed };
+export { populationSeed };

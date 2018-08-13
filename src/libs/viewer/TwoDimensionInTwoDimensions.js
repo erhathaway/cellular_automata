@@ -27,6 +27,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
+    console.log('adding generation')
     const material = new PointsMaterial( { color: new Color('hsl(234, 70%, 40%)'), size: this.cellShape.x, sizeAttenuation: true } );
     this.materials.push(material);
     const geometry = new Geometry();

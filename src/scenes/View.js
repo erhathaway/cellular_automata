@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
-import { ViewPlayer } from '../features';
+import { ViewPlayer, ViewControls } from '../features';
 
 import MenuContainer from '../features/ViewMenuContainer';
 
@@ -34,6 +34,7 @@ const Container = styled('div')`
 export default props => (
   <Container>
     <PopupArea id="popup-area" />
+    <ViewPlayer />
 
     <MenuContainer {...props}>
       <PopupManager popupName="dimensions" component={DimensionsPopup}>
@@ -57,6 +58,6 @@ export default props => (
       <Style />
     </MenuContainer>
 
-    <ViewPlayer {...props} />
+    <ViewControls {...props} />
   </Container>
 );
