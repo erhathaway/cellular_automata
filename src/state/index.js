@@ -25,6 +25,7 @@ const DimensionInstance = Dimension
 /* -----------------------------------------------------------------------------
 Viewer
 ----------------------------------------------------------------------------- */
+
 const viewerValueType = types.union(...[1, 2, 3].map(types.literal));
 
 const Viewer = types
@@ -35,8 +36,8 @@ const Viewer = types
   .actions(self => ({
     setValue(newDimension) { self.value = newDimension; },
     onDimensionChange(value) {
-      const dimensionValue = value[0]
-      console.log('onDimensionChange', dimensionValue)
+      const dimensionValue = value[0];
+
       if (dimensionValue === 1 && self.value !== 2) {
         self.setValue(2);
       } else if (dimensionValue === 2 && (self.value !== 2 || self.value !== 3)) {
@@ -53,6 +54,45 @@ const ViewerInstance = Viewer
     value: 2,
   });
 
+
+/* -----------------------------------------------------------------------------
+Cell States
+----------------------------------------------------------------------------- */
+const randomHexColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+
+const singleCellStateNumberType = types.union(...[...Array(10).keys()].map(types.literal));
+
+const SingleCellState = types
+  .model('SingleCellState', {
+    id: types.identifier,
+    number: singleCellStateNumberType,
+    color: types.optional(types.string, randomHexColor),
+  })
+  .actions(self => ({
+    setColor(color) {
+      self.color = color;
+    },
+  }));
+
+const CellStates = types
+  .model('CellStates', {
+    value: types.array(types.reference(SingleCellState)),
+  })
+  .actions(self => ({
+    number() {
+      return self.value.length;
+    },
+  }));
+
+const createCellStatesValue = () => [
+  SingleCellState.create({ id: uuid(), number: 0, color: '#FFFFFF' }),
+  SingleCellState.create({ id: uuid(), number: 1, color: '#000000' }),
+];
+
+const CellStatesInstance = CellStates
+  .create({
+    value: createCellStatesValue(),
+  });
 
 /* -----------------------------------------------------------------------------
 Population Shape
@@ -81,7 +121,6 @@ const createPopulationShapeValues = () => [
 const PopulationShape = types
   .model('PopulationShape', {
     value: types.array(types.reference(PopulationDimension)),
-    dependencies: types.array(types.reference(Dimension)),
   })
   .actions(self => ({
     setNumberOfDimensions(number) {
@@ -100,7 +139,6 @@ const PopulationShape = types
 const PopulationShapeInstance = PopulationShape
   .create({
     value: createPopulationShapeValues(),
-    dependencies: [DimensionInstance],
   });
 
 /* -----------------------------------------------------------------------------
@@ -126,11 +164,13 @@ const RootStore = types
   .model('RootStore', {
     dimension: Dimension,
     viewer: Viewer,
+    cellStates: CellStates,
     populationShape: PopulationShape,
   })
   .create({
     dimension: DimensionInstance,
     viewer: ViewerInstance,
+    cellStates: CellStatesInstance,
     populationShape: PopulationShapeInstance,
   });
 

@@ -24,7 +24,7 @@ export default inject('automataStore')(observer((props) => {
       </Title>
       <ButtonContainer>
         { availableViews[dimension.value - 1].map(viewDimension => (
-          <Button onClick={() => viewer.setValue(viewDimension)} isActive={viewDimension === viewer.value}>
+          <Button key={`view-popup-button-${viewDimension}`} onClick={() => viewer.setValue(viewDimension)} isActive={viewDimension === viewer.value}>
             {`${viewDimension}D`}
           </Button>
         ))}

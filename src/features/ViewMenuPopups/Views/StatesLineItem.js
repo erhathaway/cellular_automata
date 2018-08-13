@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 import { SketchPicker } from 'react-color'
+import { inject, observer } from 'mobx-react';
 
 import { PopupManager } from '../../../libs/popup';
 
@@ -48,43 +49,41 @@ const Color = styled('div')`
   background-color: ${({ color }) => color || 'white'};
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
-    const { color } = this.props;
-    this.state = {
-      color,
-    };
-
-    this.updateColor = this.updateColor.bind(this);
+    this.handleColorChange = this.handleColorChange.bind(this);
   }
 
-  updateColor({ hex: color }) {
-    this.setState(state => ({ ...state, color }));
+  handleColorChange({ hex: color }) {
+    const { id: stateID, automataStore: { cellStates } } = this.props;
+    const cellStateInstance = cellStates.value.find(s => s.id === stateID);
 
-    const { onChangeComplete } = this.props;
-    onChangeComplete(color);
+    cellStateInstance.setColor(color);
   }
 
   render() {
-    const { label, setPopupCoords } = this.props;
-    const { color: stateColor } = this.state;
+    const { setPopupCoords, id: stateID, automataStore: { cellStates } } = this.props;
+    const cellStateInstance = cellStates.value.find(s => s.id === stateID);
+
     return (
       <Container>
         <Label>
-          { label }
+          { cellStateInstance.number }
         </Label>
         <PopupManager
           setPopupCoords={setPopupCoords}
-          popupName={`states-color-picker-${label}`}
-          component={<SketchPicker color={stateColor} onChange={this.updateColor} />}
+          popupName={`states-color-picker-${stateID}`}
+          component={<SketchPicker color={cellStateInstance.color} onChange={this.handleColorChange} />}
         >
           <ColorContainer>
-            <Color color={stateColor} />
+            <Color color={cellStateInstance.color} />
           </ColorContainer>
         </PopupManager>
       </Container>
     )
   }
 };
+
+export default inject('automataStore')(observer(Component));
