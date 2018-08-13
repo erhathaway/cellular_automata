@@ -47,14 +47,13 @@ class Component extends React.Component {
     this.setState({
       dimension: dimension.value,
       viewer: viewer.value,
-      populationShape: populationShape.value,
+      populationShape: populationShape.shape,
     });
   }
 
-  componentDidUpdate({ automataStore: { dimension: nextDimension, viewer: nextViewer }, location: nextLocation }) {
-    console.log('updating')
+  componentDidUpdate({ automataStore: { dimension: nextDimension, viewer: nextViewer, populationShape: nextPopulationShape }, location: nextLocation }) {
     const { location: currentLocation } = this.props;
-    const { dimension: currentDimension, viewer: currentViewer } = this.state;
+    const { dimension: currentDimension, viewer: currentViewer, populationShape: currentPopulationShape } = this.state;
 
     const currentlyAtView = routerService.isAtView(currentLocation);
     const willBeAtView = routerService.isAtView(nextLocation);
@@ -62,12 +61,20 @@ class Component extends React.Component {
       this.runSimulation();
     }
 
+    // handle dimension updates (will need a viewer change)
     if (nextDimension.value !== currentDimension || nextViewer.value !== currentViewer) {
-      console.log('changing viewer')
       this.initalizeViewer(nextDimension.value, nextViewer.value, true)
       this.setState({
         dimension: nextDimension.value,
         viewer: nextViewer.value,
+      });
+    }
+
+    // handle population shape updates
+    if (JSON.stringify(nextPopulationShape.shape) !== JSON.stringify(currentPopulationShape)) {
+      this.automataManager.populationShape = nextPopulationShape.shape;
+      this.setState({
+        populationShape: nextPopulationShape.shape,
       });
     }
 
@@ -156,15 +163,10 @@ class Component extends React.Component {
     return (
       <Container id={this.elID}>
         { /* TODO correctly configure mobx to not need this trigger mobx update observation hack */}
-        <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.value} />
+        <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.shape} />
       </Container>
     );
   }
 }
-decorate(Component, {
-  componentWillUpdate: observable,
-  // current: observable,
-  // render: computed,
-  // render: action
-});
+
 export default inject('automataStore')(observer(Component));
