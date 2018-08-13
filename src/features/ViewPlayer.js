@@ -1,7 +1,9 @@
 import React from 'react';
+import { observable, computed, action, decorate } from "mobx";
 import { inject, observer } from 'mobx-react';
 import styled from 'react-emotion';
 
+import { router as routerService } from '../services';
 import AutomataManager from '../libs/automata';
 
 import OneDimensionViewerInTwoDimensions from '../libs/viewer/OneDimensionInTwoDimensions';
@@ -25,13 +27,57 @@ class Component extends React.Component {
     this.viewer = undefined;
 
     this.automataManager = new AutomataManager();
+    this.state = {
+      dimension: undefined,
+      viewer: undefined,
+      populationShape: undefined,
+    }
 
     this.retrieveNextGeneration = this.retrieveNextGeneration.bind(this);
   }
 
   componentDidMount() {
-    const { automataStore: { dimension, viewer } } = this.props;
+    const { automataStore: { dimension, viewer, populationShape }, location } = this.props;
+
     this.initalizeViewer(dimension.value, viewer.value)
+    if (routerService.isAtView(location)) {
+      this.runSimulation();
+    }
+
+    this.setState({
+      dimension: dimension.value,
+      viewer: viewer.value,
+      populationShape: populationShape.shape,
+    });
+  }
+
+  componentDidUpdate({ automataStore: { dimension: nextDimension, viewer: nextViewer, populationShape: nextPopulationShape }, location: nextLocation }) {
+    const { location: currentLocation } = this.props;
+    const { dimension: currentDimension, viewer: currentViewer, populationShape: currentPopulationShape } = this.state;
+
+    const currentlyAtView = routerService.isAtView(currentLocation);
+    const willBeAtView = routerService.isAtView(nextLocation);
+    if (currentlyAtView !== willBeAtView && willBeAtView) {
+      this.runSimulation();
+    }
+
+    // handle dimension updates (will need a viewer change)
+    if (nextDimension.value !== currentDimension || nextViewer.value !== currentViewer) {
+      this.initalizeViewer(nextDimension.value, nextViewer.value, true)
+      this.setState({
+        dimension: nextDimension.value,
+        viewer: nextViewer.value,
+      });
+    }
+
+    // handle population shape updates
+    if (JSON.stringify(nextPopulationShape.shape) !== JSON.stringify(currentPopulationShape)) {
+      this.automataManager.populationShape = nextPopulationShape.shape;
+      this.setState({
+        populationShape: nextPopulationShape.shape,
+      });
+    }
+
   }
 
   retrieveNextGeneration() {
@@ -60,7 +106,7 @@ class Component extends React.Component {
     }
   }
 
-  initalizeViewer(populationDimension, viewerDimension) {
+  initalizeViewer(populationDimension, viewerDimension, shouldRun = false) {
     const { automataStore: { populationShape } } = this.props;
 
     const viewerConfig = {
@@ -105,13 +151,20 @@ class Component extends React.Component {
       this.viewer.createScene();
       this.createGenesisGeneration();
       this.viewer.type === 'one-dimension' && this.bulkCreateGenerations(this.viewer.maxGenerationsToShow * 2);
-      this.runSimulation();
+      if (shouldRun) this.runSimulation();
     }
   }
 
   render() {
+    const { automataStore } = this.props;
+    const { dimension, viewer, populationShape } = automataStore;
+
+
     return (
-      <Container id={this.elID} />
+      <Container id={this.elID}>
+        { /* TODO correctly configure mobx to not need this trigger mobx update observation hack */}
+        <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.shape} />
+      </Container>
     );
   }
 }

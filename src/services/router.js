@@ -117,7 +117,7 @@ const router = {
   isAtView(location) {
     if (this.isShowingModal(location)) return false;
 
-    return location.pathname === '/view';
+    return location.pathname === '/view' || location.pathname === '/';
   },
   isAtExplore(location) {
     if (this.isShowingModal(location)) return false;
