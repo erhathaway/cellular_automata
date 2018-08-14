@@ -6,7 +6,7 @@ NOTE: This is currently the pre-release. This means menus may be disabled, styli
 
 An app to generate [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton)
 
-1D, 2D, and 3D cell populations can be fully rendered in a 1, 2 or 3 dimension viewer.
+1D, 2D, and 3D cell populations can be fully rendered in a 2 or 3 dimension viewer.
 The cell population shape, state, rules, and neighbors can all be customized with a high degree of flexibility.
 
 This repo contains the code for
@@ -34,7 +34,15 @@ Components that are scene agnostic. They don't know their positioning in the app
 
 #### /libs
 
-Code that should be broken out into independent repos. This also includes files like `OrbitControls`, which is an extension for Three.js. The Three.js community tends to do extensions as single files that you drop into your repo. `/libs` also includes `query-string` and `strict-uri-encode` which weren't bundled correctly and thus give problems during the build phase of the app if they are used as node_module dependencies. Thus, they have been moved into the app.
+
+Code that should be broken out into independent repos.
+
+- `automata`: The automata generator. This is a bottle neck at the moment and will likely be rewritten in OCaml and transpiled to JS or WASM.
+- `viewer`: The automata viewer. Specific viewers for 1D, 2D, 3D cells and 2D, 3D views
+- `popup`: React component to handle popups for this app
+- `indexMSTHistory`: A mobx model that records another models node history and stores the data under a unqiue key. This allows saving the history of a node over specific model attributes, and easily reaplying that node state for a set of attributes
+- `OrbitControls`: A third party lib to control movement around Three.js scenes. The Three.js community tends to do extensions as single files that you drop into your repo. 
+-`query-string` and `strict-uri-encode` are both third party libs which weren't bundled correctly and thus give problems during the build phase of the app if they are used as node_module dependencies. Thus, they have been moved into the app.
 
 #### /scenes
 
