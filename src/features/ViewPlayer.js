@@ -53,51 +53,54 @@ class Component extends React.Component {
     });
   }
 
-  componentDidUpdate({
-    automataStore: {
-      dimension: nextDimension,
-      viewer: nextViewer,
-      populationShape: nextPopulationShape,
-      cellStates: nextCellStates,
-    },
-    location: nextLocation,
-  }) {
-    const { location: currentLocation } = this.props;
+  componentDidUpdate({ location: previousLocation }) {
     const {
-      dimension: currentDimension,
-      viewer: currentViewer,
-      populationShape: currentPopulationShape,
-      cellStates: currentCellStates,
+      automataStore: {
+        dimension: currentDimension,
+        viewer: currentViewer,
+        populationShape: currentPopulationShape,
+        cellStates: currentCellStates,
+      },
+      location: currentLocation,
+    } = this.props;
+
+    const {
+      dimension: previousDimension,
+      viewer: previousViewer,
+      populationShape: previousPopulationShape,
+      cellStates: previousCellStates,
     } = this.state;
 
+    // determine if modal is present or not and if simulation should be run
     const currentlyAtView = routerService.isAtView(currentLocation);
-    const willBeAtView = routerService.isAtView(nextLocation);
-    if (currentlyAtView !== willBeAtView && willBeAtView) {
+    const previouslyAtView = routerService.isAtView(previousLocation);
+
+    if (currentlyAtView !== previouslyAtView && currentlyAtView) {
       this.runSimulation();
     }
 
     // handle dimension updates (will need a viewer change)
-    if (nextDimension.value !== currentDimension || nextViewer.value !== currentViewer) {
-      this.initalizeViewer(nextDimension.value, nextViewer.value, true)
+    if (currentDimension.value !== previousDimension || currentViewer.value !== previousViewer) {
+      this.initalizeViewer(currentDimension.value, currentViewer.value, true)
       this.setState({
-        dimension: nextDimension.value,
-        viewer: nextViewer.value,
+        dimension: currentDimension.value,
+        viewer: currentViewer.value,
       });
     }
 
     // handle population shape updates
-    if (JSON.stringify(nextPopulationShape.shape) !== JSON.stringify(currentPopulationShape)) {
-      this.automataManager.populationShape = nextPopulationShape.shape;
+    if (JSON.stringify(currentPopulationShape.shape) !== JSON.stringify(previousPopulationShape)) {
+      this.automataManager.populationShape = currentPopulationShape.shape;
       this.setState({
-        populationShape: nextPopulationShape.shape,
+        populationShape: currentPopulationShape.shape,
       });
     }
 
     // handle cell state changes (especially state color changes)
-    if (JSON.stringify(nextCellStates.hslValues) !== JSON.stringify(currentCellStates)) {
-      this.viewer.states = nextCellStates.value;
+    if (JSON.stringify(currentCellStates.hslValues) !== JSON.stringify(previousCellStates)) {
+      this.viewer.states = currentCellStates.value;
       this.setState({
-        cellStates: nextCellStates.hslValues,
+        cellStates: currentCellStates.hslValues,
       });
     }
   }

@@ -121,7 +121,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.controls = new OrbitControls(this.camera)
 
     this.createLight();
-    this.createFloor();
+    // this.createFloor();
   }
 
   // method to control what happens on each render update for the animation
