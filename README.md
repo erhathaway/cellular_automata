@@ -1,6 +1,6 @@
 # A Social Cellular Automata and Generative Art Experiment
 
-NOTE: This is currently the pre-release. This means menus may be disabled, styling maybe be broken, routing may be disabled, and certain optimizations may still be missing.
+NOTE: This is currently the pre-release. This means menus may be disabled, styling may be broken, routing may be disabled, and certain optimizations may still be missing.
 
 ## What is this?
 
