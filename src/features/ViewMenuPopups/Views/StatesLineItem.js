@@ -56,7 +56,7 @@ class Component extends React.Component {
     this.handleColorChange = this.handleColorChange.bind(this);
   }
 
-  handleColorChange({ hex: color }) {
+  handleColorChange({ hsl: color }) {
     const { number: stateNumber, automataStore: { cellStates } } = this.props;
     // const cellStateInstance = cellStates.value.find(s => s.id === stateID);
 
@@ -65,8 +65,7 @@ class Component extends React.Component {
 
   render() {
     const { setPopupCoords, number: stateNumber, automataStore: { cellStates } } = this.props;
-    const cellStateInstance = cellStates.value.find(s => s.number === stateNumber);
-
+    const cellStateInstance = cellStates.hslValues.filter(s => s.number === stateNumber)[0];
     return (
       <Container>
         <Label>
@@ -75,7 +74,7 @@ class Component extends React.Component {
         <PopupManager
           setPopupCoords={setPopupCoords}
           popupName={`states-color-picker-${stateNumber}`}
-          component={<SketchPicker color={cellStateInstance.color} onChange={this.handleColorChange} />}
+          component={<SketchPicker color={cellStateInstance.hsla} onChange={this.handleColorChange} />}
         >
           <ColorContainer>
             <Color color={cellStateInstance.color} />

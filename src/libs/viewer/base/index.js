@@ -34,6 +34,19 @@ export default class BaseClass {
     this.containerElId = containerElId;
     this.type = type;
     this.retrieveNextGeneration = retrieveNextGeneration;
+    // object with key as the state number and value as the hsl object
+    // an hsla object looks like: { h: 0-360, s: 0-1, l: 0-1, a: 0-1 }
+    this._states = {
+      0: { h: 360, s: 1, l: 1, a: 1 },
+      1: { h: 0, s: 0, l: 0, a: 1 },
+    };
+
+    // object with key as the state number and value as the hsl object
+    // an hsla string looks like:  'hsla(0, 100%, 100%, 1)'
+    this._hslStringStates = {
+      0: 'hsla(0, 100%, 100%, 1)',
+      1: 'hsla(0, 0%, 0%, 1)',
+    }
 
     // threeJS ref holders
     this.materials = [];
@@ -50,6 +63,42 @@ export default class BaseClass {
 
     this.updateRateInMS = undefined;
     this.updateStartTime = new Date().getTime();
+  }
+
+
+  /*********************/
+  /* Cell States */
+  /*********************/
+  get states() {
+    return this._states;
+  }
+
+  // states enters as an array of state objects and is converted to a single object
+  // where the key is the state number, and the value is the hsl object
+  //      [ { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },   { number: 1, color: { h: 0, s: 0, l: 0, a: 1 } } ]
+  //      to
+  //      {
+  //        0: { h: 360, s: 1, l: 1, a: 1 },
+  //        1: { h: 0, s: 0, l: 0, a: 1 },
+  //      }
+  set states(states) {
+    this._states = this.generateStatesObject(states);
+    this._hslStringStates = this.generateStatesObject(states, this.convertHSLObjToHSLString);
+  }
+
+  generateStatesObject(states, fn) {
+    return states.reduce((acc, { number, color }) => {
+      acc[number] = fn ? fn(color) : color;
+      return acc;
+    }, {});
+  }
+
+  convertHSLObjToHSLString({ h, s, l }) {
+    return `hsl(${Math.floor(h)}, ${Math.floor(s * 100)}%, ${Math.floor(l * 100)}%)`;
+  }
+
+  get hslStringStates() {
+    return this._hslStringStates;
   }
 
   /*********************/
