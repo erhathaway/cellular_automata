@@ -16,7 +16,7 @@ const Container = styled('div')`
   z-index: 0;
   width: 100vw;
   height: 100vh;
-  background-color: white;
+  background-color: ${({ backgroundColor }) => backgroundColor || 'yellow' };
 `;
 
 class Component extends React.Component {
@@ -181,10 +181,11 @@ class Component extends React.Component {
   render() {
     const { automataStore } = this.props;
     const { dimension, viewer, populationShape, cellStates } = automataStore;
+    const cellStateInstance = cellStates.hslValues.filter(s => s.number === 0)[0];
 
-
+    console.log(cellStateInstance)
     return (
-      <Container id={this.elID}>
+      <Container id={this.elID} backgroundColor={cellStateInstance.color}>
         { /* TODO correctly configure mobx to not need this trigger mobx update observation hack */}
         <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.shape} cellstates={cellStates.hslValues}/>
       </Container>

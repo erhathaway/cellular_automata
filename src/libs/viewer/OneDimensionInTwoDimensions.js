@@ -1,4 +1,4 @@
-import { PointsMaterial, Geometry, Points, Vector3 } from 'three';
+import { PointsMaterial, Geometry, Points, Vector3, Color } from 'three';
 
 import BaseClass from './base';
 
@@ -44,7 +44,7 @@ export default class OneDimensionViewerInTwoDimensions extends BaseClass {
 
     // if the generation doesn't exist (b/c none of have been made, or the generation is NOT above the screen - still in view, we are good to make another generation)
     if (y === undefined || y < (this.containerHeight/ 2) - this.padding.top) {
-      const material = new PointsMaterial( { color: 'black', size: this.cellShape.x, sizeAttenuation: true } );
+      const material = new PointsMaterial( { color: new Color(this.hslStringStates[1]), size: this.cellShape.x, sizeAttenuation: true } );
       this.materials.push(material);
       const geometry = new Geometry();
       this.geometries.push(geometry);

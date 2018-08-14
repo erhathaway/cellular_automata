@@ -74,7 +74,7 @@ class Component extends React.Component {
         <PopupManager
           setPopupCoords={setPopupCoords}
           popupName={`states-color-picker-${stateNumber}`}
-          component={<SketchPicker color={cellStateInstance.hsla} onChange={this.handleColorChange} />}
+          component={<SketchPicker color={cellStateInstance.color} onChange={this.handleColorChange} />}
         >
           <ColorContainer>
             <Color color={cellStateInstance.color} />
