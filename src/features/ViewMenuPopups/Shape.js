@@ -23,7 +23,7 @@ export default inject('automataStore')(observer((props) => {
       </Title>
       { populationShape.keys.map(name => (
         <DimensionContainer key={`poup-population-shape-container-${name}`}>
-          <DimensionLineItem id={name} />
+          <DimensionLineItem dimensionName={name} />
         </DimensionContainer>
       ))}
     </Container>

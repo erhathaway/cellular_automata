@@ -11,7 +11,6 @@ import {
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { populationShape } } = props;
 
-  console.log(populationShape)
   return (
     <Container {...props}>
       <HeaderContainer>

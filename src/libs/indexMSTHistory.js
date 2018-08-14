@@ -1,7 +1,6 @@
 import {
   types,
   onSnapshot,
-  onPatch,
   applySnapshot,
   getSnapshot,
   getEnv,
@@ -26,16 +25,10 @@ const IndexedHistory = types
   }))
   .actions((self) => {
     let snapshotDisposer;
-    let targetStore;
 
     return ({
-      addIndexedHistory(index, history) {
-        console.log('adding indexed history')
-        self.history = { ...self.history, [index]: history };
-        console.log(self.history)
-      },
       afterCreate() {
-        targetStore = self.targetPath
+        const targetStore = self.targetPath
           ? resolvePath(self, self.targetPath)
           : getEnv(self).targetStore;
 
@@ -45,26 +38,34 @@ const IndexedHistory = types
           throw new Error(msg);
         }
 
-        snapshotDisposer = onSnapshot(targetStore, snapshot => {
-          try {
-            self.addIndexedHistory(self.indexName(), snapshot)
-          } catch (e) {
-            console.error(e)
-          }}
+        snapshotDisposer = onSnapshot(targetStore, snapshot =>
+          self.addIndexedHistory(self.indexName(), snapshot)
         );
-        console.log('hererere ')
+
         // record an initial state if no known
         if (!self.history || Object.keys(self.history).length === 0) self.addIndexedHistory(self.indexName(), getSnapshot(targetStore))
-        console.log('hererere ')
-
+      },
+      addIndexedHistory(index, history) {
+        console.log('adding indexed history', history)
+        self.history = { ...self.history, [index]: history };
       },
       beforeDestroy() {
-        console.log('destroying')
         snapshotDisposer()
       },
       useHistoryAtIndex(index) {
+        const targetStore = self.targetPath
+          ? resolvePath(self, self.targetPath)
+          : getEnv(self).targetStore;
+
         const value = self.history[index];
         if (value) applySnapshot(targetStore, value);
+      },
+      takeSnapshot() {
+        const targetStore = self.targetPath
+          ? resolvePath(self, self.targetPath)
+          : getEnv(self).targetStore;
+
+        self.addIndexedHistory(self.indexName(), getSnapshot(targetStore));
       },
     })
   });

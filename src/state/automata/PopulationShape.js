@@ -14,40 +14,53 @@ const PopulationShapeIndexedHistory = IndexedHistory
 
 const Shape = types
   .model({
+    id: types.identifier,
     x: types.maybe(types.number),
     y: types.maybe(types.number),
     z: types.maybe(types.number),
   })
   .actions(self => ({
-    setDimension(dimension, value) { self[dimension] = value; },
+    setDimension(dimension, value) {
+      self[dimension] = value;
+    },
   }));
 
 const PopulationShape = types
   .model('PopulationShape', {
-    my: Shape,
-    history: types.optional(PopulationShapeIndexedHistory, { targetPath: '../my' }),
+    _shape: types.reference(Shape),
+    indexedHistory: types.optional(PopulationShapeIndexedHistory, { targetPath: '../_shape' }),
   })
   .actions(self => ({
+    afterCreate() {
+      self.indexedHistory.takeSnapshot();
+    },
+    setDimension(dimensionName, value) {
+      self._shape.setDimension(dimensionName, +value);
+      self.indexedHistory.takeSnapshot();
+    },
     setNumberOfDimensions(value) {
       const number = value[0]
 
       let newShape;
-      if (number === 1) { newShape = Shape.create({ x: 200 }); }
-      else if (number === 2) { newShape = Shape.create({ x: 200, y: 300 }); }
-      else if (number === 3) { newShape = Shape.create({ x: 20, y: 20, z: 35 }); }
+      if (number === 1) { newShape = { x: 200 }; }
+      else if (number === 2) { newShape = { x: 200, y: 300 }; }
+      else if (number === 3) { newShape = { x: 20, y: 20, z: 35 }; }
 
-      self.my = newShape;
+      self.setShape(newShape);
     },
     onDimensionChange(dimensionValue) {
       self.setNumberOfDimensions(dimensionValue);
     },
     setShape(shape) {
-      self.my = Shape.create(shape);
+      self._shape = Shape.create({ ...shape, id: uuid() });
+      self.indexedHistory.takeSnapshot();
     },
   }))
   .views(self => ({
     get shape() {
-      return JSON.parse(JSON.stringify(self.my.toJSON()))
+      const shape = JSON.parse(JSON.stringify(self._shape.toJSON()))
+      delete shape.id;
+      return shape;
     },
     get keys() {
       if (self.shape) return Object.keys(self.shape);
@@ -57,24 +70,24 @@ const PopulationShape = types
 
 const PopulationShapeInstance = PopulationShape
   .create({
-    my: Shape.create({ x: 200, y: 200 }),
+    _shape: Shape.create({ x: 200, y: 200, id: uuid() }),
   });
 
 
-  addMiddleware(PopulationShapeInstance, (call, next, abort) => {
-    if (call.name !== 'onDimensionChange') return next(call);
+// addMiddleware(PopulationShapeInstance, (call, next, abort) => {
+  // if (call.name !== 'onDimensionChange') return next(call);
 
-    // const newDimensionValue = call.args[0];
-    // const snapshot = PopulationShapeInstance.history[newDimensionValue].toJSON().map(v => ({ [v.name]: v.value }));
-    // const shape = Object.assign(...snapshot);
-    const history = PopulationShapeInstance.history;
-    // console.log(getSnapshot(history))
-    // console.log(PopulationShapeInstance)
-    // abort(call);
-    next(call);
-    // PopulationShapeInstance.setShape(shape);
-    // dimensionDependencies.forEach(fn => fn(newDimensionValue));
-  });
+  // const newDimensionValue = call.args[0];
+  // const snapshot = PopulationShapeInstance.indexedHistory[newDimensionValue].toJSON().map(v => ({ [v.name]: v.value }));
+  // const shape = Object.assign(...snapshot);
+  // const indexedHistory = PopulationShapeInstance.indexedHistory;
+  // console.log(getSnapshot(indexedHistory))
+  // console.log(PopulationShapeInstance)
+  // abort(call);
+  // next(call);
+  // PopulationShapeInstance.setShape(shape);
+  // dimensionDependencies.forEach(fn => fn(newDimensionValue));
+// });
 
 export {
   PopulationShape,
