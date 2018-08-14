@@ -59,6 +59,17 @@ const IndexedHistory = types
 
         const value = self.history[index];
         if (value) applySnapshot(targetStore, value);
+        return value
+      },
+      applyHistoryMatchingCurrentIndex() {
+        const targetStore = self.targetPath
+          ? resolvePath(self, self.targetPath)
+          : getEnv(self).targetStore;
+
+        const currentIndex = self.indexName();
+        const value = self.history[currentIndex];
+        if (value) applySnapshot(targetStore, value);
+        return value
       },
       takeSnapshot() {
         const targetStore = self.targetPath

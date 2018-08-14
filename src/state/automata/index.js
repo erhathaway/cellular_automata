@@ -15,9 +15,23 @@ const dimensionDependencies = [
 ];
 
 addMiddleware(DimensionInstance, (call, next) => {
+  if (call.name !== 'setValue') return next(call);
+
   const newDimensionValue = call.args;
   next(call);
   dimensionDependencies.forEach(fn => fn(newDimensionValue));
+});
+
+const viewerDependencies = [
+  PopulationShapeInstance.onViewerChange,
+];
+
+addMiddleware(ViewerInstance, (call, next) => {
+  if (call.name !== 'setValue') return next(call);
+
+  const newViewerValue = call.args;
+  next(call);
+  viewerDependencies.forEach(fn => fn(newViewerValue));
 });
 
 /* -----------------------------------------------------------------------------

@@ -1,20 +1,12 @@
-import { types, addMiddleware, getSnapshot, getEnv, resolvePath, getParent} from 'mobx-state-tree';
-import uuid from 'uuid';
+import {
+  types,
+  getParent,
+} from 'mobx-state-tree';
 
 import IndexedHistory from '../../libs/indexMSTHistory';
 
-const PopulationShapeIndexedHistory = IndexedHistory
-  .named('PopulationShapeIndexedHistory')
-  .views(self => ({
-    indexName() {
-      const parent = getParent(self);
-      return parent.keys.length;
-    },
-  }));
-
 const Shape = types
   .model({
-    id: types.identifier,
     x: types.maybe(types.number),
     y: types.maybe(types.number),
     z: types.maybe(types.number),
@@ -25,41 +17,69 @@ const Shape = types
     },
   }));
 
+const PopulationShapeIndexedHistory = IndexedHistory
+  .named('PopulationShapeIndexedHistory')
+  .views(self => ({
+    indexName() {
+      const parent = getParent(self);
+      return `${parent.populationDimensions}-${parent.viewerDimensions}`;
+    },
+  }));
+
 const PopulationShape = types
   .model('PopulationShape', {
-    _shape: types.reference(Shape),
+    _shape: Shape,
+    viewerDimensions: types.maybe(types.number), // # from viewer model
+    populationDimensions: types.maybe(types.number), // # from dimension model
     indexedHistory: types.optional(PopulationShapeIndexedHistory, { targetPath: '../_shape' }),
   })
   .actions(self => ({
     afterCreate() {
       self.indexedHistory.takeSnapshot();
     },
+    // change dimension value (x, y, z)
     setDimension(dimensionName, value) {
       self._shape.setDimension(dimensionName, +value);
       self.indexedHistory.takeSnapshot();
     },
-    setNumberOfDimensions(value) {
-      const number = value[0]
+    // change the shape
+    // middleware uses the most recent historical value if there is one rather than calling this method
+    updateShape() {
+      // check history for matching index and use that
+      const historyValue = self.indexedHistory.applyHistoryMatchingCurrentIndex();
+      if (historyValue) return;
+
+      // if no match, revert to using the default values
+      const pop = self.populationDimensions;
+      const view = self.viewerDimensions;
 
       let newShape;
-      if (number === 1) { newShape = { x: 200 }; }
-      else if (number === 2) { newShape = { x: 200, y: 300 }; }
-      else if (number === 3) { newShape = { x: 20, y: 20, z: 35 }; }
+      if (pop === 1) { newShape = { x: 200 }; }
+      else if (pop === 2 && view === 2) { newShape = { x: 200, y: 300 }; }
+      else if (pop === 2 && view === 3) { newShape = { x: 70, y: 50 }; }
+      else if (pop === 3) { newShape = { x: 20, y: 20, z: 35 }; }
 
       self.setShape(newShape);
     },
+    // method used to subscribe to changes on the Dimension model
     onDimensionChange(dimensionValue) {
-      self.setNumberOfDimensions(dimensionValue);
+      self.populationDimensions = dimensionValue[0];
+      self.updateShape();
+    },
+    // method used to subscribe to changes on the Viewer model
+    onViewerChange(viewerValue) {
+      self.viewerDimensions = viewerValue[0];
+      self.updateShape();
     },
     setShape(shape) {
-      self._shape = Shape.create({ ...shape, id: uuid() });
+      self._shape = Shape.create({ ...shape });
       self.indexedHistory.takeSnapshot();
     },
   }))
   .views(self => ({
     get shape() {
-      const shape = JSON.parse(JSON.stringify(self._shape.toJSON()))
-      delete shape.id;
+      // remove keys with undefined values
+      const shape = JSON.parse(JSON.stringify(self._shape.toJSON()));
       return shape;
     },
     get keys() {
@@ -70,24 +90,10 @@ const PopulationShape = types
 
 const PopulationShapeInstance = PopulationShape
   .create({
-    _shape: Shape.create({ x: 200, y: 200, id: uuid() }),
+    _shape: Shape.create({ x: 200, y: 200 }),
+    viewerDimensions: 2,
+    populationDimensions: 2,
   });
-
-
-// addMiddleware(PopulationShapeInstance, (call, next, abort) => {
-  // if (call.name !== 'onDimensionChange') return next(call);
-
-  // const newDimensionValue = call.args[0];
-  // const snapshot = PopulationShapeInstance.indexedHistory[newDimensionValue].toJSON().map(v => ({ [v.name]: v.value }));
-  // const shape = Object.assign(...snapshot);
-  // const indexedHistory = PopulationShapeInstance.indexedHistory;
-  // console.log(getSnapshot(indexedHistory))
-  // console.log(PopulationShapeInstance)
-  // abort(call);
-  // next(call);
-  // PopulationShapeInstance.setShape(shape);
-  // dimensionDependencies.forEach(fn => fn(newDimensionValue));
-// });
 
 export {
   PopulationShape,
