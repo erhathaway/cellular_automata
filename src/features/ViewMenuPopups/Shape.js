@@ -13,16 +13,17 @@ const DimensionContainer = styled('div')`
 
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { populationShape } } = props;
-  const numberOfDimensions = populationShape.value.length;
+
+  const numberOfDimensions = populationShape.keys.length;
 
   return (
     <Container {...props} height={`${110 + numberOfDimensions * 40}px`} width="300px">
       <Title>
         {'Population Size Per Dimension'}
       </Title>
-      { populationShape.value.map(({ id }) => (
-        <DimensionContainer key={`poup-population-shape-container-${id}`}>
-          <DimensionLineItem id={id} />
+      { populationShape.keys.map(name => (
+        <DimensionContainer key={`poup-population-shape-container-${name}`}>
+          <DimensionLineItem dimensionName={name} />
         </DimensionContainer>
       ))}
     </Container>

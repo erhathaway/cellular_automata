@@ -1,55 +1,98 @@
-import { types } from 'mobx-state-tree';
-import uuid from 'uuid';
+import {
+  types,
+  getParent,
+} from 'mobx-state-tree';
 
-const dimensionNameType = types.union(...['x', 'y', 'z'].map(types.literal));
+import IndexedHistory from '../../libs/indexMSTHistory';
 
-const PopulationDimension = types
-  .model('PopulationDimension', {
-    id: types.identifier,
-    name: dimensionNameType,
-    value: types.optional(types.number, 10),
+const Shape = types
+  .model({
+    x: types.maybe(types.number),
+    y: types.maybe(types.number),
+    z: types.maybe(types.number),
   })
   .actions(self => ({
-    setValue(newValue) {
-      self.value = +newValue;
+    setDimension(dimension, value) {
+      self[dimension] = value;
     },
   }));
 
-const createPopulationShapeValues = () => [
-  PopulationDimension.create({ id: uuid(), name: 'x', value: 200 }),
-  PopulationDimension.create({ id: uuid(), name: 'y', value: 150 }),
-  PopulationDimension.create({ id: uuid(), name: 'z', value: 20 }),
-];
+const PopulationShapeIndexedHistory = IndexedHistory
+  .named('PopulationShapeIndexedHistory')
+  .views(self => ({
+    indexName() {
+      const parent = getParent(self);
+      return `${parent.populationDimensions}-${parent.viewerDimensions}`;
+    },
+  }));
 
 const PopulationShape = types
   .model('PopulationShape', {
-    value: types.array(types.reference(PopulationDimension)),
+    _shape: Shape,
+    viewerDimensions: types.maybe(types.number), // # from viewer model
+    populationDimensions: types.maybe(types.number), // # from dimension model
+    indexedHistory: types.optional(PopulationShapeIndexedHistory, { targetPath: '../_shape' }),
   })
   .actions(self => ({
-    setNumberOfDimensions(number) {
-      const newValue = self.value.slice(0, number);
-      const diff = number - newValue.length;
-      const extraValues = createPopulationShapeValues().slice(0, number).reverse().slice(0, diff);
-
-      self.value = [...newValue, ...extraValues];
+    afterCreate() {
+      self.indexedHistory.takeSnapshot();
     },
+    // change dimension value (x, y, z)
+    setDimension(dimensionName, value) {
+      self._shape.setDimension(dimensionName, +value);
+      self.indexedHistory.takeSnapshot();
+    },
+    // change the shape
+    // middleware uses the most recent historical value if there is one rather than calling this method
+    updateShape() {
+      // check history for matching index and use that
+      const historyValue = self.indexedHistory.applyHistoryMatchingCurrentIndex();
+      if (historyValue) return;
+
+      // if no match, revert to using the default values
+      const pop = self.populationDimensions;
+      const view = self.viewerDimensions;
+
+      let newShape;
+      if (pop === 1) { newShape = { x: 200 }; }
+      else if (pop === 2 && view === 2) { newShape = { x: 200, y: 300 }; }
+      else if (pop === 2 && view === 3) { newShape = { x: 70, y: 50 }; }
+      else if (pop === 3) { newShape = { x: 20, y: 20, z: 35 }; }
+
+      self.setShape(newShape);
+    },
+    // method used to subscribe to changes on the Dimension model
     onDimensionChange(dimensionValue) {
-      self.setNumberOfDimensions(dimensionValue);
+      self.populationDimensions = dimensionValue[0];
+      self.updateShape();
+    },
+    // method used to subscribe to changes on the Viewer model
+    onViewerChange(viewerValue) {
+      self.viewerDimensions = viewerValue[0];
+      self.updateShape();
+    },
+    setShape(shape) {
+      self._shape = Shape.create({ ...shape });
+      self.indexedHistory.takeSnapshot();
     },
   }))
   .views(self => ({
     get shape() {
-      return self.value.reduce((acc, d) => {
-        acc[d.name] = d.value;
-        return acc;
-      }, {});
+      // remove keys with undefined values
+      const shape = JSON.parse(JSON.stringify(self._shape.toJSON()));
+      return shape;
+    },
+    get keys() {
+      if (self.shape) return Object.keys(self.shape);
+      return [];
     },
   }));
 
-
 const PopulationShapeInstance = PopulationShape
   .create({
-    value: createPopulationShapeValues().slice(0, 2),
+    _shape: Shape.create({ x: 200, y: 200 }),
+    viewerDimensions: 2,
+    populationDimensions: 2,
   });
 
 export {

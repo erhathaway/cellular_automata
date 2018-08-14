@@ -33,18 +33,18 @@ const Input = styled('input')`
 `;
 
 export default inject('automataStore')(observer((props) => {
-  const { automataStore: { populationShape }, id } = props;
-  const dimension = populationShape.value.filter(s => s.id === id)[0];
+  const { automataStore: { populationShape }, dimensionName } = props;
+  const { shape } = populationShape;
 
-  const { value, name } = dimension;
+  // const { value, name } = dimension;
 
-  const handleOnChange = ({ target: { value: newValue } }) => dimension.setValue(newValue);
+  const handleOnChange = ({ target: { value: newValue } }) => populationShape.setDimension(dimensionName, newValue);
   return (
     <Container>
       <Label>
-        { name }
+        { dimensionName }
       </Label>
-      <Input value={value} onChange={handleOnChange} type="number" />
+      <Input value={shape[dimensionName]} onChange={handleOnChange} type="number" />
     </Container>
   );
 }));
