@@ -12,24 +12,26 @@ const dimensionDependencies = [
   ViewerInstance.onDimensionChange,
   NeighborsInstance.onDimensionChange,
   RuleInstance.onDimensionChange,
+  CellStatesInstance.onDimensionChange,
 ];
 
 addMiddleware(DimensionInstance, (call, next) => {
   if (call.name !== 'setValue') return next(call);
 
-  const newDimensionValue = call.args;
+  const newDimensionValue = call.args[0];
   next(call);
   dimensionDependencies.forEach(fn => fn(newDimensionValue));
 });
 
 const viewerDependencies = [
   PopulationShapeInstance.onViewerChange,
+  CellStatesInstance.onViewerChange,
 ];
 
 addMiddleware(ViewerInstance, (call, next) => {
   if (call.name !== 'setValue') return next(call);
 
-  const newViewerValue = call.args;
+  const newViewerValue = call.args[0];
   next(call);
   viewerDependencies.forEach(fn => fn(newViewerValue));
 });

@@ -38,15 +38,20 @@ const IndexedHistory = types
           throw new Error(msg);
         }
 
-        snapshotDisposer = onSnapshot(targetStore, snapshot =>
-          self.addIndexedHistory(self.indexName(), snapshot)
-        );
+        // TODO renable onSnapshot
+        //  currently it is not working at all
+        // snapshotDisposer = onSnapshot(targetStore, snapshot =>
+        //   // self.addIndexedHistory(self.indexName(), snapshot)
+        // );
 
+        // TODO renable initial snapshot
+        //  currently it seems to render after the first update, not during the initial create. This has the
+        //  effect of recording the wrong history value for the key. The history value is +1, and the key is 0 in time.
         // record an initial state if no known
-        if (!self.history || Object.keys(self.history).length === 0) self.addIndexedHistory(self.indexName(), getSnapshot(targetStore))
+        // if (!self.history || Object.keys(self.history).length === 0) self.addIndexedHistory(self.indexName(), getSnapshot(targetStore))
       },
       addIndexedHistory(index, history) {
-        console.log('adding indexed history', history)
+        // console.log('adding indexed history', index, history)
         self.history = { ...self.history, [index]: history };
       },
       beforeDestroy() {
@@ -57,7 +62,7 @@ const IndexedHistory = types
           ? resolvePath(self, self.targetPath)
           : getEnv(self).targetStore;
 
-        const value = self.history[index];
+        const value = self.history ? self.history[index] : undefined;
         if (value) applySnapshot(targetStore, value);
         return value
       },
@@ -67,7 +72,7 @@ const IndexedHistory = types
           : getEnv(self).targetStore;
 
         const currentIndex = self.indexName();
-        const value = self.history[currentIndex];
+        const value = self.history ? self.history[currentIndex] : undefined;
         if (value) applySnapshot(targetStore, value);
         return value
       },

@@ -52,11 +52,11 @@ const Component = inject('automataStore')(observer((props) => {
         </KeyValue>
       </Key>
       <States>
-        { cellStates.value.map(({ id }) => (
+        { cellStates.value.map(({ number }) => (
           <StatesLineItem
-            key={`cell-state-popup-${id}`}
+            key={`cell-state-popup-${number}`}
             setPopupCoords={setExclusionCoords}
-            id={id}
+            number={number}
           />
         ))}
       </States>

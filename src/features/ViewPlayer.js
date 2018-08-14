@@ -16,12 +16,12 @@ const Container = styled('div')`
   z-index: 0;
   width: 100vw;
   height: 100vh;
-  background-color: white;
+  background-color: ${({ backgroundColor }) => backgroundColor || 'yellow' };
 `;
 
 class Component extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.elID = 'view-player-runner';
     this.viewer = undefined;
@@ -31,15 +31,16 @@ class Component extends React.Component {
       dimension: undefined,
       viewer: undefined,
       populationShape: undefined,
-    }
+      cellStates: undefined,
+    };
 
     this.retrieveNextGeneration = this.retrieveNextGeneration.bind(this);
   }
 
   componentDidMount() {
-    const { automataStore: { dimension, viewer, populationShape }, location } = this.props;
+    const { automataStore: { dimension, viewer, populationShape, cellStates }, location } = this.props;
 
-    this.initalizeViewer(dimension.value, viewer.value)
+    this.initalizeViewer(dimension.value, viewer.value);
     if (routerService.isAtView(location)) {
       this.runSimulation();
     }
@@ -48,36 +49,60 @@ class Component extends React.Component {
       dimension: dimension.value,
       viewer: viewer.value,
       populationShape: populationShape.shape,
+      cellStates: cellStates.hslValues,
     });
   }
 
-  componentDidUpdate({ automataStore: { dimension: nextDimension, viewer: nextViewer, populationShape: nextPopulationShape }, location: nextLocation }) {
-    const { location: currentLocation } = this.props;
-    const { dimension: currentDimension, viewer: currentViewer, populationShape: currentPopulationShape } = this.state;
+  componentDidUpdate({ location: previousLocation }) {
+    const {
+      automataStore: {
+        dimension: currentDimension,
+        viewer: currentViewer,
+        populationShape: currentPopulationShape,
+        cellStates: currentCellStates,
+      },
+      location: currentLocation,
+    } = this.props;
 
+    const {
+      dimension: previousDimension,
+      viewer: previousViewer,
+      populationShape: previousPopulationShape,
+      cellStates: previousCellStates,
+    } = this.state;
+
+    // determine if modal is present or not and if simulation should be run
     const currentlyAtView = routerService.isAtView(currentLocation);
-    const willBeAtView = routerService.isAtView(nextLocation);
-    if (currentlyAtView !== willBeAtView && willBeAtView) {
+    const previouslyAtView = routerService.isAtView(previousLocation);
+
+    if (currentlyAtView !== previouslyAtView && currentlyAtView) {
       this.runSimulation();
     }
 
     // handle dimension updates (will need a viewer change)
-    if (nextDimension.value !== currentDimension || nextViewer.value !== currentViewer) {
-      this.initalizeViewer(nextDimension.value, nextViewer.value, true)
+    if (currentDimension.value !== previousDimension || currentViewer.value !== previousViewer) {
+      this.initalizeViewer(currentDimension.value, currentViewer.value, true);
       this.setState({
-        dimension: nextDimension.value,
-        viewer: nextViewer.value,
+        dimension: currentDimension.value,
+        viewer: currentViewer.value,
       });
     }
 
     // handle population shape updates
-    if (JSON.stringify(nextPopulationShape.shape) !== JSON.stringify(currentPopulationShape)) {
-      this.automataManager.populationShape = nextPopulationShape.shape;
+    if (JSON.stringify(currentPopulationShape.shape) !== JSON.stringify(previousPopulationShape)) {
+      this.automataManager.populationShape = currentPopulationShape.shape;
       this.setState({
-        populationShape: nextPopulationShape.shape,
+        populationShape: currentPopulationShape.shape,
       });
     }
 
+    // handle cell state changes (especially state color changes)
+    if (JSON.stringify(currentCellStates.hslValues) !== JSON.stringify(previousCellStates)) {
+      this.viewer.states = currentCellStates.value;
+      this.setState({
+        cellStates: currentCellStates.hslValues,
+      });
+    }
   }
 
   retrieveNextGeneration() {
@@ -107,7 +132,7 @@ class Component extends React.Component {
   }
 
   initalizeViewer(populationDimension, viewerDimension, shouldRun = false) {
-    const { automataStore: { populationShape } } = this.props;
+    const { automataStore: { populationShape, cellStates } } = this.props;
 
     const viewerConfig = {
       containerElId: this.elID,
@@ -148,6 +173,7 @@ class Component extends React.Component {
     }
 
     if (this.viewer !== undefined) {
+      this.viewer.states = cellStates.value;
       this.viewer.createScene();
       this.createGenesisGeneration();
       this.viewer.type === 'one-dimension' && this.bulkCreateGenerations(this.viewer.maxGenerationsToShow * 2);
@@ -157,13 +183,13 @@ class Component extends React.Component {
 
   render() {
     const { automataStore } = this.props;
-    const { dimension, viewer, populationShape } = automataStore;
-
+    const { dimension, viewer, populationShape, cellStates } = automataStore;
+    const cellStateInstance = cellStates.hslValues.filter(s => s.number === 0)[0];
 
     return (
-      <Container id={this.elID}>
+      <Container id={this.elID} backgroundColor={cellStateInstance.color}>
         { /* TODO correctly configure mobx to not need this trigger mobx update observation hack */}
-        <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.shape} />
+        <div dimension={dimension.value} viewer={viewer.value} populationshape={populationShape.shape} cellstates={cellStates.hslValues}/>
       </Container>
     );
   }

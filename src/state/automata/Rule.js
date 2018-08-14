@@ -42,8 +42,8 @@ const Rule = types
     value: types.union(WolframRule, ConwayRule),
   })
   .actions(self => ({
-    onDimensionChange(value) {
-      const dimensionValue = value[0];
+    onDimensionChange(dimensionValue) {
+      // const dimensionValue = value[0];
       if (dimensionValue === 1) {
         self.value = createWolframRule();
       } else if (dimensionValue === 2) {

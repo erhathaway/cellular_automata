@@ -56,17 +56,16 @@ class Component extends React.Component {
     this.handleColorChange = this.handleColorChange.bind(this);
   }
 
-  handleColorChange({ hex: color }) {
-    const { id: stateID, automataStore: { cellStates } } = this.props;
-    const cellStateInstance = cellStates.value.find(s => s.id === stateID);
+  handleColorChange({ hsl: color }) {
+    const { number: stateNumber, automataStore: { cellStates } } = this.props;
+    // const cellStateInstance = cellStates.value.find(s => s.id === stateID);
 
-    cellStateInstance.setColor(color);
+    cellStates.setColor(stateNumber, color);
   }
 
   render() {
-    const { setPopupCoords, id: stateID, automataStore: { cellStates } } = this.props;
-    const cellStateInstance = cellStates.value.find(s => s.id === stateID);
-
+    const { setPopupCoords, number: stateNumber, automataStore: { cellStates } } = this.props;
+    const cellStateInstance = cellStates.hslValues.filter(s => s.number === stateNumber)[0];
     return (
       <Container>
         <Label>
@@ -74,7 +73,7 @@ class Component extends React.Component {
         </Label>
         <PopupManager
           setPopupCoords={setPopupCoords}
-          popupName={`states-color-picker-${stateID}`}
+          popupName={`states-color-picker-${stateNumber}`}
           component={<SketchPicker color={cellStateInstance.color} onChange={this.handleColorChange} />}
         >
           <ColorContainer>

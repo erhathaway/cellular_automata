@@ -27,7 +27,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   // method to control how a generation is added to a scene
   addGeneration() {
-    const material = new PointsMaterial( { color: new Color('hsl(234, 70%, 40%)'), size: this.cellShape.x, sizeAttenuation: true } );
+    const material = new PointsMaterial( { color: new Color(this.hslStringStates[1]), size: this.cellShape.x, sizeAttenuation: true } );
     this.materials.push(material);
     const geometry = new Geometry();
     this.geometries.push(geometry);
@@ -90,9 +90,11 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   animateUpdateFn() {
     this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
     const colorable = this.meshes.slice(-40);
+    const { h, s, l } = this.states[1];
+    const computedS = Math.floor(s * 100);
     colorable.forEach((m, i) => {
       // const color = new Color(`hsl(0%, 100%, ${100/(i+1)}%)`)
-      const color = new Color(`hsl(234, 70%, ${100-((i+5)*1)}%)`)
+      const color = new Color(`hsl(${h}, ${computedS}%, ${100-((i+5)*1)}%)`)
       m.material.color.set(color)
       m.position.z = (1/(i+1));
     })
