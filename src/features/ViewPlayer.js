@@ -21,7 +21,7 @@ const Container = styled('div')`
 
 class Component extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.elID = 'view-player-runner';
     this.viewer = undefined;
@@ -32,7 +32,7 @@ class Component extends React.Component {
       viewer: undefined,
       populationShape: undefined,
       cellStates: undefined,
-    }
+    };
 
     this.retrieveNextGeneration = this.retrieveNextGeneration.bind(this);
   }
@@ -40,7 +40,7 @@ class Component extends React.Component {
   componentDidMount() {
     const { automataStore: { dimension, viewer, populationShape, cellStates }, location } = this.props;
 
-    this.initalizeViewer(dimension.value, viewer.value)
+    this.initalizeViewer(dimension.value, viewer.value);
     if (routerService.isAtView(location)) {
       this.runSimulation();
     }
@@ -71,6 +71,7 @@ class Component extends React.Component {
       cellStates: previousCellStates,
     } = this.state;
 
+    console.log('current cell state', currentCellStates.value)
     // determine if modal is present or not and if simulation should be run
     const currentlyAtView = routerService.isAtView(currentLocation);
     const previouslyAtView = routerService.isAtView(previousLocation);
@@ -81,7 +82,7 @@ class Component extends React.Component {
 
     // handle dimension updates (will need a viewer change)
     if (currentDimension.value !== previousDimension || currentViewer.value !== previousViewer) {
-      this.initalizeViewer(currentDimension.value, currentViewer.value, true)
+      this.initalizeViewer(currentDimension.value, currentViewer.value, true);
       this.setState({
         dimension: currentDimension.value,
         viewer: currentViewer.value,
