@@ -71,7 +71,6 @@ class Component extends React.Component {
       cellStates: previousCellStates,
     } = this.state;
 
-    console.log('current cell state', currentCellStates.value)
     // determine if modal is present or not and if simulation should be run
     const currentlyAtView = routerService.isAtView(currentLocation);
     const previouslyAtView = routerService.isAtView(previousLocation);

@@ -51,7 +51,7 @@ const IndexedHistory = types
         // if (!self.history || Object.keys(self.history).length === 0) self.addIndexedHistory(self.indexName(), getSnapshot(targetStore))
       },
       addIndexedHistory(index, history) {
-        console.log('adding indexed history', index, history)
+        // console.log('adding indexed history', index, history)
         self.history = { ...self.history, [index]: history };
       },
       beforeDestroy() {

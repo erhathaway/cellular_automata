@@ -63,15 +63,12 @@ const CellStates = types
     },
     updateState() {
       const historyValue = self.indexedHistory.applyHistoryMatchingCurrentIndex();
-      console.log('updating state - index name', self.indexedHistory.indexName())
-      console.log('updating state - history value', historyValue)
 
       if (historyValue) return;
 
       // if no match, revert to using the default _values
       const pop = self.populationDimensions;
       const view = self.viewerDimensions;
-      console.log('updating state - pop value', pop)
 
       let newValue;
       if (pop === 1) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 0, s: 0, l: 0, a: 1 } }] }
@@ -82,14 +79,11 @@ const CellStates = types
       self.setValue(newValue);
     },
     onDimensionChange(dimensionValue) {
-      console.log('registering dimension change', dimensionValue)
       self.populationDimensions = dimensionValue;
       self.updateState();
     },
     // method used to subscribe to changes on the Viewer model
     onViewerChange(viewerValue) {
-      console.log('registering viewer change', viewerValue)
-
       self.viewerDimensions = viewerValue;
       self.updateState();
     },
