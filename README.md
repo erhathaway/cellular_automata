@@ -41,8 +41,8 @@ Code that should be broken out into independent repos.
 - `viewer`: The automata viewer. Specific viewers for 1D, 2D, 3D cells and 2D, 3D views
 - `popup`: React component to handle popups for this app
 - `indexMSTHistory`: A mobx model that records another models node history and stores the data under a unqiue key. This allows saving the history of a node over specific model attributes, and easily reaplying that node state for a set of attributes
-- `OrbitControls`: A third party lib to control movement around Three.js scenes. The Three.js community tends to do extensions as single files that you drop into your repo. 
--`query-string` and `strict-uri-encode` are both third party libs which weren't bundled correctly and thus give problems during the build phase of the app if they are used as node_module dependencies. Thus, they have been moved into the app.
+- `OrbitControls`: A third party lib to control movement around Three.js scenes. The Three.js community tends to do extensions as single files that you drop into your repo.
+- `query-string` and `strict-uri-encode`: are both third party libs which weren't bundled correctly and thus give problems during the build phase of the app if they are used as node_module dependencies. Thus, they have been moved into the app.
 
 #### /scenes
 
