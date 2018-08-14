@@ -11,12 +11,13 @@ import {
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { populationShape } } = props;
 
+  console.log(populationShape)
   return (
     <Container {...props}>
       <HeaderContainer>
-        { populationShape.value.map(({ name, value }, i) => (
+        { populationShape.keys.map((name, i) => (
           <MultilineAttributeHeader key={`multiline-attibute-header-${name}-pop-shape-${i}`} shouldTruncateNumber prefix={name}>
-            { value.toString() }
+            { populationShape.shape[name].toString() }
           </MultilineAttributeHeader>
         ))}
       </HeaderContainer>

@@ -1,6 +1,7 @@
 import {
   types,
   onSnapshot,
+  onPatch,
   applySnapshot,
   getSnapshot,
   getEnv,
@@ -9,8 +10,7 @@ import {
 
 const IndexedHistory = types
   .model('IndexedHistory', {
-    history: types.maybe(types.string),
-    indexes: types.array(types.string),
+    history: types.frozen(),
     targetPath: '',
   })
   .views(() => ({
@@ -30,7 +30,9 @@ const IndexedHistory = types
 
     return ({
       addIndexedHistory(index, history) {
-        self.history[index] = history;
+        console.log('adding indexed history')
+        self.history = { ...self.history, [index]: history };
+        console.log(self.history)
       },
       afterCreate() {
         targetStore = self.targetPath
@@ -43,17 +45,26 @@ const IndexedHistory = types
           throw new Error(msg);
         }
 
-        snapshotDisposer = onSnapshot(targetStore, snapshot => self.addIndexedHistory(self.indexName, snapshot));
-
+        snapshotDisposer = onSnapshot(targetStore, snapshot => {
+          try {
+            self.addIndexedHistory(self.indexName(), snapshot)
+          } catch (e) {
+            console.error(e)
+          }}
+        );
+        console.log('hererere ')
         // record an initial state if no known
-        if (self.history.length === 0)  self.addIndexedHistory(self.indexName, getSnapshot(targetStore))
+        if (!self.history || Object.keys(self.history).length === 0) self.addIndexedHistory(self.indexName(), getSnapshot(targetStore))
+        console.log('hererere ')
+
       },
       beforeDestroy() {
+        console.log('destroying')
         snapshotDisposer()
       },
       useHistoryAtIndex(index) {
         const value = self.history[index];
-        applySnapshot(targetStore, value);
+        if (value) applySnapshot(targetStore, value);
       },
     })
   });

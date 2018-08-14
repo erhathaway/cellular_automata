@@ -34,7 +34,7 @@ const Input = styled('input')`
 
 export default inject('automataStore')(observer((props) => {
   const { automataStore: { populationShape }, id } = props;
-  const dimension = populationShape.value.filter(s => s.id === id)[0];
+  const dimension = populationShape.shape[id];
 
   const { value, name } = dimension;
 
