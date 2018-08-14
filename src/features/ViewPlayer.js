@@ -183,7 +183,6 @@ class Component extends React.Component {
     const { dimension, viewer, populationShape, cellStates } = automataStore;
     const cellStateInstance = cellStates.hslValues.filter(s => s.number === 0)[0];
 
-    console.log(cellStateInstance)
     return (
       <Container id={this.elID} backgroundColor={cellStateInstance.color}>
         { /* TODO correctly configure mobx to not need this trigger mobx update observation hack */}

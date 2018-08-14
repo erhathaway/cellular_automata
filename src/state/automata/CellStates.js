@@ -73,8 +73,8 @@ const CellStates = types
       let newValue;
       if (pop === 1) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 0, s: 0, l: 0, a: 1 } }] }
       else if (pop === 2 && view === 2) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 234, s: .7, l: .4, a: 1 } }] }
-      else if (pop === 2 && view === 3) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 0, s: 0, l: 0, a: 1 } }] }
-      else if (pop === 3) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 0, s: 0, l: 0, a: 1 } }] }
+      else if (pop === 2 && view === 3) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 39, s: 1, l: 0.5, a: 1 } }] }
+      else if (pop === 3) { newValue = [{ number: 0, color: { h: 360, s: 1, l: 1, a: 1 } }, { number: 1, color: { h: 39, s: 1, l: 0.5, a: 1 } }] }
 
       self.setValue(newValue);
     },

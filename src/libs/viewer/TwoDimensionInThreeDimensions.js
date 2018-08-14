@@ -4,7 +4,8 @@ import {
   Mesh, Line,
   MeshLambertMaterial, MeshPhongMaterial, MeshBasicMaterial,
   PointLight, HemisphereLight, SpotLight,
-  PerspectiveCamera, OrthographicCamera
+  PerspectiveCamera, OrthographicCamera,
+  Color,
 } from 'three';
 import * as THREE from 'three';
 import Orbit from 'three-orbit-controls';
@@ -59,7 +60,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   // method to control how a generation is added to a scene
   addGeneration() {
     const diameter = this.cellShape.x
-    const material = new MeshLambertMaterial( {color: 'orange'} );
+    const material = new MeshLambertMaterial( {color: new Color(this.hslStringStates[1])} );
     const geometry = new THREE.BoxBufferGeometry( diameter, diameter, diameter );
     const group = new THREE.Group();
 
@@ -220,7 +221,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   }
 
   createFloor = () => {
-    const floorMaterial = new MeshLambertMaterial( { color: 'white', side: THREE.DoubleSide } );
+    const floorMaterial = new MeshLambertMaterial( { color: new Color(this.hslStringStates[0]), side: THREE.DoubleSide } );
     const floorGeometry = new PlaneGeometry(30000, 30000, 1, 1);
     this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
