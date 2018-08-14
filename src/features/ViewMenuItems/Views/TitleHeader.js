@@ -23,7 +23,8 @@ const ContainerVerticalRight = css`
 
 
 const Container = styled('h2')`
-  color: #464646;
+  // color: #464646;
+  color: white;
   font-size: 10px;
   margin: 0px;
   margin-top: 5px;
