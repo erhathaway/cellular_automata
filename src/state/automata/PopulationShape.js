@@ -63,12 +63,12 @@ const PopulationShape = types
     },
     // method used to subscribe to changes on the Dimension model
     onDimensionChange(dimensionValue) {
-      self.populationDimensions = dimensionValue[0];
+      self.populationDimensions = dimensionValue;
       self.updateShape();
     },
     // method used to subscribe to changes on the Viewer model
     onViewerChange(viewerValue) {
-      self.viewerDimensions = viewerValue[0];
+      self.viewerDimensions = viewerValue;
       self.updateShape();
     },
     setShape(shape) {

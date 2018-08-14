@@ -10,8 +10,8 @@ const Viewer = types
   })
   .actions(self => ({
     setValue(newDimension) { self.value = newDimension; },
-    onDimensionChange(value) {
-      const dimensionValue = value[0];
+    onDimensionChange(dimensionValue) {
+      // const dimensionValue = value[0];
 
       if (dimensionValue === 1 && self.value !== 2) {
         self.setValue(2);

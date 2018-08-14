@@ -62,8 +62,8 @@ const Neighbors = types
     value: types.array(types.reference(SingleNeighbor)),
   })
   .actions(self => ({
-    onDimensionChange(value) {
-      const dimensionValue = value[0];
+    onDimensionChange(dimensionValue) {
+      // const dimensionValue = value[0];
       if (dimensionValue === 1) {
         self.value = createOneDimensionNeighborsValue();
       } else if (dimensionValue === 2) {
