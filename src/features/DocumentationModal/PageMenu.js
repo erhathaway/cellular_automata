@@ -29,6 +29,11 @@ const ButtonContainer = styled('div')`
     color: green;
     cursor: pointer;
   }
+
+  @media (max-width: 500px) {
+    padding: 0px;
+    margin: 0px;
+  }
 `;
 
 const PageButton = styled('button')`
@@ -46,6 +51,9 @@ const PageButton = styled('button')`
 
 const Arrow = styled('div')`
   font-size: 30px;
+  display: flex;
+  // add to fix vertical alignment on some mobile devices
+  align-items: center;
 `;
 
 export default class Component extends React.Component {

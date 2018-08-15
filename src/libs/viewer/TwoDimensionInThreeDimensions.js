@@ -147,7 +147,9 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // this.backLight.translateY(this.cellShape.y);
     this.scene.translateY(-this.cellShape.y)
     if (this.meshes.length > this.generationsToShow) { // mesh + camera
-      this.floor.position.setY(this.floor.position.y + this.cellShape.y);
+      if (this.floor) {
+        this.floor.position.setY(this.floor.position.y + this.cellShape.y);
+      }
       this.removeGeneration(); // attempt to trim fat in case there are more than 1 extra generations due to container resizing
       // this.camera.translateY(this.cellShape.y)
     }

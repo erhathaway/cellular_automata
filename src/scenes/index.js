@@ -73,7 +73,7 @@ const QueryStringHandler = ({ location, history }) => {
   const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
 
   return (
-    <Container>
+    <Container id="query-string-handler-container">
       <TransitionGroup>
         <Transition
           key={`modal-transition-${atLocation}`}

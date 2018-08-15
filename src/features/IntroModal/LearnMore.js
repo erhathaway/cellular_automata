@@ -16,14 +16,16 @@ const Container = styled('div')`
   color: rgb(105,105,105);
   font-size: 14px;
   letter-spacing: 3.5px;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
   padding: 20px;
 
   &:hover {
     border-color: green;
     color: green;
     cursor: pointer;
+  }
+
+  @media (max-width: 460px) {
+    margin-bottom: 65px;
   }
 `;
 

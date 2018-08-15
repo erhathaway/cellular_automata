@@ -17,11 +17,11 @@ import {
 
 const Container = styled('div')`
   position: fixed;
-  left: 0,
-  top: 0,
+  left: 0;
+  top: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(0, 0, 0, 1);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,8 +35,8 @@ const Middle = styled('div')`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 700px;
+  justify-content: flex-start;
+  margin: 20px;
 
   @media (max-width: 900px) {
     width: 80%;
@@ -163,13 +163,13 @@ class Component extends React.Component {
     const { history } = this.props;
     return (
       <Container>
+        <Images className="intro-modal in" />
         <Middle>
-          <Title className="intro-modal in" marginTop="0px" marginBottom="10px" />
-          <Images className="intro-modal in" marginBottom={100} />
-          <Description className="intro-modal delay-appear-in" marginTop="45px" marginBottom="120px" />
-          <Start className="intro-modal stagger-in-bottom" history={history} marginTop="0px" marginBottom="0px" />
-          <OrDivider className="intro-modal stagger-in-bottom" marginTop="15px" marginBottom="0px" />
-          <LearnMore className="intro-modal stagger-in-bottom" history={history} marginTop="0px" marginBottom="0px" />
+          <Title className="intro-modal in" />
+          <Description className="intro-modal delay-appear-in" />
+          <Start className="intro-modal stagger-in-bottom" history={history} />
+          <OrDivider className="intro-modal stagger-in-bottom" />
+          <LearnMore className="intro-modal stagger-in-bottom" history={history} />
         </Middle>
         <Bottom className="intro-modal credits">
           <Credits className="intro-modal credits" />

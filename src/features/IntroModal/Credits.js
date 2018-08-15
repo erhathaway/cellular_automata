@@ -9,14 +9,16 @@ const Container = styled('div')`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  opacity: 1;
-  color: white;
   height: 30px;
   width: 250px;
   right: 0px;
 
   &:hover {
     cursor: pointer;
+  }
+
+  > a {
+    text-decoration: none;
   }
 `;
 
@@ -34,13 +36,22 @@ const Name = styled('div')`
   margin-right: 30px;
   margin-bottom: 5px;
   width: 100px;
+  color: white;
 `;
+
+const Link = styled('a')`
+  text-decoration: none;
+`
 
 export default () => (
   <Container>
-    <Name>
-      Ethan Hathaway
-    </Name>
-    <LinkIcon src={github} alt="github" />
+    <Link href="https://www.linkedin.com/in/erhathaway/" target="_blank">
+      <Name>
+        Ethan Hathaway
+      </Name>
+    </Link>
+    <Link href="https://github.com/erhathaway/cellular_automata/" target="_blank">
+      <LinkIcon src={github} alt="github" />
+    </Link>
   </Container>
 );

@@ -1,27 +1,31 @@
 import React from 'react';
 import styled from 'react-emotion';
 
+import OneDInTwoD from '../../assets/1dIn2d.jpg';
+
 const Container = styled('div')`
-  position: relative;
+  position: fixed;
   display: flex;
-  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100vw;
   opacity: 0;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
+  z-index: 0;
 `;
 
-const Image = styled('div')`
-  width: 150px;
-  height: 150px;
-  background-color: #131313;
-  margin-left: ${({ marginLeft }) => marginLeft || 20}px;
+const Image = styled('img')`
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.1;
+  background-image: url(${({ backgroundImage }) => backgroundImage});
+
+  @media (max-width: 900px) {
+    background-size: cover;
+  }
 `;
 
 export default props => (
   <Container className="landing-images" {...props}>
-    <Image />
-    <Image marginLeft={20} />
-    <Image marginLeft={20} />
-    <Image marginLeft={20} />
+    <Image backgroundImage={OneDInTwoD}/>
   </Container>
 );

@@ -86,10 +86,12 @@ const PlacementOutline = styled('nav')`
   ${({ height }) => height && `height: ${height};`}
   ${({ width }) => width && `width: ${width};`}
 
-  z-position: 1;
+  z-index: 1;
   background-color: rgba(94, 80, 80, 0.2);
   opacity: 1;
   opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
+  ${({ shouldShow }) => (!shouldShow && 'display: none;')}
+
 `;
 
 class Component extends React.Component {

@@ -2,18 +2,26 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Container = styled('p')`
-  color: gray;
   display: flex;
   justify-content: center;
+  align-items: center;
   text-align: center;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
   font-size: 15px;
-  color: #4e5220;
+  color: #7c842a;
   line-height: 28px;
   letter-spacing: 5px;
   text-transform: uppercase;
-  width: 150%;
+  width: 90vw;
+  font-size: 20px;
+
+  margin-bottom: 50px;
+  margin-top: 50px;
+  height: 50px;
+
+  @media (max-width: 300px) {
+    margin-bottom: 100px;
+    margin-top: 70px;
+  }
 `;
 
 export default props => (
