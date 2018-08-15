@@ -65,19 +65,23 @@ const Container = styled('div')`
   z-index: 2;
   overflow-y: scroll;
   height: 100vh;
-  // background-color: yellow;
+
+  @media (max-width: 800px) {
+    height: calc(100% - 80px);
+  }
+
+  @media (max-width: 500px) {
+    height: calc(100% - 50px);
+  }
 `;
 
 const NavContainer = styled('div')`
-  // position: fixed;
   left: 150px;
   height: 80vh;
   display: flex;
   align-items: center;
   flex-direction: column;
   margin-top: 10vh;
-  // background-color: blue;
-  // flex-grow: 1;
 
   @media (max-width: 800px) {
     display: none;
@@ -93,20 +97,15 @@ const NavContainer = styled('div')`
 `;
 
 const DocContainer = styled('div')`
-  // flex-grow: 1;
   position: static;
   width: 500px;
   padding-left: 100px;
   margin-left: 10px;
   overflow: hidden;
-  // background-color: green;
-
 
   @media (max-width: 1200px) {
     padding-left: 8%;
     padding-right: 20px;
-    // min-width: 300px;
-    // max-width: 500px;
   }
 
   @media (max-width: 800px) {
@@ -114,7 +113,6 @@ const DocContainer = styled('div')`
     padding-right: 20px;
     z-index: 3;
   }
-
 `;
 
 class Component extends React.Component {
@@ -197,10 +195,11 @@ class Component extends React.Component {
     const selectedDocPage = routerService.getSelectedDocumentationPage(location);
 
     return (
-      <Container className="doc doc-modal">
-        <NavBar>
-          <ExitButton history={history} />
-        </NavBar>
+      <React.Fragment>
+      <NavBar>
+      <ExitButton history={history} />
+      </NavBar>
+      <Container className="doc doc-modal" id="documentation-main-container">
         <NavContainer className="doc-nav">
           <ExitButton history={history} />
           <SideBar history={history}>
@@ -236,6 +235,7 @@ class Component extends React.Component {
           <PageMenu history={history} />
         </DocContainer>
       </Container>
+      </React.Fragment>
     );
   }
 }

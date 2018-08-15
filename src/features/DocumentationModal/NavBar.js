@@ -2,9 +2,6 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Container = styled('nav')`
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 80px;
   background-color: #0d0d0d;
@@ -21,7 +18,6 @@ const Container = styled('nav')`
   @media (min-width: 800px) {
     display: none;
   }
-
 `;
 
 export default ({ children }) => {
