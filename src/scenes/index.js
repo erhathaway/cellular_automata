@@ -78,8 +78,8 @@ const QueryStringHandler = ({ location, history }) => {
         <Transition
           key={`modal-transition-${atLocation}`}
           timeout={{
-            enter: 1000,
-            exit: 1500,
+            enter: 500,
+            exit: 600,
           }}
         >
           {inState => (

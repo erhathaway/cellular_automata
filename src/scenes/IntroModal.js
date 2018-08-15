@@ -81,19 +81,19 @@ class Component extends React.Component {
     if (locationHistoryLength > 1 && previousLocationName === 'documentation') {
       anime({
         targets: '.intro-modal',
-        translateX: [-500, 0],
+        translateX: [-1500, 0],
         opacity: [0, 1],
-        duration: 1000,
+        duration: 500,
         elasticity: 100,
         easing: 'easeOutQuint',
       });
     } else {
       anime({
         targets: '.intro-modal.in',
-        top: [-500, 0],
-        left: [-300, 0],
+        top: [-600, 0],
+        left: [-600, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         scale: [0, 1],
         easing: 'easeOutQuint',
@@ -101,32 +101,32 @@ class Component extends React.Component {
 
       anime({
         targets: '.intro-modal.stagger-in-bottom',
-        bottom: [-300, 0],
+        bottom: [-500, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 600,
+        delay: 400,
       });
 
       anime({
         targets: '.intro-modal.delay-appear-in',
-        top: [300, 0],
+        top: [500, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 500,
+        delay: 300,
       });
 
       anime({
         targets: '.intro-modal.credits',
-        right: [-300, 0],
+        right: [-500, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 1500,
+        delay: 300,
       });
     }
   }
@@ -140,7 +140,7 @@ class Component extends React.Component {
         translateX: [0, -900],
         targets: '.intro-modal',
         opacity: [1, 0],
-        duration: 1500,
+        duration: 600,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 0,
@@ -151,7 +151,7 @@ class Component extends React.Component {
         translateY: [0, -600],
         translateX: [0, 600],
         opacity: [1, 0],
-        duration: 1500,
+        duration: 600,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 0,

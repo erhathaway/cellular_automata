@@ -154,9 +154,9 @@ class Component extends React.Component {
         targets: '.doc-modal',
         translateX: [500, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 0,
-        delay: 300,
+        delay: 100,
         easing: 'easeOutQuint',
       });
     } else {
@@ -164,7 +164,7 @@ class Component extends React.Component {
         targets: '.doc-nav',
         translateX: [-200, 0],
         opacity: [0, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         delay: 0,
         easing: 'easeOutQuint',
@@ -174,7 +174,7 @@ class Component extends React.Component {
         targets: '.doc-container',
         scale: [0.9, 1],
         opacity: [0.5, 1],
-        duration: 1500,
+        duration: 500,
         elasticity: 100,
         delay: 0,
         easing: 'easeOutQuint',
@@ -191,7 +191,7 @@ class Component extends React.Component {
         translateX: [0, 900],
         targets: '.doc-modal',
         opacity: [1, 0],
-        duration: 2000,
+        duration: 600,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 0,
@@ -202,10 +202,10 @@ class Component extends React.Component {
         translateY: [0, -600],
         translateX: [0, 600],
         opacity: [1, 0],
-        duration: 1500,
+        duration: 600,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 400,
+        delay: 100,
       });
     }
   }
