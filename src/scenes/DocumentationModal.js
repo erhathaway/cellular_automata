@@ -14,6 +14,7 @@ import {
   SideBarSection,
   ExitButton,
   NavBar,
+  ShowDocsButton,
 } from '../features/DocumentationModal';
 
 import { router as routerService, locationHistory as locationHistoryService } from '../services';
@@ -197,8 +198,9 @@ class Component extends React.Component {
     return (
       <React.Fragment>
       <NavBar>
-      <ExitButton history={history} />
+        <ExitButton history={history} />
       </NavBar>
+      <ShowDocsButton />
       <Container className="doc doc-modal" id="documentation-main-container">
         <NavContainer className="doc-nav">
           <ExitButton history={history} />

@@ -13,7 +13,7 @@ const Container = styled('div')`
   align-items: center;
 `;
 
-const IconContainer = styled('span')`
+const IconContainer = styled('button')`
   width: 50px;
   height: 50px;
   font-family: 'Roboto', sans-serif;

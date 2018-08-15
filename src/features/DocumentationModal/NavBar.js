@@ -4,7 +4,7 @@ import styled from 'react-emotion';
 const Container = styled('nav')`
   width: 100%;
   height: 80px;
-  background-color: #0d0d0d;
+  background-color: #252525;
   z-index: 999;
   display: flex;
   align-items: center;
