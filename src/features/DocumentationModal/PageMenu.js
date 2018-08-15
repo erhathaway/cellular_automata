@@ -29,6 +29,11 @@ const ButtonContainer = styled('div')`
     color: green;
     cursor: pointer;
   }
+
+  @media (max-width: 500px) {
+    padding: 0px;
+    margin: 0px;
+  }
 `;
 
 const PageButton = styled('button')`

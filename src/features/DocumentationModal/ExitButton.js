@@ -7,7 +7,6 @@ import { router as routerService } from '../../services';
 const Container = styled('div')`
   position: relative;
   height: 70px;
-  // width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -40,7 +39,6 @@ const IconContainer = styled('button')`
     border: none;
     margin: 0px;
     border-radius: 0px;
-    // background-color: #80808075;
     background-color: #8080801c;
     margin-left: 2px;
     height: 80px;
