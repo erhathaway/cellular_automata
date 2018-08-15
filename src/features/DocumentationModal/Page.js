@@ -65,7 +65,9 @@ export default class Component extends React.Component {
 
   componentDidMount() {
     Component.animateIn();
-    window.scrollTo(0, 0);
+
+    const page = document.getElementById('documentation-main-container');
+    page.scrollTo(0, 0);
   }
 
   render() {

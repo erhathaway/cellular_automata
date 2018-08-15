@@ -45,6 +45,7 @@ body .doc {
 
 .doc pre > code {
   color: #989868;
+  white-space: pre-wrap;
 }
 
 .doc ul {

@@ -51,6 +51,9 @@ const PageButton = styled('button')`
 
 const Arrow = styled('div')`
   font-size: 30px;
+  display: flex;
+  // add to fix vertical alignment on some mobile devices
+  align-items: center;
 `;
 
 export default class Component extends React.Component {

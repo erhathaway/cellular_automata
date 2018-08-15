@@ -101,6 +101,8 @@ const NavContainer = styled('div')`
 `;
 
 const DocContainer = styled('div')`
+  ${({ showSmallDocMenu }) => showSmallDocMenu && 'display: none;'}
+
   position: static;
   width: 500px;
   padding-left: 100px;
@@ -235,7 +237,7 @@ class Component extends React.Component {
             ))}
           </SideBar>
         </NavContainer>
-        <DocContainer className="doc-container">
+        <DocContainer className="doc-container" showSmallDocMenu={showSmallDocMenu}>
           <TransitionGroup key="123">
             <Transition
               key={`doc-page-modal-transition-${selectedDocPage.pageRouterName}`}
