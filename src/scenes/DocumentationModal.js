@@ -68,11 +68,14 @@ const Container = styled('div')`
   height: 100vh;
 
   @media (max-width: 800px) {
-    height: calc(100% - 80px);
+    height: calc(100% - 77px);
+    // handle weird overflow problem on mobile views
+    margin-top: -3px;
   }
 
   @media (max-width: 500px) {
-    height: calc(100% - 50px);
+    height: calc(100% - 47px);
+    margin-top: -3px;
   }
 `;
 
@@ -85,12 +88,12 @@ const NavContainer = styled('div')`
   margin-top: 10vh;
 
   @media (max-width: 800px) {
-    display: none;
+    ${({ showSmallDocMenu }) => !showSmallDocMenu && 'display: none;'}
     position: fixed;
     z-index: 4;
     width: 100vw;
     height: 100vh;
-    justify-content: center;
+    justify-content: flex-start;
     left: 0px;
     margin: 0px;
     background-color: black;
@@ -117,12 +120,26 @@ const DocContainer = styled('div')`
 `;
 
 class Component extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showSmallDocMenu: false,
+    };
+
+    this.onShowSmallDockMenuClick = this.onShowSmallDockMenuClick.bind(this);
+  }
+
   componentDidMount() {
     this.animateIn();
   }
 
   componentWillUpdate({ inState }) {
     if (inState === 'exiting') { this.animateOut(); }
+  }
+
+  onShowSmallDockMenuClick() {
+    this.setState(state => ({ ...state, showSmallDocMenu: !state.showSmallDocMenu }));
   }
 
   animateIn() {
@@ -193,6 +210,7 @@ class Component extends React.Component {
 
   render() {
     const { location, history } = this.props;
+    const { showSmallDocMenu } = this.state;
     const selectedDocPage = routerService.getSelectedDocumentationPage(location);
 
     return (
@@ -200,10 +218,10 @@ class Component extends React.Component {
       <NavBar>
         <ExitButton history={history} />
       </NavBar>
-      <ShowDocsButton />
+      <ShowDocsButton onClick={this.onShowSmallDockMenuClick} />
       <Container className="doc doc-modal" id="documentation-main-container">
-        <NavContainer className="doc-nav">
-          <ExitButton history={history} />
+        <NavContainer className="doc-nav" showSmallDocMenu={showSmallDocMenu}>
+          { !showSmallDocMenu && <ExitButton history={history} /> }
           <SideBar history={history}>
             { PAGES.map(({ pageRouterName, pageDisplayName }) => (
               <SideBarSection
@@ -211,6 +229,8 @@ class Component extends React.Component {
                 isSelected={selectedDocPage.pageRouterName === pageRouterName}
                 pageRouterName={pageRouterName}
                 pageDisplayName={pageDisplayName}
+                showSmallDocMenu={showSmallDocMenu}
+                toggleShowingSmallDocMenu={this.onShowSmallDockMenuClick}
               />
             ))}
           </SideBar>

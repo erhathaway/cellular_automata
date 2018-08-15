@@ -32,7 +32,6 @@ const Container = styled('button')`
   }
 
   &:hover {
-    border-color: green;
     color: green;
     cursor: pointer;
   }

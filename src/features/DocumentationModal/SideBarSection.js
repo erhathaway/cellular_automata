@@ -25,8 +25,9 @@ export default class Component extends React.Component {
   }
 
   handleClick() {
-    const { history, pageRouterName } = this.props;
+    const { history, pageRouterName, showSmallDocMenu, toggleShowingSmallDocMenu } = this.props;
     routerService.openDocumentationModalPage(history, pageRouterName);
+    if (showSmallDocMenu) toggleShowingSmallDocMenu()
   }
 
   render() {
