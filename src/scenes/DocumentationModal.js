@@ -13,6 +13,7 @@ import {
   SideBar,
   SideBarSection,
   ExitButton,
+  NavBar,
 } from '../features/DocumentationModal';
 
 import { router as routerService, locationHistory as locationHistoryService } from '../services';
@@ -56,7 +57,7 @@ const Container = styled('div')`
   left: 0,
   top: 0,
   opacity: 1;
-  background-color: rgba(0,0,0,0.9);
+  background-color: rgba(0,0,0,0.95);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -64,25 +65,56 @@ const Container = styled('div')`
   z-index: 2;
   overflow-y: scroll;
   height: 100vh;
-
+  // background-color: yellow;
 `;
 
 const NavContainer = styled('div')`
-  position: fixed;
+  // position: fixed;
   left: 150px;
   height: 80vh;
   display: flex;
   align-items: center;
   flex-direction: column;
   margin-top: 10vh;
+  // background-color: blue;
+  // flex-grow: 1;
+
+  @media (max-width: 800px) {
+    display: none;
+    position: fixed;
+    z-index: 4;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    left: 0px;
+    margin: 0px;
+    background-color: black;
+  }
 `;
 
 const DocContainer = styled('div')`
+  // flex-grow: 1;
   position: static;
   width: 500px;
-  padding-left: 150px;
+  padding-left: 100px;
   margin-left: 10px;
   overflow: hidden;
+  // background-color: green;
+
+
+  @media (max-width: 1200px) {
+    padding-left: 8%;
+    padding-right: 20px;
+    // min-width: 300px;
+    // max-width: 500px;
+  }
+
+  @media (max-width: 800px) {
+    padding-left: 20px;
+    padding-right: 20px;
+    z-index: 3;
+  }
+
 `;
 
 class Component extends React.Component {
@@ -166,6 +198,9 @@ class Component extends React.Component {
 
     return (
       <Container className="doc doc-modal">
+        <NavBar>
+          <ExitButton history={history} />
+        </NavBar>
         <NavContainer className="doc-nav">
           <ExitButton history={history} />
           <SideBar history={history}>

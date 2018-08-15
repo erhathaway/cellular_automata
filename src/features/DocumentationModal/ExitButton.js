@@ -7,7 +7,7 @@ import { router as routerService } from '../../services';
 const Container = styled('div')`
   position: relative;
   height: 70px;
-  width: 100%;
+  // width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,6 +33,25 @@ const IconContainer = styled('span')`
     border-color: green;
     color: green;
     cursor: pointer;
+  }
+
+  // nav bar useage at width less than 800px
+  @media (max-width: 800px) {
+    border: none;
+    margin: 0px;
+    border-radius: 0px;
+    // background-color: #80808075;
+    background-color: #8080801c;
+    margin-left: 2px;
+    height: 80px;
+    width: 80px;
+    color: #ffffff36;
+
+  }
+
+  @media (max-width: 500px) {
+    height: 50px;
+    width: 50px;
   }
 `;
 
