@@ -21,7 +21,7 @@ const Container = styled('div')`
   top: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(0, 0, 0, 1);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -36,7 +36,7 @@ const Middle = styled('div')`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 800px;
+  margin: 20px;
 
   @media (max-width: 900px) {
     width: 80%;
@@ -163,9 +163,9 @@ class Component extends React.Component {
     const { history } = this.props;
     return (
       <Container>
+        <Images className="intro-modal in" />
         <Middle>
           <Title className="intro-modal in" />
-          <Images className="intro-modal in" />
           <Description className="intro-modal delay-appear-in" />
           <Start className="intro-modal stagger-in-bottom" history={history} />
           <OrDivider className="intro-modal stagger-in-bottom" />

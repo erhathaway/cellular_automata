@@ -11,8 +11,6 @@ const Container = styled('div')`
   align-items: center;
   padding-left: 50px;
 `;
-// margin-top: ${({ marginTop }) => marginTop || '0px'};
-// margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
 
 const Title = styled('h1')`
   font-size: 2em;

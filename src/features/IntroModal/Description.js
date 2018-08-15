@@ -2,32 +2,25 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Container = styled('p')`
-  color: gray;
   display: flex;
   justify-content: center;
+  align-items: center;
   text-align: center;
   font-size: 15px;
-  color: #4e5220;
+  color: #7c842a;
   line-height: 28px;
   letter-spacing: 5px;
   text-transform: uppercase;
-  width: 100%;
+  width: 90vw;
+  font-size: 20px;
 
   margin-bottom: 50px;
+  margin-top: 50px;
+  height: 50px;
 
-  @media (min-width: 900px) {
-    margin-bottom: 80px;
-    margin-top: 50px;
-  }
-
-  @media (max-width: 900px) {
-    margin-bottom: 20px;
-    margin-top: 30px;
-  }
-
-  @media (max-width: 460px) {
+  @media (max-width: 300px) {
     margin-bottom: 100px;
-    margin-top: 30px;
+    margin-top: 70px;
   }
 `;
 

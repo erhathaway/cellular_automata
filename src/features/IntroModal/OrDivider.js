@@ -9,8 +9,7 @@ const Container = styled('div')`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
+  margin-top: 20px;
 
   @media (min-width: 420px) {
     width: 300px;
@@ -18,7 +17,7 @@ const Container = styled('div')`
 `;
 
 const Divider = styled('div')`
-  border-bottom: 1px solid rgba(56, 56, 56, 0.4);
+  border-bottom: 1px solid rgba(56, 56, 56, 0.9);
   width: 150px;
   height: 2px;
 `;

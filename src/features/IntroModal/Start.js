@@ -18,8 +18,6 @@ const Container = styled('button')`
   background: inherit;
   color: gray;
   text-transform: uppercase;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
   border-radius: 1px;
 
   &:hover {
