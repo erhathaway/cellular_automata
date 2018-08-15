@@ -25,6 +25,10 @@ const Container = styled('div')`
     color: green;
     cursor: pointer;
   }
+
+  @media (max-width: 460px) {
+    margin-bottom: 65px;
+  }
 `;
 
 class Component extends React.Component {

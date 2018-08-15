@@ -6,14 +6,29 @@ const Container = styled('p')`
   display: flex;
   justify-content: center;
   text-align: center;
-  margin-top: ${({ marginTop }) => marginTop || '0px'};
-  margin-bottom: ${({ marginBottom }) => marginBottom || '0px'};
   font-size: 15px;
   color: #4e5220;
   line-height: 28px;
   letter-spacing: 5px;
   text-transform: uppercase;
-  width: 150%;
+  width: 100%;
+
+  margin-bottom: 50px;
+
+  @media (min-width: 900px) {
+    margin-bottom: 80px;
+    margin-top: 50px;
+  }
+
+  @media (max-width: 900px) {
+    margin-bottom: 20px;
+    margin-top: 30px;
+  }
+
+  @media (max-width: 460px) {
+    margin-bottom: 100px;
+    margin-top: 30px;
+  }
 `;
 
 export default props => (

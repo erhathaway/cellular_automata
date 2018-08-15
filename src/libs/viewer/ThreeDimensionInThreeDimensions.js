@@ -27,7 +27,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
-    this.updateRateInMS = 5;
+    this.updateRateInMS = 5000;
     this.generationsToShow = 1;
   }
 
