@@ -131,7 +131,8 @@ export default class BaseClass {
 
   updateRenderer = ({ width, height } = {}) => {
     try {
-      this.renderer.setSize(this.containerWidth, this.containerHeight);
+      // TODO figure out why renderer is null sometimes
+      this.renderer && this.renderer.setSize(this.containerWidth, this.containerHeight);
     } catch(e) {
       console.warn(e)
     }
@@ -158,7 +159,10 @@ export default class BaseClass {
   }
 
   updateCamera() {
-    this.camera.updateProjectionMatrix();
+    if (this.camera) {
+      // TODO figure out why camera is null sometimes
+      this.camera.updateProjectionMatrix();
+    }
   }
 
   /************************/
@@ -185,7 +189,10 @@ export default class BaseClass {
   _handleWindowResize = () => {
     this.handleWindowResize();
     this.updateRenderer();
-    this.camera.aspect = this.containerWidth / this.containerHeight;
+    if (this.camera) {
+      // TODO figure out why camera is null sometimes
+      this.camera.aspect = this.containerWidth / this.containerHeight;
+    }
     this.updateCamera();
   }
 
