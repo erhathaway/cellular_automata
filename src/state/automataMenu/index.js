@@ -10,10 +10,10 @@ const Position = types
     isMoving: types.boolean,
   })
   .actions(self => ({
-    setPlacement(newPlacement) { self.placement = newPlacement; console.log(self.placement)},
-    setDockingState(newDockingState) { self.dockingState = newDockingState; console.log(self.dockingState)},
-    turnIsMovingOn() { self.isMoving = true; console.log('moving', self.isMoving) },
-    turnIsMovingOff() { self.isMoving = false; console.log('moving', self.isMoving) },
+    setPlacement(newPlacement) { self.placement = newPlacement; },
+    setDockingState(newDockingState) { self.dockingState = newDockingState; },
+    turnIsMovingOn() { self.isMoving = true; },
+    turnIsMovingOff() { self.isMoving = false; },
     toggleIsMoving() { self.isMoving = !self.isMoving; },
   }))
   .views(self => ({
@@ -43,8 +43,8 @@ const Position = types
 
 const PositionInstance = Position
   .create({
-    placement: 'left',
-    dockingState: 'canDock',
+    placement: 'floating',
+    dockingState: 'undocked',
     isMoving: false,
   });
 

@@ -23,7 +23,8 @@ const Container = styled('aside')`
 `;
 
 const Icon = styled('div')`
-  color: rgba(156,156,156,0.6);
+  // color: rgba(156,156,156,0.6);
+  color: white;
   font-size: 23px;
   display: flex;
   align-items: center;

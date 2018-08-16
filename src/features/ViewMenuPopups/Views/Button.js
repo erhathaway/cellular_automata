@@ -14,14 +14,18 @@ const Container = styled('div')`
   align-items: center;
   margin-left: -1px;
   color: gray;
-  border: 1px solid #5d5c5c;
+  border: 1px solid gray;
+  // background-color: #80808063;
 
-  ${({ isActive }) => isActive && 'background-color: #00000047;'}
+  background-color: #80808038;
+
+  ${({ isActive }) => isActive && 'background-color: black;'}
   ${({ isActive }) => isActive && 'color: yellow;'}
 
   &:hover {
-    color: white;
-    background-color: black
+    color: yellow;
+    background-color: black;
+    cursor: pointer;
   }
 `;
 

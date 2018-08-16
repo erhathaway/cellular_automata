@@ -7,7 +7,7 @@ const Container = styled('aside')`
   right: 0px;
   height: 14px;
   width: 100%;
-  background-color: #4040403d;
+  background-color: rgba(0,0,0,0.6);
   border-radius: 7px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   display: flex;

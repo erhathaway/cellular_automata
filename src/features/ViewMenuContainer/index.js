@@ -42,7 +42,7 @@ const MenuNotDocked = css`
 const Menu = styled('nav')`
   position: fixed;
   width: ${MENU_WIDTH}px;
-  background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
+  background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8), rgba(0,0,0,0.77), rgba(0,0,0,0.77), rgba(0,0,0,0.72));
   z-index: 3;
   display: flex;
   align-items: center;
@@ -313,9 +313,9 @@ class Component extends React.Component {
 
     return (
       <Container>
-        <PlacementOutline shouldShow={placement === 'willDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0" />
-        <PlacementOutline shouldShow={placement === 'willDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0" />
-        <PlacementOutline shouldShow={placement === 'willDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0" />
+        <PlacementOutline shouldShow={placement === 'canDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0" />
+        <PlacementOutline shouldShow={placement === 'canDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0" />
+        <PlacementOutline shouldShow={placement === 'canDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0" />
         <Draggable
           handle=".view-menu-draggable-handle"
           axis="both"

@@ -27,7 +27,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
 
     this.currentGenerationCount = 0;
     this.populationShape = populationShape;
-    this.updateRateInMS = 5000;
+    this.updateRateInMS = 500;
     this.generationsToShow = 1;
   }
 
@@ -231,7 +231,6 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
   	this.floor.position.y = -100;
   	this.floor.rotation.x = Math.PI / 2;
   	this.scene.add(this.floor);
-    // console.log(this.floor)
   };
 
 }

@@ -38,7 +38,7 @@ const PrefixVerticalRight = css`
 const Prefix = styled('div')`
   color: rgba(156,156,156,1);
   min-width: 5px;
-  border-right: 1px solid rgba(56,56,56,0.9);
+  border-right: 1px solid green;
   padding-right: 8px;
   margin-right: 8px;
   font-size: 14px;

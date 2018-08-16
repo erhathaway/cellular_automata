@@ -10,15 +10,21 @@ const Container = styled('aside')`
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   color: rgba(156,156,156,1);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-size: 25px;
-  background-color: #4040403d;
+  // background-color: rgba(0,0,0,0.4);
+  background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8), rgba(0,0,0,0.77), rgba(0,0,0,0.77), rgba(0,0,0,0.72));
+
 
   &:hover {
-    background-image: linear-gradient(to right, rgba(0,0,0,0.2), rgba(0,0,0,0.2), rgba(0,0,0,0.11), rgba(0,0,0,0.1), rgba(0,0,0,0.1));
+    // background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9), rgba(0,0,0,0.77), rgba(0,0,0,0.77), rgba(0,0,0,0.72));
+    background-color: green;
+    background-image: none;
+    // background-image: linear-gradient(to right, rgba(0,0,0,0.2), rgba(0,0,0,0.2), rgba(0,0,0,0.11), rgba(0,0,0,0.1), rgba(0,0,0,0.1));
   }
 
 `;
