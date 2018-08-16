@@ -17,8 +17,9 @@ const DOCKED_VERTICAL_MENU_WIDTH = '160';
 const DOCKED_HORIZONTAL_MENU_HEIGHT = '140';
 
 const Container = styled('div')`
-  height: 100vh;
-  width: 100vw;
+position: absolute;
+  height: 100%;
+  width: 100%;
   z-index: 999;
 `;
 
@@ -49,7 +50,7 @@ const styledMenuCreator = menuStyling({
 });
 
 const Menu = styled('nav')`
-  position: fixed;
+  position: absolute;
   width: ${MENU_WIDTH}px;
   background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8), rgba(0,0,0,0.77), rgba(0,0,0,0.77), rgba(0,0,0,0.72));
   z-index: 3;
@@ -93,7 +94,7 @@ const ContentContainer = styled('div')`
 `;
 
 const PlacementOutline = styled('nav')`
-  position: fixed;
+  position: absolute;
   ${({ left }) => left && `left: ${left};`}
   ${({ right }) => right && `right: ${right};`}
   ${({ top }) => top && `top: ${top};`}
@@ -188,9 +189,8 @@ class Component extends React.Component {
   onStartDragEvent({ clientX: x, clientY: y }) {
     // mobx model data
     const { automataMenuStore: menu } = this.props;
-    const { dockingState, placement: p, isMoving } = menu;
 
-    if (!isMoving) { menu.turnIsMovingOn(); }
+    if (!menu.isMoving) { menu.turnIsMovingOn(); }
 
     if (menu.isDocked) {
       Component.animateUnDock(x, y);
@@ -327,9 +327,9 @@ class Component extends React.Component {
 
     return (
       <Container>
-        <PlacementOutline shouldShow={placement === 'canDockLeft'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0" />
-        <PlacementOutline shouldShow={placement === 'canDockRight'} height="100vh" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0" />
-        <PlacementOutline shouldShow={placement === 'canDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100vw" top="0" left="0" />
+        <PlacementOutline shouldShow={placement === 'canDockLeft'} height="100%" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" left="0" />
+        <PlacementOutline shouldShow={placement === 'canDockRight'} height="100%" width={`${DOCKED_VERTICAL_MENU_WIDTH}px`} top="0" right="0" />
+        <PlacementOutline shouldShow={placement === 'canDockTop'} height={`${DOCKED_HORIZONTAL_MENU_HEIGHT}px`} width="100%" top="0" left="0" />
         <Draggable
           handle=".view-menu-draggable-handle"
           axis="both"

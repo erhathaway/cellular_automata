@@ -26,7 +26,7 @@ import {
 import { PopupArea, PopupManager } from '../libs/popup';
 
 const Container = styled('div')`
-  position: relative;
+  position: fixed;
   background-color: olivedrab;
   height: 100vh;
   width: 100vw;
@@ -39,7 +39,10 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
+  // <div style={{ height: '100%', width: '100%', position: 'absolute'}}>
   return (
+    <React.Fragment>
+    <div style={{ height: '100px', width: '100vw', backgroundColor: 'orange', opacity: 0.9, zIndex: 999}} />
     <Container>
       <PopupArea id="popup-area" />
       <ViewPlayer {...props} />
@@ -68,7 +71,9 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
 
       <ViewControls {...props} />
     </Container>
+    </React.Fragment>
   );
 }
+// </div>
 
 export default inject('automataMenuStore')(observer(Component));
