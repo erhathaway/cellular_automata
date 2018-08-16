@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 const ContainerHorizontal = css`
   border-bottom: 1px solid rgba(72, 72, 72, 0.5);
   padding-bottom: 5px;
+  margin-top: 2px;
 `;
 
 // dock left or right
@@ -23,7 +24,6 @@ const ContainerVerticalRight = css`
 
 
 const Container = styled('h2')`
-  // color: #464646;
   color: white;
   font-size: 10px;
   margin: 0px;

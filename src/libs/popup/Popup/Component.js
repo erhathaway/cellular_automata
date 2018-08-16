@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs';
 import PropTypes from 'prop-types';
+import uuid from 'uuid';
 
 const PORTAL_ID = 'popup-area';
 
@@ -62,24 +63,57 @@ class Component extends React.Component {
   }
 
   positionPortalToParentRef() {
-    const { parentCoords } = this.props;
+    const { parentCoords, shouldPosition } = this.props;
     const {
       x,
       y,
       width,
+      height,
     } = parentCoords;
 
+    const {
+      x: containerX,
+      y: containerY,
+      width: containerWidth,
+      height: containerHeight,
+    } = this.modalRoot.getBoundingClientRect();
+
+    const {
+      x: portalX,
+      y: portalY,
+      width: portalWidth,
+      height: portalHeight,
+    } = this.el.getBoundingClientRect();
+
     this.el.style.position = 'absolute';
-    this.el.style.left = `${x + width}px`;
-    this.el.style.top = `${y}px`;
-    this.el.style.transformOrigin = 'left';
+
+    if (shouldPosition === 'top') {
+      // TODO figure out this case
+      // this.el.style.left = `${x}px`;
+      // this.el.style.top = `${containerHeight - y}px`;
+    } else if (shouldPosition === 'right') {
+      this.el.style.left = `${x + width}px`;
+      this.el.style.top = `${y}px`;
+      this.el.style.transformOrigin = 'left';
+    } else if (shouldPosition == 'bottom') {
+      this.el.style.left = `${x - width / 3}px`;
+      this.el.style.top = `${y + height}px`;
+      this.el.style.transformOrigin = 'top';
+    } else if (shouldPosition == 'left') {
+      this.el.style.right = `${containerWidth - x}px`;
+      this.el.style.top = `${y}px`;
+      this.el.style.transformOrigin = 'right';
+    }  else {
+      this.el.style.left = `${x}px`;
+      this.el.style.bottom = `${y}px`;
+    }
   }
 
   animateOpen() {
     anime({
       targets: `#${this.elID}`,
       scale: [0, 1],
-      duration: 300,
+      duration: 200,
       opacity: [0, 1],
       delay: 0,
       elasticity: 0,
@@ -131,6 +165,7 @@ class Component extends React.Component {
     const { renderPortal } = this.state;
 
     const childrenWithProps = React.cloneElement(children, {
+      id: uuid(),
       ...props,
     });
 

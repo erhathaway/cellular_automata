@@ -89,6 +89,7 @@ class Component extends React.Component {
     return (
       <div onClick={this.showPopup} ref={this.myRef} style={style}>
         <Popup
+          shouldPosition="left"
           show={shouldShowPopup}
           setPopupCoords={setPopupCoords}
           cursorExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}

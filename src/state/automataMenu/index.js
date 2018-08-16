@@ -1,18 +1,5 @@
 import { types } from 'mobx-state-tree';
 
-// import { Position, PositionInstance } from './Position';
-//
-// const AutomataMenuStore = types
-//   .model('automataMenuStore', {
-//     position: Position,
-//   })
-//   .create({
-//     position: PositionInstance,
-//   });
-//
-// export default AutomataMenuStore;
-// import { types } from 'mobx-state-tree';
-
 const placementValueType = types.union(...['left', 'top', 'right', 'floating'].map(types.literal));
 const dockingStateValueType = types.union(...['canDock', 'docked', 'undocked'].map(types.literal));
 

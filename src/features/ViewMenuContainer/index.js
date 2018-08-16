@@ -142,7 +142,6 @@ class Component extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false,
       width: undefined, // window.width
     };
 
@@ -243,14 +242,6 @@ class Component extends React.Component {
     const prevAt = prevRouterState ? prevRouterState.atLocation : undefined;
 
     return currentAt !== prevAt;
-  }
-
-  openMenu() {
-    const { isOpen } = this.state;
-    if (!isOpen) {
-      this.setState({ isOpen: true });
-      Component.animateIntro();
-    }
   }
 
   animateIntro() {
