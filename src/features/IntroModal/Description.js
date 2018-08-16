@@ -15,12 +15,11 @@ const Container = styled('p')`
   font-size: 20px;
 
   margin-bottom: 50px;
-  margin-top: 50px;
+  margin-top: 100px;
   height: 50px;
 
   @media (max-width: 300px) {
     margin-bottom: 100px;
-    margin-top: 70px;
   }
 `;
 

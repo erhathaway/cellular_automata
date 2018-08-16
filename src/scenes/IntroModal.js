@@ -81,52 +81,74 @@ class Component extends React.Component {
     if (locationHistoryLength > 1 && previousLocationName === 'documentation') {
       anime({
         targets: '.intro-modal',
-        translateX: [-1500, 0],
+        translateX: [-500, 0],
         opacity: [0, 1],
-        duration: 500,
+        duration: 1500,
+        delay: (_, i) => 300 - (i * 50),
+        elasticity: 10,
+        easing: 'easeOutQuint',
+      });
+
+      anime({
+        targets: '.images',
+        opacity: [0, 1],
+        duration: 1500,
         elasticity: 100,
         easing: 'easeOutQuint',
       });
     } else {
       anime({
-        targets: '.intro-modal.in',
-        top: [-600, 0],
-        left: [-600, 0],
-        opacity: [0, 1],
-        duration: 500,
-        elasticity: 100,
+        targets: '.intro-modal.title',
+        // translateY: [-600, 0],
+        translateX: [-600, 0],
         scale: [0, 1],
+        opacity: [0, 1],
+        duration: 1000,
+        delay: 2000,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+      });
+
+      anime({
+        targets: '.images',
+        opacity: [0, 1],
+        duration: 1500,
+        elasticity: 100,
         easing: 'easeOutQuint',
       });
 
       anime({
         targets: '.intro-modal.stagger-in-bottom',
-        bottom: [-500, 0],
+        bottom: [-200, 0],
         opacity: [0, 1],
-        duration: 500,
+        scale: [0, 1],
+        duration: 1000,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 400,
+        delay: (_, i) => ( i * 200 + 900),
       });
 
       anime({
-        targets: '.intro-modal.delay-appear-in',
-        top: [500, 0],
+        targets: '.intro-modal.description',
+        translateY: [100, 0],
+        translateX: [-100, 0],
         opacity: [0, 1],
-        duration: 500,
+        scale: [0, 1],
+        duration: 1000,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 300,
+        delay: 500,
       });
 
       anime({
         targets: '.intro-modal.credits',
-        right: [-500, 0],
+        translateX: [600, 0],
+        scale: [0, 1],
         opacity: [0, 1],
-        duration: 500,
+        duration: 1000,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 300,
+        delay: 2500,
       });
     }
   }
@@ -143,7 +165,7 @@ class Component extends React.Component {
         duration: 600,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: 0,
+        delay: (_, i) => (i * 30),
       });
     } else {
       anime({
@@ -163,10 +185,10 @@ class Component extends React.Component {
     const { history } = this.props;
     return (
       <Container>
-        <Images className="intro-modal in" />
+        <Images className="images" />
         <Middle>
-          <Title className="intro-modal in" />
-          <Description className="intro-modal delay-appear-in" />
+          <Title className="intro-modal title" />
+          <Description className="intro-modal description" />
           <Start className="intro-modal stagger-in-bottom" history={history} />
           <OrDivider className="intro-modal stagger-in-bottom" />
           <LearnMore className="intro-modal stagger-in-bottom" history={history} />
