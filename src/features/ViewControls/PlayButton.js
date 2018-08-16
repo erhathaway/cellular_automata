@@ -16,6 +16,8 @@ const Container = styled('aside')`
   justify-content: center;
   text-align: center;
   font-size: 25px;
+  border: 1px solid rgba(56,56,56,0.8);
+
   // background-color: rgba(0,0,0,0.4);
   background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.8), rgba(0,0,0,0.77), rgba(0,0,0,0.77), rgba(0,0,0,0.72));
 

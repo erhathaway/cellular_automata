@@ -14,6 +14,8 @@ const Container = styled('aside')`
   align-items: center;
   justify-content: center;
   text-align: center;
+  border: 1px solid rgba(56,56,56,0.8);
+
 `;
 
 export default () => (

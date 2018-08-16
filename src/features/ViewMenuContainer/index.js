@@ -34,8 +34,10 @@ const MenuNotDocked = css`
   flex-direction: column;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   border-radius: ${MENU_BORDER_RADIUS};
-  border: 1px solid rgba(56,56,56,0.6);
+  border: 1px solid rgba(56,56,56,0.8);
   background-color: black;
+  // border: 1px solid gray;
+
 
 `;
 
@@ -46,6 +48,7 @@ const Menu = styled('nav')`
   z-index: 3;
   display: flex;
   align-items: center;
+
 
   ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuNotDocked)}
   ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuHorizontal)}
