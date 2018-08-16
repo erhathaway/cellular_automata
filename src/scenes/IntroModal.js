@@ -99,9 +99,6 @@ class Component extends React.Component {
     } else {
       anime({
         targets: '.intro-modal.title',
-        // translateY: [-600, 0],
-        translateX: [-600, 0],
-        scale: [0, 1],
         opacity: [0, 1],
         duration: 1000,
         delay: 2000,
@@ -125,7 +122,7 @@ class Component extends React.Component {
         duration: 1000,
         elasticity: 100,
         easing: 'easeOutQuint',
-        delay: (_, i) => ( i * 200 + 900),
+        delay: (_, i) => (i * 200 + 900),
       });
 
       anime({
@@ -134,7 +131,7 @@ class Component extends React.Component {
         translateX: [-100, 0],
         opacity: [0, 1],
         scale: [0, 1],
-        duration: 1000,
+        duration: 800,
         elasticity: 100,
         easing: 'easeOutQuint',
         delay: 500,
@@ -142,8 +139,8 @@ class Component extends React.Component {
 
       anime({
         targets: '.intro-modal.credits',
-        translateX: [600, 0],
-        scale: [0, 1],
+        // translateX: [600, 0],
+        // scale: [0, 1],
         opacity: [0, 1],
         duration: 1000,
         elasticity: 100,

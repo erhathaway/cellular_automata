@@ -40,8 +40,8 @@ addMiddleware(ViewerInstance, (call, next) => {
 Root Store
 ----------------------------------------------------------------------------- */
 
-const AutomataStore = types
-  .model('automataStore', {
+const AutomataStateStore = types
+  .model('automataStateStore', {
     dimension: Dimension,
     viewer: Viewer,
     cellStates: CellStates,
@@ -58,4 +58,4 @@ const AutomataStore = types
     rule: RuleInstance,
   });
 
-export default AutomataStore;
+export default AutomataStateStore;

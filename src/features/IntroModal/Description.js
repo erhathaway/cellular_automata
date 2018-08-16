@@ -13,7 +13,6 @@ const Container = styled('p')`
   text-transform: uppercase;
   width: 90vw;
   font-size: 20px;
-
   margin-bottom: 50px;
   margin-top: 100px;
   height: 50px;

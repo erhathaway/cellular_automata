@@ -7,7 +7,7 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { Provider } from 'mobx-react';
 
 // State
-import { AutomataStore } from '../state';
+import { AutomataStateStore, AutomataMenuStore } from '../state';
 
 // Services
 import { router as routerService, locationHistory } from '../services';
@@ -115,7 +115,7 @@ const MainRoute = props => (
 
 export default () => (
   <BrowserRouter>
-    <Provider automataStore={AutomataStore}>
+    <Provider automataStore={AutomataStateStore} automataMenuStore={AutomataMenuStore}>
       <Route path="*" component={MainRoute} />
     </Provider>
   </BrowserRouter>
