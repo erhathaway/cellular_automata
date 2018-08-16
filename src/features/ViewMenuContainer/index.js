@@ -4,6 +4,7 @@ import Draggable from 'react-draggable';
 import styled, { css } from 'react-emotion';
 import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import { inject, observer } from 'mobx-react';
 
 import Controls from './Controls';
 
@@ -95,29 +96,6 @@ const PlacementOutline = styled('nav')`
 `;
 
 class Component extends React.Component {
-  static animateOpen() {
-    anime({
-      targets: '.view-menu-container',
-      height: ['70px', UNDOCKED_MENU_HEIGHT],
-      width: `${MENU_WIDTH}px`,
-      duration: 500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 100,
-    });
-  }
-
-  static animateClose() {
-    anime({
-      targets: '.view-menu-container',
-      height: [UNDOCKED_MENU_HEIGHT, '70px'],
-      duration: 500,
-      elasticity: 100,
-      easing: 'easeOutQuint',
-      delay: 100,
-    });
-  }
-
   static animateUnDock() {
     anime({
       targets: '.view-menu-container',
@@ -143,6 +121,7 @@ class Component extends React.Component {
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 0,
+      complete: () => { console.log('finished animating left')}
     });
   }
 
@@ -164,16 +143,12 @@ class Component extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isMenuMoving: false, // indicates whether the menu is undergoing a drag event or not
       isOpen: false,
-      // eslint-disable-next-line max-len
-      menuPlacement: undefined, // willDockTop, willDockLeft, willDockRight, hasDockedTop, hasDockedLeft, hasDockedRight
       width: undefined, // window.width
     };
 
     this.myRef = React.createRef();
 
-    this.handleMenuOpenToggleClick = this.handleMenuOpenToggleClick.bind(this);
     this.onStartDragEvent = this.onStartDragEvent.bind(this);
     this.onDragEvent = this.onDragEvent.bind(this);
     this.onStopDragEvent = this.onStopDragEvent.bind(this);
@@ -185,13 +160,13 @@ class Component extends React.Component {
   }
 
   componentDidMount() {
-    if (this.isRouterHere()) { this.openMenu(); }
+    if (this.isRouterHere()) { this.animateIntro();; }
     this.updateWindowDimensions();
   }
 
   componentDidUpdate({ location: { state: prevRouterState } }) {
     const routerLocationJustChanged = this.hasRouterLocationJustChanged(prevRouterState);
-    if (routerLocationJustChanged && this.isRouterHere()) { this.openMenu(); }
+    if (routerLocationJustChanged && this.isRouterHere()) { this.animateIntro();}
   }
 
   componentWillUnmount() {
@@ -200,44 +175,56 @@ class Component extends React.Component {
 
 
   onStartDragEvent({ clientX: x, clientY: y }) {
-    const { menuPlacement: placement, isMenuMoving } = this.state;
+    // mobx model data
+    const { automataMenuStore: menu } = this.props;
+    const { dockingState, placement: p, isMoving } = menu;
 
-    if (!isMenuMoving) { this.setState(state => ({ ...state, isMenuMoving: true })); }
+    if (!isMoving) { menu.turnIsMovingOn(); }
 
-    if (placement && placement.includes('Docked')) {
-      this.setState(state => ({ ...state, menuPlacement: undefined }));
+    if (menu.isDocked) {
       Component.animateUnDock(x, y);
+      menu.setDockingState('undocked')
     }
   }
 
   onDragEvent(e, { x, y }) {
-    const { menuPlacement: placement, width } = this.state;
+    const { width } = this.state;
+
+    // mobx model data
+    const { automataMenuStore: menu } = this.props;
+    const { dockingState, placement: p } = menu;
 
     if (y < 10) {
-      if (placement !== 'willDockTop') this.setState(state => ({ ...state, menuPlacement: 'willDockTop' }));
+      if (p !== 'top') menu.setPlacement('top');
+      if (dockingState !== 'canDock') menu.setDockingState('canDock');
     } else if (x < 10) {
-      if (placement !== 'willDockLeft') this.setState(state => ({ ...state, menuPlacement: 'willDockLeft' }));
+      if (p !== 'left') menu.setPlacement('left');
+      if (dockingState !== 'canDock') menu.setDockingState('canDock');
     } else if (x > (width - MENU_WIDTH - 10)) {
-      if (placement !== 'willDockRight') this.setState(state => ({ ...state, menuPlacement: 'willDockRight' }));
-    } else if (placement !== undefined) this.setState(state => ({ ...state, menuPlacement: undefined })); // eslint-disable-line max-len
+      if (p !== 'right') menu.setPlacement('right');
+      if (dockingState !== 'canDock') menu.setDockingState('canDock');
+    } else {
+      if (p !== 'floating') menu.setPlacement('floating');
+      if (dockingState !== 'undocked') menu.setDockingState('undocked');
+    }
   }
 
   onStopDragEvent() {
-    const { menuPlacement: placement, isMenuMoving } = this.state;
+    // mobx model data
+    const { automataMenuStore: menu } = this.props;
+    const { placement: p, isMoving } = menu;
 
-    if (isMenuMoving) { this.setState(state => ({ ...state, isMenuMoving: false })); }
+    if (isMoving) { menu.turnIsMovingOff() };
 
-    if (placement === 'willDockLeft') {
-      Component.animateDockLeft();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedLeft' }));
-    }
-    if (placement === 'willDockRight' || placement === 'hasDockedRight') {
-      this.animateDockRight();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedRight' }));
-    }
-    if (placement === 'willDockTop') {
-      Component.animateDockTop();
-      this.setState(state => ({ ...state, menuPlacement: 'hasDockedTop' }));
+    if (menu.canDock) {
+      if (p === 'left') {
+        Component.animateDockLeft();
+      } else if (p === 'right') {
+        this.animateDockRight();
+      } else if (p === 'top') {
+        Component.animateDockTop();
+      }
+      menu.setDockingState('docked');
     }
   }
 
@@ -263,15 +250,25 @@ class Component extends React.Component {
     const { isOpen } = this.state;
     if (!isOpen) {
       this.setState({ isOpen: true });
-      Component.animateOpen();
+      Component.animateIntro();
     }
   }
 
-  closeMenu() {
-    const { isOpen } = this.state;
-    if (isOpen) {
-      this.setState({ isOpen: false });
-      Component.animateClose();
+  animateIntro() {
+    const { automataMenuStore: menu } = this.props;
+
+    if (menu.canDock) {
+      this.onStopDragEvent() // this will trigger a docking event based on the placement
+    } else {
+      anime({
+        targets: '.view-menu-container',
+        height: ['70px', UNDOCKED_MENU_HEIGHT],
+        width: `${MENU_WIDTH}px`,
+        duration: 500,
+        elasticity: 100,
+        easing: 'easeOutQuint',
+        delay: 100,
+      });
     }
   }
 
@@ -295,22 +292,11 @@ class Component extends React.Component {
     });
   }
 
-  handleMenuOpenToggleClick() {
-    const { isOpen } = this.state;
-    if (isOpen) {
-      this.closeMenu();
-    } else {
-      this.openMenu();
-    }
-  }
-
   render() {
-    const {
-      menuPlacement: placement,
-      width,
-      isOpen,
-      isMenuMoving,
-    } = this.state;
+    const { width } = this.state;
+    const { automataMenuStore: menu } = this.props;
+
+    const placement = menu.placementAndMenuState;
 
     let position;
     switch (placement) {
@@ -333,7 +319,7 @@ class Component extends React.Component {
     const positionProp = position ? { position } : {};
     const { children } = this.props;
     const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: isOpen, isMenuMoving }));
+      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: true, isMenuMoving: menu.isMoving }));
 
     return (
       <Container>
@@ -376,4 +362,4 @@ Component.defaultProps = {
   menuPlacement: undefined,
 };
 
-export default Component;
+export default inject('automataMenuStore')(observer(Component));
