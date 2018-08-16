@@ -10,11 +10,13 @@ const ContainerHorizontal = css`
 
 // dock left or right
 const ContainerVertical = css`
+  width: 100%;
 `;
 
 // has not docked
 const ContainerNotDocked = css`
   border-bottom: 1px solid #0e0e0e;
+  width: 100%;
 `;
 
 // dock right
@@ -30,7 +32,6 @@ const ContainerVerticalRight = css`
 `;
 
 const Container = styled('div')`
-  width: 100%;
   margin: 1px;
   display: flex;
   justify-content: flex-start;

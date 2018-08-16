@@ -121,7 +121,6 @@ class Component extends React.Component {
       elasticity: 100,
       easing: 'easeOutQuint',
       delay: 0,
-      complete: () => { console.log('finished animating left')}
     });
   }
 
