@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
 import { inject, observer } from 'mobx-react';
 
+import { menuStyling } from '../../services';
+
 import Controls from './Controls';
 
 const MENU_WIDTH = 160;
@@ -36,10 +38,15 @@ const MenuNotDocked = css`
   border-radius: ${MENU_BORDER_RADIUS};
   border: 1px solid rgba(56,56,56,0.8);
   background-color: black;
-  // border: 1px solid gray;
-
-
 `;
+
+const styledMenuCreator = menuStyling({
+  canDock: MenuNotDocked,
+  undocked: MenuNotDocked,
+  'docked-left': MenuVertical,
+  'docked-right': MenuVertical,
+  'docked-top': MenuHorizontal,
+});
 
 const Menu = styled('nav')`
   position: fixed;
@@ -49,10 +56,7 @@ const Menu = styled('nav')`
   display: flex;
   align-items: center;
 
-
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && MenuNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && MenuHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && MenuVertical)}
+  ${styledMenuCreator}
 `;
 
 // dock top or bottom
@@ -69,6 +73,14 @@ const ContentContainerNotDocked = css`
   flex-direction: column;
 `;
 
+const styledContentContainerCreator = menuStyling({
+  canDock: ContentContainerNotDocked,
+  undocked: ContentContainerNotDocked,
+  'docked-left': ContentContainerVertical,
+  'docked-right': ContentContainerVertical,
+  'docked-top': ContentContainerHorizontal,
+});
+
 const ContentContainer = styled('div')`
   height: 100%;
   width: 100%;
@@ -77,9 +89,7 @@ const ContentContainer = styled('div')`
   justify-content: center;
   align-content: stretch;
 
-  ${({ menuPlacement }) => ((!menuPlacement || !menuPlacement.includes('hasDocked')) && ContentContainerNotDocked)}
-  ${({ menuPlacement }) => (menuPlacement && menuPlacement.includes('hasDockedTop') && ContentContainerHorizontal)}
-  ${({ menuPlacement }) => (menuPlacement && (menuPlacement.includes('hasDockedLeft') || menuPlacement.includes('hasDockedRight')) && ContentContainerVertical)}
+  ${styledContentContainerCreator}
 `;
 
 const PlacementOutline = styled('nav')`
@@ -290,6 +300,7 @@ class Component extends React.Component {
     const { automataMenuStore: menu, shouldPositionPopup } = this.props;
 
     const placement = menu.placementAndMenuState;
+    const { placement: p, dockingState } = menu;
 
     let position;
     switch (placement) {
@@ -329,9 +340,9 @@ class Component extends React.Component {
           onStop={this.onStopDragEvent}
           {...positionProp}
         >
-          <Menu id="view-menu-container" className="view-menu-container here" menuPlacement={placement}>
+          <Menu id="view-menu-container" className="view-menu-container here" placement={p} dockingState={dockingState}>
             <Controls menuPlacement={placement} />
-            <ContentContainer menuPlacement={placement}>
+            <ContentContainer placement={p} dockingState={dockingState}>
               { childrenWithProps }
             </ContentContainer>
           </Menu>
