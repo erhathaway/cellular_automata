@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { inject, observer } from 'mobx-react';
+
 import { ViewPlayer, ViewControls } from '../features';
 
 import MenuContainer from '../features/ViewMenuContainer';
@@ -31,33 +33,42 @@ const Container = styled('div')`
   z-index: 0;
 `;
 
-export default props => (
-  <Container>
-    <PopupArea id="popup-area" />
-    <ViewPlayer {...props} />
+const Component = ({ automataMenuStore: menu, ...props }) => {
+  let shouldPositionPopup;
+  if (menu.placement === 'left') { shouldPositionPopup = 'right'; }
+  else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
+  else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
-    <MenuContainer {...props}>
-      <PopupManager popupName="dimensions" component={DimensionsPopup}>
-        <Dimensions />
-      </PopupManager>
+  return (
+    <Container>
+      <PopupArea id="popup-area" />
+      <ViewPlayer {...props} />
 
-      <PopupManager popupName="viewer" component={ViewerPopup}>
-        <Viewer />
-      </PopupManager>
+      <MenuContainer shouldPositionPopup={shouldPositionPopup} {...props}>
+        <PopupManager popupName="dimensions" component={DimensionsPopup}>
+          <Dimensions />
+        </PopupManager>
 
-      <PopupManager popupName="states" component={StatesPopup}>
-        <States />
-      </PopupManager>
+        <PopupManager popupName="viewer" component={ViewerPopup}>
+          <Viewer />
+        </PopupManager>
 
-      <PopupManager popupName="shape" component={ShapePopup}>
-        <Shape />
-      </PopupManager>
+        <PopupManager popupName="states" component={StatesPopup}>
+          <States />
+        </PopupManager>
 
-      <Neighbors />
-      <Rule />
-      <Style />
-    </MenuContainer>
+        <PopupManager popupName="shape" component={ShapePopup}>
+          <Shape />
+        </PopupManager>
 
-    <ViewControls {...props} />
-  </Container>
-);
+        <Neighbors />
+        <Rule />
+        <Style />
+      </MenuContainer>
+
+      <ViewControls {...props} />
+    </Container>
+  );
+}
+
+export default inject('automataMenuStore')(observer(Component));

@@ -284,7 +284,7 @@ class Component extends React.Component {
 
   render() {
     const { width } = this.state;
-    const { automataMenuStore: menu } = this.props;
+    const { automataMenuStore: menu, shouldPositionPopup } = this.props;
 
     const placement = menu.placementAndMenuState;
 
@@ -309,7 +309,7 @@ class Component extends React.Component {
     const positionProp = position ? { position } : {};
     const { children } = this.props;
     const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: true, isMenuMoving: menu.isMoving }));
+      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: true, isMenuMoving: menu.isMoving, shouldPositionPopup }));
 
     return (
       <Container>

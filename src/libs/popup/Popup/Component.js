@@ -78,28 +78,27 @@ class Component extends React.Component {
       height: containerHeight,
     } = this.modalRoot.getBoundingClientRect();
 
-    const {
-      x: portalX,
-      y: portalY,
-      width: portalWidth,
-      height: portalHeight,
-    } = this.el.getBoundingClientRect();
+
+    let position;
+    if (shouldPosition === undefined) {
+      if ((x + width / 2) >= (containerWidth / 2)) { position = 'left' }
+      else { position = 'right' }
+    } else {
+      position = shouldPosition
+    }
 
     this.el.style.position = 'absolute';
 
-    if (shouldPosition === 'top') {
-      // TODO figure out this case
-      // this.el.style.left = `${x}px`;
-      // this.el.style.top = `${containerHeight - y}px`;
-    } else if (shouldPosition === 'right') {
+    // TODO make positioning more universal
+    if (position === 'right') {
       this.el.style.left = `${x + width}px`;
       this.el.style.top = `${y}px`;
       this.el.style.transformOrigin = 'left';
-    } else if (shouldPosition == 'bottom') {
+    } else if (position == 'bottom') {
       this.el.style.left = `${x - width / 3}px`;
       this.el.style.top = `${y + height}px`;
       this.el.style.transformOrigin = 'top';
-    } else if (shouldPosition == 'left') {
+    } else if (position == 'left') {
       this.el.style.right = `${containerWidth - x}px`;
       this.el.style.top = `${y}px`;
       this.el.style.transformOrigin = 'right';
