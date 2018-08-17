@@ -11,11 +11,18 @@ const Container = styled('p')`
   line-height: 28px;
   letter-spacing: 5px;
   text-transform: uppercase;
-  width: 90vw;
+  width: 90%;
   font-size: 20px;
   margin-bottom: 50px;
   margin-top: 100px;
   height: 50px;
+
+
+  // @media (max-width: 550px) {
+  //   max-width: 80%;
+  //   text-align: right;
+  //   padding-right: 50px;
+  // }
 
   @media (max-width: 300px) {
     margin-bottom: 100px;

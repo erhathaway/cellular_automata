@@ -54,28 +54,28 @@ const combineProps = (Scene, initialProps) => props => (
 );
 
 const Container = styled('div')`
-  position: fixed;
-  left: 0,
-  top: 0,
+  position: absolute;
+  right: 0;
+  top: 0;
   opacity: 1;
   background-color: rgba(0,0,0,0.95);
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   z-index: 2;
   overflow-y: scroll;
-  height: 100vh;
 
   @media (max-width: 800px) {
-    height: calc(100% - 77px);
+    // height: calc(100% - 77px);
     // handle weird overflow problem on mobile views
-    margin-top: -3px;
+    // margin-top: -3px;
   }
 
   @media (max-width: 500px) {
-    height: calc(100% - 47px);
-    margin-top: -3px;
+    // height: calc(100% - 47px);
+    // margin-top: -3px;
   }
 `;
 
@@ -91,7 +91,7 @@ const NavContainer = styled('div')`
     ${({ showSmallDocMenu }) => !showSmallDocMenu && 'display: none;'}
     position: fixed;
     z-index: 4;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     justify-content: flex-start;
     left: 0px;

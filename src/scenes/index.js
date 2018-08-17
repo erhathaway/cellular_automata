@@ -16,6 +16,7 @@ import { router as routerService, locationHistory } from '../services';
 import './main.css';
 
 // Scenes
+import MainNav from './MainNav';
 import DocumentationModal from './DocumentationModal';
 import IntroModal from './IntroModal';
 import ViewScene from './View';
@@ -58,6 +59,7 @@ const Container = styled('div')`
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  display: flex;
 `;
 
 const combineProps = (Scene, initialProps) => props => (
@@ -74,6 +76,8 @@ const QueryStringHandler = ({ location, history }) => {
 
   return (
     <Container id="query-string-handler-container">
+      <MainNav history={history} />
+
       <TransitionGroup>
         <Transition
           key={`modal-transition-${atLocation}`}

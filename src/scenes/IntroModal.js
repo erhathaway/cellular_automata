@@ -16,9 +16,6 @@ import {
 } from '../features/IntroModal';
 
 const Container = styled('div')`
-  position: fixed;
-  left: 0;
-  top: 0;
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 1);

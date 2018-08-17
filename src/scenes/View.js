@@ -51,7 +51,6 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
 
   return (
     <Container>
-      <div style={{ height: '100%', width: '80px', backgroundColor: 'black', opacity: 0.9, zIndex: 999, top: '0px', position: 'relative'}} />
       <ViewerAreaContainer id={VIEW_AREA_CONTAINER_ID}>
         <ViewPlayer {...props} />
         <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', position: 'relative' }} />
