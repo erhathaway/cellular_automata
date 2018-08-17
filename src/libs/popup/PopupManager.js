@@ -87,7 +87,6 @@ class Component extends React.Component {
 
     /* eslint-disable */
     // disabling because event handler doesn't play well with the div, but we need it b/c we can't always get a ref on the child
-    console.log(parentCoords)
     return (
       <div onClick={this.showPopup} ref={this.myRef} style={style}>
         <Popup

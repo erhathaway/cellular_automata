@@ -90,22 +90,21 @@ class Component extends React.Component {
     } else {
       position = shouldPosition;
     }
-    console.log('modal',  this.modalRoot.getBoundingClientRect())
-    this.el.style.position = 'relative';
+    
+    this.el.style.position = 'absolute';
     this.el.style.zIndex = 999;
-
     // TODO make positioning more universal
     if (position === 'right') {
-      this.el.style.left = `${x + width}px`;
-      this.el.style.top = `${y - containerTop}px`;
+      this.el.style.left = `${x + width - containerX}px`;
+      this.el.style.top = `${y - containerY}px`;
       this.el.style.transformOrigin = 'left';
     } else if (position === 'bottom') {
-      this.el.style.left = `${x - width / 3}px`;
-      this.el.style.top = `${y + height}px`;
+      this.el.style.left = `${x - width / 3 - containerX}px`;
+      this.el.style.top = `${y + height - containerY}px`;
       this.el.style.transformOrigin = 'top';
     } else if (position === 'left') {
-      this.el.style.right = `${containerWidth - x}px`;
-      this.el.style.top = `${y}px`;
+      this.el.style.right = `${(containerWidth + containerX) - x}px`;
+      this.el.style.top = `${y - containerY}px`;
       this.el.style.transformOrigin = 'right';
     } else {
       this.el.style.left = `${x}px`;
