@@ -90,7 +90,7 @@ class Component extends React.Component {
     } else {
       position = shouldPosition;
     }
-    
+
     this.el.style.position = 'absolute';
     this.el.style.zIndex = 999;
     // TODO make positioning more universal
