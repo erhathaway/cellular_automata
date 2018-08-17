@@ -25,9 +25,11 @@ import {
 
 import { PopupArea, PopupManager } from '../libs/popup';
 
+const VIEW_AREA_CONTAINER_ID = 'view-area-container';
+
 const Container = styled('div')`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: row;
   position: relative;
   height: 100vh;
   width: 100vw;
@@ -49,12 +51,12 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
 
   return (
     <Container>
-      <div style={{ height: '100px', width: '100%', backgroundColor: 'orange', opacity: 0.9, zIndex: 999, top: '0px', position: 'relative'}} />
-      <ViewerAreaContainer>
-      <ViewPlayer {...props} />
-        <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', zIndex: 999, position: 'relative' }} />
+      <div style={{ height: '100%', width: '100px', backgroundColor: 'orange', opacity: 0.9, zIndex: 999, top: '0px', position: 'relative'}} />
+      <ViewerAreaContainer id={VIEW_AREA_CONTAINER_ID}>
+        <ViewPlayer {...props} />
+        <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', zIndex: 0, position: 'relative' }} />
 
-        <MenuContainer shouldPositionPopup={shouldPositionPopup} {...props}>
+        <MenuContainer shouldPositionPopup={shouldPositionPopup} parentID={VIEW_AREA_CONTAINER_ID} {...props}>
           <PopupManager popupName="dimensions" component={DimensionsPopup}>
             <Dimensions />
           </PopupManager>

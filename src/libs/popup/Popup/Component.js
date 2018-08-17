@@ -91,7 +91,8 @@ class Component extends React.Component {
       position = shouldPosition;
     }
     console.log('modal',  this.modalRoot.getBoundingClientRect())
-    this.el.style.position = 'absolute';
+    this.el.style.position = 'relative';
+    this.el.style.zIndex = 999;
 
     // TODO make positioning more universal
     if (position === 'right') {

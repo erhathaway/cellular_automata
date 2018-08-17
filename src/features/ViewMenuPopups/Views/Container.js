@@ -20,6 +20,8 @@ const Container = styled('div')`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 999:
+  position: absolute;
   ${({ isMenuDocked }) => !isMenuDocked && NotDocked}
 
 `;

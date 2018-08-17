@@ -195,7 +195,7 @@ class Component extends React.Component {
 
     if (menu.isDocked) {
       Component.animateUnDock(x, y);
-      menu.setDockingState('undocked')
+      menu.setDockingState('undocked');
     }
   }
 
@@ -241,7 +241,13 @@ class Component extends React.Component {
   }
 
   updateWindowDimensions() {
-    this.setState(state => ({ ...state, width: window.innerWidth, height: window.innerHeight }));
+    const { parentID } = this.props;
+    const el = document.getElementById(parentID);
+    if (el) {
+      const { width, height } = el.getBoundingClientRect();
+      this.setState(state => ({ ...state, width, height }));
+    }
+
     this.onStopDragEvent(); // rerun stop event dockings in case screen size got changed
   }
 
@@ -262,7 +268,7 @@ class Component extends React.Component {
     const { automataMenuStore: menu } = this.props;
 
     if (menu.canDock) {
-      this.onStopDragEvent() // this will trigger a docking event based on the placement
+      this.onStopDragEvent(); // this will trigger a docking event based on the placement
     } else {
       anime({
         targets: '.view-menu-container',
