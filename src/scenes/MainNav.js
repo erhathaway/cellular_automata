@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import { Container, HomeButton } from '../features/MainNav';
+import {
+  Container,
+  HomeButton,
+  DocumentationButton,
+  AutomataMenuButton,
+} from '../features/MainNav';
 
 const Component = ({ history }) => (
   <Container history={history}>
     <HomeButton />
-    <HomeButton />
-    <HomeButton />
-    <HomeButton />
-
+    <DocumentationButton />
+    <AutomataMenuButton />
   </Container>
 );
 
