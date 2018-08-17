@@ -1,16 +1,27 @@
 import React from 'react';
-import styled from 'react-emotion';
+import styled, { css } from 'react-emotion';
 import { inject, observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-const Container = styled('nav')`
+const PortraitContainer = css`
+  height: 80px;
+  width: 100%;
+  flex-direction: row;
+`;
+
+const LandscapeContainer = css`
   height: 100%;
   width: 80px;
+  flex-direction: column
+`;
+
+const Container = styled('nav')`
+  ${({ orientation }) => (orientation === 'landscape' ? LandscapeContainer : PortraitContainer)}
   background-color: black;
   z-index: 999;
   top: 0px;
-  // position: relative;
+  position: relative;
   opacity: 0.5;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   display: flex;
@@ -30,16 +41,16 @@ const Padding = styled('div')`
   flex-direction: column-reverse;
   align-items: center;
   // margin-left: -10px;
-
+  flex-direction: ${({ orientation }) => (orientation === 'landscape' ? 'column-reverse' : 'row')};
 `;
 
-const Component = ({ children, history }) => {
+const Component = ({ children, history, deviceStateStore: device }) => {
   const childrenWithProps = React.Children.map(children, child =>
     React.cloneElement(child, { history }));
 
   return (
-    <Container>
-      <Padding>
+    <Container orientation={device.orientation}>
+      <Padding orientation={device.orientation}>
         { childrenWithProps }
       </Padding>
     </Container>
@@ -58,4 +69,4 @@ Component.defaultProps = {
 
 };
 
-export default inject('automataMenuStore')(observer(Component));
+export default inject('deviceStateStore')(observer(Component));

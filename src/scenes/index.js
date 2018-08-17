@@ -4,10 +4,14 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { TransitionGroup, Transition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import ReactRouterPropTypes from 'react-router-prop-types';
-import { Provider } from 'mobx-react';
+import { Provider, inject, observer } from 'mobx-react';
 
 // State
-import { AutomataStateStore, AutomataMenuStore } from '../state';
+import {
+  AutomataStateStore,
+  AutomataMenuStore,
+  DeviceStateStore,
+} from '../state';
 
 // Services
 import { router as routerService, locationHistory } from '../services';
@@ -60,6 +64,7 @@ const Container = styled('div')`
   width: 100vw;
   overflow: hidden;
   display: flex;
+  flex-direction: ${({ orientation }) => (orientation === 'landscape' ? 'row' : 'column')};
 `;
 
 const combineProps = (Scene, initialProps) => props => (
@@ -71,11 +76,11 @@ const duration = 1000;
 // ------------------------------------------------
 // Interpret router query string and router user to correct modals / scenes
 // ------------------------------------------------
-const QueryStringHandler = ({ location, history }) => {
+const QueryStringHandler = ({ location, history, deviceStateStore: device }) => {
   const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
 
   return (
-    <Container id="query-string-handler-container">
+    <Container id="query-string-handler-container" orientation={device.orientation}>
       <MainNav history={history} />
 
       <TransitionGroup>
@@ -108,18 +113,24 @@ QueryStringHandler.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
+const QueryStringHandlerWithMobx = inject('deviceStateStore')(observer(QueryStringHandler));
+
 // ------------------------------------------------
 // Main route composition
 // ------------------------------------------------
 const MainRoute = props => (
   <LocationHistoryRecorder {...props}>
-    <QueryStringHandler {...props} />
+    <QueryStringHandlerWithMobx {...props} />
   </LocationHistoryRecorder>
 );
 
 export default () => (
   <BrowserRouter>
-    <Provider automataStore={AutomataStateStore} automataMenuStore={AutomataMenuStore}>
+    <Provider
+      automataStore={AutomataStateStore}
+      automataMenuStore={AutomataMenuStore}
+      deviceStateStore={DeviceStateStore}
+    >
       <Route path="*" component={MainRoute} />
     </Provider>
   </BrowserRouter>

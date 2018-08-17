@@ -14,7 +14,7 @@ class Component extends React.Component {
 
   handleClick() {
     const { history } = this.props;
-    routerService.openDocumentationModalPage(history);
+    routerService.navToView(history);
   }
 
   render() {
