@@ -2,10 +2,7 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Container = styled('aside')`
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  height: 14px;
+  height: 18px;
   width: 100%;
   background-color: rgba(0,0,0,0.6);
   border-radius: 7px;
@@ -15,7 +12,6 @@ const Container = styled('aside')`
   justify-content: center;
   text-align: center;
   border: 1px solid rgba(56,56,56,0.8);
-
 `;
 
 export default () => (

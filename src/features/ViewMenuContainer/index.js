@@ -17,10 +17,11 @@ const DOCKED_VERTICAL_MENU_WIDTH = '160';
 const DOCKED_HORIZONTAL_MENU_HEIGHT = '140';
 
 const Container = styled('div')`
-position: absolute;
+  position: absolute;
+  top: 0px;
   height: 100%;
   width: 100%;
-  z-index: 999;
+  z-index: 0;
 `;
 
 // dock top or bottom
@@ -103,7 +104,7 @@ const PlacementOutline = styled('nav')`
 
   z-index: 1;
   background-color: rgba(94, 80, 80, 0.2);
-  opacity: 1;
+  // opacity: 1;
   opacity: ${({ shouldShow }) => (shouldShow ? 1 : 0)};
   ${({ shouldShow }) => (!shouldShow && 'display: none;')}
 
@@ -323,7 +324,12 @@ class Component extends React.Component {
     const positionProp = position ? { position } : {};
     const { children } = this.props;
     const childrenWithProps = React.Children.map(children, child =>
-      React.cloneElement(child, { menuPlacement: placement, isMenuOpen: true, isMenuMoving: menu.isMoving, shouldPositionPopup }));
+      React.cloneElement(child, {
+        menuPlacement: placement,
+        isMenuOpen: true,
+        isMenuMoving: menu.isMoving,
+        shouldPositionPopup,
+      }));
 
     return (
       <Container>

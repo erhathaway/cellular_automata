@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 const PORTAL_ID = 'popup-area';
 
-const Component = ({ id }) => (
-  <div id={`${id || PORTAL_ID}`} />
+const Component = ({ id, style }) => (
+  <div style={{ height: '100%', width: '100%', position: 'relative', ...style }} id={`${id || PORTAL_ID}`} />
 );
 
 Component.propTypes = {

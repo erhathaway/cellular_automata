@@ -26,10 +26,18 @@ import {
 import { PopupArea, PopupManager } from '../libs/popup';
 
 const Container = styled('div')`
-  position: fixed;
-  background-color: olivedrab;
+  display: flex;
+  flex-direction: column-reverse;
+  position: relative;
   height: 100vh;
   width: 100vw;
+  overflow: hiddne;
+`;
+
+const ViewerAreaContainer = styled('div')`
+  position: relative;
+  background-color: olivedrab;
+  flex-grow: 1;
   z-index: 0;
 `;
 
@@ -39,41 +47,39 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
-  // <div style={{ height: '100%', width: '100%', position: 'absolute'}}>
   return (
-    <React.Fragment>
-    <div style={{ height: '100px', width: '100vw', backgroundColor: 'orange', opacity: 0.9, zIndex: 999}} />
     <Container>
-      <PopupArea id="popup-area" />
+      <div style={{ height: '100px', width: '100%', backgroundColor: 'orange', opacity: 0.9, zIndex: 999, top: '0px', position: 'relative'}} />
+      <ViewerAreaContainer>
       <ViewPlayer {...props} />
+        <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', zIndex: 999, position: 'relative' }} />
 
-      <MenuContainer shouldPositionPopup={shouldPositionPopup} {...props}>
-        <PopupManager popupName="dimensions" component={DimensionsPopup}>
-          <Dimensions />
-        </PopupManager>
+        <MenuContainer shouldPositionPopup={shouldPositionPopup} {...props}>
+          <PopupManager popupName="dimensions" component={DimensionsPopup}>
+            <Dimensions />
+          </PopupManager>
 
-        <PopupManager popupName="viewer" component={ViewerPopup}>
-          <Viewer />
-        </PopupManager>
+          <PopupManager popupName="viewer" component={ViewerPopup}>
+            <Viewer />
+          </PopupManager>
 
-        <PopupManager popupName="states" component={StatesPopup}>
-          <States />
-        </PopupManager>
+          <PopupManager popupName="states" component={StatesPopup}>
+            <States />
+          </PopupManager>
 
-        <PopupManager popupName="shape" component={ShapePopup}>
-          <Shape />
-        </PopupManager>
+          <PopupManager popupName="shape" component={ShapePopup}>
+            <Shape />
+          </PopupManager>
 
-        <Neighbors />
-        <Rule />
-        <Style />
-      </MenuContainer>
+          <Neighbors />
+          <Rule />
+          <Style />
+        </MenuContainer>
 
-      <ViewControls {...props} />
+        <ViewControls {...props} />
+      </ViewerAreaContainer>
     </Container>
-    </React.Fragment>
   );
 }
-// </div>
 
 export default inject('automataMenuStore')(observer(Component));

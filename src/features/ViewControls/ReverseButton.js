@@ -2,9 +2,6 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Container = styled('aside')`
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
   height: 100%;
   width: 90px;
   border-radius: 4px;

@@ -12,10 +12,13 @@ import TwoDimensionViewerInThreeDimensions from '../libs/viewer/TwoDimensionInTh
 import ThreeDimensionViewerInThreeDimensions from '../libs/viewer/ThreeDimensionInThreeDimensions';
 
 const Container = styled('div')`
-  position: fixed;
+  margin: 30px;
+  position: absolute;
   z-index: 0;
-  width: 100vw;
-  height: 100vh;
+  width: calc(100% - 60px);
+  height: calc(100% - 60px);
+  // height: 100%;
+  // width: 100%;
   background-color: ${({ backgroundColor }) => backgroundColor || 'yellow' };
 `;
 

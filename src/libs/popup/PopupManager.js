@@ -87,16 +87,29 @@ class Component extends React.Component {
 
     /* eslint-disable */
     // disabling because event handler doesn't play well with the div, but we need it b/c we can't always get a ref on the child
+    console.log(parentCoords)
     return (
       <div onClick={this.showPopup} ref={this.myRef} style={style}>
         <Popup
+          /* position of popup relative to parent ex: 'left', 'right', 'top', */
           shouldPosition={shouldPositionPopup}
+          /* should show popup. controls animations */
           show={shouldShowPopup}
+          /* callback - popup calculates the coordinates of itself and calls this callback with them */
           setPopupCoords={setPopupCoords}
+          /* coordinates that count as part of the popup and wont trigger a shouldHide callback call on cursor movement */
           cursorExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}
+          /* coordinates that count as part of the popup and wont trigger a shouldHide callback call on clicks movement */
           clickExclusionCoords={exclusionCoordsFromProp || exclusionCoordsFromChild}
+          /* parent coords - used to position popup */
           parentCoords={parentCoords}
+          /* name of popup - used for meaningful identity in the DOM */
           popupName={popupName}
+          /* callback triggered when the popup thinks it should hide
+            - defaults:
+                cursor movement: when outside itself AND its parent
+                clicks: when outside itself
+          */
           shouldHide={this.hidePopup}
         >
           { popup }

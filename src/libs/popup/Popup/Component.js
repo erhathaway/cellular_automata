@@ -28,7 +28,7 @@ class Component extends React.Component {
     const { popupName, portalID } = this.props;
     this.elID = `${'submenu-portal'}${popupName ? `-${popupName}` : ''}`;
     this.el.id = this.elID;
-    this.el.style.zIndex = '999';
+    this.el.style.zIndex = 999;
 
     this.modalRoot = document.getElementById(`${portalID || PORTAL_ID}`);
     this.modalRoot.appendChild(this.el);
@@ -76,33 +76,37 @@ class Component extends React.Component {
       y: containerY,
       width: containerWidth,
       height: containerHeight,
+      top: containerTop,
     } = this.modalRoot.getBoundingClientRect();
 
 
     let position;
     if (shouldPosition === undefined) {
-      if ((x + width / 2) >= (containerWidth / 2)) { position = 'left' }
-      else { position = 'right' }
+      if ((x + width / 2) >= (containerWidth / 2)) {
+        position = 'left';
+      } else {
+        position = 'right';
+      }
     } else {
-      position = shouldPosition
+      position = shouldPosition;
     }
-
+    console.log('modal',  this.modalRoot.getBoundingClientRect())
     this.el.style.position = 'absolute';
 
     // TODO make positioning more universal
     if (position === 'right') {
       this.el.style.left = `${x + width}px`;
-      this.el.style.top = `${y}px`;
+      this.el.style.top = `${y - containerTop}px`;
       this.el.style.transformOrigin = 'left';
-    } else if (position == 'bottom') {
+    } else if (position === 'bottom') {
       this.el.style.left = `${x - width / 3}px`;
       this.el.style.top = `${y + height}px`;
       this.el.style.transformOrigin = 'top';
-    } else if (position == 'left') {
+    } else if (position === 'left') {
       this.el.style.right = `${containerWidth - x}px`;
       this.el.style.top = `${y}px`;
       this.el.style.transformOrigin = 'right';
-    }  else {
+    } else {
       this.el.style.left = `${x}px`;
       this.el.style.bottom = `${y}px`;
     }
