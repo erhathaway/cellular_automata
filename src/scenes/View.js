@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'react-emotion';
 import { inject, observer } from 'mobx-react';
 
-import { ViewPlayer, ViewControls } from '../features';
+import { ViewPlayer, ViewControls, LibraryView } from '../features';
 
 import MenuContainer from '../features/ViewMenuContainer';
 
@@ -34,6 +34,7 @@ const Container = styled('div')`
   height: 100vh;
   width: 100vw;
   overflow: hiddne;
+  flex-direction: ${({ orientation }) => (orientation === 'landscape' ? 'row-reverse' : 'column-reverse')};
 `;
 
 const ViewerAreaContainer = styled('div')`
@@ -43,14 +44,15 @@ const ViewerAreaContainer = styled('div')`
   z-index: 0;
 `;
 
-const Component = ({ automataMenuStore: menu, ...props }) => {
+const Component = ({ automataMenuStore: menu, deviceStateStore: device, ...props }) => {
   let shouldPositionPopup;
   if (menu.placement === 'left') { shouldPositionPopup = 'right'; }
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
   return (
-    <Container>
+    <Container orientation={device.orientation}>
+      <LibraryView />
       <ViewerAreaContainer id={VIEW_AREA_CONTAINER_ID}>
         <ViewPlayer {...props} />
         <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', position: 'relative' }} />
@@ -83,4 +85,4 @@ const Component = ({ automataMenuStore: menu, ...props }) => {
   );
 }
 
-export default inject('automataMenuStore')(observer(Component));
+export default inject('automataMenuStore', 'deviceStateStore')(observer(Component));

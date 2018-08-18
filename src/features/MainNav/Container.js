@@ -13,7 +13,7 @@ const PortraitContainer = css`
 const LandscapeContainer = css`
   height: 100%;
   width: 80px;
-  flex-direction: column
+  flex-direction: column;
 `;
 
 const Container = styled('nav')`
@@ -22,7 +22,7 @@ const Container = styled('nav')`
   z-index: 999;
   top: 0px;
   position: relative;
-  opacity: 0.5;
+  // opacity: 0.5;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   display: flex;
   justify-content: center;
@@ -36,11 +36,8 @@ const Container = styled('nav')`
 const Padding = styled('div')`
   height: calc(100% - 50px);
   width: 100%;
-  // background-color: orange;
   display: flex;
-  flex-direction: column-reverse;
   align-items: center;
-  // margin-left: -10px;
   flex-direction: ${({ orientation }) => (orientation === 'landscape' ? 'column-reverse' : 'row')};
 `;
 

@@ -11,6 +11,7 @@ import {
   AutomataStateStore,
   AutomataMenuStore,
   DeviceStateStore,
+  SceneModalsAndMenusStore,
 } from '../state';
 
 // Services
@@ -130,6 +131,7 @@ export default () => (
       automataStore={AutomataStateStore}
       automataMenuStore={AutomataMenuStore}
       deviceStateStore={DeviceStateStore}
+      sceneModalsAndMenusStore={SceneModalsAndMenusStore}
     >
       <Route path="*" component={MainRoute} />
     </Provider>

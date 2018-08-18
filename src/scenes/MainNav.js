@@ -6,6 +6,7 @@ import {
   HomeButton,
   DocumentationButton,
   AutomataMenuButton,
+  MyAutomataButton,
 } from '../features/MainNav';
 
 const Component = ({ history }) => (
@@ -13,6 +14,7 @@ const Component = ({ history }) => (
     <HomeButton />
     <DocumentationButton />
     <AutomataMenuButton />
+    <MyAutomataButton />
   </Container>
 );
 
