@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 import { inject, observer } from 'mobx-react';
+import { Transition } from 'react-transition-group';
 
 import { ViewPlayer, ViewControls, LibraryView } from '../features';
 
@@ -44,15 +45,24 @@ const ViewerAreaContainer = styled('div')`
   z-index: 0;
 `;
 
-const Component = ({ automataMenuStore: menu, deviceStateStore: device, ...props }) => {
+const Component = ({ automataMenuStore: menu, deviceStateStore: device, sceneModalsAndMenusStore: menus, ...props }) => {
   let shouldPositionPopup;
   if (menu.placement === 'left') { shouldPositionPopup = 'right'; }
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
+  const showViewMyAutomataMenu = menus.showViewMyAutomataMenu
+  console.log('show view my automata', showViewMyAutomataMenu)
   return (
     <Container orientation={device.orientation}>
-      <LibraryView />
+      <Transition
+        in={showViewMyAutomataMenu}
+        timeout={500}
+        mountOnEnter
+        onmountOnExit
+      >
+        { state => state !== 'exited' && <LibraryView transitionState={state} {...props} /> }
+      </Transition>
       <ViewerAreaContainer id={VIEW_AREA_CONTAINER_ID}>
         <ViewPlayer {...props} />
         <PopupArea id="popup-area" style={{ height: '100%', width: '100%', backgrounColor: 'blue', position: 'relative' }} />
@@ -85,4 +95,4 @@ const Component = ({ automataMenuStore: menu, deviceStateStore: device, ...props
   );
 }
 
-export default inject('automataMenuStore', 'deviceStateStore')(observer(Component));
+export default inject('automataMenuStore', 'deviceStateStore', 'sceneModalsAndMenusStore')(observer(Component));

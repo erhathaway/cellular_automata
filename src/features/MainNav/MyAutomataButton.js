@@ -20,9 +20,8 @@ class Component extends React.Component {
 
   render() {
     const { history } = this.props;
-    const isAtView = routerService.isAtView(history.location);
+    // const isAtView = routerService.isAtView(history.location);
 
-    // if (!isAtView) return null;
     return (<NavButton fontAwesomeClassName="fas fa-shopping-bag" onClick={this.handleClick} />)
   }
 }
