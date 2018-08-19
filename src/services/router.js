@@ -47,6 +47,13 @@ const router = {
     const newQuery = { ...parsedQuery, ...objs };
     return queryString.stringify(newQuery);
   },
+  removeFromQueryString(existingQueryString, keysToRemove) {
+    const parsedQuery = queryString.parse(existingQueryString, { decode: true });
+    keysToRemove.forEach(k => {
+      delete parsedQuery[k];
+    });
+    return queryString.stringify(parsedQuery);
+  },
   getLocationName(location) {
     if (this.isShowingIntroModal(location)) { return 'intro'; }
     if (this.isShowingDocumentationModal(location)) { return 'documentation'; }
