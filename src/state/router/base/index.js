@@ -1,4 +1,4 @@
-import { types, getRoot, getPath, getType } from 'mobx-state-tree';
+import { types, getRoot, getPath, getType, clone } from 'mobx-state-tree';
 import PagesModel from './page';
 
 import {
@@ -32,12 +32,18 @@ const RouterBase = types
     stack: types.maybe(types.array(types.late(() => RouterBase))), // 'modal' querystring
     scenes: types.maybe(types.array(types.late(() => RouterBase))), // 'pathname' modification
     features: types.maybe(types.array(types.late(() => RouterBase))), // 'show' querystring
-
+    pages: types.maybe(types.array(types.late(() => RouterBase))), // instances to use for the current page
     // pages model - not directly create, but indirectly through the `setPages` method
-    _pages: types.maybe(types.array(types.late(() => RouterBase))),
-    currentPage: types.maybe(Page),
+    _pages: types.maybe(types.array(types.frozen())), //{ routeKey, name, pageInstanceName },
+    currentPage: types.maybe(types.late(() => RouterBase)),
   })
   .actions(self => ({
+    _setName(name) {
+      self.name = name;
+    },
+    _setRouteKey(key) {
+      self.routeKey = key;
+    },
     /* ------------------------ */
     /* NAV */
     /* ------------------------ */
@@ -48,7 +54,7 @@ const RouterBase = types
     afterCreate() {
       // addd getter methods to access the routers from the parent
       const root = getRoot(self);
-      const children = [].concat(self.modals).concat(self.features).concat(self.scenes)
+      const children = [].concat(self.stack).concat(self.features).concat(self.scenes)
         .filter(c => c && true);
 
       children.forEach(child => {
@@ -109,19 +115,30 @@ const RouterBase = types
     /* PAGES*/
     /* ------------------------ */
     navToNextPage() {
-      self.currentPage = self.nextPage;
+      const { routeKey } = self.nextPage;
+      if (routeKey) self.navToPage(routeKey);
     },
     navToPreviousPage() {
-      self.currentPage = self.previousPage;
+      const { routeKey } = self.previousPage;
+      if (routeKey) self.navToPage(routeKey);
     },
     navToPage(pageId) {
-      const found = self._pages.find(p => p.routerKey === pageId);
-      if (found) { self.currentPage = found };
+      // for all pages registered via the 'setPages' method, find the one that matches the page id
+      const foundPageInfo = self._pages.find(p => p.routeKey === pageId.toString());
+      if (foundPageInfo) {
+        // for all mobx page model instances, find the instance name that matches the one for the desired page
+        const foundPageInstance = self.pages.find(p => p.name === foundPageInfo.pageInstanceName);
+        if (foundPageInstance) {
+          const newInstance = clone(foundPageInstance)
+          console.log('foundPageInfo', foundPageInstance)
+          self.currentPage = newInstance;
+          self.currentPage._setName(foundPageInfo.name);
+          self.currentPage._setRouteKey(foundPageInfo.routeKey);
+        }
+      };
     },
-    setPags(pages) {
-      self._pages = pages.map(({ routerKey: id, name }) => {
-        return self.getType(self).create({ id, name })
-      });
+    setPages(pages) {
+      self._pages = pages.map(({ id, name, pageInstanceName }) => ({ routeKey: id, name, pageInstanceName }));
     },
   }))
   .views(self => ({
@@ -137,14 +154,18 @@ const RouterBase = types
       return self.topOfStack === name;
     },
     get nextPage() {
-      const currentPageIndex = self._pages.findIndex(p => p.id === self.currentPage.id);
-      const nextPage = self._pages[currentPageIndex + 1];
-      return nextPage;
+      if (self.currentPage) {
+        const currentPageIndex = self._pages.findIndex(p => p.routeKey === self.currentPage.routeKey);
+        const nextPage = self._pages[currentPageIndex + 1];
+        return nextPage;
+      }
     },
     get previousPage() {
-      const currentPageIndex = self._pages.findIndex(p => p.id === self.currentPage.id);
-      const nextPage = self._pages[currentPageIndex - 1];
-      return nextPage;
+      if (self.currentPage) {
+        const currentPageIndex = self._pages.findIndex(p => p.routeKey === self.currentPage.routeKey);
+        const nextPage = self._pages[currentPageIndex - 1];
+        return nextPage;
+      }
     },
   }));
 

@@ -22,6 +22,6 @@ const RootRouter = RouterBase
       scenes: [ViewRouterInstance],
     });
 
-    console.log(ViewRouterInstance)
+    // console.log(ViewRouterInstance)
 
 export default RootRouterInstance;

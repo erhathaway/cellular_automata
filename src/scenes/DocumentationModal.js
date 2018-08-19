@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 import anime from 'animejs';
+import { inject, observer } from 'mobx-react';
 import { TransitionGroup, Transition } from 'react-transition-group';
 import { Switch, Route } from 'react-router-dom';
 import ReactRouterPropTypes from 'react-router-prop-types';
@@ -28,10 +29,10 @@ import neighborsDoc from '../docs/neighbors.md';
 
 const PAGES = [
   {
-    id: uuid(), pageDisplayName: 'Introduction', pageRouterName: 'introduction', pagePath: introductionDoc,
+    id: '1', pageDisplayName: 'Introduction', pageRouterName: 'introduction', pagePath: introductionDoc,
   },
   {
-    id: uuid(), pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
+    id: '2', pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
   },
   {
     id: uuid(), pageDisplayName: 'Generations', pageRouterName: 'generations', pagePath: generationsDoc,
@@ -134,6 +135,11 @@ class Component extends React.Component {
 
   componentDidMount() {
     this.animateIn();
+    const { routerStore: { docRouter } } = this.props;
+    // console.log(docRouter);
+    docRouter.setPages(PAGES.map(p => ({ name: p.pageRouterName, id: p.id, pageInstanceName: 'docPage' }) ))
+    console.log('dooc', docRouter)
+    docRouter.navToPage(1)
   }
 
   componentWillUpdate({ inState }) {
@@ -269,4 +275,4 @@ Component.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-export default Component;
+export default inject('routerStore')(observer(Component));
