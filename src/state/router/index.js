@@ -21,7 +21,7 @@ const RootRouter = RouterBase
       isAtPath: 'view',
       isFromPath: undefined,
       modal: 'intro',
-      modals: [DocumentationRouterInstance, IntroRouterInstance],
+      stack: [DocumentationRouterInstance, IntroRouterInstance],
       scenes: [ViewRouterInstance],
     });
 

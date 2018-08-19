@@ -1,7 +1,20 @@
 const queryString = require('../../../libs/query-string');
 
+/* ------------------------ */
+/* CONSTANTS */
+/* ------------------------ */
+const SWITCH_NAME = 'page'; // used in the query to reference this data: <self.routeKey>page ex: docpage
+const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'switchTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
 
+const STACK_NAME = 'stack'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
+const STACK_METHOD_SUFFIX = 'Modal'; // prefixes are 'open' and 'close', ex: `open<Name>Modal()` such as `openViewModal()`
 
+const FEATURE_NAME = 'show'; // used in the query to reference this data <self.routeKey>show ex: viewshow
+const FEATURE_METHOD_SUFFIX = 'Feature'; // prefixes are 'show' and 'hide' - ex: `show<Name>Feature()` such as `showLibraryFeature()`
+
+/* ------------------------ */
+/* STATE EXTRACTION FROM Location OBJ (react-router lib)*/
+/* ------------------------ */
 const extractScene = (location, routeKey) => {
   const path = location.pathname;
   const splitPath = path.split('/');
@@ -19,30 +32,72 @@ const extractScene = (location, routeKey) => {
 };
 
 const extractModal = (location, routeKey) => {
-  const parsedQuery = queryString.parse(location.search, { decode: true });
-  return parsedQuery[`${routeKey}modal`];
+  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'index' });
+  return parsedQuery[`${routeKey}${STACK_NAME}`];
 };
 
 const extractFeatures = (location, routeKey) => {
-  const parsedQuery = queryString.parse(location.search, { decode: true });
-  return parsedQuery[`${routeKey}show`];
+  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'index' });
+  return parsedQuery[`${routeKey}${FEATURE_NAME}`];
 };
 /* ------------------------ */
 /* Query String Manipulation */
 /* ------------------------ */
+// removes all items associated with a key in the query string
 const removeFromQueryString = (existingQueryString, keysToRemove) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true });
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
   keysToRemove.forEach(k => {
     delete parsedQuery[k];
   });
-  return queryString.stringify(parsedQuery);
+  return queryString.stringify(parsedQuery, { arrayFormat: 'index' });
 }
 
-const addToQueryString = (existingQueryString, objs) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true });
-  const newQuery = { ...parsedQuery, ...objs };
-  return queryString.stringify(newQuery);
+// itemsToAdd is in the form { key: <queryString field name>, value: <Array of values to add under the name> }
+const addArrayToQueryString = (existingQueryString, itemsToAdd) => {
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+
+  let newQuery;
+  if (Array.isArray(itemsToAdd.value)) {
+    let existingItems = parsedQuery[itemsToAdd.name] || [];
+    // coerce to string if somehow its not there (legacy cache)
+    if (typeof existingItems === 'string') {
+      existingItems = [existingItems];
+    }
+
+    // filter out existing item so its stack position can be increased;
+
+    itemsToAdd.value.forEach((i) => {
+      existingItems = existingItems.filter(n => n !== i);
+      existingItems.push(i)
+    });
+
+    newQuery = { ...parsedQuery, [itemsToAdd.name]: existingItems };
+    return queryString.stringify(newQuery, { arrayFormat: 'index' });
+  }
+};
+
+// itemsToRemove is in the form { name: <queryString field name>, value: <Array of values to add under the name> }
+const removeArrayItemFromQueryString = (existingQueryString, itemsToRemove) => {
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+
+  let newQuery;
+  if (Array.isArray(itemsToRemove.value)) {
+    let existingItems = parsedQuery[itemsToRemove.name] || [];
+    if (typeof existingItems === 'string') {
+      existingItems = [existingItems];
+    }
+    const filteredItems = existingItems.filter(n => !itemsToRemove.value.includes(n));
+    newQuery = { ...parsedQuery, [itemsToRemove.name]: filteredItems };
+    return queryString.stringify(newQuery, { arrayFormat: 'index' });
+  }
 }
+
+// objsToAdd is a bunch of key value pairs meant to be directly added to the query string
+const addObjQueryString = (existingQueryString, objsToAdd) => {
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+  const newQuery = { ...parsedQuery, ...objsToAdd };
+  return queryString.stringify(newQuery);
+};
 
 /* ------------------------ */
 /* METHODS GENERATION */
@@ -58,7 +113,7 @@ const dynamicallyGenerateNavToPathMethods = (self) => {
 
     // generate method
     const fnObj = { [`navTo${formattedName}`](history) {
-      const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}modal`, `${self.routeKey}show`]); // modals are shown via the 'modal' field in the query string
+      const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}${STACK_NAME}`, `${self.routeKey}${FEATURE_NAME}`]); // modals are shown via the 'modal' field in the query string
       history.push({ pathname: name, search: cleanSearch, state: history.location.state });
     },
     };
@@ -67,9 +122,9 @@ const dynamicallyGenerateNavToPathMethods = (self) => {
 };
 
 const dynamicallyGenerateToggleModalMethods = (self) => {
-  if (!self.modals) return {};
+  if (!self.stack) return {};
 
-  return self.modals.reduce((acc, { name }) => {
+  return self.stack.reduce((acc, { name }) => {
 
     // remove forward slashes
     const withoutSlash = name.replace(/\//g, '')
@@ -77,17 +132,16 @@ const dynamicallyGenerateToggleModalMethods = (self) => {
     const formattedName = withoutSlash.charAt(0).toUpperCase() + withoutSlash.slice(1);
 
     // generate methods
-    const openFnObj = { [`open${formattedName}Modal`](history) {
-      const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}modal`]); // modals are shown via the 'modal' field in the query string
-      const newSearch = addToQueryString(cleanSearch, { [`${self.routeKey}modal`]: name }); // modals are shown via the 'modal' field in the query string
+    const openFnObj = { [`open${formattedName}${STACK_METHOD_SUFFIX}`](history) {
+      // const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}${STACK_NAME}`]); // stack are shown via the 'modal' field in the query string
+      const newSearch = addArrayToQueryString(history.location.search, { name: `${self.routeKey}${STACK_NAME}`, value: [name] }); // stack are shown via the 'modal' field in the query string as an array, and are indexed by order added
       history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
     },
     };
 
 
-    // NOTE at the moment this will just close all modals since only one can exist at a time
-    const closeFnObj = { [`close${formattedName}Modal`](history) {
-      const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}modal`]); // modals are shown via the 'modal' field in the query string
+    const closeFnObj = { [`close${formattedName}${STACK_METHOD_SUFFIX}`](history) {
+      const cleanSearch = removeArrayItemFromQueryString(history.location.search, { name: `${self.routeKey}${STACK_NAME}`, value: [name] }); // stack are shown via the 'modal' field in the query string
       history.push({ pathname: history.location.pathname, search: cleanSearch, state: history.location.state });
     },
     };
@@ -104,20 +158,17 @@ const dynamicallyGenerateToggleVisibleFeaturesMethods = (self) => {
     const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
 
     // generate methods
-    const addfnObj = { [`show${formattedName}Feature`](history) {
-      // console.log('hiiii', history)
-      const newSearch = addToQueryString(history.location.search, { [`${self.routeKey}show`]: formattedName }); // modals are shown via the 'modal' field in the query string
+    const addfnObj = { [`show${formattedName}${FEATURE_METHOD_SUFFIX}`](history) {
+      const newSearch = addArrayToQueryString(history.location.search, { name: `${self.routeKey}${FEATURE_NAME}`, value: [name] }); // features are shown via the 'FEATURE_NAME' field in the query string
       history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
       },
     };
 
-    // NOTE at the moment this will just close all features since only one can exist at a time
-    const removeFnObj = { [`hide${formattedName}Feature`](history) {
-      const newSearch = removeFromQueryString(history.location.search, [`${self.routeKey}show`]); // modals are shown via the 'modal' field in the query string
+    const removeFnObj = { [`hide${formattedName}${FEATURE_METHOD_SUFFIX}`](history) {
+      const newSearch = removeArrayItemFromQueryString(history.location.search, [`${self.routeKey}${FEATURE_NAME}`]);
       history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
       },
     };
-
 
     return { ...addfnObj, ...removeFnObj, ...acc };
   }, {});

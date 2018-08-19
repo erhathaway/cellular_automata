@@ -13,13 +13,16 @@ const queryString = require('../../../libs/query-string');
 
 const RouterBase = types
   .model('RouterBase', {
+    // config
     name: types.string,
     routeKey: types.string,
+    // state
     isAtScene: types.maybe(types.string),
     isFromScene: types.maybe(types.string),
-    openModal: types.maybe(types.string),
-    visibleFeatures: types.maybe(types.string),
-    modals: types.maybe(types.array(types.late(() => RouterBase))), // 'modal' querystring
+    visibleStack: types.maybe(types.array(types.string)),
+    visibleFeatures: types.maybe(types.array(types.string)),
+    // modals
+    stack: types.maybe(types.array(types.late(() => RouterBase))), // 'modal' querystring
     scenes: types.maybe(types.array(types.late(() => RouterBase))), // 'pathname' modification
     features: types.maybe(types.array(types.late(() => RouterBase))), // 'show' querystring
   })
@@ -45,7 +48,7 @@ const RouterBase = types
     updateLocation(newLocation) {
       // pass down the new location state to all routers and update their stores accordingly
       self.updateScene(extractScene(newLocation, self.routeKey))
-      self.updateOpenModal(extractModal(newLocation, self.routeKey))
+      self.updateStack(extractModal(newLocation, self.routeKey))
       self.updateVisibleFeatures(extractFeatures(newLocation, self.routeKey))
 
       if (self.scenes) self.scenes.forEach(s => s.updateLocation(newLocation));
@@ -63,9 +66,9 @@ const RouterBase = types
         self.isAtScene = newScene;
       }
     },
-    updateOpenModal(openModal) {
-      // console.log('updating open modals', self.name, '---', openModal);
-      self.openModal = openModal;
+    updateStack(visibleStack) {
+      // console.log('updating open modals', self.name, '---', visibleStack);
+      self.visibleStack = visibleStack;
     },
     updateVisibleFeatures(features) {
       // console.log('updating visible features', self.name, '---', features);
@@ -90,7 +93,12 @@ const RouterBase = types
     },
   }))
   .views(self => ({
-
+    isFeaturePresent(name) {
+      return self.visibleFeatures && self.visibleFeatures.includes(name)
+    },
+    isStackTop(name) {
+      return self.openStacks && self.openStacks[-1] === name
+    },
   }));
 
 export default RouterBase;
