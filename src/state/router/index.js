@@ -1,13 +1,28 @@
 import { types } from 'mobx-state-tree';
+import RouterBase from './base';
 
-import { RootRouter, RootRouterInstance } from './RootRouter';
+import ViewRouterInstance from './ViewRouter';
+import DocumentationRouterInstance from './DocumentationRouter';
+import IntroRouterInstance from './IntroRouter';
 
-const RouterStore = types
-  .model('routerStore', {
-    rootRouter: RootRouter,
-  })
-  .create({
-    rootRouter: RootRouterInstance,
-  });
+const RootRouter = RouterBase
+  .named('RootRouter');
+  // .views(self => ({
+  //   indexName() {
+  //     const parent = getParent(self);
+  //     return `${parent.populationDimensions}-${parent.viewerDimensions}`;
+  //   },
+  // }));
 
-export default RouterStore;
+  const RootRouterInstance = RootRouter
+    .create({
+      name: 'root',
+      routeKey: '',
+      isAtPath: 'view',
+      isFromPath: undefined,
+      modal: 'intro',
+      modals: [DocumentationRouterInstance, IntroRouterInstance],
+      scenes: [ViewRouterInstance],
+    });
+
+export default RootRouterInstance;

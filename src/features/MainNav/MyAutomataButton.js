@@ -14,12 +14,17 @@ class Component extends React.Component {
   }
 
   handleClick() {
-    const { sceneModalsAndMenusStore } = this.props;
-    sceneModalsAndMenusStore.toggleShowViewMyAutomataMenu()
+    const { history, routerStore } = this.props;
+    routerStore.viewRouter.visibleFeatures !== 'Library'
+      ? routerStore.viewRouter.showLibraryFeature(history)
+      : routerStore.viewRouter.hideLibraryFeature(history)
   }
 
   render() {
-    const { history } = this.props;
+    const { routerStore } = this.props;
+    const openModal = routerStore.openModal;
+
+    if (openModal) return null;
     // const isAtView = routerService.isAtView(history.location);
 
     return (<NavButton fontAwesomeClassName="fas fa-shopping-bag" onClick={this.handleClick} />)
@@ -30,4 +35,4 @@ Component.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-export default inject('sceneModalsAndMenusStore')(observer(Component));
+export default inject('routerStore')(observer(Component));

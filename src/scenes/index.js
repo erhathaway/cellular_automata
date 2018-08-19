@@ -40,7 +40,7 @@ class LocationHistoryRecorder extends React.Component {
 
     const { location: currentLocation, routerStore } = this.props;
     if (routerService.hasLocationChanged(newLocation, currentLocation)) {
-      routerStore.rootRouter.updateLocation(newHistory.location);
+      routerStore.updateLocation(newHistory.location);
     }
   }
   // shouldComponentUpdate({ history: newHistory }) {
@@ -91,7 +91,8 @@ const duration = 1000;
 // Interpret router query string and router user to correct modals / scenes
 // ------------------------------------------------
 const QueryStringHandler = ({ location, history, deviceStateStore: device, routerStore }) => {
-  const modal = routerStore.rootRouter.modal;
+  // console.log('a', routerStore)
+  const modal = routerStore.openModal;
 
   return (
     <Container id="query-string-handler-container" orientation={device.orientation}>
@@ -107,7 +108,7 @@ const QueryStringHandler = ({ location, history, deviceStateStore: device, route
         >
           {inState => (
             <Switch key="switch-1-key" location={{ ...location, pathname: `/${modal}` }}>
-              <Route path="/documentation" key="route-key-doc-modal" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />
+              <Route path="/doc" key="route-key-doc-modal" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />
               <Route path="/intro" key="route-key-intro-modal" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />
             </Switch>
           )}
