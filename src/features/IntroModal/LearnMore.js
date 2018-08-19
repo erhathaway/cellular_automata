@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
 import ReactRouterPropTypes from 'react-router-prop-types';
+import { inject, observer } from 'mobx-react';
 
 import { router as routerSerivce } from '../../services';
 
@@ -38,8 +39,8 @@ class Component extends React.Component {
 
 
   handleClick() {
-    const { history } = this.props;
-    routerSerivce.openDocumentationModalPage(history);
+    const { history, routerStore } = this.props;
+    routerStore.openDocModal(history);
   }
 
   render() {
@@ -55,4 +56,4 @@ Component.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-export default Component;
+export default inject('routerStore')(observer(Component));

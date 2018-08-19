@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { inject, observer } from 'mobx-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerService } from '../../services';
@@ -62,13 +63,13 @@ class Component extends React.Component {
   }
 
   handleExitClick() {
-    const { history } = this.props;
-    routerService.closeModal(history);
+    const { history, routerStore } = this.props;
+    routerStore.closeDocModal(history);
   }
 
   handleNavtoHomeClick() {
-    const { history } = this.props;
-    routerService.openIntroModal(history);
+    const { history, routerStore } = this.props;
+    routerStore.openIntroModal(history);
   }
 
   render() {
@@ -89,4 +90,4 @@ Component.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-export default Component;
+export default inject('routerStore')(observer(Component));

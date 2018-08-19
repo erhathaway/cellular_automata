@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { inject, observer } from 'mobx-react';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
 import { router as routerService } from '../../services';
@@ -39,9 +40,10 @@ class Component extends React.Component {
   }
 
   handleClick() {
-    const { history } = this.props;
-    routerService.navToView(history);
+    const { history, routerStore } = this.props;
+    routerStore.navToView(history);
   }
+
 
   render() {
     return (
@@ -56,4 +58,4 @@ Component.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-export default Component;
+export default inject('routerStore')(observer(Component));

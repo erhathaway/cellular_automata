@@ -4,7 +4,7 @@ const queryString = require('../../../libs/query-string');
 /* CONSTANTS */
 /* ------------------------ */
 const SWITCH_NAME = 'page'; // used in the query to reference this data: <self.routeKey>page ex: docpage
-const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'switchTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
+// const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'navTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
 
 const STACK_NAME = 'stack'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
 const STACK_METHOD_SUFFIX = 'Modal'; // prefixes are 'open' and 'close', ex: `open<Name>Modal()` such as `openViewModal()`
@@ -32,12 +32,12 @@ const extractScene = (location, routeKey) => {
 };
 
 const extractModal = (location, routeKey) => {
-  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'bracket' });
   return parsedQuery[`${routeKey}${STACK_NAME}`];
 };
 
 const extractFeatures = (location, routeKey) => {
-  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'bracket' });
   return parsedQuery[`${routeKey}${FEATURE_NAME}`];
 };
 /* ------------------------ */
@@ -45,16 +45,16 @@ const extractFeatures = (location, routeKey) => {
 /* ------------------------ */
 // removes all items associated with a key in the query string
 const removeFromQueryString = (existingQueryString, keysToRemove) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'bracket' });
   keysToRemove.forEach(k => {
     delete parsedQuery[k];
   });
-  return queryString.stringify(parsedQuery, { arrayFormat: 'index' });
+  return queryString.stringify(parsedQuery, { arrayFormat: 'bracket' });
 }
 
 // itemsToAdd is in the form { key: <queryString field name>, value: <Array of values to add under the name> }
 const addArrayToQueryString = (existingQueryString, itemsToAdd) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'bracket' });
 
   let newQuery;
   if (Array.isArray(itemsToAdd.value)) {
@@ -72,13 +72,13 @@ const addArrayToQueryString = (existingQueryString, itemsToAdd) => {
     });
 
     newQuery = { ...parsedQuery, [itemsToAdd.name]: existingItems };
-    return queryString.stringify(newQuery, { arrayFormat: 'index' });
+    return queryString.stringify(newQuery, { arrayFormat: 'bracket' });
   }
 };
 
 // itemsToRemove is in the form { name: <queryString field name>, value: <Array of values to add under the name> }
 const removeArrayItemFromQueryString = (existingQueryString, itemsToRemove) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'bracket' });
 
   let newQuery;
   if (Array.isArray(itemsToRemove.value)) {
@@ -88,13 +88,13 @@ const removeArrayItemFromQueryString = (existingQueryString, itemsToRemove) => {
     }
     const filteredItems = existingItems.filter(n => !itemsToRemove.value.includes(n));
     newQuery = { ...parsedQuery, [itemsToRemove.name]: filteredItems };
-    return queryString.stringify(newQuery, { arrayFormat: 'index' });
+    return queryString.stringify(newQuery, { arrayFormat: 'bracket' });
   }
 }
 
 // objsToAdd is a bunch of key value pairs meant to be directly added to the query string
 const addObjQueryString = (existingQueryString, objsToAdd) => {
-  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'index' });
+  const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'bracket' });
   const newQuery = { ...parsedQuery, ...objsToAdd };
   return queryString.stringify(newQuery);
 };
