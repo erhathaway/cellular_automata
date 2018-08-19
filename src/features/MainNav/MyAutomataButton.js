@@ -15,9 +15,11 @@ class Component extends React.Component {
 
   handleClick() {
     const { history, routerStore } = this.props;
-    routerStore.viewRouter.visibleFeatures !== 'library'
-      ? routerStore.viewRouter.showLibraryFeature(history)
-      : routerStore.viewRouter.hideLibraryFeature(history)
+    console.log(routerStore.viewRouter.isFeatureVisible('library'))
+    // console.log(    routerStore.viewRouter.isFeatureVisible('library'))
+    routerStore.viewRouter.isFeatureVisible('library')
+      ? routerStore.viewRouter.hideLibraryFeature(history)
+      : routerStore.viewRouter.showLibraryFeature(history)
   }
 
   render() {

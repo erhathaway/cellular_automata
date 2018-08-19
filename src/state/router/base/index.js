@@ -93,11 +93,16 @@ const RouterBase = types
     },
   }))
   .views(self => ({
-    isFeaturePresent(name) {
-      return self.visibleFeatures && self.visibleFeatures.includes(name)
+    topOfStack() {
+      if (!self.visibleStack) return undefined;
+
+      return self.visibleStack.map(n => n).slice(-1);
     },
-    isStackTop(name) {
-      return self.openStacks && self.openStacks[-1] === name
+    isFeatureVisible(name) {
+      return self.visibleFeatures && self.visibleFeatures.map(n => n).includes(name);
+    },
+    isTopOfStack(name) {
+      return self.topOfStack === name;
     },
   }));
 
