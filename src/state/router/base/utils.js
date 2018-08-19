@@ -6,11 +6,13 @@ const queryString = require('../../../libs/query-string');
 const SWITCH_NAME = 'page'; // used in the query to reference this data: <self.routeKey>page ex: docpage
 // const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'navTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
 
-const STACK_NAME = '&'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
+const STACK_NAME = 'modal'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
 const STACK_METHOD_SUFFIX = 'Modal'; // prefixes are 'open' and 'close', ex: `open<Name>Modal()` such as `openViewModal()`
 
-const FEATURE_NAME = '$'; // used in the query to reference this data <self.routeKey>show ex: viewshow
+const FEATURE_NAME = 'feature'; // used in the query to reference this data <self.routeKey>show ex: viewshow
 const FEATURE_METHOD_SUFFIX = 'Feature'; // prefixes are 'show' and 'hide' - ex: `show<Name>Feature()` such as `showLibraryFeature()`
+
+const PAGE_NAME = 'page'; // used in the query string to reference this data <self.routeKey>page ex: docpage
 
 /* ------------------------ */
 /* STATE EXTRACTION FROM Location OBJ (react-router lib)*/
@@ -20,7 +22,7 @@ const extractScene = (location, routeKey) => {
   const splitPath = path.split('/');
   // console.log('split path', path, splitPath)
   if (routeKey === '' || !routeKey) {
-    return splitPath[1]
+    return splitPath[1];
   }
 
   const index = splitPath.findIndex(p => p === routeKey);
@@ -28,7 +30,7 @@ const extractScene = (location, routeKey) => {
     const thisPath = splitPath[index + 1];
     return thisPath;
   }
-  return undefined
+  return undefined;
 };
 
 const extractModal = (location, routeKey) => {
@@ -39,6 +41,12 @@ const extractModal = (location, routeKey) => {
 const extractFeatures = (location, routeKey) => {
   const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'bracket' });
   return parsedQuery[`${routeKey}${FEATURE_NAME}`];
+};
+
+const extractPage = (location, routeKey) => {
+  const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'bracket' });
+  console.log('parsedQuery', parsedQuery, routeKey, [`${routeKey}${PAGE_NAME}`])
+  return parsedQuery[`${routeKey}${PAGE_NAME}`];
 };
 /* ------------------------ */
 /* Query String Manipulation */
@@ -90,13 +98,13 @@ const removeArrayItemFromQueryString = (existingQueryString, itemsToRemove) => {
     newQuery = { ...parsedQuery, [itemsToRemove.name]: filteredItems };
     return queryString.stringify(newQuery, { arrayFormat: 'bracket' });
   }
-}
+};
 
 // objsToAdd is a bunch of key value pairs meant to be directly added to the query string
 const addObjQueryString = (existingQueryString, objsToAdd) => {
   const parsedQuery = queryString.parse(existingQueryString, { decode: true, arrayFormat: 'bracket' });
   const newQuery = { ...parsedQuery, ...objsToAdd };
-  return queryString.stringify(newQuery);
+  return queryString.stringify(newQuery, { arrayFormat: 'bracket' });
 };
 
 /* ------------------------ */
@@ -107,7 +115,7 @@ const dynamicallyGenerateNavToPathMethods = (self) => {
 
   return self.scenes.reduce((acc, { name }) => {
     // remove forward slashes
-    const withoutSlash = name.replace(/\//g, '')
+    const withoutSlash = name.replace(/\//g, '');
     // uppercase first letter
     const formattedName = withoutSlash !== '' ? (withoutSlash.charAt(0).toUpperCase() + withoutSlash.slice(1)) : 'Home';
 
@@ -127,7 +135,7 @@ const dynamicallyGenerateToggleModalMethods = (self) => {
   return self.stack.reduce((acc, { name }) => {
 
     // remove forward slashes
-    const withoutSlash = name.replace(/\//g, '')
+    const withoutSlash = name.replace(/\//g, '');
     // uppercase first letter
     const formattedName = withoutSlash.charAt(0).toUpperCase() + withoutSlash.slice(1);
 
@@ -174,11 +182,26 @@ const dynamicallyGenerateToggleVisibleFeaturesMethods = (self) => {
   }, {});
 };
 
+const dynamicallyGeneratePageNavMethods = (self) => {
+  if (!self.pages) return {};
+
+  // generate methods
+  const navFnObj = { navToPage(history, id) {
+    const newSearch = addObjQueryString(history.location.search, { [`${self.routeKey}${PAGE_NAME}`]: id }); // features are shown via the 'FEATURE_NAME' field in the query string
+    history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
+    },
+  };
+
+  return navFnObj;
+};
+
 export {
   dynamicallyGenerateNavToPathMethods,
   dynamicallyGenerateToggleModalMethods,
   dynamicallyGenerateToggleVisibleFeaturesMethods,
+  dynamicallyGeneratePageNavMethods,
   extractScene,
   extractFeatures,
   extractModal,
+  extractPage,
 };

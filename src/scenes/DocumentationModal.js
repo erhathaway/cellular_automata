@@ -135,11 +135,11 @@ class Component extends React.Component {
 
   componentDidMount() {
     this.animateIn();
-    const { routerStore: { docRouter } } = this.props;
+    const { routerStore: { docRouter }, history } = this.props;
     // console.log(docRouter);
     docRouter.setPages(PAGES.map(p => ({ name: p.pageRouterName, id: p.id, pageInstanceName: 'docPage' }) ))
     console.log('dooc', docRouter)
-    docRouter.navToPage(1)
+    docRouter.navToPage(history, 1)
   }
 
   componentWillUpdate({ inState }) {

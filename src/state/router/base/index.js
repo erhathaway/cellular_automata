@@ -5,9 +5,11 @@ import {
   dynamicallyGenerateNavToPathMethods,
   dynamicallyGenerateToggleModalMethods,
   dynamicallyGenerateToggleVisibleFeaturesMethods,
+  dynamicallyGeneratePageNavMethods,
   extractScene,
   extractFeatures,
   extractModal,
+  extractPage,
 } from './utils'
 
 const queryString = require('../../../libs/query-string');
@@ -51,6 +53,7 @@ const RouterBase = types
     ...dynamicallyGenerateNavToPathMethods(self),
     ...dynamicallyGenerateToggleModalMethods(self),
     ...dynamicallyGenerateToggleVisibleFeaturesMethods(self),
+    ...dynamicallyGeneratePageNavMethods(self),
     afterCreate() {
       // addd getter methods to access the routers from the parent
       const root = getRoot(self);
@@ -65,12 +68,13 @@ const RouterBase = types
     },
     updateLocation(newLocation) {
       // pass down the new location state to all routers and update their stores accordingly
-      self.updateScene(extractScene(newLocation, self.routeKey))
-      self.updateStack(extractModal(newLocation, self.routeKey))
-      self.updateVisibleFeatures(extractFeatures(newLocation, self.routeKey))
+      if (self.scenes) { self.updateScene(extractScene(newLocation, self.routeKey)); }
+      if (self.stack) { self.updateStack(extractModal(newLocation, self.routeKey)); }
+      if (self.features) { self.updateVisibleFeatures(extractFeatures(newLocation, self.routeKey)); }
+      if (self.pages) { self.updatePage(extractPage(newLocation, self.routeKey)); }
 
       if (self.scenes) self.scenes.forEach(s => s.updateLocation(newLocation));
-      if (self.modals) self.modals.forEach(m => m.updateLocation(newLocation));
+      if (self.stack) self.stack.forEach(m => m.updateLocation(newLocation));
       if (self.features) self.features.forEach(f => f.updateLocation(newLocation));
       if (self.currentPage) self.currentPage.updateLocation(newLocation);
     },
@@ -122,15 +126,14 @@ const RouterBase = types
       const { routeKey } = self.previousPage;
       if (routeKey) self.navToPage(routeKey);
     },
-    navToPage(pageId) {
+    updatePage(pageId) {
       // for all pages registered via the 'setPages' method, find the one that matches the page id
-      const foundPageInfo = self._pages.find(p => p.routeKey === pageId.toString());
+      const foundPageInfo = self._pages ? self._pages.find(p => p.routeKey === pageId.toString()) : undefined;
       if (foundPageInfo) {
         // for all mobx page model instances, find the instance name that matches the one for the desired page
         const foundPageInstance = self.pages.find(p => p.name === foundPageInfo.pageInstanceName);
         if (foundPageInstance) {
           const newInstance = clone(foundPageInstance)
-          console.log('foundPageInfo', foundPageInstance)
           self.currentPage = newInstance;
           self.currentPage._setName(foundPageInfo.name);
           self.currentPage._setRouteKey(foundPageInfo.routeKey);
