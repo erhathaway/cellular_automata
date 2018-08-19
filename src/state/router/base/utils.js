@@ -6,10 +6,10 @@ const queryString = require('../../../libs/query-string');
 const SWITCH_NAME = 'page'; // used in the query to reference this data: <self.routeKey>page ex: docpage
 // const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'navTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
 
-const STACK_NAME = 'stack'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
+const STACK_NAME = '&'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
 const STACK_METHOD_SUFFIX = 'Modal'; // prefixes are 'open' and 'close', ex: `open<Name>Modal()` such as `openViewModal()`
 
-const FEATURE_NAME = 'show'; // used in the query to reference this data <self.routeKey>show ex: viewshow
+const FEATURE_NAME = '$'; // used in the query to reference this data <self.routeKey>show ex: viewshow
 const FEATURE_METHOD_SUFFIX = 'Feature'; // prefixes are 'show' and 'hide' - ex: `show<Name>Feature()` such as `showLibraryFeature()`
 
 /* ------------------------ */

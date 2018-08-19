@@ -16,7 +16,7 @@ import {
 } from '../state';
 
 // Services
-import { router as routerService, locationHistory } from '../services';
+import { router as routerService } from '../services';
 
 // CSS
 import './main.css';
@@ -35,6 +35,11 @@ import ExploreScene from './Explore';
 //  regardless if the backbutton is used
 //  this allows us to use the routerService.locationHistory to accurately tell where we came from
 class LocationHistoryRecorder extends React.Component {
+  componentDidMount() {
+    const { location, routerStore } = this.props;
+    // hydrate the state from the url data
+    routerStore.updateLocation(location);
+  }
   componentWillUpdate({ history: newHistory }) {
     const { location: newLocation } = newHistory;
 
@@ -43,20 +48,6 @@ class LocationHistoryRecorder extends React.Component {
       routerStore.updateLocation(newHistory.location);
     }
   }
-  // shouldComponentUpdate({ history: newHistory }) {
-  //   const { location: currentLocation, routerStore } = this.props;
-  //   const { location: newLocation } = newHistory;
-  //
-  //   if (routerService.hasLocationChanged(newLocation, currentLocation)) {
-  //     locationHistory.addLocation(currentLocation);
-  //     const from = routerService.previousLocationName();
-  //     const at = routerService.getLocationName(newLocation);
-  //     routerService.updateStateHistory(newHistory, from, at);
-  //     routerStore.rootRouter.updateLocation(newLocation)
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   render() {
     const { children } = this.props;

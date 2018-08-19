@@ -1,3 +1,5 @@
+import { types, getRoot, getPath } from 'mobx-state-tree';
+
 import RouterBase from './base';
 
 const MyAutomataLibraryFeatureInstance = RouterBase
@@ -6,14 +8,25 @@ const MyAutomataLibraryFeatureInstance = RouterBase
     routeKey: 'library',
   });
 
-const ViewRouterInstance = RouterBase
+const AutomataMenuRouterInstance = RouterBase
+  .create({
+    name: 'automataMenu',
+    routeKey: 'automata-menu',
+  });
+
+const ViewRouter = RouterBase
+  // .actions(self => ({
+  //   // nextPage() {
+  //   //   return self.pages[self.currentPage.index-1]
+  //   // }
+  // }))
+
+const ViewRouterInstance = ViewRouter
   .create({
     name: 'view',
     routeKey: 'view',
-    isAtPath: undefined,
-    isFromPath: undefined,
-    modal: undefined,
+    stack: [AutomataMenuRouterInstance],
     features: [MyAutomataLibraryFeatureInstance],
-  });
+  })
 
-export default ViewRouterInstance;
+export { ViewRouter, ViewRouterInstance };
