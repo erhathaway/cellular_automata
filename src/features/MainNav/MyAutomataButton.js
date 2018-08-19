@@ -15,8 +15,6 @@ class Component extends React.Component {
 
   handleClick() {
     const { history, routerStore } = this.props;
-    console.log(routerStore.viewRouter.isFeatureVisible('library'))
-    // console.log(    routerStore.viewRouter.isFeatureVisible('library'))
     routerStore.viewRouter.isFeatureVisible('library')
       ? routerStore.viewRouter.hideLibraryFeature(history)
       : routerStore.viewRouter.showLibraryFeature(history)
@@ -24,11 +22,11 @@ class Component extends React.Component {
 
   render() {
     const { routerStore } = this.props;
-    const openModal = routerStore.openModal;
+    // the stack means there is something obstructing the view of the view scene and we shouldn't allow users to toggle
+    // settings for the scene
+    const stackExists = routerStore.topOfStack;
 
-    if (openModal) return null;
-    // const isAtView = routerService.isAtView(history.location);
-
+    if (stackExists) return null;
     return (<NavButton fontAwesomeClassName="fas fa-shopping-bag" onClick={this.handleClick} />)
   }
 }

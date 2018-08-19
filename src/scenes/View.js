@@ -45,18 +45,18 @@ const ViewerAreaContainer = styled('div')`
   z-index: 0;
 `;
 
-const Component = ({ automataMenuStore: menu, deviceStateStore: device, sceneModalsAndMenusStore: menus, ...props }) => {
+const Component = ({ automataMenuStore: menu, deviceStateStore: device, routerStore: router, ...props }) => {
   let shouldPositionPopup;
   if (menu.placement === 'left') { shouldPositionPopup = 'right'; }
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
-  const { showViewMyAutomataMenu } = menus
+  const isLibraryVisible = router.viewRouter.isFeatureVisible('library')
 
   return (
     <Container orientation={device.orientation}>
       <Transition
-        in={showViewMyAutomataMenu}
+        in={isLibraryVisible}
         timeout={500}
         mountOnEnter
         onmountOnExit
@@ -95,4 +95,4 @@ const Component = ({ automataMenuStore: menu, deviceStateStore: device, sceneMod
   );
 }
 
-export default inject('automataMenuStore', 'deviceStateStore', 'sceneModalsAndMenusStore')(observer(Component));
+export default inject('automataMenuStore', 'deviceStateStore', 'routerStore')(observer(Component));

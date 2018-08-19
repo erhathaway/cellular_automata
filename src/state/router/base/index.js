@@ -93,7 +93,7 @@ const RouterBase = types
     },
   }))
   .views(self => ({
-    topOfStack() {
+    get topOfStack() {
       if (!self.visibleStack) return undefined;
 
       return self.visibleStack.map(n => n).slice(-1);

@@ -91,7 +91,7 @@ const duration = 1000;
 // Interpret router query string and router user to correct modals / scenes
 // ------------------------------------------------
 const QueryStringHandler = ({ location, history, deviceStateStore: device, routerStore }) => {
-  const modal = routerStore.topOfStack();
+  const modal = routerStore.topOfStack;
   return (
     <Container id="query-string-handler-container" orientation={device.orientation}>
       <MainNav history={history} />
