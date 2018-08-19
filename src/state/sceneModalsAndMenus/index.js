@@ -7,7 +7,7 @@ const SceneModalsAndMenus = types
     showDocumentationIndexModalMenu: types.boolean,
   })
   .actions(self => ({
-    toggleShowViewMyAutomataMenu() { self.showViewMyAutomataMenu = !self.showViewMyAutomataMenu; console.log('show my automata', self.showViewMyAutomataMenu)}, // eslint-disable-line max-len
+    toggleShowViewMyAutomataMenu() { self.showViewMyAutomataMenu = !self.showViewMyAutomataMenu; }, // eslint-disable-line max-len
     toggleShowViewAutomataConfigModalMenu() { self.showViewAutomataConfigModalMenu = !self.showViewAutomataConfigModalMenu; }, // eslint-disable-line max-len
     toggleShowDocumentationIndexModalMenu() { self.showDocumentationIndexModalMenu = !self.showDocumentationIndexModalMenu; }, // eslint-disable-line max-len
   }));

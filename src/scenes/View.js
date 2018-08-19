@@ -51,8 +51,8 @@ const Component = ({ automataMenuStore: menu, deviceStateStore: device, sceneMod
   else if (menu.placement === 'right') { shouldPositionPopup = 'left'; }
   else if (menu.placement === 'top') { shouldPositionPopup = 'bottom'; }
 
-  const showViewMyAutomataMenu = menus.showViewMyAutomataMenu
-  console.log('show view my automata', showViewMyAutomataMenu)
+  const { showViewMyAutomataMenu } = menus
+
   return (
     <Container orientation={device.orientation}>
       <Transition

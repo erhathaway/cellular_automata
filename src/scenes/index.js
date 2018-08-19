@@ -12,6 +12,7 @@ import {
   AutomataMenuStore,
   DeviceStateStore,
   SceneModalsAndMenusStore,
+  RouterStore,
 } from '../state';
 
 // Services
@@ -34,19 +35,28 @@ import ExploreScene from './Explore';
 //  regardless if the backbutton is used
 //  this allows us to use the routerService.locationHistory to accurately tell where we came from
 class LocationHistoryRecorder extends React.Component {
-  shouldComponentUpdate({ history: newHistory }) {
-    const { location: currentLocation } = this.props;
+  componentWillUpdate({ history: newHistory }) {
     const { location: newLocation } = newHistory;
 
+    const { location: currentLocation, routerStore } = this.props;
     if (routerService.hasLocationChanged(newLocation, currentLocation)) {
-      locationHistory.addLocation(currentLocation);
-      const from = routerService.previousLocationName();
-      const at = routerService.getLocationName(newLocation);
-      routerService.updateStateHistory(newHistory, from, at);
-      return false;
+      routerStore.rootRouter.updateLocation(newHistory.location);
     }
-    return true;
   }
+  // shouldComponentUpdate({ history: newHistory }) {
+  //   const { location: currentLocation, routerStore } = this.props;
+  //   const { location: newLocation } = newHistory;
+  //
+  //   if (routerService.hasLocationChanged(newLocation, currentLocation)) {
+  //     locationHistory.addLocation(currentLocation);
+  //     const from = routerService.previousLocationName();
+  //     const at = routerService.getLocationName(newLocation);
+  //     routerService.updateStateHistory(newHistory, from, at);
+  //     routerStore.rootRouter.updateLocation(newLocation)
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   render() {
     const { children } = this.props;
@@ -59,6 +69,9 @@ LocationHistoryRecorder.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
   children: PropTypes.element.isRequired,
 };
+
+const LocationHistoryRecorderWithMobx = inject('routerStore')(observer(LocationHistoryRecorder));
+
 
 const Container = styled('div')`
   height: 100vh;
@@ -77,8 +90,8 @@ const duration = 1000;
 // ------------------------------------------------
 // Interpret router query string and router user to correct modals / scenes
 // ------------------------------------------------
-const QueryStringHandler = ({ location, history, deviceStateStore: device }) => {
-  const atLocation = history.location.state ? history.location.state.atLocation : 'intro';
+const QueryStringHandler = ({ location, history, deviceStateStore: device, routerStore }) => {
+  const modal = routerStore.rootRouter.modal;
 
   return (
     <Container id="query-string-handler-container" orientation={device.orientation}>
@@ -86,14 +99,14 @@ const QueryStringHandler = ({ location, history, deviceStateStore: device }) => 
 
       <TransitionGroup>
         <Transition
-          key={`modal-transition-${atLocation}`}
+          key={`modal-transition-${modal}`}
           timeout={{
             enter: 500,
             exit: 600,
           }}
         >
           {inState => (
-            <Switch key="switch-1-key" location={{ ...location, pathname: `/${atLocation}` }}>
+            <Switch key="switch-1-key" location={{ ...location, pathname: `/${modal}` }}>
               <Route path="/documentation" key="route-key-doc-modal" render={combineProps(DocumentationModal, { inState, transitionDuration: duration })} />
               <Route path="/intro" key="route-key-intro-modal" render={combineProps(IntroModal, { inState, transitionDuration: duration })} />
             </Switch>
@@ -114,15 +127,15 @@ QueryStringHandler.propTypes = {
   history: ReactRouterPropTypes.history.isRequired,
 };
 
-const QueryStringHandlerWithMobx = inject('deviceStateStore')(observer(QueryStringHandler));
+const QueryStringHandlerWithMobx = inject('deviceStateStore', 'routerStore')(observer(QueryStringHandler));
 
 // ------------------------------------------------
 // Main route composition
 // ------------------------------------------------
 const MainRoute = props => (
-  <LocationHistoryRecorder {...props}>
+  <LocationHistoryRecorderWithMobx {...props}>
     <QueryStringHandlerWithMobx {...props} />
-  </LocationHistoryRecorder>
+  </LocationHistoryRecorderWithMobx>
 );
 
 export default () => (
@@ -132,6 +145,7 @@ export default () => (
       automataMenuStore={AutomataMenuStore}
       deviceStateStore={DeviceStateStore}
       sceneModalsAndMenusStore={SceneModalsAndMenusStore}
+      routerStore={RouterStore}
     >
       <Route path="*" component={MainRoute} />
     </Provider>

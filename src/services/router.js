@@ -42,8 +42,8 @@ const router = {
 
     return newLocation;
   },
-  addToQueryString(exitingQueryString, objs) {
-    const parsedQuery = queryString.parse(exitingQueryString, { decode: true });
+  addToQueryString(existingQueryString, objs) {
+    const parsedQuery = queryString.parse(existingQueryString, { decode: true });
     const newQuery = { ...parsedQuery, ...objs };
     return queryString.stringify(newQuery);
   },
