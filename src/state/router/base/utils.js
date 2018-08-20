@@ -20,7 +20,7 @@ const PAGE_NAME = 'page'; // used in the query string to reference this data <se
 const extractScene = (location, routeKey) => {
   const path = location.pathname;
   const splitPath = path.split('/');
-  // console.log('split path', path, splitPath)
+
   if (routeKey === '' || !routeKey) {
     return splitPath[1];
   }
@@ -45,7 +45,6 @@ const extractFeatures = (location, routeKey) => {
 
 const extractPage = (location, routeKey) => {
   const parsedQuery = queryString.parse(location.search, { decode: true, arrayFormat: 'bracket' });
-  console.log('parsedQuery', parsedQuery, routeKey, [`${routeKey}${PAGE_NAME}`])
   return parsedQuery[`${routeKey}${PAGE_NAME}`];
 };
 /* ------------------------ */
@@ -76,7 +75,7 @@ const addArrayToQueryString = (existingQueryString, itemsToAdd) => {
 
     itemsToAdd.value.forEach((i) => {
       existingItems = existingItems.filter(n => n !== i);
-      existingItems.push(i)
+      existingItems.push(i);
     });
 
     newQuery = { ...parsedQuery, [itemsToAdd.name]: existingItems };

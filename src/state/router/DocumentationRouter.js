@@ -7,12 +7,11 @@ const DocMenuRouterInstance = RouterBase
     routeKey: 'doc-menu',
   });
 
-
-  const DocPageRouterInstance = RouterBase
-    .create({
-      name: 'docPage',
-      routeKey: 'doc-page',
-    });
+const DocPageRouterInstance = RouterBase
+  .create({
+    name: 'docPage',
+    routeKey: 'doc-page',
+  });
 
 const DocumentationRouterInstance = RouterBase
   .create({

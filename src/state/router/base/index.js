@@ -1,5 +1,8 @@
-import { types, getRoot, getPath, getType, clone } from 'mobx-state-tree';
-import PagesModel from './page';
+import {
+  types,
+  getRoot,
+  clone,
+} from 'mobx-state-tree';
 
 import {
   dynamicallyGenerateNavToPathMethods,
@@ -10,21 +13,15 @@ import {
   extractFeatures,
   extractModal,
   extractPage,
-} from './utils'
+} from './utils';
 
 const queryString = require('../../../libs/query-string');
-
-const Page = types
-  .model('Page', {
-    id: types.string,
-    name: types.string,
-  })
 
 const RouterBase = types
   .model('RouterBase', {
     // config
     name: types.string,
-    routeKey: types.string,
+    routeKey: types.string, // the id in the querystring or the id matching the page id
     // state
     isAtScene: types.maybe(types.string),
     isFromScene: types.maybe(types.string),
@@ -46,7 +43,6 @@ const RouterBase = types
     /* ------------------------ */
     /* NAV */
     /* ------------------------ */
-    nextPage() { console.log('not implemented') },
     ...dynamicallyGenerateNavToPathMethods(self),
     ...dynamicallyGenerateToggleModalMethods(self),
     ...dynamicallyGenerateToggleVisibleFeaturesMethods(self),
@@ -79,33 +75,27 @@ const RouterBase = types
     /* HISTORY */
     /* ------------------------ */
     updateScene(newScene) {
-      // console.log('updating scene', self.name, '---', newScene);
-
       if (newScene) {
         self.isFromScene = self.isAtScene;
         self.isAtScene = newScene;
       }
     },
     updateStack(visibleStack) {
-      // console.log('updating open modals', self.name, '---', visibleStack);
       self.visibleStack = visibleStack;
     },
     updateVisibleFeatures(features) {
-      // console.log('updating visible features', self.name, '---', features);
       self.visibleFeatures = features;
     },
     /* ------------------------ */
     /* HISTORY UTILS*/
     /* ------------------------ */
     setAt(newAtName) {
-      // console.log('here', getRoot(self))
-      // console.log(self)
       self.isFromPath = self.isAtPath;
       self.isAtPath = newAtName;
     },
     getModal(location) {
       const parsedQuery = queryString.parse(location.search, { decode: true });
-      return parsedQuery.modal
+      return parsedQuery.modal;
     },
     getPath(location) {
       // remove forward slashes
