@@ -1,18 +1,36 @@
-const queryString = require('../../../libs/query-string');
+import {
+  types,
+  getRoot,
+  clone,
+} from 'mobx-state-tree';
 
+const queryString = require('../../../libs/query-string');
 /* ------------------------ */
 /* CONSTANTS */
 /* ------------------------ */
 const SWITCH_NAME = 'page'; // used in the query to reference this data: <self.routeKey>page ex: docpage
 // const SWITCH_METHOD_SUFFIX = 'Page'; // prefix is 'navTo', ex: switchTo<Name>Page()` such as `switchToExplorePage()`
 
-const STACK_NAME = 'modal'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
+const STACK_NAME = '@'; // used in the query to reference this data: <self.routeKey>modal ex: intromodal
 const STACK_METHOD_SUFFIX = 'Modal'; // prefixes are 'open' and 'close', ex: `open<Name>Modal()` such as `openViewModal()`
 
-const FEATURE_NAME = 'feature'; // used in the query to reference this data <self.routeKey>show ex: viewshow
+const FEATURE_NAME = '$'; // used in the query to reference this data <self.routeKey>show ex: viewshow
 const FEATURE_METHOD_SUFFIX = 'Feature'; // prefixes are 'show' and 'hide' - ex: `show<Name>Feature()` such as `showLibraryFeature()`
 
-const PAGE_NAME = 'page'; // used in the query string to reference this data <self.routeKey>page ex: docpage
+const PAGE_NAME = '^'; // used in the query string to reference this data <self.routeKey>page ex: docpage
+
+
+/* ------------------------ */
+/* UPDATE ADDRESS STRING
+/* ------------------------ */
+const updateLocation = ({ pathname, search, state }, routerHistory, self) => {
+  if (window && window.history) {
+    const url = `${pathname}?${search}`;
+    window.history.pushState(state, 'Cell AF', url)
+  }
+  getRoot(self).updateLocation({ pathname, search, state })
+  // routerHistory.push({ pathname, search, state });
+}
 
 /* ------------------------ */
 /* STATE EXTRACTION FROM Location OBJ (react-router lib)*/
@@ -121,7 +139,7 @@ const dynamicallyGenerateNavToPathMethods = (self) => {
     // generate method
     const fnObj = { [`navTo${formattedName}`](history) {
       const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}${STACK_NAME}`, `${self.routeKey}${FEATURE_NAME}`]); // modals are shown via the 'modal' field in the query string
-      history.push({ pathname: name, search: cleanSearch, state: history.location.state });
+      updateLocation({ pathname: name, search: cleanSearch, state: history.location.state }, history, self);
     },
     };
     return { ...fnObj, ...acc };
@@ -142,14 +160,14 @@ const dynamicallyGenerateToggleModalMethods = (self) => {
     const openFnObj = { [`open${formattedName}${STACK_METHOD_SUFFIX}`](history) {
       // const cleanSearch = removeFromQueryString(history.location.search, [`${self.routeKey}${STACK_NAME}`]); // stack are shown via the 'modal' field in the query string
       const newSearch = addArrayToQueryString(history.location.search, { name: `${self.routeKey}${STACK_NAME}`, value: [name] }); // stack are shown via the 'modal' field in the query string as an array, and are indexed by order added
-      history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
+      updateLocation({ pathname: history.location.pathname, search: newSearch, state: history.location.state }, history, self);
     },
     };
 
 
     const closeFnObj = { [`close${formattedName}${STACK_METHOD_SUFFIX}`](history) {
       const cleanSearch = removeArrayItemFromQueryString(history.location.search, { name: `${self.routeKey}${STACK_NAME}`, value: [name] }); // stack are shown via the 'modal' field in the query string
-      history.push({ pathname: history.location.pathname, search: cleanSearch, state: history.location.state });
+      updateLocation({ pathname: history.location.pathname, search: cleanSearch, state: history.location.state }, history, self);
     },
     };
     return { ...openFnObj, ...closeFnObj, ...acc };
@@ -167,13 +185,13 @@ const dynamicallyGenerateToggleVisibleFeaturesMethods = (self) => {
     // generate methods
     const addfnObj = { [`show${formattedName}${FEATURE_METHOD_SUFFIX}`](history) {
       const newSearch = addArrayToQueryString(history.location.search, { name: `${self.routeKey}${FEATURE_NAME}`, value: [name] }); // features are shown via the 'FEATURE_NAME' field in the query string
-      history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
+      updateLocation({ pathname: history.location.pathname, search: newSearch, state: history.location.state }, history, self);
       },
     };
 
     const removeFnObj = { [`hide${formattedName}${FEATURE_METHOD_SUFFIX}`](history) {
       const newSearch = removeArrayItemFromQueryString(history.location.search, [`${self.routeKey}${FEATURE_NAME}`]);
-      history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
+      updateLocation({ pathname: history.location.pathname, search: newSearch, state: history.location.state }, history, self);
       },
     };
 
@@ -187,7 +205,7 @@ const dynamicallyGeneratePageNavMethods = (self) => {
   // generate methods
   const navFnObj = { navToPage(history, id) {
     const newSearch = addObjQueryString(history.location.search, { [`${self.routeKey}${PAGE_NAME}`]: id }); // features are shown via the 'FEATURE_NAME' field in the query string
-    history.push({ pathname: history.location.pathname, search: newSearch, state: history.location.state });
+    updateLocation({ pathname: history.location.pathname, search: newSearch, state: history.location.state }, history, self);
     },
   };
 
