@@ -6,8 +6,6 @@ import { TransitionGroup, Transition } from 'react-transition-group';
 import { Switch, Route } from 'react-router-dom';
 import ReactRouterPropTypes from 'react-router-prop-types';
 
-import uuid from 'uuid';
-
 import {
   Page,
   PageMenu,
@@ -20,33 +18,7 @@ import {
 
 import { router as routerService, locationHistory as locationHistoryService } from '../services';
 
-import introductionDoc from '../docs/what-is-a-automata.md';
-import dimensionDoc from '../docs/dimension.md';
-import generationsDoc from '../docs/generations.md';
-import stateDoc from '../docs/state.md';
-import viewerDoc from '../docs/viewer.md';
-import neighborsDoc from '../docs/neighbors.md';
-
-const PAGES = [
-  {
-    id: '1', pageDisplayName: 'Introduction', pageRouterName: 'introduction', pagePath: introductionDoc,
-  },
-  {
-    id: '2', pageDisplayName: 'Dimensions', pageRouterName: 'dimension', pagePath: dimensionDoc,
-  },
-  {
-    id: uuid(), pageDisplayName: 'Generations', pageRouterName: 'generations', pagePath: generationsDoc,
-  },
-  {
-    id: uuid(), pageDisplayName: 'Viewer', pageRouterName: 'viewer', pagePath: viewerDoc,
-  },
-  {
-    id: uuid(), pageDisplayName: 'Neighbors', pageRouterName: 'neighbors', pagePath: neighborsDoc,
-  },
-  {
-    id: uuid(), pageDisplayName: 'State', pageRouterName: 'state', pagePath: stateDoc,
-  },
-];
+import { PAGES } from '../constants';
 
 routerService.registerDocumentationPages(PAGES);
 
@@ -136,10 +108,9 @@ class Component extends React.Component {
   componentDidMount() {
     this.animateIn();
     const { routerStore: { docRouter }, history } = this.props;
-    // console.log(docRouter);
-    docRouter.setPages(PAGES.map(p => ({ name: p.pageRouterName, id: p.id, pageInstanceName: 'docPage' }) ))
-    console.log('dooc', docRouter)
-    docRouter.navToPage(history, 1)
+    if (!docRouter.currentPage) {
+      docRouter.navToPage(history, 1)
+    }
   }
 
   componentWillUpdate({ inState }) {
@@ -217,10 +188,12 @@ class Component extends React.Component {
   }
 
   render() {
-    const { location, history } = this.props;
+    // const { location, history } = this.props;
+    const { routerStore: { docRouter }, location, history } = this.props;
+
     const { showSmallDocMenu } = this.state;
     const selectedDocPage = routerService.getSelectedDocumentationPage(location);
-
+    const currentPageId = docRouter.currentPage ? docRouter.currentPage.routeKey : undefined;
     return (
       <React.Fragment>
       <NavBar>
@@ -231,11 +204,11 @@ class Component extends React.Component {
         <NavContainer className="doc-nav" showSmallDocMenu={showSmallDocMenu}>
           { !showSmallDocMenu && <ExitButton history={history} /> }
           <SideBar history={history}>
-            { PAGES.map(({ pageRouterName, pageDisplayName }) => (
+            { docRouter.currentPage && PAGES.map(({ id, pageRouterName, pageDisplayName }) => (
               <SideBarSection
                 key={`doc-nav-${pageRouterName}`}
-                isSelected={selectedDocPage.pageRouterName === pageRouterName}
-                pageRouterName={pageRouterName}
+                isSelected={currentPageId === id}
+                id={id}
                 pageDisplayName={pageDisplayName}
                 showSmallDocMenu={showSmallDocMenu}
                 toggleShowingSmallDocMenu={this.onShowSmallDockMenuClick}
@@ -254,9 +227,9 @@ class Component extends React.Component {
               unmountOnExit
             >
               {inState => (
-                <Switch key="switch-1-key" location={{ ...location, pathname: `/${selectedDocPage.pageRouterName}` }}>
-                  { PAGES.map(({ pagePath, pageRouterName }) => (
-                    <Route path={`/${pageRouterName}`} key={`route-key-doc-page-${pageRouterName}`} render={combineProps(Page, { inState, filePath: pagePath })} />
+                <Switch key="switch-1-key" location={{ ...location, pathname: `/${currentPageId}` }}>
+                  { PAGES.map(({ pagePath, id }) => (
+                    <Route path={`/${id}`} key={`route-key-doc-page-${id}`} render={combineProps(Page, { inState, filePath: pagePath })} />
                   ))}
                 </Switch>
               )}

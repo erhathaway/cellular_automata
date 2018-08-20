@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'react-emotion';
-
+import { inject, observer } from 'mobx-react';
+import { PAGES } from '../../constants';
 import { router as routerService } from '../../services';
 
 const Container = styled('div')`
@@ -56,40 +57,47 @@ const Arrow = styled('div')`
   align-items: center;
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClick = this.handleClick.bind(this);
+    this.navPrevious = this.navPrevious.bind(this);
+    this.navNext = this.navNext.bind(this);
   }
 
-  handleClick(pageRouterName) {
-    const { history } = this.props;
-    routerService.openDocumentationModalPage(history, pageRouterName);
+  navPrevious() {
+    const { routerStore: { docRouter }, history } = this.props;
+    docRouter.navToPreviousPage(history)
+  }
+
+  navNext() {
+    const { routerStore: { docRouter }, history } = this.props;
+    docRouter.navToNextPage(history)
   }
 
   render() {
-    const { history } = this.props;
+    const { routerStore: { docRouter }, history } = this.props;
+    const previous = docRouter.previousPage;
+    const previousInfo = previous ? PAGES.find(p => p.id === previous.routeKey) : undefined;
 
-    const prevPage = routerService.getPreviousDocumentationPage(history.location);
-    const nextPage = routerService.getNextDocumentationPage(history.location);
-
+    const next = docRouter.nextPage
+    const nextInfo = previous ? PAGES.find(p => p.id === next.routeKey) : undefined;
     return (
       <Container className="landing-start-button" {...this.props}>
-        { prevPage && (
-          <ButtonContainer onClick={() => this.handleClick(prevPage.pageRouterName)}>
+        { previousInfo && (
+          <ButtonContainer onClick={this.navPrevious}>
             <Arrow>
             ←
             </Arrow>
             <PageButton>
-              { prevPage.pageDisplayName }
+              { previousInfo.pageDisplayName }
             </PageButton>
           </ButtonContainer>
         )}
-        { nextPage && (
-          <ButtonContainer onClick={() => this.handleClick(nextPage.pageRouterName)}>
+        { nextInfo && (
+          <ButtonContainer onClick={this.navNext}>
             <PageButton>
-              { nextPage.pageDisplayName }
+              { nextInfo.pageDisplayName }
             </PageButton>
             <Arrow>
             →
@@ -100,3 +108,5 @@ export default class Component extends React.Component {
     );
   }
 }
+
+export default inject('routerStore')(observer(Component));

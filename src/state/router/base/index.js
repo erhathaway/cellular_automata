@@ -40,9 +40,6 @@ const RouterBase = types
     currentPage: types.maybe(types.late(() => RouterBase)),
   })
   .actions(self => ({
-    _setName(name) {
-      self.name = name;
-    },
     _setRouteKey(key) {
       self.routeKey = key;
     },
@@ -118,15 +115,16 @@ const RouterBase = types
     /* ------------------------ */
     /* PAGES*/
     /* ------------------------ */
-    navToNextPage() {
+    navToNextPage(history) {
       const { routeKey } = self.nextPage;
-      if (routeKey) self.navToPage(routeKey);
+      if (routeKey) self.navToPage(history, routeKey);
     },
-    navToPreviousPage() {
+    navToPreviousPage(history) {
       const { routeKey } = self.previousPage;
-      if (routeKey) self.navToPage(routeKey);
+      if (routeKey) self.navToPage(history, routeKey);
     },
     updatePage(pageId) {
+      if (!pageId) return;
       // for all pages registered via the 'setPages' method, find the one that matches the page id
       const foundPageInfo = self._pages ? self._pages.find(p => p.routeKey === pageId.toString()) : undefined;
       if (foundPageInfo) {
@@ -135,7 +133,6 @@ const RouterBase = types
         if (foundPageInstance) {
           const newInstance = clone(foundPageInstance)
           self.currentPage = newInstance;
-          self.currentPage._setName(foundPageInfo.name);
           self.currentPage._setRouteKey(foundPageInfo.routeKey);
         }
       };
@@ -160,14 +157,14 @@ const RouterBase = types
       if (self.currentPage) {
         const currentPageIndex = self._pages.findIndex(p => p.routeKey === self.currentPage.routeKey);
         const nextPage = self._pages[currentPageIndex + 1];
-        return nextPage;
+        return nextPage || {};
       }
     },
     get previousPage() {
       if (self.currentPage) {
         const currentPageIndex = self._pages.findIndex(p => p.routeKey === self.currentPage.routeKey);
         const nextPage = self._pages[currentPageIndex - 1];
-        return nextPage;
+        return nextPage || {};
       }
     },
   }));

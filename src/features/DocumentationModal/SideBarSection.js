@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
+import { inject, observer } from 'mobx-react';
 
 import { router as routerService } from '../../services';
 
@@ -17,7 +18,7 @@ const Container = styled('nav')`
   ${({ isSelected }) => !isSelected && '&:hover {border-color: green; color: green; cursor: pointer; }'}
 `;
 
-export default class Component extends React.Component {
+class Component extends React.Component {
   constructor(props) {
     super(props);
 
@@ -25,8 +26,9 @@ export default class Component extends React.Component {
   }
 
   handleClick() {
-    const { history, pageRouterName, showSmallDocMenu, toggleShowingSmallDocMenu } = this.props;
-    routerService.openDocumentationModalPage(history, pageRouterName);
+    const { routerStore: { docRouter }, id: pageId, history, pageRouterName, showSmallDocMenu, toggleShowingSmallDocMenu } = this.props;
+    docRouter.navToPage(history, pageId)
+    // routerService.openDocumentationModalPage(history, pageRouterName);
     if (showSmallDocMenu) toggleShowingSmallDocMenu()
   }
 
@@ -39,3 +41,5 @@ export default class Component extends React.Component {
     );
   }
 }
+
+export default inject('routerStore')(observer(Component));
