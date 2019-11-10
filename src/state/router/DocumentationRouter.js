@@ -1,19 +1,21 @@
-import RouterBase from './base';
+// import RouterBase from './base';
+import Router from 'recursive-router';
+
 import { PAGES } from '../../constants';
 
-const DocMenuRouterInstance = RouterBase
+const DocMenuRouterInstance = Router
   .create({
     name: 'docMenu',
     routeKey: 'doc-menu',
   });
 
-const DocPageRouterInstance = RouterBase
+const DocPageRouterInstance = Router
   .create({
     name: 'docPage',
     routeKey: 'doc-page',
   });
 
-const DocumentationRouterInstance = RouterBase
+const DocumentationRouterInstance = Router
   .create({
     name: 'doc',
     routeKey: 'docs',

@@ -1,6 +1,7 @@
-import RouterBase from './base';
+// import RouterBase from './base';
+import Router from 'recursive-router';
 
-const IntroRouterInstance = RouterBase
+const IntroRouterInstance = Router
   .create({
     name: 'intro',
     routeKey: 'intro',

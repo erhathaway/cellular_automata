@@ -22,6 +22,7 @@
     "react-scripts": "1.1.4",
     "react-style-proptype": "^3.2.1",
     "react-transition-group": "^2.4.0",
+    "recursive-router": "file:../recursive-router",
     "three": "^0.95.0",
     "three-orbit-controls": "^82.1.0",
     "uuid": "^3.3.2"
