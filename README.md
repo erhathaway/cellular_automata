@@ -10,7 +10,7 @@ An app to generate [cellular automata](https://en.wikipedia.org/wiki/Cellular_au
 The cell population shape, state, rules, and neighbors can all be customized with a high degree of flexibility.
 
 This repo contains the code for
-1. the `http://cell.af` app,
+1. the `https://cellulose.studio` app,
 2. a cellular automata generator
 3. a cellular automata visualizer
 
