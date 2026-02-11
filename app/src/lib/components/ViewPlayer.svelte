@@ -78,6 +78,12 @@
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
+    // Wire preview callback
+    automataStore.getPopulationAtIndex = (index: number) => {
+      if (!automataManager) return null;
+      return automataManager.getPopulationAtIndex(index);
+    };
+
     if (viewer) {
       // Set cell state colors
       viewer.states = automataStore.cellStates;
@@ -118,6 +124,7 @@
 
   onDestroy(() => {
     mounted = false;
+    automataStore.getPopulationAtIndex = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;

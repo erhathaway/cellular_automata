@@ -192,6 +192,11 @@ export default class AutomataManager {
     return reshape(flat, sizes);
   }
 
+  getPopulationAtIndex(index: number): Population | null {
+    if (index < 0 || index >= this._history.length) return null;
+    return this._restorePopulation(this._history[index]);
+  }
+
   seekTo(index: number) {
     const clamped = Math.max(0, Math.min(index, this._history.length - 1));
     this._historyIndex = clamped;

@@ -3,14 +3,40 @@
   import { automataStore } from '$lib/stores/automata.svelte';
 
   let progressBarEl: HTMLElement;
-  let isDragging = false;
+  let previewCanvas: HTMLCanvasElement = $state(undefined as any);
+  let isDragging = $state(false);
   let wasPlayingBeforeDrag = false;
+  let isHovering = $state(false);
+  let hoverX = $state(0);
+  let hoveredIndex = $state(-1);
+  let barWidth = $state(0);
+
+  let progressPercent = $derived(
+    automataStore.totalGenerations > 1
+      ? (automataStore.generationIndex / (automataStore.totalGenerations - 1)) * 100
+      : 0
+  );
+
+  let fillColor = $derived(
+    automataStore.hslString(automataStore.cellStates[1]?.color ?? { h: 0, s: 0, l: 0, a: 1 })
+  );
+
+  let active = $derived(isHovering || isDragging);
 
   function getSeekIndexFromEvent(e: MouseEvent) {
     if (!progressBarEl) return 0;
     const rect = progressBarEl.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     return Math.round(ratio * (automataStore.totalGenerations - 1));
+  }
+
+  function updateHoverFromEvent(e: MouseEvent) {
+    if (!progressBarEl) return;
+    const rect = progressBarEl.getBoundingClientRect();
+    hoverX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    barWidth = rect.width;
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    hoveredIndex = Math.round(ratio * (automataStore.totalGenerations - 1));
   }
 
   function handleMouseDown(e: MouseEvent) {
@@ -22,59 +48,186 @@
     automataStore.seekTo(index);
   }
 
-  function handleMouseMove(e: MouseEvent) {
+  function handleWindowMouseMove(e: MouseEvent) {
     if (!isDragging) return;
     const index = getSeekIndexFromEvent(e);
     automataStore.seekTo(index);
+    updateHoverFromEvent(e);
+    schedulePreviewRender();
   }
 
-  function handleMouseUp() {
+  function handleWindowMouseUp() {
     if (!isDragging) return;
     isDragging = false;
     if (wasPlayingBeforeDrag) automataStore.play();
   }
 
-  onMount(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
+  function handleBarMouseEnter() {
+    isHovering = true;
+  }
+
+  function handleBarMouseMove(e: MouseEvent) {
+    isHovering = true;
+    if (automataStore.totalGenerations <= 1) return;
+    updateHoverFromEvent(e);
+    schedulePreviewRender();
+  }
+
+  function handleBarMouseLeave() {
+    if (!isDragging) {
+      isHovering = false;
+      hoveredIndex = -1;
+    }
+  }
+
+  let pendingFrame = 0;
+  function schedulePreviewRender() {
+    if (pendingFrame) return;
+    pendingFrame = requestAnimationFrame(() => {
+      pendingFrame = 0;
+      renderPreview();
+    });
+  }
+
+  function renderPreview() {
+    if (!previewCanvas || hoveredIndex < 0) return;
+    const pop = automataStore.getPopulationAtIndex?.(hoveredIndex);
+    if (!pop) return;
+
+    const ctx = previewCanvas.getContext('2d');
+    if (!ctx) return;
+
+    const dim = automataStore.dimension;
+    const bgStr = automataStore.hslString(automataStore.cellStates[0]?.color);
+    const fgStr = automataStore.hslString(automataStore.cellStates[1]?.color);
+
+    if (dim === 2) {
+      const rows = pop as number[][];
+      const h = rows.length;
+      const w = rows[0]?.length ?? 0;
+      previewCanvas.width = w;
+      previewCanvas.height = h;
+      ctx.fillStyle = bgStr;
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = fgStr;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (rows[y][x] === 1) {
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      }
+    } else if (dim === 1) {
+      const cells = pop as number[];
+      const w = cells.length;
+      previewCanvas.width = w;
+      previewCanvas.height = 1;
+      ctx.fillStyle = bgStr;
+      ctx.fillRect(0, 0, w, 1);
+      ctx.fillStyle = fgStr;
+      for (let x = 0; x < w; x++) {
+        if (cells[x] === 1) {
+          ctx.fillRect(x, 0, 1, 1);
+        }
+      }
+    }
+  }
+
+  let tooltipLeft = $derived.by(() => {
+    const tooltipWidth = 168;
+    const half = tooltipWidth / 2;
+    if (barWidth <= 0) return hoverX;
+    return Math.max(half, Math.min(barWidth - half, hoverX));
   });
 
-  let progressPercent = $derived(
-    automataStore.totalGenerations > 1
-      ? (automataStore.generationIndex / (automataStore.totalGenerations - 1)) * 100
-      : 0
+  let previewDisplaySize = $derived.by(() => {
+    const dim = automataStore.dimension;
+    const shape = automataStore.populationShape;
+    if (dim === 2) {
+      const w = shape.x ?? 1;
+      const h = shape.y ?? 1;
+      const maxW = 160;
+      const scale = maxW / w;
+      return { width: maxW, height: Math.round(h * scale) };
+    }
+    if (dim === 1) {
+      return { width: 160, height: 20 };
+    }
+    return { width: 0, height: 0 };
+  });
+
+  let showTooltip = $derived(
+    active && hoveredIndex >= 0 && automataStore.totalGenerations > 1
   );
+
+  let showCanvas = $derived(showTooltip && automataStore.dimension !== 3);
+
+  onMount(() => {
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    window.addEventListener('mouseup', handleWindowMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+      if (pendingFrame) cancelAnimationFrame(pendingFrame);
+    };
+  });
 </script>
 
 <aside
   class="fixed z-20"
   style="bottom: 20px; left: 250px; height: 95px; width: calc(100% - 500px); min-width: 400px;"
 >
-  <!-- Progress Bar -->
+  <!-- Progress Bar Hit Area -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <aside
+  <div
     bind:this={progressBarEl}
-    class="absolute right-0 top-0 flex items-center cursor-pointer"
-    style="height: 14px; width: 100%; background-color: black; border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); overflow: hidden;"
+    class="absolute top-0 w-full cursor-pointer"
+    style="height: 20px;"
     onmousedown={handleMouseDown}
+    onmouseenter={handleBarMouseEnter}
+    onmousemove={handleBarMouseMove}
+    onmouseleave={handleBarMouseLeave}
   >
-    <!-- Filled portion -->
+    <!-- Preview Tooltip -->
+    {#if showTooltip}
+      <div
+        style="position: absolute; bottom: 100%; left: {tooltipLeft}px; transform: translateX(-50%); margin-bottom: 8px; pointer-events: none; z-index: 10;"
+      >
+        <div
+          style="background: rgba(0,0,0,0.85); border-radius: 4px; padding: 6px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"
+        >
+          {#if showCanvas}
+            <canvas
+              bind:this={previewCanvas}
+              style="width: {previewDisplaySize.width}px; height: {previewDisplaySize.height}px; image-rendering: pixelated; border-radius: 2px;"
+            ></canvas>
+          {/if}
+          <span
+            style="color: rgba(255,255,255,0.8); font-size: 11px; margin-top: {showCanvas ? 4 : 0}px; font-family: monospace; white-space: nowrap;"
+          >Gen {hoveredIndex}</span>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Bar Track -->
     <div
-      style="height: 100%; width: {progressPercent}%; background-color: rgba(156,156,156,0.3); border-radius: 7px 0 0 7px; pointer-events: none;"
-    ></div>
-    <!-- Playhead -->
+      style="position: absolute; top: 50%; left: 0; right: 0; height: {active ? 5 : 3}px; transform: translateY(-50%); background: rgba(255,255,255,0.2); border-radius: 3px; transition: height 0.15s ease; overflow: hidden;"
+    >
+      <!-- Progress Fill -->
+      <div
+        style="height: 100%; width: {progressPercent}%; background-color: {fillColor}; border-radius: 3px 0 0 3px;"
+      ></div>
+    </div>
+
+    <!-- Handle -->
     {#if automataStore.totalGenerations > 1}
       <div
-        style="position: absolute; left: {progressPercent}%; top: 0; width: 2px; height: 100%; background-color: rgba(156,156,156,0.8); transform: translateX(-1px); pointer-events: none;"
+        style="position: absolute; top: 50%; left: {progressPercent}%; transform: translate(-50%, -50%); width: {active ? 14 : 0}px; height: {active ? 14 : 0}px; background-color: {fillColor}; border-radius: 50%; transition: width 0.15s ease, height 0.15s ease; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"
       ></div>
     {/if}
-  </aside>
+  </div>
 
   <!-- Play Button -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->

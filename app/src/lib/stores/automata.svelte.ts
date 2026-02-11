@@ -93,6 +93,9 @@ class AutomataStore {
   totalGenerations = $state(0);
   seekTarget: number | null = $state(null);
 
+  // Preview callback (set by ViewPlayer, not reactive)
+  getPopulationAtIndex: ((index: number) => any) | null = null;
+
   // Indexed history for shape and cellStates
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
