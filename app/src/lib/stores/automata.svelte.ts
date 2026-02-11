@@ -106,6 +106,7 @@ class AutomataStore {
   totalGenerations = $state(0);
   historyCapacity = $state(1);
   seekTarget: number | null = $state(null);
+  targetGeneration = $state(0);
 
   // Stability detection
   stableDetected = $state(false);

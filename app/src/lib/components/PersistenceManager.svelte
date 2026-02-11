@@ -30,6 +30,9 @@
     if (urlParsed) {
       automataStore.hydrateCombo(urlParsed.dimension, urlParsed.viewer, urlParsed.settings);
       automataStore.hydrateActive(urlParsed.dimension, urlParsed.viewer);
+      if (urlParsed.generation) {
+        automataStore.targetGeneration = urlParsed.generation;
+      }
     } else if (stored) {
       // Restore active combo from localStorage
       automataStore.hydrateActive(stored.activeDimension, stored.activeViewer);
@@ -50,6 +53,7 @@
     const _rule = automataStore.rule;
     const _cellStates = automataStore.cellStates;
     const _radius = automataStore.neighborhoodRadius;
+    const _gen = automataStore.totalGenerations;
 
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -59,7 +63,7 @@
       const activeKey = `${dim}-${viewer}`;
       const activeSettings = allCombos[activeKey];
       if (activeSettings) {
-        updateURL(dim, viewer, activeSettings);
+        updateURL(dim, viewer, activeSettings, automataStore.totalGenerations);
       }
     }, 300);
   });

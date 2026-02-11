@@ -129,10 +129,22 @@
       automataManager!.getSeedPopulation();
 
       // Pre-fill for 1D viewer
+      let preFilled = 0;
       if (dim === 1 && viewer.maxGenerationsToShow) {
         for (let i = 0; i < viewer.maxGenerationsToShow; i++) {
           viewer.addGeneration();
         }
+        preFilled = viewer.maxGenerationsToShow;
+      }
+
+      // Auto-advance to target generation from URL
+      const target = automataStore.targetGeneration;
+      if (target > 0) {
+        const remaining = target - preFilled;
+        for (let i = 0; i < remaining; i++) {
+          viewer.addGeneration();
+        }
+        automataStore.targetGeneration = 0;
       }
 
       // Start simulation

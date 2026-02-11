@@ -53,6 +53,7 @@ export function buildURLParams(
   dim: number,
   viewer: number,
   settings: ComboSettings,
+  generation?: number,
 ): URLSearchParams {
   const params = new URLSearchParams();
   params.set('d', String(dim));
@@ -73,6 +74,10 @@ export function buildURLParams(
     params.set('nr', String(settings.neighborhoodRadius));
   }
 
+  if (generation && generation > 0) {
+    params.set('g', String(generation));
+  }
+
   return params;
 }
 
@@ -80,6 +85,7 @@ interface ParsedURL {
   dimension: number;
   viewer: number;
   settings: Partial<ComboSettings>;
+  generation?: number;
 }
 
 export function parseURLParams(params: URLSearchParams): ParsedURL | null {
@@ -137,7 +143,15 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
     }
   }
 
-  return { dimension, viewer, settings };
+  // Parse generation
+  const gStr = params.get('g');
+  let generation: number | undefined;
+  if (gStr) {
+    const g = parseInt(gStr, 10);
+    if (!isNaN(g) && g > 0) generation = g;
+  }
+
+  return { dimension, viewer, settings, generation };
 }
 
 // --- localStorage ---
@@ -175,8 +189,8 @@ export function loadFromLocalStorage(): PersistedData | null {
 
 // --- URL update (no navigation, no history pollution) ---
 
-export function updateURL(dim: number, viewer: number, settings: ComboSettings): void {
-  const params = buildURLParams(dim, viewer, settings);
+export function updateURL(dim: number, viewer: number, settings: ComboSettings, generation?: number): void {
+  const params = buildURLParams(dim, viewer, settings, generation);
   const url = `${window.location.pathname}?${params.toString()}`;
   history.replaceState(null, '', url);
 }

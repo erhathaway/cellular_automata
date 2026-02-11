@@ -1,5 +1,6 @@
 <script lang="ts">
   import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
+  import PersistenceManager from '$lib/components/PersistenceManager.svelte';
 
   let { children } = $props();
 
@@ -24,6 +25,8 @@
     requestAnimationFrame(loop);
   }
 </script>
+
+<PersistenceManager />
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
