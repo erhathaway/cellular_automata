@@ -2,6 +2,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { api } from '$lib/api';
+  import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from './PixelAvatar.svelte';
 
   let title = $derived.by(() => {
@@ -178,10 +179,6 @@
     }
   }
 
-  function formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  }
 </script>
 
 <div class="mx-auto flex max-w-4xl gap-8 px-6 py-10">
@@ -197,7 +194,7 @@
       <p class="mt-2 text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
       <div class="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-xs text-neutral-500">
         {#if discoveryInfo.discoveredAt}
-          <span>{formatDate(discoveryInfo.discoveredAt)}</span>
+          <span>{timeAgo(discoveryInfo.discoveredAt)}</span>
         {/if}
         {#if discoveryInfo.totalLikes}
           <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>

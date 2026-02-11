@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api } from '$lib/api';
+  import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from './PixelAvatar.svelte';
 
   let {
@@ -148,9 +149,12 @@
     {/if}
   </div>
 
-  <!-- Line 2: founder -->
+  <!-- Line 2: founder + time -->
   <div class="mt-0.5 flex items-center gap-1.5">
     <PixelAvatar avatarId={item.userAvatarId} size={16} fallbackInitials={(item.userName ?? 'A')[0]} />
     <p class="truncate text-sm text-neutral-500">{item.userName ?? 'Anonymous'}</p>
+    {#if item.createdAt}
+      <span class="shrink-0 text-xs text-neutral-400">· {timeAgo(item.createdAt)}</span>
+    {/if}
   </div>
 </div>
