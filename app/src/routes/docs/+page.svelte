@@ -34,7 +34,7 @@
 	});
 </script>
 
-<div class="fixed inset-0 flex justify-center" style="background-color: rgba(0,0,0,0.95);">
+<div class="flex h-full w-full justify-center" style="background-color: rgba(0,0,0,0.95);">
 	<!-- Mobile nav bar -->
 	<div class="fixed left-0 top-0 z-40 flex h-[50px] w-full items-center bg-[#252525] px-5 md:hidden">
 		<button
