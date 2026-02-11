@@ -26,7 +26,6 @@
 		"@chromatic-com/storybook": "^5.0.1",
 		"@eslint/compat": "^2.0.1",
 		"@eslint/js": "^9.39.2",
-		"@libsql/client": "^0.17.0",
 		"@playwright/test": "^1.58.0",
 		"@storybook/addon-a11y": "^10.2.8",
 		"@storybook/addon-docs": "^10.2.8",
@@ -44,7 +43,6 @@
 		"@vitest/browser-playwright": "^4.0.18",
 		"@vitest/coverage-v8": "^4.0.18",
 		"drizzle-kit": "^0.31.8",
-		"drizzle-orm": "^0.45.1",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-storybook": "^10.2.8",
@@ -67,6 +65,8 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"@libsql/client": "^0.17.0",
+		"drizzle-orm": "^0.45.1",
 		"svelte-clerk": "^0.20.5",
 		"three": "^0.182.0"
 	}

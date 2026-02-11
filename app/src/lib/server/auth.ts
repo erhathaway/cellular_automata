@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit';
-import { clerkClient } from 'svelte-clerk/server';
-import type { AppRole, AppPublicMetadata } from '$lib/types/auth';
+import { db } from '$lib/server/db';
+import { user } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
+import type { AppRole } from '$lib/types/auth';
 
 const ROLE_HIERARCHY: Record<AppRole, number> = {
 	user: 0,
@@ -8,8 +10,9 @@ const ROLE_HIERARCHY: Record<AppRole, number> = {
 	admin: 2
 };
 
-export function getUserRole(publicMetadata: AppPublicMetadata): AppRole {
-	return publicMetadata.role ?? 'user';
+export function getUserRole(role: string | undefined): AppRole {
+	if (role === 'admin' || role === 'editor') return role;
+	return 'user';
 }
 
 export function hasRole(userRole: AppRole, requiredRole: AppRole): boolean {
@@ -17,14 +20,14 @@ export function hasRole(userRole: AppRole, requiredRole: AppRole): boolean {
 }
 
 export async function requireRole(userId: string | null, requiredRole: AppRole): Promise<void> {
-	if (!userId) {
-		error(401, 'Authentication required');
-	}
+	if (!userId) error(401, 'Authentication required');
 
-	const user = await clerkClient.users.getUser(userId);
-	const role = getUserRole(user.publicMetadata as AppPublicMetadata);
+	const row = await db
+		.select({ role: user.role })
+		.from(user)
+		.where(eq(user.id, userId))
+		.get();
 
-	if (!hasRole(role, requiredRole)) {
-		error(403, 'Insufficient permissions');
-	}
+	if (!row) error(401, 'User not found');
+	if (!hasRole(getUserRole(row.role), requiredRole)) error(403, 'Insufficient permissions');
 }
