@@ -20,6 +20,7 @@ export const GET: RequestHandler = async () => {
 			thumbnail: generationRun.thumbnail,
 			seedPopulation: generationRun.seedPopulation,
 			likeCount: generationRun.likeCount,
+			createdAt: generationRun.createdAt,
 			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 			userImageUrl: user.imageUrl,
 			userAvatarId: user.avatarId
@@ -43,6 +44,7 @@ export const GET: RequestHandler = async () => {
 			neighborhoodRadius: cellPopulation.neighborhoodRadius,
 			thumbnail: cellPopulation.thumbnail,
 			likeCount: cellPopulation.likeCount,
+			createdAt: cellPopulation.createdAt,
 			stability: cellPopulation.stability,
 			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 			userImageUrl: user.imageUrl,
