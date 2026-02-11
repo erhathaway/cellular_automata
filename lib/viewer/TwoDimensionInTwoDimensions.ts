@@ -16,7 +16,6 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     super({ ...opts, type: 'two-dimension-in-two-dimensions' });
 
     this.populationShape = opts.populationShape;
-    this.updateRateInMS = 100;
   }
 
   handleWindowResize() {

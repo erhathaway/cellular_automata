@@ -31,7 +31,7 @@ export type AutomataRule = WolframRule | ConwayRule;
 // --- Default shapes by dimension+viewer combo ---
 function defaultShape(dim: number, viewer: number): Record<string, number> {
   if (dim === 1) return { x: 200 };
-  if (dim === 2 && viewer === 2) return { x: 200, y: 300 };
+  if (dim === 2 && viewer === 2) return { x: 200, y: 200 };
   if (dim === 2 && viewer === 3) return { x: 70, y: 50 };
   if (dim === 3) return { x: 20, y: 20, z: 35 };
   return { x: 200, y: 200 };
@@ -59,7 +59,7 @@ function defaultNeighbors(dim: number): string[] {
 
 function defaultRule(dim: number): AutomataRule {
   if (dim === 1) return { type: 'wolfram', rule: 110 };
-  return { type: 'conway', survive: [2, 3, 5], born: [4] };
+  return { type: 'conway', survive: [2, 3], born: [3] };
 }
 
 function defaultViewer(dim: number): number {
@@ -84,7 +84,7 @@ class AutomataStore {
     { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },
   ]);
   neighbors: string[] = $state([...TWO_D_NEIGHBORS]);
-  rule: AutomataRule = $state({ type: 'conway', survive: [2, 3, 5], born: [4] });
+  rule: AutomataRule = $state({ type: 'conway', survive: [2, 3], born: [3] });
   isPlaying = $state(false);
   resetCounter = $state(0);
 
