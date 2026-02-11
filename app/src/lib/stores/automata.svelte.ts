@@ -98,6 +98,7 @@ class AutomataStore {
   // Stability detection
   stableDetected = $state(false);
   stablePeriod = $state(0);
+  stableKind: 'exact' | 'quasi' | 'none' = $state('none');
 
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
@@ -201,16 +202,19 @@ class AutomataStore {
     this.seekTarget = null;
     this.stableDetected = false;
     this.stablePeriod = 0;
+    this.stableKind = 'none';
   }
 
-  setStable(period: number) {
+  setStable(kind: 'exact' | 'quasi', period: number) {
     this.stableDetected = true;
+    this.stableKind = kind;
     this.stablePeriod = period;
   }
 
   dismissStable() {
     this.stableDetected = false;
     this.stablePeriod = 0;
+    this.stableKind = 'none';
   }
 
   updateGenerationInfo(index: number, total: number, capacity?: number) {

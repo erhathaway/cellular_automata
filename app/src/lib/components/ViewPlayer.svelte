@@ -32,7 +32,7 @@
     if (automataManager!.totalGenerations % 10 === 0) {
       const result = automataManager!.checkStability(20);
       if (result.stable && !automataStore.stableDetected) {
-        automataStore.setStable(result.period);
+        automataStore.setStable(result.kind as 'exact' | 'quasi', result.period);
         automataStore.pause();
       }
     }

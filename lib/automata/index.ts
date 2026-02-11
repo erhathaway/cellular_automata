@@ -214,19 +214,54 @@ export default class AutomataManager {
     );
   }
 
-  checkStability(lookback = 20): { stable: boolean; period: number } {
-    if (this._history.length < 2) return { stable: false, period: 0 };
+  // Count set bits in a bitpacked snapshot
+  private _popcount(snapshot: Uint8Array): number {
+    let count = 0;
+    for (let i = 0; i < snapshot.length; i++) {
+      let b = snapshot[i];
+      // Brian Kernighan's bit counting
+      while (b) {
+        b &= b - 1;
+        count++;
+      }
+    }
+    return count;
+  }
+
+  checkStability(lookback = 20): { stable: boolean; kind: 'exact' | 'quasi' | 'none'; period: number } {
+    if (this._history.length < 2) return { stable: false, kind: 'none', period: 0 };
 
     const current = this._history[this._history.length - 1];
     const searchStart = Math.max(0, this._history.length - 1 - lookback);
 
+    // 1. Exact state repetition
     for (let i = this._history.length - 2; i >= searchStart; i--) {
       const past = this._history[i];
       if (current.length === past.length && current.every((b, j) => b === past[j])) {
-        return { stable: true, period: this._history.length - 1 - i };
+        return { stable: true, kind: 'exact', period: this._history.length - 1 - i };
       }
     }
-    return { stable: false, period: 0 };
+
+    // 2. Quasi-stable: population count bounded over the lookback window
+    const windowSize = this._history.length - searchStart;
+    if (windowSize >= lookback) {
+      let min = Infinity;
+      let max = -Infinity;
+      let sum = 0;
+      for (let i = searchStart; i < this._history.length; i++) {
+        const pc = this._popcount(this._history[i]);
+        if (pc < min) min = pc;
+        if (pc > max) max = pc;
+        sum += pc;
+      }
+      const mean = sum / windowSize;
+      // Bounded: range is < 2% of mean (or mean is 0 = extinction)
+      if (mean === 0 || (max - min) / mean < 0.02) {
+        return { stable: true, kind: 'quasi', period: 0 };
+      }
+    }
+
+    return { stable: false, kind: 'none', period: 0 };
   }
 
   run(): Population {

@@ -11,11 +11,21 @@
     automataStore.play();
   }
 
-  let message = $derived(
-    automataStore.stablePeriod === 1
-      ? 'The automata has reached a static state — no cells are changing.'
-      : `The automata is oscillating with a period of ${automataStore.stablePeriod}.`
-  );
+  let title = $derived.by(() => {
+    if (automataStore.stableKind === 'quasi') return 'Quasi-Stable State Detected';
+    if (automataStore.stablePeriod === 1) return 'Stable State Detected';
+    return 'Oscillation Detected';
+  });
+
+  let message = $derived.by(() => {
+    if (automataStore.stableKind === 'quasi') {
+      return 'The automata has settled into a locally fluctuating state — the population is bounded but not exactly repeating.';
+    }
+    if (automataStore.stablePeriod === 1) {
+      return 'The automata has reached a static state — no cells are changing.';
+    }
+    return `The automata is oscillating with a period of ${automataStore.stablePeriod}.`;
+  });
 </script>
 
 {#if automataStore.stableDetected}
@@ -33,7 +43,7 @@
       onclick={(e) => e.stopPropagation()}
     >
       <h2 style="color: white; font-size: 18px; font-weight: 600; margin: 0 0 12px 0;">
-        {automataStore.stablePeriod === 1 ? 'Stable State Detected' : 'Oscillation Detected'}
+        {title}
       </h2>
       <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.5; margin: 0 0 20px 0;">
         {message}
