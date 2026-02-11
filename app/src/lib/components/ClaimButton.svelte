@@ -40,6 +40,7 @@
         throw new Error(text);
       }
       saved = true;
+      automataStore.claimAnimationCounter++;
     } catch (e: any) {
       saveError = e.message ?? 'Failed to save';
     } finally {
@@ -107,7 +108,7 @@
       </svg>
       Checking discovery...
     </div>
-  {:else if isUndiscovered && automataStore.stableKind === 'exact'}
+  {:else if isUndiscovered && automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1}
     <!-- Stable / dead — no living automata -->
     <div
       class="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium shadow-lg"

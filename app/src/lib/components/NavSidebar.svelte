@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { SignedIn, SignedOut, UserButton } from 'svelte-clerk/client';
+  import { automataStore } from '$lib/stores/automata.svelte';
 
   const topItems = [
     { href: '/', label: 'Mine', icon: 'pickaxe' },
@@ -16,6 +17,37 @@
   function isActive(pathname: string, href: string): boolean {
     if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
+  }
+
+  let chestEl = $state<HTMLElement>();
+  let showGemFly = $state(false);
+  let showPlusOne = $state(false);
+  let gemStyle = $state('');
+  let initialized = false;
+
+  $effect(() => {
+    const count = automataStore.claimAnimationCounter;
+    if (initialized && count > 0) {
+      triggerClaimAnimation();
+    }
+    initialized = true;
+  });
+
+  function triggerClaimAnimation() {
+    if (!chestEl) return;
+    const rect = chestEl.getBoundingClientRect();
+    const targetX = rect.left + rect.width / 2;
+    const targetY = rect.top + rect.height / 2;
+    const startX = window.innerWidth / 2;
+    const startY = window.innerHeight * 0.75;
+
+    gemStyle = `--start-x: ${startX}px; --start-y: ${startY}px; --end-x: ${targetX}px; --end-y: ${targetY}px;`;
+    showGemFly = true;
+    setTimeout(() => {
+      showGemFly = false;
+      showPlusOne = true;
+      setTimeout(() => { showPlusOne = false; }, 800);
+    }, 600);
   }
 </script>
 
@@ -45,12 +77,17 @@
             <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" />
           </svg>
         {:else if item.icon === 'chest'}
-          <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-            <line x1="4" y1="13" x2="20" y2="13" />
-            <rect x="10" y="11" width="4" height="4" rx="1" />
-          </svg>
+          <div class="relative" bind:this={chestEl}>
+            <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+              <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+              <line x1="4" y1="13" x2="20" y2="13" />
+              <rect x="10" y="11" width="4" height="4" rx="1" />
+            </svg>
+            {#if showPlusOne}
+              <span class="plus-one">+1</span>
+            {/if}
+          </div>
         {/if}
         <span class="text-[10px]">{item.label}</span>
       </a>
@@ -108,3 +145,63 @@
     </SignedOut>
   </div>
 </nav>
+
+{#if showGemFly}
+  <div class="gem-fly" style={gemStyle}>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="#b45309" stroke="#78350f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3h12l4 6-10 13L2 9Z" />
+      <path d="M11 3 8 9l4 13 4-13-3-6" />
+      <path d="M2 9h20" />
+    </svg>
+  </div>
+{/if}
+
+<style>
+  .gem-fly {
+    position: fixed;
+    z-index: 100;
+    pointer-events: none;
+    left: var(--start-x);
+    top: var(--start-y);
+    animation: fly-to-chest 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes fly-to-chest {
+    0% {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      left: var(--end-x);
+      top: var(--end-y);
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0.6;
+    }
+  }
+
+  .plus-one {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #78350f;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    animation: float-up 0.8s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes float-up {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.8);
+    }
+  }
+</style>

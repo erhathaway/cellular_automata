@@ -110,6 +110,7 @@ class AutomataStore {
 
   // Mining animation state
   isMining = $state(false);
+  claimAnimationCounter = $state(0);
 
   // Stability detection
   stableDetected = $state(false);
