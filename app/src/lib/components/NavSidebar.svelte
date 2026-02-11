@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { SignedIn, SignedOut, UserButton } from 'svelte-clerk/client';
 
   const topItems = [
     { href: '/', label: 'Viewer', icon: 'grid' },
@@ -81,5 +82,26 @@
         <span class="text-[10px]">{item.label}</span>
       </a>
     {/each}
+  </div>
+
+  <!-- Auth -->
+  <div class="mt-2 flex flex-col items-center border-t border-black/10 pt-3">
+    <SignedIn>
+      <UserButton
+        appearance={{ elements: { avatarBox: 'w-8 h-8' } }}
+      />
+    </SignedIn>
+    <SignedOut>
+      <a
+        href="/sign-in"
+        class="flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-black/70 transition-colors hover:bg-black/5 hover:text-black"
+      >
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span class="text-[10px]">Sign in</span>
+      </a>
+    </SignedOut>
   </div>
 </nav>

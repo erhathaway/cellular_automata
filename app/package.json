@@ -67,6 +67,7 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"svelte-clerk": "^0.20.5",
 		"three": "^0.182.0"
 	}
 }
