@@ -214,6 +214,23 @@ class AutomataStore {
     this.stableKind = 'none';
   }
 
+  randomizeRule() {
+    if (this.dimension === 1) {
+      this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
+    } else {
+      const maxNeighbors = this.dimension === 3 ? 26 : 8;
+      const pick = () => {
+        const arr: number[] = [];
+        for (let i = 0; i <= maxNeighbors; i++) {
+          if (Math.random() < 0.25) arr.push(i);
+        }
+        return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
+      };
+      this.setRule({ type: 'conway', survive: pick(), born: pick() });
+    }
+    this.reset();
+  }
+
   setStable(kind: 'exact' | 'quasi', period: number) {
     this.stableDetected = true;
     this.stableKind = kind;
