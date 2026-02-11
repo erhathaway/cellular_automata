@@ -212,6 +212,17 @@
     // Ensure automata is at target (1D guard can block some addGeneration calls)
     automataManager.seekTo(target);
 
+    // For 2D-in-3D: scroll scene and light to match preloaded generations
+    if (dim === 2 && view === 3 && viewer.cellShape) {
+      const scrollY = steps * viewer.cellShape.y;
+      viewer.scene.translateY(-scrollY);
+      if (viewer.directionalLight) {
+        viewer.directionalLight.position.y += scrollY;
+        viewer.directionalLight.target.position.y += scrollY;
+      }
+      viewer.updateTrailAppearance();
+    }
+
     // Apply color gradient for 2D-2D viewer
     if (dim === 2 && view === 2 && viewer.meshes) {
       const colorable = viewer.meshes.slice(-40);

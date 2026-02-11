@@ -99,6 +99,11 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   clearGenerations() {
     super.clearGenerations();
     this.currentGenerationCount = 0;
+    this.scene.position.set(0, -200, 0);
+    if (this.directionalLight) {
+      this.directionalLight.position.set(200, 500, 300);
+      this.directionalLight.target.position.set(0, 0, 0);
+    }
   }
 
   initialize() {
