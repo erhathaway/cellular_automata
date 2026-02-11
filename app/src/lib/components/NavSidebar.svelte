@@ -3,17 +3,16 @@
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
   import PixelAvatar from './PixelAvatar.svelte';
-  import SettingsModal from './SettingsModal.svelte';
 
   type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
 
   let {
-    userProfile = null
+    userProfile = null,
+    onsettingsclick
   }: {
     userProfile?: UserProfile;
+    onsettingsclick?: () => void;
   } = $props();
-
-  let settingsOpen = $state(false);
 
   const topItems = [
     { href: '/', label: 'Mine', icon: 'pickaxe' },
@@ -141,7 +140,7 @@
     <SignedIn>
       <button
         class="rounded-lg p-1 transition-colors hover:bg-black/5"
-        onclick={() => { settingsOpen = true; }}
+        onclick={() => onsettingsclick?.()}
         aria-label="Settings"
       >
         <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={32} fallbackInitials="?" />
@@ -161,8 +160,6 @@
     </SignedOut>
   </div>
 </nav>
-
-<SettingsModal bind:open={settingsOpen} {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 
 {#if showGemFly}
   <div class="gem-fly" style={gemStyle}>

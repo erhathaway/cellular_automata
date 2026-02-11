@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import NavSidebar from '$lib/components/NavSidebar.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
+	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import { ClerkProvider, SignedIn } from 'svelte-clerk';
 
 	let { children, data } = $props();
@@ -11,6 +12,7 @@
 	let userProfile: UserProfile = $state(data.userProfile);
 
 	let leftOpen = $state(true);
+	let settingsOpen = $state(false);
 
 	const LEFT_WIDTH = 72;
 
@@ -48,7 +50,7 @@
 				class="h-full overflow-hidden"
 				style="width: {LEFT_WIDTH}px; background: white; border-right: 1px solid #e5e5e5;"
 			>
-				<NavSidebar {userProfile} />
+				<NavSidebar {userProfile} onsettingsclick={() => { settingsOpen = true; }} />
 			</div>
 		</aside>
 
@@ -76,5 +78,6 @@
 
 	<SignedIn>
 		<OnboardingModal {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
+		<SettingsModal bind:open={settingsOpen} {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 	</SignedIn>
 </ClerkProvider>
