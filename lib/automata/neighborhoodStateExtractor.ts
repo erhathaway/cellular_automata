@@ -19,7 +19,7 @@ const after =
 
 const same: ExtractorFn = (i, arr) => arr[i];
 
-const createCoordinateExtractors = (serializedCoordinates: string[]): CoordinateExtractor[] => {
+export const createCoordinateExtractors = (serializedCoordinates: string[]): CoordinateExtractor[] => {
   return serializedCoordinates.map((coordinate) => {
     const dimensions = coordinate.split('|');
     const coordinateExtractors: ExtractorFn[] = dimensions.map((d) => {
@@ -95,6 +95,37 @@ const twentySixNeighboorsThreeDimensions = createCoordinateExtractors([
   'x-1|y+1|z-1',
   'x|y|z-1',
 ]);
+
+// --- Dynamic Moore neighborhood generators ---
+
+function coordPart(axis: string, delta: number): string {
+  if (delta === 0) return axis;
+  return delta > 0 ? `${axis}+${delta}` : `${axis}${delta}`;
+}
+
+export function generateMooreNeighbors2D(radius: number): string[] {
+  const neighbors: string[] = [];
+  for (let dx = -radius; dx <= radius; dx++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      if (dx === 0 && dy === 0) continue;
+      neighbors.push(`${coordPart('x', dx)}|${coordPart('y', dy)}`);
+    }
+  }
+  return neighbors;
+}
+
+export function generateMooreNeighbors3D(radius: number): string[] {
+  const neighbors: string[] = [];
+  for (let dx = -radius; dx <= radius; dx++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dz = -radius; dz <= radius; dz++) {
+        if (dx === 0 && dy === 0 && dz === 0) continue;
+        neighbors.push(`${coordPart('x', dx)}|${coordPart('y', dy)}|${coordPart('z', dz)}`);
+      }
+    }
+  }
+  return neighbors;
+}
 
 export interface NeighborhoodResult {
   neighbors: number[];

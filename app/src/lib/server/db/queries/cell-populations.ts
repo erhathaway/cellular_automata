@@ -9,6 +9,7 @@ export interface CreateCellPopulationInput {
 	viewer: number;
 	ruleType: 'wolfram' | 'conway';
 	ruleDefinition: string;
+	neighborhoodRadius?: number;
 	populationShape: string;
 	cellStates: string;
 	populationData?: Buffer;
@@ -32,6 +33,7 @@ export async function createCellPopulation(input: CreateCellPopulationInput) {
 			viewer: input.viewer,
 			ruleType: input.ruleType,
 			ruleDefinition: input.ruleDefinition,
+			neighborhoodRadius: input.neighborhoodRadius ?? 1,
 			populationShape: input.populationShape,
 			cellStates: input.cellStates,
 			populationData: input.populationData,
@@ -96,6 +98,7 @@ export async function listCellPopulations(params: ListCellPopulationsParams) {
 			viewer: cellPopulation.viewer,
 			ruleType: cellPopulation.ruleType,
 			ruleDefinition: cellPopulation.ruleDefinition,
+			neighborhoodRadius: cellPopulation.neighborhoodRadius,
 			populationShape: cellPopulation.populationShape,
 			cellStates: cellPopulation.cellStates,
 			generationIndex: cellPopulation.generationIndex,
@@ -138,6 +141,7 @@ export async function getCellPopulation(id: string) {
 			viewer: cellPopulation.viewer,
 			ruleType: cellPopulation.ruleType,
 			ruleDefinition: cellPopulation.ruleDefinition,
+			neighborhoodRadius: cellPopulation.neighborhoodRadius,
 			populationShape: cellPopulation.populationShape,
 			cellStates: cellPopulation.cellStates,
 			populationData: cellPopulation.populationData,

@@ -18,6 +18,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		viewer,
 		ruleType,
 		ruleDefinition,
+		neighborhoodRadius,
 		populationShape,
 		cellStates,
 		populationData,
@@ -34,12 +35,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return error(400, 'Missing required fields');
 	}
 
+	const nr = neighborhoodRadius ?? 1;
 	const fingerprint = cellPopulationFingerprint(
 		dimension,
 		ruleType,
 		ruleDefinition,
 		stability ?? 'evolving',
-		stablePeriod ?? null
+		stablePeriod ?? null,
+		nr
 	);
 
 	const pop = await createCellPopulation({
@@ -49,6 +52,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		viewer,
 		ruleType,
 		ruleDefinition,
+		neighborhoodRadius: nr,
 		populationShape: typeof populationShape === 'string' ? populationShape : JSON.stringify(populationShape),
 		cellStates: typeof cellStates === 'string' ? cellStates : JSON.stringify(cellStates),
 		populationData: populationData ? Buffer.from(populationData, 'base64') : undefined,

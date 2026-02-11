@@ -91,6 +91,11 @@
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
+    // Apply custom neighborhood radius (for 2D/3D with radius > 1)
+    if (dim !== 1 && automataStore.neighborhoodRadius > 1) {
+      automataManager.neighbors = automataStore.neighbors;
+    }
+
     // Wire preview callbacks
     automataStore.getPopulationAtIndex = (index: number) => {
       if (!automataManager) return null;
@@ -202,6 +207,14 @@
     const _rule = automataStore.rule;
     if (!automataManager) return;
     setRule();
+  });
+
+  // Watch for neighborhood radius changes
+  $effect(() => {
+    const _neighbors = automataStore.neighbors;
+    const dim = automataStore.dimension;
+    if (!automataManager || dim === 1) return;
+    automataManager.neighbors = _neighbors;
   });
 
   // Watch for seek target

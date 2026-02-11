@@ -1,3 +1,5 @@
+import { generateMooreNeighbors2D, generateMooreNeighbors3D } from '$lib-core';
+
 // --- HSL Color type ---
 export interface HSLColor {
   h: number;
@@ -32,6 +34,7 @@ export interface ComboSettings {
   populationShape: Record<string, number>;
   rule: AutomataRule;
   cellStates: CellStateEntry[];
+  neighborhoodRadius?: number;
 }
 
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
@@ -59,10 +62,10 @@ export function defaultCellStates(dim: number, viewer: number): CellStateEntry[]
   return [{ number: 0, color: white }, { number: 1, color: blue }];
 }
 
-function defaultNeighbors(dim: number): string[] {
+function defaultNeighbors(dim: number, radius: number = 1): string[] {
   if (dim === 1) return [...ONE_D_NEIGHBORS];
-  if (dim === 3) return [...THREE_D_NEIGHBORS];
-  return [...TWO_D_NEIGHBORS];
+  if (dim === 3) return generateMooreNeighbors3D(radius);
+  return generateMooreNeighbors2D(radius);
 }
 
 export function defaultRule(dim: number): AutomataRule {
@@ -93,6 +96,7 @@ class AutomataStore {
     { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },
   ]);
   neighbors: string[] = $state([...TWO_D_NEIGHBORS]);
+  neighborhoodRadius = $state(1);
   rule: AutomataRule = $state({ type: 'conway', survive: [2, 3], born: [3] });
   isPlaying = $state(false);
   resetCounter = $state(0);
@@ -113,10 +117,11 @@ class AutomataStore {
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
   getCanvasDataURL: (() => string | null) | null = null;
 
-  // Indexed history for shape, cellStates, and rule
+  // Indexed history for shape, cellStates, rule, and radius
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
   private _ruleHistory: Map<string, AutomataRule> = new Map();
+  private _radiusHistory: Map<string, number> = new Map();
 
   constructor() {
     // Save initial state
@@ -154,10 +159,7 @@ class AutomataStore {
     // Cascade: update viewer
     this.viewer = defaultViewer(newDim);
 
-    // Cascade: update neighbors
-    this.neighbors = defaultNeighbors(newDim);
-
-    // Cascade: update shape + cellStates + rule (may restore from history)
+    // Cascade: update shape + cellStates + rule + radius (may restore from history)
     this._restoreOrDefault();
   }
 
@@ -193,6 +195,20 @@ class AutomataStore {
     this._ruleHistory.set(historyKey(this.dimension, this.viewer), { ...newRule });
   }
 
+  setNeighborhoodRadius(r: number) {
+    // 1D stays radius 1 (Wolfram rules use 3-bit encoding)
+    if (this.dimension === 1) {
+      this.neighborhoodRadius = 1;
+      return;
+    }
+    const clamped = Math.max(1, Math.min(10, r));
+    if (clamped === this.neighborhoodRadius) return;
+    this.neighborhoodRadius = clamped;
+    this.neighbors = defaultNeighbors(this.dimension, clamped);
+    this._radiusHistory.set(historyKey(this.dimension, this.viewer), clamped);
+    this.reset();
+  }
+
   togglePlay() {
     this.isPlaying = !this.isPlaying;
   }
@@ -219,7 +235,12 @@ class AutomataStore {
     if (this.dimension === 1) {
       this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
     } else {
-      const maxNeighbors = this.dimension === 3 ? 26 : 8;
+      // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
+      const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
+      const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
+      this.setNeighborhoodRadius(newRadius);
+
+      const maxNeighbors = this.neighbors.length;
       const pick = () => {
         const arr: number[] = [];
         for (let i = 0; i <= maxNeighbors; i++) {
@@ -268,6 +289,7 @@ class AutomataStore {
         populationShape: this._shapeHistory.get(key) ?? defaultShape(dim, viewer),
         rule: this._ruleHistory.get(key) ?? defaultRule(dim),
         cellStates: this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer),
+        neighborhoodRadius: this._radiusHistory.get(key) ?? 1,
       };
     }
     return result;
@@ -284,13 +306,17 @@ class AutomataStore {
     if (settings.cellStates) {
       this._cellStatesHistory.set(key, settings.cellStates.map((s) => ({ ...s })));
     }
+    if (settings.neighborhoodRadius !== undefined) {
+      this._radiusHistory.set(key, settings.neighborhoodRadius);
+    }
   }
 
   hydrateActive(dim: number, viewer: number) {
     const key = historyKey(dim, viewer);
     this.dimension = dim;
     this.viewer = viewer;
-    this.neighbors = defaultNeighbors(dim);
+    this.neighborhoodRadius = dim === 1 ? 1 : (this._radiusHistory.get(key) ?? 1);
+    this.neighbors = defaultNeighbors(dim, this.neighborhoodRadius);
     this.populationShape = this._shapeHistory.get(key)
       ? { ...this._shapeHistory.get(key)! }
       : defaultShape(dim, viewer);
@@ -324,6 +350,7 @@ class AutomataStore {
       ruleDefinition,
       populationShape: JSON.stringify(this.populationShape),
       cellStates: JSON.stringify(this.cellStates),
+      neighborhoodRadius: this.neighborhoodRadius,
       generationIndex: this.generationIndex,
       stability,
       stablePeriod: this.stablePeriod || null
@@ -339,6 +366,7 @@ class AutomataStore {
       this.cellStates.map((s) => ({ ...s }))
     );
     this._ruleHistory.set(key, { ...this.rule });
+    this._radiusHistory.set(key, this.neighborhoodRadius);
   }
 
   private _restoreOrDefault() {
@@ -358,6 +386,12 @@ class AutomataStore {
     this.rule = savedRule
       ? { ...savedRule }
       : defaultRule(this.dimension);
+
+    // Restore radius (1D always stays 1)
+    this.neighborhoodRadius = this.dimension === 1
+      ? 1
+      : (this._radiusHistory.get(key) ?? 1);
+    this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius);
   }
 }
 

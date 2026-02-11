@@ -8,6 +8,7 @@ export interface CreateGenerationRunInput {
 	viewer: number;
 	ruleType: 'wolfram' | 'conway';
 	ruleDefinition: string;
+	neighborhoodRadius?: number;
 	populationShape: string;
 	cellStates: string;
 	seedPopulation?: Buffer;
@@ -27,6 +28,7 @@ export async function createGenerationRun(input: CreateGenerationRunInput) {
 			viewer: input.viewer,
 			ruleType: input.ruleType,
 			ruleDefinition: input.ruleDefinition,
+			neighborhoodRadius: input.neighborhoodRadius ?? 1,
 			populationShape: input.populationShape,
 			cellStates: input.cellStates,
 			seedPopulation: input.seedPopulation,
@@ -83,6 +85,7 @@ export async function listGenerationRuns(params: ListGenerationRunsParams) {
 			viewer: generationRun.viewer,
 			ruleType: generationRun.ruleType,
 			ruleDefinition: generationRun.ruleDefinition,
+			neighborhoodRadius: generationRun.neighborhoodRadius,
 			populationShape: generationRun.populationShape,
 			cellStates: generationRun.cellStates,
 			generationIndex: generationRun.generationIndex,
@@ -122,6 +125,7 @@ export async function getGenerationRun(id: string) {
 			viewer: generationRun.viewer,
 			ruleType: generationRun.ruleType,
 			ruleDefinition: generationRun.ruleDefinition,
+			neighborhoodRadius: generationRun.neighborhoodRadius,
 			populationShape: generationRun.populationShape,
 			cellStates: generationRun.cellStates,
 			seedPopulation: generationRun.seedPopulation,

@@ -49,6 +49,7 @@
     const _shape = automataStore.populationShape;
     const _rule = automataStore.rule;
     const _cellStates = automataStore.cellStates;
+    const _radius = automataStore.neighborhoodRadius;
 
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {

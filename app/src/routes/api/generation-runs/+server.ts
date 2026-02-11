@@ -17,6 +17,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		viewer,
 		ruleType,
 		ruleDefinition,
+		neighborhoodRadius,
 		populationShape,
 		cellStates,
 		seedPopulation,
@@ -30,7 +31,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return error(400, 'Missing required fields');
 	}
 
-	const fingerprint = generationRunFingerprint(dimension, ruleType, ruleDefinition);
+	const nr = neighborhoodRadius ?? 1;
+	const fingerprint = generationRunFingerprint(dimension, ruleType, ruleDefinition, nr);
 
 	const run = await createGenerationRun({
 		userId: auth.userId,
@@ -38,6 +40,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		viewer,
 		ruleType,
 		ruleDefinition,
+		neighborhoodRadius: nr,
 		populationShape: typeof populationShape === 'string' ? populationShape : JSON.stringify(populationShape),
 		cellStates: typeof cellStates === 'string' ? cellStates : JSON.stringify(cellStates),
 		seedPopulation: seedPopulation ? Buffer.from(seedPopulation, 'base64') : undefined,

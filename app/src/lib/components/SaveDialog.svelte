@@ -147,6 +147,9 @@
         <div class="flex gap-4">
           <span><strong>Dim:</strong> {storeData.dimension}D</span>
           <span><strong>Rule:</strong> {storeData.ruleDefinition}</span>
+          {#if storeData.neighborhoodRadius > 1}
+            <span><strong>Radius:</strong> {storeData.neighborhoodRadius}</span>
+          {/if}
           <span><strong>Gen:</strong> {storeData.generationIndex}</span>
         </div>
         {#if activeTab === 'population'}

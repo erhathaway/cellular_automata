@@ -5,8 +5,10 @@
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
     const rule = automataStore.rule;
+    const r = automataStore.neighborhoodRadius;
 
     let name = `${dim}D`;
+    if (r > 1) name += ` r=${r}`;
     if (view === 3) name += ` (3D view)`;
 
     if (rule.type === 'wolfram') {
@@ -14,7 +16,8 @@
     }
     const born = rule.born.join('');
     const survive = rule.survive.join('');
-    return `${name} — B${born}/S${survive}`;
+    const nc = automataStore.neighbors.length;
+    return `${name} (${nc}n) — B${born}/S${survive}`;
   });
 
   let description = $derived.by(() => {
@@ -32,6 +35,7 @@
       .map(([k, v]) => `${k}: ${v}`)
       .join(' × ')
   );
+
 </script>
 
 <div class="mx-auto max-w-3xl px-6 py-10">
@@ -41,6 +45,8 @@
     <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
     <span>·</span>
     <span>Grid {shapeText}</span>
+    <span>·</span>
+    <span>{automataStore.neighbors.length} neighbors</span>
   </div>
 
   <hr class="my-6 border-neutral-200" />

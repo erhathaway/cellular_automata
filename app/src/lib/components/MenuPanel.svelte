@@ -7,6 +7,7 @@
   import ShapePopup from './menu/ShapePopup.svelte';
   import StatesPopup from './menu/StatesPopup.svelte';
   import RulePopup from './menu/RulePopup.svelte';
+  import NeighborhoodPopup from './menu/NeighborhoodPopup.svelte';
 
   const MENU_WIDTH = 160;
   const UNDOCKED_MENU_HEIGHT = 550;
@@ -159,7 +160,11 @@
   let dimensionDisplay = $derived(`${automataStore.dimension}D`);
   let viewerDisplay = $derived(`${automataStore.viewer}D`);
   let statesDisplay = $derived(`${automataStore.cellStates.length}`);
-  let neighborsDisplay = $derived(`${automataStore.neighbors.length}`);
+  let neighborsDisplay = $derived(
+    automataStore.neighborhoodRadius > 1
+      ? `${automataStore.neighbors.length} (r=${automataStore.neighborhoodRadius})`
+      : `${automataStore.neighbors.length}`
+  );
   let ruleDisplay = $derived(() => {
     const rule = automataStore.rule;
     if (rule.type === 'wolfram') return `${rule.rule}`;
@@ -293,6 +298,7 @@
           value={neighborsDisplay}
           isMenuMoving={isDragging}
           {menuPlacement}
+          onclick={(el) => togglePopup('neighbors', el)}
         />
         <MenuItemDisplay
           title="Rule"
@@ -335,6 +341,8 @@
         <ShapePopup />
       {:else if activePopup === 'states'}
         <StatesPopup />
+      {:else if activePopup === 'neighbors'}
+        <NeighborhoodPopup />
       {:else if activePopup === 'rule'}
         <RulePopup />
       {/if}

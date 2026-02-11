@@ -13,9 +13,18 @@
   let isBookmarked = $state(item.isBookmarkedByMe ?? false);
   let currentLikeCount = $state(item.likeCount ?? 0);
 
+  function neighborCount(dim: number, radius: number): number {
+    if (dim === 1) return 2;
+    return (2 * radius + 1) ** dim - 1;
+  }
+
   function displayTitle() {
     if (item.title) return item.title;
-    return `${item.ruleDefinition} (${item.dimension}D)`;
+    const r = item.neighborhoodRadius ?? 1;
+    const dim = item.dimension;
+    const nc = neighborCount(dim, r);
+    const radiusPart = r > 1 ? ` r=${r}` : '';
+    return `${dim}D${radiusPart} (${nc}n) — ${item.ruleDefinition}`;
   }
 
   function entityTypeLabel() {
@@ -122,7 +131,9 @@
   <!-- Info -->
   <div class="p-3">
     <h3 class="truncate text-sm font-medium text-black">{displayTitle()}</h3>
-    <p class="mt-0.5 text-xs text-neutral-500">{item.ruleDefinition}</p>
+    <p class="mt-0.5 text-xs text-neutral-500">
+      {item.ruleDefinition}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
+    </p>
 
     <!-- Tags -->
     {#if item.tags?.length > 0}

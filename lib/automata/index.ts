@@ -2,6 +2,7 @@ import {
   oneDimension as oneDimensionNeighborhoodStateExtractor,
   twoDimension as twoDimensionNeighborhoodStateExtractor,
   threeDimension as threeDimensionNeighborhoodStateExtractor,
+  createCoordinateExtractors,
 } from './neighborhoodStateExtractor';
 import {
   oneDimension as oneDimensionStateReducer,
@@ -72,6 +73,28 @@ export default class AutomataManager {
 
   get currentGenerationIndex(): number {
     return this._historyIndex;
+  }
+
+  set neighbors(neighborStrings: string[]) {
+    const extractors = createCoordinateExtractors(neighborStrings);
+    const dims = neighborStrings[0]?.split('|').length ?? 2;
+    if (dims === 2) {
+      this._neighborStateExtractor = (
+        cellCoords: { x: number; y: number },
+        neighborhoodMatrix: number[][]
+      ) => ({
+        neighbors: extractors.map((fn) => fn(cellCoords, neighborhoodMatrix)),
+        cell: neighborhoodMatrix[cellCoords.x][cellCoords.y],
+      });
+    } else if (dims === 3) {
+      this._neighborStateExtractor = (
+        cellCoords: { x: number; y: number; z: number },
+        neighborhoodMatrix: number[][][]
+      ) => ({
+        neighbors: extractors.map((fn) => fn(cellCoords, neighborhoodMatrix)),
+        cell: neighborhoodMatrix[cellCoords.x][cellCoords.y][cellCoords.z],
+      });
+    }
   }
 
   seedDensity = 0.5;

@@ -45,12 +45,14 @@
     const rule = deserializeRule(item.ruleDefinition);
     const shape = typeof item.populationShape === 'string' ? JSON.parse(item.populationShape) : item.populationShape;
     const cellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
+    const neighborhoodRadius = item.neighborhoodRadius ?? 1;
 
     if (rule) {
       automataStore.hydrateCombo(dim, viewer, {
         populationShape: shape,
         rule,
-        cellStates
+        cellStates,
+        neighborhoodRadius
       });
     }
     automataStore.hydrateActive(dim, viewer);

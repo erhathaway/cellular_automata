@@ -69,6 +69,10 @@ export function buildURLParams(
     params.set(`c${cs.number}`, serializeColor(cs.color));
   }
 
+  if (settings.neighborhoodRadius !== undefined && settings.neighborhoodRadius > 1) {
+    params.set('nr', String(settings.neighborhoodRadius));
+  }
+
   return params;
 }
 
@@ -123,6 +127,15 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
     }
   }
   if (cellStates.length > 0) settings.cellStates = cellStates;
+
+  // Parse neighborhood radius
+  const nrStr = params.get('nr');
+  if (nrStr) {
+    const nr = parseInt(nrStr, 10);
+    if (!isNaN(nr) && nr >= 1 && nr <= 10) {
+      settings.neighborhoodRadius = nr;
+    }
+  }
 
   return { dimension, viewer, settings };
 }
