@@ -41,12 +41,12 @@ function defaultShape(dim: number, viewer: number): Record<string, number> {
 function defaultCellStates(dim: number, viewer: number): CellStateEntry[] {
   const white: HSLColor = { h: 360, s: 1, l: 1, a: 1 };
   const black: HSLColor = { h: 0, s: 0, l: 0, a: 1 };
-  const blue: HSLColor = { h: 234, s: 0.7, l: 0.4, a: 1 };
+  const blue: HSLColor = { h: 234, s: 0.7, l: 0.55, a: 1 };
   const orange: HSLColor = { h: 39, s: 1, l: 0.5, a: 1 };
 
   if (dim === 1) return [{ number: 0, color: white }, { number: 1, color: black }];
   if (dim === 2 && viewer === 2) return [{ number: 0, color: white }, { number: 1, color: blue }];
-  if (dim === 2 && viewer === 3) return [{ number: 0, color: white }, { number: 1, color: orange }];
+  if (dim === 2 && viewer === 3) return [{ number: 0, color: white }, { number: 1, color: blue }];
   if (dim === 3) return [{ number: 0, color: white }, { number: 1, color: orange }];
   return [{ number: 0, color: white }, { number: 1, color: blue }];
 }

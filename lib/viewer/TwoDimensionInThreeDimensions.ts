@@ -2,14 +2,12 @@ import {
   Vector3,
   Mesh,
   MeshLambertMaterial,
-  SpotLight,
+  DirectionalLight,
   AmbientLight,
   OrthographicCamera,
   Color,
   BoxGeometry,
-  PlaneGeometry,
   Group,
-  DoubleSide,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import BaseClass from './base';
@@ -21,13 +19,13 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   generationsToShow = 60;
   controls?: OrbitControls;
   ambientLight?: AmbientLight;
-  floor?: Mesh;
+  directionalLight?: DirectionalLight;
 
   constructor(opts: ViewerConstructorOptions) {
     super({ ...opts, type: 'two-dimension-in-three-dimensions' });
 
     this.populationShape = opts.populationShape;
-    this.updateRateInMS = 16;
+    this.updateRateInMS = 100;
   }
 
   initCamera() {
@@ -41,7 +39,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     );
     this.camera.position.set(-350, 800, 685);
     this.camera.lookAt(new Vector3(1, 0.5, -0.73));
-    (this.camera as OrthographicCamera).zoom = 1;
+    (this.camera as OrthographicCamera).zoom = 0.3;
     this.updateCamera();
   }
 
@@ -55,6 +53,8 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     const diameter = this.cellShape.x;
     const material = new MeshLambertMaterial({
       color: new Color(this.hslStringStates[1]),
+      transparent: true,
+      opacity: 1,
     });
     const geometry = new BoxGeometry(diameter, diameter, diameter);
     const group = new Group();
@@ -79,8 +79,6 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
         if (cellState === 1) {
           const startY = this.cellShape.y * cellNumber - yOffset;
           const cube = new Mesh(geometry, material);
-          cube.castShadow = true;
-          cube.receiveShadow = true;
           cube.position.set(startX, 0, startY);
           group.add(cube);
         }
@@ -108,16 +106,42 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.createLight();
   }
 
+  updateTrailAppearance() {
+    const count = this.meshes.length;
+    const { h, s, l } = this.states[1];
+    const sPercent = Math.floor(s * 100);
+    const lPercent = Math.floor(l * 100);
+
+    for (let i = 0; i < count; i++) {
+      const group = this.meshes[i] as Group;
+      // oldest = index 0, newest = index count-1
+      const t = count > 1 ? i / (count - 1) : 1;
+      const opacity = 0.05 + t * 0.95;
+      // Shift hue: oldest → +270° from base, newest → base hue
+      const hue = (h + (1 - t) * 270) % 360;
+      // Shift lightness: oldest → 85%, newest → original
+      const lightness = Math.floor(85 - t * (85 - lPercent));
+      // Shift saturation: oldest → 30%, newest → original
+      const sat = Math.floor(30 + t * (sPercent - 30));
+      if (group.children.length > 0) {
+        const mat = (group.children[0] as Mesh).material as MeshLambertMaterial;
+        mat.opacity = opacity;
+        mat.color.set(new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`));
+      }
+    }
+  }
+
   animateUpdateFn() {
     this.addGeneration();
-    this.light.translateY(this.cellShape.y);
+    if (this.directionalLight) {
+      this.directionalLight.position.y += this.cellShape.y;
+      this.directionalLight.target.position.y += this.cellShape.y;
+    }
     this.scene.translateY(-this.cellShape.y);
     if (this.meshes.length > this.generationsToShow) {
-      if (this.floor) {
-        this.floor.position.setY(this.floor.position.y + this.cellShape.y);
-      }
       this.removeGeneration();
     }
+    this.updateTrailAppearance();
     this.updateCamera();
   }
 
@@ -142,37 +166,26 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       this.scene.remove(this.ambientLight);
       this.dispose(this.ambientLight);
     }
-    this.cleanUpRefsByMesh(this.floor);
+    if (this.directionalLight) {
+      if (this.directionalLight.target) {
+        this.scene.remove(this.directionalLight.target);
+      }
+      this.scene.remove(this.directionalLight);
+      this.dispose(this.directionalLight);
+    }
   }
 
   createLight() {
-    this.ambientLight = new AmbientLight(0xe5e5e5);
+    this.ambientLight = new AmbientLight(0xffffff, 0.5);
     this.scene.add(this.ambientLight);
 
-    this.light = new SpotLight(0xffffff);
-    this.light.angle = 200;
-    this.light.position.set(45, this.cellShape.y * this.generationsToShow + 200, 600);
-    this.light.castShadow = true;
-    this.light.intensity = 0.4;
-    this.light.shadow.mapSize.width = 1024;
-    this.light.shadow.mapSize.height = 1024;
-    this.light.shadow.camera.near = 500;
-    this.light.shadow.camera.far = 4000;
-    this.light.shadow.camera.fov = 170;
+    this.directionalLight = new DirectionalLight(0xffffff, 1.0);
+    this.directionalLight.position.set(200, 500, 300);
+    this.directionalLight.target.position.set(0, 0, 0);
+    this.scene.add(this.directionalLight);
+    this.scene.add(this.directionalLight.target);
 
-    this.scene.add(this.light);
-  }
-
-  createFloor() {
-    const floorMaterial = new MeshLambertMaterial({
-      color: new Color(this.hslStringStates[0]),
-      side: DoubleSide,
-    });
-    const floorGeometry = new PlaneGeometry(30000, 30000, 1, 1);
-    this.floor = new Mesh(floorGeometry, floorMaterial);
-    this.floor.receiveShadow = true;
-    this.floor.position.y = -100;
-    this.floor.rotation.x = Math.PI / 2;
-    this.scene.add(this.floor);
+    // Keep base class reference for cleanup in quit()
+    this.light = this.directionalLight;
   }
 }
