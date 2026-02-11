@@ -3,7 +3,7 @@
 
   let { children } = $props();
 
-  let rightOpen = $state(false);
+  let rightOpen = $state(true);
 
   const RIGHT_WIDTH = 260;
 
@@ -32,7 +32,7 @@
 
     <!-- Right toggle tab -->
     <button
-      class="absolute right-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
+      class="absolute right-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-white text-neutral-400 shadow-md transition-colors hover:text-neutral-700"
       style="border-radius: 6px 0 0 6px;"
       onclick={toggleRight}
       aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
@@ -51,7 +51,8 @@
   <aside
     class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
     style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
-    style:background="linear-gradient(to left, rgb(0,0,0), rgba(0,0,0,0.92))"
+    style:background="white"
+    style:border-left="1px solid #e5e5e5"
   >
     <div class="h-full" style:width="{RIGHT_WIDTH}px">
       <RightDrawerContent />

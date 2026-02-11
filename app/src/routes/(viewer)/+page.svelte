@@ -11,8 +11,11 @@
 
 <section class="relative m-4 overflow-hidden rounded-2xl" style="height: 75vh;">
   <ViewPlayer />
-  <MenuPanel />
-  <ViewModeSwitcher />
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 rounded-lg p-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+    <ViewModeSwitcher />
+    <div class="mx-1 h-5 w-px" style="background: rgba(255,255,255,0.15);"></div>
+    <MenuPanel />
+  </div>
   <ViewControls />
   <StableModal />
   <RandomRuleButton />

@@ -47,11 +47,11 @@
 
 <div class="flex h-full flex-col overflow-y-auto px-3 py-4">
   {#if loading}
-    <p class="text-center text-xs text-white/40">Loading...</p>
+    <p class="text-center text-xs text-neutral-400">Loading...</p>
   {:else}
     <!-- Popular Runs -->
     {#if topRuns.length > 0}
-      <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-white/40">
+      <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
         Popular Runs
       </h3>
       <div class="mb-4 flex flex-col gap-0.5">
@@ -63,7 +63,7 @@
 
     <!-- Popular Populations -->
     {#if topPopulations.length > 0}
-      <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-white/40">
+      <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
         Popular Populations
       </h3>
       <div class="flex flex-col gap-0.5">
@@ -74,7 +74,7 @@
     {/if}
 
     {#if topRuns.length === 0 && topPopulations.length === 0}
-      <p class="text-center text-xs text-white/40">No saved items yet</p>
+      <p class="text-center text-xs text-neutral-400">No saved items yet</p>
     {/if}
   {/if}
 </div>
