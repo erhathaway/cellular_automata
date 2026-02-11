@@ -50,6 +50,12 @@
   let dragStartMenuX = 0;
   let dragStartMenuY = 0;
 
+  function getContainerRect(): DOMRect {
+    const parent = navEl?.parentElement;
+    if (parent) return parent.getBoundingClientRect();
+    return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+  }
+
   // Dock state
   type MenuPlacement = undefined | 'willDockTop' | 'willDockLeft' | 'willDockRight' | 'hasDockedTop' | 'hasDockedLeft' | 'hasDockedRight';
   let menuPlacement: MenuPlacement = $state(undefined);
@@ -79,9 +85,10 @@
     dragStartMenuY = menuY;
 
     if (isDocked) {
+      const cr = getContainerRect();
       menuPlacement = undefined;
-      menuX = e.clientX - MENU_WIDTH / 2;
-      menuY = e.clientY - 17;
+      menuX = e.clientX - cr.left - MENU_WIDTH / 2;
+      menuY = e.clientY - cr.top - 17;
       dragStartX = e.clientX;
       dragStartY = e.clientY;
       dragStartMenuX = menuX;
@@ -97,11 +104,15 @@
     menuX = dragStartMenuX + (e.clientX - dragStartX);
     menuY = dragStartMenuY + (e.clientY - dragStartY);
 
-    if (e.clientY < DOCK_THRESHOLD) {
+    const cr = getContainerRect();
+    const localX = e.clientX - cr.left;
+    const localY = e.clientY - cr.top;
+
+    if (localY < DOCK_THRESHOLD) {
       if (menuPlacement !== 'willDockTop') menuPlacement = 'willDockTop';
-    } else if (e.clientX < DOCK_THRESHOLD) {
+    } else if (localX < DOCK_THRESHOLD) {
       if (menuPlacement !== 'willDockLeft') menuPlacement = 'willDockLeft';
-    } else if (e.clientX > window.innerWidth - MENU_WIDTH - DOCK_THRESHOLD) {
+    } else if (localX > cr.width - MENU_WIDTH - DOCK_THRESHOLD) {
       if (menuPlacement !== 'willDockRight') menuPlacement = 'willDockRight';
     } else if (menuPlacement !== undefined) {
       menuPlacement = undefined;
@@ -186,13 +197,13 @@
       : '';
 
     if (isDockedLeft) {
-      return `${base} ${transition} left: 0; top: 0; width: ${MENU_WIDTH}px; height: 100vh; border-radius: 0;`;
+      return `${base} ${transition} left: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0;`;
     }
     if (isDockedRight) {
-      return `${base} ${transition} right: 0; top: 0; width: ${MENU_WIDTH}px; height: 100vh; border-radius: 0;`;
+      return `${base} ${transition} right: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0;`;
     }
     if (isDockedTop) {
-      return `${base} ${transition} left: 0; top: 0; width: 100vw; height: ${DOCKED_HORIZONTAL_HEIGHT}px; border-radius: 0;`;
+      return `${base} ${transition} left: 0; top: 0; width: 100%; height: ${DOCKED_HORIZONTAL_HEIGHT}px; border-radius: 0;`;
     }
     const h = isOpen ? UNDOCKED_MENU_HEIGHT : CLOSED_MENU_HEIGHT;
     return `${base} ${transition} left: ${menuX}px; top: ${menuY}px; width: ${MENU_WIDTH}px; height: ${h}px; border-radius: 6px; border: 1px solid rgba(56,56,56,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);`;
@@ -202,20 +213,20 @@
 <!-- Dock preview overlays -->
 {#if menuPlacement === 'willDockLeft'}
   <div
-    class="pointer-events-none fixed left-0 top-0 z-[998]"
-    style="width: {MENU_WIDTH}px; height: 100vh; background-color: rgba(94, 80, 80, 0.2);"
+    class="pointer-events-none absolute left-0 top-0 z-[998]"
+    style="width: {MENU_WIDTH}px; height: 100%; background-color: rgba(94, 80, 80, 0.2);"
   ></div>
 {/if}
 {#if menuPlacement === 'willDockRight'}
   <div
-    class="pointer-events-none fixed right-0 top-0 z-[998]"
-    style="width: {MENU_WIDTH}px; height: 100vh; background-color: rgba(94, 80, 80, 0.2);"
+    class="pointer-events-none absolute right-0 top-0 z-[998]"
+    style="width: {MENU_WIDTH}px; height: 100%; background-color: rgba(94, 80, 80, 0.2);"
   ></div>
 {/if}
 {#if menuPlacement === 'willDockTop'}
   <div
-    class="pointer-events-none fixed left-0 top-0 z-[998]"
-    style="width: 100vw; height: {DOCKED_HORIZONTAL_HEIGHT}px; background-color: rgba(94, 80, 80, 0.2);"
+    class="pointer-events-none absolute left-0 top-0 z-[998]"
+    style="width: 100%; height: {DOCKED_HORIZONTAL_HEIGHT}px; background-color: rgba(94, 80, 80, 0.2);"
   ></div>
 {/if}
 
@@ -223,7 +234,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <nav
   bind:this={navEl}
-  class="fixed z-[999] flex items-center {isDockedTop ? 'flex-row' : 'flex-col'}"
+  class="absolute z-[999] flex items-center {isDockedTop ? 'flex-row' : 'flex-col'}"
   style={navStyle}
 >
   <!-- Drag handle -->
