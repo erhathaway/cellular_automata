@@ -88,58 +88,55 @@
   }
 </script>
 
-<div class="mx-auto max-w-3xl px-6 py-10">
-  <h1 class="text-2xl font-bold text-neutral-900">{title}</h1>
-
-  <div class="mt-2 flex items-center gap-4 text-sm text-neutral-500">
-    <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
-    <span>·</span>
-    <span>Grid {shapeText}</span>
-    <span>·</span>
-    <span>{automataStore.neighbors.length} neighbors</span>
-  </div>
-
-  <!-- Creator row (YouTube-style) -->
-  {#if discoveryInfo?.found}
-    <div class="mt-5 flex items-center gap-3">
+<div class="mx-auto flex max-w-4xl gap-8 px-6 py-10">
+  <!-- Left column: Creator -->
+  <div class="flex w-40 shrink-0 flex-col items-center pt-1 text-center">
+    <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">Mined by</p>
+    {#if discoveryInfo?.found}
       {#if discoveryInfo.discoveredByImageUrl}
-        <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-10 w-10 rounded-full" />
+        <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-12 w-12 rounded-full" />
       {:else}
-        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-200 text-sm font-semibold text-neutral-500">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-200 text-base font-semibold text-neutral-500">
           {discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
         </div>
       {/if}
-      <div class="min-w-0">
-        <p class="text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
-        <div class="flex items-center gap-3 text-xs text-neutral-500">
-          {#if discoveryInfo.discoveredAt}
-            <span>{formatDate(discoveryInfo.discoveredAt)}</span>
-          {/if}
-          {#if discoveryInfo.saveCount}
-            <span>{discoveryInfo.saveCount} {discoveryInfo.saveCount === 1 ? 'save' : 'saves'}</span>
-          {/if}
-          {#if discoveryInfo.totalLikes}
-            <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
-          {/if}
-          {#if discoveryInfo.totalBookmarks}
-            <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
-          {/if}
-        </div>
+      <p class="mt-2 text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
+      <div class="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-xs text-neutral-500">
+        {#if discoveryInfo.discoveredAt}
+          <span>{formatDate(discoveryInfo.discoveredAt)}</span>
+        {/if}
+        {#if discoveryInfo.totalLikes}
+          <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
+        {/if}
+        {#if discoveryInfo.totalBookmarks}
+          <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
+        {/if}
       </div>
-    </div>
-  {:else if discoveryInfo && !discoveryInfo.found}
-    <div class="mt-5 flex items-center gap-3">
-      <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    {:else if discoveryInfo && !discoveryInfo.found}
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="8" r="4" />
           <path d="M20 21a8 8 0 1 0-16 0" />
         </svg>
       </div>
-      <p class="text-sm text-neutral-400">Undiscovered — be the first to save this configuration!</p>
+      <p class="mt-2 text-xs text-neutral-400">Undiscovered</p>
+    {/if}
+  </div>
+
+  <!-- Right column: Title + Description -->
+  <div class="min-w-0 flex-1">
+    <h1 class="text-2xl font-bold text-neutral-900">{title}</h1>
+
+    <div class="mt-2 flex items-center gap-4 text-sm text-neutral-500">
+      <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
+      <span>·</span>
+      <span>Grid {shapeText}</span>
+      <span>·</span>
+      <span>{automataStore.neighbors.length} neighbors</span>
     </div>
-  {/if}
 
-  <hr class="my-6 border-neutral-200" />
+    <hr class="my-5 border-neutral-200" />
 
-  <p class="leading-relaxed text-neutral-700">{description}</p>
+    <p class="leading-relaxed text-neutral-700">{description}</p>
+  </div>
 </div>
