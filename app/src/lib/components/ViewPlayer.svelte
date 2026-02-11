@@ -33,7 +33,6 @@
       const result = automataManager!.checkStability(20);
       if (result.stable && !automataStore.stableDetected) {
         automataStore.setStable(result.kind as 'exact' | 'quasi', result.period);
-        automataStore.pause();
       }
     }
 
