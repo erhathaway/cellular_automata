@@ -13,6 +13,16 @@ const dirname =
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	resolve: {
+		alias: {
+			'$lib-core': path.resolve(dirname, '../lib'),
+			'three': path.resolve(dirname, 'node_modules/three'),
+			'three/examples/jsm/controls/OrbitControls.js': path.resolve(
+				dirname,
+				'node_modules/three/examples/jsm/controls/OrbitControls.js'
+			)
+		}
+	},
 	test: {
 		expect: {
 			requireAssertions: true

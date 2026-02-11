@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import ViewPlayer from '$lib/components/ViewPlayer.svelte';
+	import MenuPanel from '$lib/components/MenuPanel.svelte';
+	import ViewControls from '$lib/components/ViewControls.svelte';
+</script>
+
+<div class="relative h-full w-full">
+	<ViewPlayer />
+	<MenuPanel />
+	<ViewControls />
+</div>

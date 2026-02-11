@@ -1,0 +1,104 @@
+import {
+  PointsMaterial,
+  BufferGeometry,
+  Float32BufferAttribute,
+  Points,
+  Color,
+} from 'three';
+import BaseClass from './base';
+import type { ViewerConstructorOptions } from './base';
+
+export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
+  currentGenerationCount = 0;
+  _populationShape: any;
+
+  constructor(opts: ViewerConstructorOptions) {
+    super({ ...opts, type: 'two-dimension-in-two-dimensions' });
+
+    this.populationShape = opts.populationShape;
+    this.updateRateInMS = 100;
+  }
+
+  handleWindowResize() {
+    this.updateCellShape();
+  }
+
+  addGeneration() {
+    const material = new PointsMaterial({
+      color: new Color(this.hslStringStates[1]),
+      size: this.cellShape.x,
+      sizeAttenuation: true,
+    });
+    this.materials.push(material);
+
+    const generationState = this.retrieveNextGeneration() as number[][];
+
+    if (this._populationShape.x !== generationState.length) {
+      this.populationShape = { x: generationState.length };
+    }
+
+    const xOffset = this.containerWidth / 2;
+    const yOffset = this.containerHeight / 2;
+
+    const positions: number[] = [];
+    generationState.forEach((column: number[], columnNumber: number) => {
+      const startX = this.cellShape.x * columnNumber - xOffset;
+      column.forEach((cellState: number, cellNumber: number) => {
+        if (cellState === 1) {
+          const startY = this.cellShape.y * cellNumber - yOffset;
+          positions.push(startX, startY, 0);
+        }
+      });
+    });
+
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
+    this.geometries.push(geometry);
+
+    const pointField = new Points(geometry, material);
+    this.meshes.push(pointField);
+    this.scene.add(pointField);
+
+    this.currentGenerationCount += 1;
+  }
+
+  removeGeneration() {
+    if (this.meshes.length > 40) {
+      const mesh = this.meshes[0];
+      this.cleanUpRefsByMesh(mesh, true);
+    }
+  }
+
+  initialize() {}
+
+  animateUpdateFn() {
+    this.removeGeneration();
+    const colorable = this.meshes.slice(-40);
+    const { h, s } = this.states[1];
+    const computedS = Math.floor(s * 100);
+    colorable.forEach((m: any, i: number) => {
+      const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
+      m.material.color.set(color);
+      m.position.z = 1 / (i + 1);
+    });
+    this.addGeneration();
+  }
+
+  renderUpdateFn() {}
+
+  updateCellShape(cellShape?: any) {
+    if (cellShape) {
+      this.cellShape = cellShape;
+    } else {
+      const diameter = +(this.containerWidth / this._populationShape.x).toFixed(2);
+      this.cellShape = { x: diameter, y: diameter };
+    }
+  }
+
+  set populationShape(populationShape: any) {
+    this._populationShape = populationShape;
+    this.updateCellShape();
+  }
+
+  customObjectsCleanup() {}
+}
