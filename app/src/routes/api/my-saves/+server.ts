@@ -38,7 +38,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			.leftJoin(user, eq(generationRun.userId, user.id))
 			.where(eq(generationRun.userId, auth.userId))
 			.orderBy(desc(generationRun.createdAt))
-			.limit(offset + limit),
+			.limit(offset + limit + 1),
 		db
 			.select({
 				id: cellPopulation.id,
@@ -66,7 +66,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			.leftJoin(user, eq(cellPopulation.userId, user.id))
 			.where(eq(cellPopulation.userId, auth.userId))
 			.orderBy(desc(cellPopulation.createdAt))
-			.limit(offset + limit)
+			.limit(offset + limit + 1)
 	]);
 
 	const all = [...runs, ...pops]

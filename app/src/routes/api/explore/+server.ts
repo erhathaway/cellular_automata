@@ -55,7 +55,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.leftJoin(user, eq(generationRun.userId, user.id))
 			.where(runConditions.length > 0 ? and(...runConditions) : undefined)
 			.orderBy(...runOrderBy)
-			.limit(type === 'all' ? offset + limit : offset + limit);
+			.limit(offset + limit + 1);
 	}
 
 	// Fetch cell populations
@@ -96,7 +96,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.leftJoin(user, eq(cellPopulation.userId, user.id))
 			.where(popConditions.length > 0 ? and(...popConditions) : undefined)
 			.orderBy(...popOrderBy)
-			.limit(type === 'all' ? offset + limit : offset + limit);
+			.limit(offset + limit + 1);
 	}
 
 	// Batch fetch likes, bookmarks, and tags
