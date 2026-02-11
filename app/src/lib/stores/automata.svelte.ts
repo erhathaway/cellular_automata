@@ -42,10 +42,10 @@ export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
 // --- Default shapes by dimension+viewer combo ---
 export function defaultShape(dim: number, viewer: number): Record<string, number> {
   if (dim === 1) return { x: 200 };
-  if (dim === 2 && viewer === 2) return { x: 200, y: 200 };
+  if (dim === 2 && viewer === 2) return { x: 150, y: 150 };
   if (dim === 2 && viewer === 3) return { x: 70, y: 50 };
   if (dim === 3) return { x: 40, y: 40, z: 40 };
-  return { x: 200, y: 200 };
+  return { x: 150, y: 150 };
 }
 
 // --- Default cell states by dimension+viewer combo ---
