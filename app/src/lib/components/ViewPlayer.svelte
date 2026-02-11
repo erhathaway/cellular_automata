@@ -24,7 +24,8 @@
     const pop = automataManager!.run();
     automataStore.updateGenerationInfo(
       automataManager!.currentGenerationIndex,
-      automataManager!.totalGenerations
+      automataManager!.totalGenerations,
+      automataManager!.generationHistorySize
     );
     return pop;
   }
@@ -62,19 +63,19 @@
 
     if (dim === 1 && view === 2) {
       automataManager.useOneDimensionGenerator();
-      automataManager.generationHistorySize = 5000;
+      automataManager.generationHistorySize = 10800;
       viewer = new OneDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 2) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 5000;
+      automataManager.generationHistorySize = 10800;
       viewer = new TwoDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 3) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 2000;
+      automataManager.generationHistorySize = 5400;
       viewer = new TwoDimensionInThreeDimensions(viewerConfig);
     } else if (dim === 3 && view === 3) {
       automataManager.useThreeDimensionGenerator();
-      automataManager.generationHistorySize = 2000;
+      automataManager.generationHistorySize = 1800;
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
@@ -100,7 +101,7 @@
 
       // Pre-fill for 1D viewer
       if (dim === 1 && viewer.maxGenerationsToShow) {
-        for (let i = 0; i < viewer.maxGenerationsToShow * 2; i++) {
+        for (let i = 0; i < viewer.maxGenerationsToShow; i++) {
           viewer.addGeneration();
         }
       }
@@ -226,7 +227,8 @@
     // Update store
     automataStore.updateGenerationInfo(
       automataManager.currentGenerationIndex,
-      automataManager.totalGenerations
+      automataManager.totalGenerations,
+      automataManager.generationHistorySize
     );
 
     automataStore.clearSeekTarget();

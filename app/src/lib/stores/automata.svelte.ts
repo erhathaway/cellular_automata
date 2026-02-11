@@ -91,6 +91,7 @@ class AutomataStore {
   // Generation tracking for scrubber
   generationIndex = $state(0);
   totalGenerations = $state(0);
+  historyCapacity = $state(1);
   seekTarget: number | null = $state(null);
 
   // Preview callback (set by ViewPlayer, not reactive)
@@ -194,9 +195,10 @@ class AutomataStore {
     this.seekTarget = null;
   }
 
-  updateGenerationInfo(index: number, total: number) {
+  updateGenerationInfo(index: number, total: number, capacity?: number) {
     this.generationIndex = index;
     this.totalGenerations = total;
+    if (capacity !== undefined) this.historyCapacity = capacity;
   }
 
   seekTo(index: number) {

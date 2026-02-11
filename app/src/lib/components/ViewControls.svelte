@@ -12,8 +12,8 @@
   let barWidth = $state(0);
 
   let progressPercent = $derived(
-    automataStore.totalGenerations > 1
-      ? (automataStore.generationIndex / (automataStore.totalGenerations - 1)) * 100
+    automataStore.historyCapacity > 1
+      ? (automataStore.generationIndex / (automataStore.historyCapacity - 1)) * 100
       : 0
   );
 
@@ -26,7 +26,9 @@
     if (!progressBarEl) return 0;
     const rect = progressBarEl.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    return Math.round(ratio * (automataStore.totalGenerations - 1));
+    const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
+    // Clamp to computed range — don't allow seeking into uncomputed (black) region
+    return Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
   }
 
   function updateHoverFromEvent(e: MouseEvent) {
@@ -35,7 +37,9 @@
     hoverX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
     barWidth = rect.width;
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    hoveredIndex = Math.round(ratio * (automataStore.totalGenerations - 1));
+    const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
+    // Clamp to computed range
+    hoveredIndex = Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
   }
 
   function handleMouseDown(e: MouseEvent) {
