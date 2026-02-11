@@ -28,8 +28,16 @@ export type WolframRule = { type: 'wolfram'; rule: number };
 export type ConwayRule = { type: 'conway'; survive: number[]; born: number[] };
 export type AutomataRule = WolframRule | ConwayRule;
 
+export interface ComboSettings {
+  populationShape: Record<string, number>;
+  rule: AutomataRule;
+  cellStates: CellStateEntry[];
+}
+
+export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
+
 // --- Default shapes by dimension+viewer combo ---
-function defaultShape(dim: number, viewer: number): Record<string, number> {
+export function defaultShape(dim: number, viewer: number): Record<string, number> {
   if (dim === 1) return { x: 200 };
   if (dim === 2 && viewer === 2) return { x: 200, y: 200 };
   if (dim === 2 && viewer === 3) return { x: 70, y: 50 };
@@ -38,7 +46,7 @@ function defaultShape(dim: number, viewer: number): Record<string, number> {
 }
 
 // --- Default cell states by dimension+viewer combo ---
-function defaultCellStates(dim: number, viewer: number): CellStateEntry[] {
+export function defaultCellStates(dim: number, viewer: number): CellStateEntry[] {
   const white: HSLColor = { h: 360, s: 1, l: 1, a: 1 };
   const black: HSLColor = { h: 0, s: 0, l: 0, a: 1 };
   const blue: HSLColor = { h: 234, s: 0.7, l: 0.55, a: 1 };
@@ -57,7 +65,7 @@ function defaultNeighbors(dim: number): string[] {
   return [...TWO_D_NEIGHBORS];
 }
 
-function defaultRule(dim: number): AutomataRule {
+export function defaultRule(dim: number): AutomataRule {
   if (dim === 1) return { type: 'wolfram', rule: 110 };
   if (dim === 3) return { type: 'conway', survive: [4, 5], born: [5] };
   return { type: 'conway', survive: [2, 3], born: [3] };
@@ -104,17 +112,20 @@ class AutomataStore {
   getPopulationAtIndex: ((index: number) => any) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
 
-  // Indexed history for shape and cellStates
+  // Indexed history for shape, cellStates, and rule
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
+  private _ruleHistory: Map<string, AutomataRule> = new Map();
 
   constructor() {
     // Save initial state
-    this._shapeHistory.set(historyKey(2, 2), { x: 200, y: 200 });
-    this._cellStatesHistory.set(historyKey(2, 2), [
+    const key = historyKey(2, 2);
+    this._shapeHistory.set(key, { x: 200, y: 200 });
+    this._cellStatesHistory.set(key, [
       { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
       { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },
     ]);
+    this._ruleHistory.set(key, { type: 'conway', survive: [2, 3], born: [3] });
   }
 
   // --- Derived values ---
@@ -145,10 +156,7 @@ class AutomataStore {
     // Cascade: update neighbors
     this.neighbors = defaultNeighbors(newDim);
 
-    // Cascade: update rule
-    this.rule = defaultRule(newDim);
-
-    // Cascade: update shape + cellStates (may restore from history)
+    // Cascade: update shape + cellStates + rule (may restore from history)
     this._restoreOrDefault();
   }
 
@@ -181,6 +189,7 @@ class AutomataStore {
 
   setRule(newRule: AutomataRule) {
     this.rule = newRule;
+    this._ruleHistory.set(historyKey(this.dimension, this.viewer), { ...newRule });
   }
 
   togglePlay() {
@@ -231,6 +240,50 @@ class AutomataStore {
     this.seekTarget = null;
   }
 
+  // --- Hydration API ---
+  getAllComboSettings(): Record<string, ComboSettings> {
+    this._saveToHistory();
+    const result: Record<string, ComboSettings> = {};
+    for (const [dim, viewer] of VALID_COMBOS) {
+      const key = historyKey(dim, viewer);
+      result[key] = {
+        populationShape: this._shapeHistory.get(key) ?? defaultShape(dim, viewer),
+        rule: this._ruleHistory.get(key) ?? defaultRule(dim),
+        cellStates: this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer),
+      };
+    }
+    return result;
+  }
+
+  hydrateCombo(dim: number, viewer: number, settings: Partial<ComboSettings>) {
+    const key = historyKey(dim, viewer);
+    if (settings.populationShape) {
+      this._shapeHistory.set(key, { ...settings.populationShape });
+    }
+    if (settings.rule) {
+      this._ruleHistory.set(key, { ...settings.rule });
+    }
+    if (settings.cellStates) {
+      this._cellStatesHistory.set(key, settings.cellStates.map((s) => ({ ...s })));
+    }
+  }
+
+  hydrateActive(dim: number, viewer: number) {
+    const key = historyKey(dim, viewer);
+    this.dimension = dim;
+    this.viewer = viewer;
+    this.neighbors = defaultNeighbors(dim);
+    this.populationShape = this._shapeHistory.get(key)
+      ? { ...this._shapeHistory.get(key)! }
+      : defaultShape(dim, viewer);
+    this.rule = this._ruleHistory.get(key)
+      ? { ...this._ruleHistory.get(key)! }
+      : defaultRule(dim);
+    this.cellStates = this._cellStatesHistory.get(key)
+      ? this._cellStatesHistory.get(key)!.map((s) => ({ ...s }))
+      : defaultCellStates(dim, viewer);
+  }
+
   // --- Internal helpers ---
   private _saveToHistory() {
     const key = historyKey(this.dimension, this.viewer);
@@ -239,6 +292,7 @@ class AutomataStore {
       key,
       this.cellStates.map((s) => ({ ...s }))
     );
+    this._ruleHistory.set(key, { ...this.rule });
   }
 
   private _restoreOrDefault() {
@@ -253,6 +307,11 @@ class AutomataStore {
     this.cellStates = savedStates
       ? savedStates.map((s) => ({ ...s }))
       : defaultCellStates(this.dimension, this.viewer);
+
+    const savedRule = this._ruleHistory.get(key);
+    this.rule = savedRule
+      ? { ...savedRule }
+      : defaultRule(this.dimension);
   }
 }
 
