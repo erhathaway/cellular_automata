@@ -89,27 +89,49 @@
     });
   }
 
+  const PREVIEW_TRAIL_1D = 100;
+  const PREVIEW_TRAIL_2D = 15;
+
   function renderPreview() {
     if (!previewCanvas || hoveredIndex < 0) return;
-    const pop = automataStore.getPopulationAtIndex?.(hoveredIndex);
-    if (!pop) return;
+    const dim = automataStore.dimension;
+    if (dim === 2) renderPreview2D();
+    else if (dim === 1) renderPreview1D();
+  }
 
+  function renderPreview2D() {
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const dim = automataStore.dimension;
-    const bgStr = automataStore.hslString(automataStore.cellStates[0]?.color);
-    const fgStr = automataStore.hslString(automataStore.cellStates[1]?.color);
+    const bg = automataStore.cellStates[0]?.color;
+    const fg = automataStore.cellStates[1]?.color;
+    const shape = automataStore.populationShape;
+    const w = shape.x ?? 1;
+    const h = shape.y ?? 1;
 
-    if (dim === 2) {
+    previewCanvas.width = w;
+    previewCanvas.height = h;
+    ctx.fillStyle = automataStore.hslString(bg);
+    ctx.fillRect(0, 0, w, h);
+
+    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_2D + 1);
+    const totalSteps = hoveredIndex - startIdx + 1;
+    const fgH = fg.h;
+    const fgS = Math.floor(fg.s * 100);
+    const fgL = Math.floor(fg.l * 100);
+
+    // Render oldest to newest so newest overwrites
+    for (let gi = startIdx; gi <= hoveredIndex; gi++) {
+      const pop = automataStore.getPopulationAtIndex?.(gi);
+      if (!pop) continue;
       const rows = pop as number[][];
-      const h = rows.length;
-      const w = rows[0]?.length ?? 0;
-      previewCanvas.width = w;
-      previewCanvas.height = h;
-      ctx.fillStyle = bgStr;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = fgStr;
+
+      const age = hoveredIndex - gi;
+      const t = totalSteps > 1 ? 1 - age / (totalSteps - 1) : 1;
+      // Lerp lightness: oldest → 92% (nearly invisible), newest → fg lightness
+      const lightness = Math.floor(92 - t * (92 - fgL));
+      ctx.fillStyle = `hsl(${fgH}, ${fgS}%, ${lightness}%)`;
+
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           if (rows[y][x] === 1) {
@@ -117,17 +139,38 @@
           }
         }
       }
-    } else if (dim === 1) {
+    }
+  }
+
+  function renderPreview1D() {
+    const ctx = previewCanvas.getContext('2d');
+    if (!ctx) return;
+
+    const bg = automataStore.cellStates[0]?.color;
+    const fg = automataStore.cellStates[1]?.color;
+
+    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_1D + 1);
+    const numRows = hoveredIndex - startIdx + 1;
+
+    // Get width from first population
+    const pop0 = automataStore.getPopulationAtIndex?.(startIdx);
+    if (!pop0) return;
+    const w = (pop0 as number[]).length;
+
+    previewCanvas.width = w;
+    previewCanvas.height = numRows;
+    ctx.fillStyle = automataStore.hslString(bg);
+    ctx.fillRect(0, 0, w, numRows);
+    ctx.fillStyle = automataStore.hslString(fg);
+
+    // Each row is a generation, newest at bottom
+    for (let row = 0; row < numRows; row++) {
+      const pop = automataStore.getPopulationAtIndex?.(startIdx + row);
+      if (!pop) continue;
       const cells = pop as number[];
-      const w = cells.length;
-      previewCanvas.width = w;
-      previewCanvas.height = 1;
-      ctx.fillStyle = bgStr;
-      ctx.fillRect(0, 0, w, 1);
-      ctx.fillStyle = fgStr;
       for (let x = 0; x < w; x++) {
         if (cells[x] === 1) {
-          ctx.fillRect(x, 0, 1, 1);
+          ctx.fillRect(x, row, 1, 1);
         }
       }
     }
@@ -143,15 +186,18 @@
   let previewDisplaySize = $derived.by(() => {
     const dim = automataStore.dimension;
     const shape = automataStore.populationShape;
+    const maxW = 160;
     if (dim === 2) {
       const w = shape.x ?? 1;
       const h = shape.y ?? 1;
-      const maxW = 160;
       const scale = maxW / w;
       return { width: maxW, height: Math.round(h * scale) };
     }
     if (dim === 1) {
-      return { width: 160, height: 20 };
+      const w = shape.x ?? 1;
+      const numRows = Math.min(PREVIEW_TRAIL_1D, hoveredIndex + 1);
+      const h = Math.max(1, numRows);
+      return { width: maxW, height: Math.max(20, Math.round(maxW * h / w)) };
     }
     return { width: 0, height: 0 };
   });
