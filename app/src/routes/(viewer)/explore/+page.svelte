@@ -94,7 +94,7 @@
   });
 </script>
 
-<div class="h-full overflow-y-auto bg-white">
+<div class="bg-white">
   <div class="mx-auto max-w-7xl px-6 py-8">
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-black">Explore</h1>

@@ -69,7 +69,7 @@
   onMount(fetchMySaves);
 </script>
 
-<div class="h-full overflow-y-auto bg-white">
+<div class="bg-white">
   <div class="mx-auto max-w-7xl px-6 py-8">
     <h1 class="mb-6 text-2xl font-bold text-black">My Chest</h1>
 

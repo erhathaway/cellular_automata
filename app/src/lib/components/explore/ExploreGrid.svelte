@@ -18,17 +18,31 @@
 
   let sentinelEl = $state<HTMLElement>();
 
+  function findScrollParent(el: HTMLElement): HTMLElement | null {
+    let node = el.parentElement;
+    while (node) {
+      const style = getComputedStyle(node);
+      if (/(auto|scroll)/.test(style.overflowY)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
   // Intersection observer for infinite scroll
+  // The parent's loadMore() guards against double-fetches,
+  // so we just fire onloadmore whenever the sentinel is visible.
   $effect(() => {
     if (!sentinelEl || !onloadmore) return;
+    const cb = onloadmore;
+    const scrollRoot = findScrollParent(sentinelEl);
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          onloadmore();
+        if (entries[0].isIntersecting) {
+          cb();
         }
       },
-      { rootMargin: '400px' }
+      { root: scrollRoot, rootMargin: '400px' }
     );
 
     observer.observe(sentinelEl);
