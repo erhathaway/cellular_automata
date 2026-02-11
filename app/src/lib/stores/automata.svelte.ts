@@ -233,6 +233,14 @@ class AutomataStore {
   }
 
   randomizeRule() {
+    // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
+    if (this.viewer === 2 && this.dimension <= 2) {
+      const newDim = Math.random() < 0.5 ? 1 : 2;
+      if (newDim !== this.dimension) {
+        this.setDimension(newDim as 1 | 2);
+      }
+    }
+
     // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
     const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
     const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
