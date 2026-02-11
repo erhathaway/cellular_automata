@@ -66,6 +66,12 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		| 'cell_population'
 		| null;
 
-	const items = await listUserBookmarks(auth.userId, type ?? undefined);
+	const raw = await listUserBookmarks(auth.userId, type ?? undefined);
+	const items = raw.map((item: any) => {
+		if (item.seedPopulation) {
+			return { ...item, seedPopulation: (item.seedPopulation as Buffer).toString('base64') };
+		}
+		return item;
+	});
 	return json({ items });
 };

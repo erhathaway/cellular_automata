@@ -27,6 +27,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				description: generationRun.description,
 				thumbnail: generationRun.thumbnail,
 				fingerprint: generationRun.fingerprint,
+				seedPopulation: generationRun.seedPopulation,
 				likeCount: generationRun.likeCount,
 				bookmarkCount: generationRun.bookmarkCount,
 				createdAt: generationRun.createdAt,
@@ -70,7 +71,13 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	const items = [...runs, ...pops]
 		.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
-		.slice(0, limit);
+		.slice(0, limit)
+		.map((item) => {
+			if ('seedPopulation' in item && item.seedPopulation) {
+				return { ...item, seedPopulation: (item.seedPopulation as Buffer).toString('base64') };
+			}
+			return item;
+		});
 
 	return json({ items });
 };

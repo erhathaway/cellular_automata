@@ -114,6 +114,13 @@ export default class AutomataManager {
     return this._currentPopulation;
   }
 
+  setSeedPopulation(snapshot: Uint8Array): Population {
+    this._currentPopulation = this._restorePopulation(snapshot);
+    this._history = [snapshot];
+    this._historyIndex = 0;
+    return this._currentPopulation;
+  }
+
   get currentPopulation(): Population | undefined {
     return this._currentPopulation;
   }

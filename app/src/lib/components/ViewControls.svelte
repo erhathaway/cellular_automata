@@ -474,6 +474,41 @@
         </svg>
       </div>
 
+      <!-- Seed Toggle Button (only when a saved seed exists) -->
+      {#if automataStore.savedSeed}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="flex cursor-pointer items-center gap-2"
+          style="height: 44px; padding: 0 14px; border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
+          title={automataStore.useSavedSeed ? 'Rerun with random seed' : 'Rerun with claimed seed'}
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
+          onclick={() => { automataStore.useSavedSeed = !automataStore.useSavedSeed; automataStore.reset(); }}
+        >
+          {#if automataStore.useSavedSeed}
+            <!-- Dice icon — click to use random seed -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2" />
+              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+              <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+              <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+              <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+            </svg>
+            Random seed
+          {:else}
+            <!-- Pin icon — click to use saved seed -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 17v5" />
+              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76z" />
+            </svg>
+            Claimed seed
+          {/if}
+        </div>
+      {/if}
+
     </div>
 
     <!-- Right: Save + Like + Bookmark -->

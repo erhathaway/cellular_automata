@@ -44,6 +44,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				description: generationRun.description,
 				thumbnail: generationRun.thumbnail,
 				fingerprint: generationRun.fingerprint,
+				seedPopulation: generationRun.seedPopulation,
 				likeCount: generationRun.likeCount,
 				bookmarkCount: generationRun.bookmarkCount,
 				createdAt: generationRun.createdAt,
@@ -178,8 +179,10 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const items: any[] = [];
 
 	for (const run of runItems) {
+		const { seedPopulation, ...rest } = run;
 		items.push({
-			...run,
+			...rest,
+			seedPopulation: seedPopulation ? (seedPopulation as Buffer).toString('base64') : null,
 			isLikedByMe: likedRunIds.has(run.id),
 			isBookmarkedByMe: bookmarkedRunIds.has(run.id),
 			tags: runTagsMap.get(run.id) ?? []

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { automataStore } from '$lib/stores/automata.svelte';
-  import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
+  import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
@@ -35,6 +35,12 @@
       automataStore.hydrateCombo(dim, viewer, settings);
     }
     automataStore.hydrateActive(dim, viewer);
+    if (item.seedPopulation) {
+      automataStore.savedSeed = base64ToUint8Array(item.seedPopulation);
+    } else {
+      automataStore.savedSeed = null;
+    }
+    automataStore.useSavedSeed = true;
     automataStore.reset();
     const params = buildURLParams(dim, viewer, settings);
     goto(`/?${params.toString()}`);

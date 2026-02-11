@@ -117,10 +117,15 @@ class AutomataStore {
   stablePeriod = $state(0);
   stableKind: 'exact' | 'quasi' | 'none' = $state('none');
 
+  // Seed population state
+  savedSeed: Uint8Array | null = $state(null);
+  useSavedSeed: boolean = $state(true);
+
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
   getCanvasDataURL: (() => string | null) | null = null;
+  getSeedSnapshot: (() => Uint8Array | null) | null = null;
 
   // Indexed history for shape, cellStates, rule, and radius
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
@@ -238,6 +243,9 @@ class AutomataStore {
   }
 
   randomizeRule() {
+    this.savedSeed = null;
+    this.useSavedSeed = true;
+
     // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
     if (this.viewer === 2 && this.dimension <= 2) {
       const newDim = Math.random() < 0.5 ? 1 : 2;
@@ -376,6 +384,11 @@ class AutomataStore {
     if (this.stableKind === 'exact') stability = 'fixed';
     else if (this.stableKind === 'quasi') stability = 'quasi_stable';
 
+    const seedSnapshot = this.getSeedSnapshot?.();
+    const seedPopulation = seedSnapshot
+      ? btoa(String.fromCharCode(...seedSnapshot))
+      : undefined;
+
     return {
       dimension: this.dimension,
       viewer: this.viewer,
@@ -386,7 +399,8 @@ class AutomataStore {
       neighborhoodRadius: this.neighborhoodRadius,
       generationIndex: this.generationIndex,
       stability,
-      stablePeriod: this.stablePeriod || null
+      stablePeriod: this.stablePeriod || null,
+      seedPopulation
     };
   }
 

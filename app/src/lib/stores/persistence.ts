@@ -9,6 +9,15 @@ import { replaceState } from '$app/navigation';
 
 const STORAGE_KEY = 'cellular-automata-settings';
 
+// --- Base64 <-> Uint8Array ---
+
+export function base64ToUint8Array(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
 // --- Rule serialization ---
 
 export function serializeRule(rule: AutomataRule): string {
@@ -194,5 +203,9 @@ export function updateURL(dim: number, viewer: number, settings: ComboSettings, 
   const params = buildURLParams(dim, viewer, settings, generation);
   const url = new URL(window.location.href);
   url.search = params.toString();
-  replaceState(url, {});
+  try {
+    replaceState(url, {});
+  } catch {
+    // Router not yet initialized (e.g. during HMR reload)
+  }
 }

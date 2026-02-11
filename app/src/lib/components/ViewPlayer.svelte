@@ -117,6 +117,12 @@
       if (!viewer?.renderer?.domElement) return null;
       return viewer.renderer.domElement.toDataURL('image/png');
     };
+    automataStore.getSeedSnapshot = () => {
+      if (!automataManager) return null;
+      const pop = automataManager.getPopulationAtIndex(0);
+      if (!pop) return null;
+      return automataManager._snapshotPopulation(pop);
+    };
 
     if (viewer) {
       // Set cell state colors
@@ -130,7 +136,11 @@
 
       // Create genesis population
       automataManager!.populationShape = shape;
-      automataManager!.getSeedPopulation();
+      if (automataStore.savedSeed && automataStore.useSavedSeed) {
+        automataManager!.setSeedPopulation(automataStore.savedSeed);
+      } else {
+        automataManager!.getSeedPopulation();
+      }
 
       // Pre-fill for 1D viewer
       let preFilled = 0;
@@ -173,6 +183,7 @@
     automataStore.getPopulationAtIndex = null;
     automataStore.renderPreviewFrame = null;
     automataStore.getCanvasDataURL = null;
+    automataStore.getSeedSnapshot = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;

@@ -41,6 +41,11 @@
       }
       saved = true;
       automataStore.claimAnimationCounter++;
+      const seedSnapshot = automataStore.getSeedSnapshot?.();
+      if (seedSnapshot) {
+        automataStore.savedSeed = seedSnapshot;
+        automataStore.useSavedSeed = true;
+      }
     } catch (e: any) {
       saveError = e.message ?? 'Failed to save';
     } finally {

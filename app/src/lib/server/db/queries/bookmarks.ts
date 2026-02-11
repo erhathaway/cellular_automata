@@ -90,6 +90,7 @@ export async function listUserBookmarks(
 				populationShape: generationRun.populationShape,
 				cellStates: generationRun.cellStates,
 				thumbnail: generationRun.thumbnail,
+				seedPopulation: generationRun.seedPopulation,
 				likeCount: generationRun.likeCount,
 				createdAt: generationRun.createdAt,
 				userName: user.name,

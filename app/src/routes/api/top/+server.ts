@@ -18,6 +18,7 @@ export const GET: RequestHandler = async () => {
 			cellStates: generationRun.cellStates,
 			neighborhoodRadius: generationRun.neighborhoodRadius,
 			thumbnail: generationRun.thumbnail,
+			seedPopulation: generationRun.seedPopulation,
 			likeCount: generationRun.likeCount,
 			userName: user.name,
 			userImageUrl: user.imageUrl
@@ -50,5 +51,10 @@ export const GET: RequestHandler = async () => {
 		.orderBy(desc(cellPopulation.likeCount), desc(cellPopulation.createdAt))
 		.limit(10);
 
-	return json({ topRuns, topPopulations });
+	const mappedRuns = topRuns.map((run) => {
+		const { seedPopulation, ...rest } = run;
+		return { ...rest, seedPopulation: seedPopulation ? (seedPopulation as Buffer).toString('base64') : null };
+	});
+
+	return json({ topRuns: mappedRuns, topPopulations });
 };

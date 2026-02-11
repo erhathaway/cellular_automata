@@ -88,6 +88,7 @@ export async function listGenerationRuns(params: ListGenerationRunsParams) {
 			neighborhoodRadius: generationRun.neighborhoodRadius,
 			populationShape: generationRun.populationShape,
 			cellStates: generationRun.cellStates,
+			seedPopulation: generationRun.seedPopulation,
 			generationIndex: generationRun.generationIndex,
 			title: generationRun.title,
 			description: generationRun.description,
