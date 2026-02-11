@@ -3,10 +3,12 @@
 
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
+  let miningKey = $state(0);
 
   function handleClick() {
     clearTimeout(miningTimer);
     automataStore.isMining = true;
+    miningKey++;
     automataStore.randomizeRule();
     miningTimer = setTimeout(() => { automataStore.isMining = false; }, 5000);
   }
@@ -29,9 +31,11 @@
     <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
   </svg>
   {#if mining}
+    {#key miningKey}
     <div class="progress-track">
       <div class="progress-fill"></div>
     </div>
+    {/key}
   {:else}
     Mine for automata!
   {/if}
