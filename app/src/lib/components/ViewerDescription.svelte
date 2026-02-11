@@ -65,6 +65,8 @@
   let bookmarked = $state(false);
   let likeAnimating = $state(false);
   let bookmarkAnimating = $state(false);
+  let copied = $state(false);
+  let copiedTimer: ReturnType<typeof setTimeout> | undefined;
   let lastConfigKey = '';
   let checking = $derived(discoveryInfo === null);
 
@@ -163,6 +165,17 @@
     }, 500);
   });
 
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      copied = true;
+      clearTimeout(copiedTimer);
+      copiedTimer = setTimeout(() => { copied = false; }, 1500);
+    } catch {
+      // fallback
+    }
+  }
+
   function formatDate(dateStr: string): string {
     const d = new Date(dateStr);
     return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -173,7 +186,7 @@
   <!-- Left column: Creator -->
   <div class="flex w-40 shrink-0 flex-col items-center pt-1 text-center">
     <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">Mined by</p>
-    {#if discoveryInfo?.found}
+    {#if discoveryInfo?.found && !automataStore.isMining}
       {#if discoveryInfo.discoveredByImageUrl}
         <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-12 w-12 rounded-full" />
       {:else}
@@ -193,7 +206,15 @@
           <span>{discoveryInfo.totalBookmarks} in chests</span>
         {/if}
       </div>
-    {:else if discoveryInfo && !discoveryInfo.found}
+    {:else if discoveryInfo === null || automataStore.isMining}
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
+        <svg class="search-sweep h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      </div>
+      <p class="mt-2 text-xs text-neutral-400">Searching...</p>
+    {:else if !discoveryInfo.found}
       <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="8" r="4" />
@@ -223,6 +244,29 @@
 
   <!-- Right column: Action buttons -->
   <div class="flex shrink-0 items-start gap-3 pt-1">
+    <!-- Copy link button -->
+    <div class="flex flex-col items-center gap-1">
+      <button
+        class="flex h-14 w-14 items-center justify-center rounded-full border transition-all {copied ? 'border-green-300 text-green-500' : 'border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {copied ? 'action-pop' : ''}"
+        aria-label="Copy link"
+        onclick={copyLink}
+      >
+        {#if copied}
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        {:else}
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+        {/if}
+      </button>
+      {#if copied}
+        <span class="copied-label text-xs font-medium text-green-500">Copied!</span>
+      {/if}
+    </div>
+
     <!-- Like button -->
     <div class="flex flex-col items-center gap-1">
       <button
@@ -272,5 +316,25 @@
 
   :global(.action-pop) {
     animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .search-sweep {
+    animation: sweep 1.5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes sweep {
+    0% { transform: translateX(-3px) rotate(-5deg); }
+    50% { transform: translateX(3px) rotate(5deg); }
+    100% { transform: translateX(-3px) rotate(-5deg); }
+  }
+
+  .copied-label {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
 </style>
