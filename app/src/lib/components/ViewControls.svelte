@@ -98,6 +98,7 @@
 
   const PREVIEW_TRAIL_1D = 100;
   const PREVIEW_TRAIL_2D = 15;
+  const PREVIEW_TRAIL_3D = 20;
 
   function renderPreview() {
     if (!previewCanvas || hoveredIndex < 0) return;
@@ -109,12 +110,18 @@
   }
 
   function renderPreview3D() {
-    const pop = automataStore.getPopulationAtIndex?.(hoveredIndex);
-    if (!pop) return;
+    // Gather trail of populations
+    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_3D + 1);
+    const populations: any[] = [];
+    for (let i = startIdx; i <= hoveredIndex; i++) {
+      const pop = automataStore.getPopulationAtIndex?.(i);
+      if (pop) populations.push(pop);
+    }
+    if (populations.length === 0) return;
     // Set canvas to display size for WebGL rendering
     previewCanvas.width = previewDisplaySize.width;
     previewCanvas.height = previewDisplaySize.height;
-    automataStore.renderPreviewFrame?.(pop, previewCanvas);
+    automataStore.renderPreviewFrame?.(populations, previewCanvas);
   }
 
   function renderPreview2D() {

@@ -169,7 +169,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.updateCellShape();
   }
 
-  renderPreview(population: number[][], canvas: HTMLCanvasElement) {
+  renderPreview(populations: number[][][], canvas: HTMLCanvasElement) {
     if (!this._previewRenderer) {
       this._previewRenderer = new WebGLRenderer({ alpha: true, antialias: true });
     }
@@ -187,28 +187,59 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     dirLight.position.set(200, 500, 300);
     tempScene.add(dirLight);
 
-    // Build population cubes centered at origin
     const diameter = this.cellShape.x;
-    const mat = new MeshLambertMaterial({ color: new Color(this.hslStringStates[1]) });
     const geom = new BoxGeometry(diameter, diameter, diameter);
     const xOff = (this._populationShape.x * diameter) / 2;
     const yOff = ((this._populationShape.y || this._populationShape.x) * diameter) / 2;
+    const count = populations.length;
 
-    population.forEach((col: number[], colNum: number) => {
-      col.forEach((cell: number, cellNum: number) => {
-        if (cell === 1) {
-          const cube = new Mesh(geom, mat);
-          cube.position.set(
-            diameter * colNum - xOff,
-            0,
-            diameter * cellNum - yOff
-          );
-          tempScene.add(cube);
-        }
+    const { h: baseH, s, l } = this.states[1];
+    const sPercent = Math.floor(s * 100);
+    const lPercent = Math.floor(l * 100);
+
+    const materialsToDispose: MeshLambertMaterial[] = [];
+
+    // Stack generations along Y, oldest at bottom, newest at top
+    for (let gi = 0; gi < count; gi++) {
+      const population = populations[gi];
+      const t = count > 1 ? gi / (count - 1) : 1;
+
+      // Same gradient as updateTrailAppearance
+      const opacity = 0.05 + t * 0.95;
+      const hue = (baseH + (1 - t) * 270) % 360;
+      const lightness = Math.floor(85 - t * (85 - lPercent));
+      const sat = Math.floor(30 + t * (sPercent - 30));
+
+      const mat = new MeshLambertMaterial({
+        color: new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`),
+        transparent: true,
+        opacity,
       });
-    });
+      materialsToDispose.push(mat);
+
+      const group = new Group();
+      population.forEach((col: number[], colNum: number) => {
+        col.forEach((cell: number, cellNum: number) => {
+          if (cell === 1) {
+            const cube = new Mesh(geom, mat);
+            cube.position.set(
+              diameter * colNum - xOff,
+              0,
+              diameter * cellNum - yOff
+            );
+            group.add(cube);
+          }
+        });
+      });
+
+      // Center the stack vertically around origin
+      group.position.y = (gi - count / 2) * diameter;
+      tempScene.add(group);
+    }
 
     // Camera matching current view angle relative to origin
+    // Scale zoom proportionally: preview frustum is smaller than main viewport
+    const mainCam = this.camera as OrthographicCamera;
     const cam = new OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 1, 10000);
     if (this.controls) {
       const offset = new Vector3().copy(this.camera.position).sub(this.controls.target);
@@ -217,7 +248,8 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       cam.position.set(-350, 800, 685);
     }
     cam.lookAt(0, 0, 0);
-    cam.zoom = (this.camera as OrthographicCamera).zoom;
+    const scaleRatio = w / this.containerWidth;
+    cam.zoom = mainCam.zoom * scaleRatio * 1.75;
     cam.updateProjectionMatrix();
 
     this._previewRenderer.render(tempScene, cam);
@@ -231,7 +263,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
     // Cleanup temp objects
     geom.dispose();
-    mat.dispose();
+    materialsToDispose.forEach(m => m.dispose());
     ambient.dispose();
     dirLight.dispose();
   }

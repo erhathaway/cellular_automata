@@ -84,8 +84,8 @@
       if (!automataManager) return null;
       return automataManager.getPopulationAtIndex(index);
     };
-    automataStore.renderPreviewFrame = (population: any, canvas: HTMLCanvasElement) => {
-      if (viewer?.renderPreview) viewer.renderPreview(population, canvas);
+    automataStore.renderPreviewFrame = (populations: any[], canvas: HTMLCanvasElement) => {
+      if (viewer?.renderPreview) viewer.renderPreview(populations, canvas);
     };
 
     if (viewer) {

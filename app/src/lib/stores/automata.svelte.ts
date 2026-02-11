@@ -96,7 +96,7 @@ class AutomataStore {
 
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
-  renderPreviewFrame: ((population: any, canvas: HTMLCanvasElement) => void) | null = null;
+  renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
 
   // Indexed history for shape and cellStates
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
