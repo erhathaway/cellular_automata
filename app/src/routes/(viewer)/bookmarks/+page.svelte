@@ -48,7 +48,7 @@
 
 <div class="h-full overflow-y-auto bg-white">
   <div class="mx-auto max-w-7xl px-6 py-8">
-    <h1 class="mb-6 text-2xl font-bold text-black">My Saves</h1>
+    <h1 class="mb-6 text-2xl font-bold text-black">My Chest</h1>
 
     <SignedOut>
       <div class="flex h-40 items-center justify-center">

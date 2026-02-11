@@ -1,11 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
-import { discovery, generationRun, cellPopulation, user } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { discovery, generationRun, cellPopulation, user, like, bookmark } from '$lib/server/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { generationRunFingerprint } from '$lib/server/fingerprint';
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, locals }) => {
 	const dimension = parseInt(url.searchParams.get('d') ?? '');
 	const ruleType = url.searchParams.get('rt') ?? '';
 	const ruleDefinition = url.searchParams.get('rd') ?? '';
@@ -52,6 +52,49 @@ export const GET: RequestHandler = async ({ url }) => {
 	const totalLikes = [...runs, ...pops].reduce((sum, r) => sum + (r.likeCount ?? 0), 0);
 	const totalBookmarks = [...runs, ...pops].reduce((sum, r) => sum + (r.bookmarkCount ?? 0), 0);
 
+	// Check if current user has liked/bookmarked any entity with this fingerprint
+	const auth = locals.auth();
+	let isLikedByMe = false;
+	let isBookmarkedByMe = false;
+
+	if (auth.userId) {
+		const allIds = [...runs.map((r) => r.id), ...pops.map((p) => p.id)];
+		if (allIds.length > 0) {
+			const runIds = runs.map((r) => r.id);
+			const popIds = pops.map((p) => p.id);
+
+			const [myRunLikes, myPopLikes, myRunBookmarks, myPopBookmarks] = await Promise.all([
+				runIds.length > 0
+					? db.select({ id: like.id }).from(like)
+						.where(and(eq(like.userId, auth.userId), inArray(like.generationRunId, runIds)))
+						.limit(1)
+					: [],
+				popIds.length > 0
+					? db.select({ id: like.id }).from(like)
+						.where(and(eq(like.userId, auth.userId), inArray(like.cellPopulationId, popIds)))
+						.limit(1)
+					: [],
+				runIds.length > 0
+					? db.select({ id: bookmark.id }).from(bookmark)
+						.where(and(eq(bookmark.userId, auth.userId), inArray(bookmark.generationRunId, runIds)))
+						.limit(1)
+					: [],
+				popIds.length > 0
+					? db.select({ id: bookmark.id }).from(bookmark)
+						.where(and(eq(bookmark.userId, auth.userId), inArray(bookmark.cellPopulationId, popIds)))
+						.limit(1)
+					: []
+			]);
+
+			isLikedByMe = myRunLikes.length > 0 || myPopLikes.length > 0;
+			isBookmarkedByMe = myRunBookmarks.length > 0 || myPopBookmarks.length > 0;
+		}
+	}
+
+	// Provide a reference entity for like/bookmark API calls
+	const firstRun = runs[0] ?? null;
+	const firstPop = pops[0] ?? null;
+
 	return json({
 		found: true,
 		fingerprint,
@@ -60,6 +103,10 @@ export const GET: RequestHandler = async ({ url }) => {
 		discoveredAt: disc.discoveredAt,
 		saveCount: runs.length + pops.length,
 		totalLikes,
-		totalBookmarks
+		totalBookmarks,
+		isLikedByMe,
+		isBookmarkedByMe,
+		entityId: firstRun?.id ?? firstPop?.id ?? null,
+		entityType: firstRun ? 'generation_run' : firstPop ? 'cell_population' : null
 	});
 };

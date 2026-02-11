@@ -530,8 +530,11 @@
           onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
           onclick={toggleBookmark}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+            <line x1="4" y1="13" x2="20" y2="13" />
+            <rect x="10" y="11" width="4" height="4" rx="1" />
           </svg>
         </div>
       {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
+  import { api } from '$lib/api';
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
@@ -51,10 +52,72 @@
     saveCount?: number;
     totalLikes?: number;
     totalBookmarks?: number;
+    isLikedByMe?: boolean;
+    isBookmarkedByMe?: boolean;
+    entityId?: string | null;
+    entityType?: 'generation_run' | 'cell_population' | null;
   }
 
   let discoveryInfo: DiscoveryInfo | null = $state(null);
   let lookupTimer: ReturnType<typeof setTimeout> | undefined;
+
+  let liked = $state(false);
+  let bookmarked = $state(false);
+  let likeAnimating = $state(false);
+  let bookmarkAnimating = $state(false);
+  let lastConfigKey = '';
+  let checking = $derived(discoveryInfo === null);
+
+  function entityBody() {
+    if (!discoveryInfo?.entityId || !discoveryInfo.entityType) return null;
+    return discoveryInfo.entityType === 'generation_run'
+      ? { generationRunId: discoveryInfo.entityId }
+      : { cellPopulationId: discoveryInfo.entityId };
+  }
+
+  async function toggleLike() {
+    const body = entityBody();
+    if (!body) return;
+
+    liked = !liked;
+    if (liked) {
+      likeAnimating = true;
+      setTimeout(() => { likeAnimating = false; }, 500);
+      try {
+        await api('POST', '/api/likes', body);
+      } catch {
+        liked = false;
+      }
+    } else {
+      try {
+        await api('DELETE', '/api/likes', body);
+      } catch {
+        liked = true;
+      }
+    }
+  }
+
+  async function toggleBookmark() {
+    const body = entityBody();
+    if (!body) return;
+
+    bookmarked = !bookmarked;
+    if (bookmarked) {
+      bookmarkAnimating = true;
+      setTimeout(() => { bookmarkAnimating = false; }, 500);
+      try {
+        await api('POST', '/api/bookmarks', body);
+      } catch {
+        bookmarked = false;
+      }
+    } else {
+      try {
+        await api('DELETE', '/api/bookmarks', body);
+      } catch {
+        bookmarked = true;
+      }
+    }
+  }
 
   // Reactively look up discovery info when config changes
   $effect(() => {
@@ -65,6 +128,15 @@
     // Build query params
     const ruleType = rule.type;
     const ruleDefinition = serializeRule(rule);
+
+    // Reset state on actual config change
+    const configKey = `${dim}:${ruleType}:${ruleDefinition}:${nr}`;
+    if (configKey !== lastConfigKey) {
+      lastConfigKey = configKey;
+      liked = false;
+      bookmarked = false;
+      discoveryInfo = null;
+    }
 
     clearTimeout(lookupTimer);
     lookupTimer = setTimeout(async () => {
@@ -77,7 +149,10 @@
         });
         const res = await fetch(`/api/discovery?${params}`);
         if (res.ok) {
-          discoveryInfo = await res.json();
+          const data = await res.json();
+          discoveryInfo = data;
+          liked = data.isLikedByMe ?? false;
+          bookmarked = data.isBookmarkedByMe ?? false;
         } else {
           discoveryInfo = null;
         }
@@ -114,7 +189,7 @@
           <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
         {/if}
         {#if discoveryInfo.totalBookmarks}
-          <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
+          <span>{discoveryInfo.totalBookmarks} in chests</span>
         {/if}
       </div>
     {:else if discoveryInfo && !discoveryInfo.found}
@@ -128,7 +203,7 @@
     {/if}
   </div>
 
-  <!-- Right column: Title + Description -->
+  <!-- Center column: Title + Description -->
   <div class="min-w-0 flex-1">
     <h1 class="truncate text-2xl font-bold text-neutral-900" title={title}>{title}</h1>
 
@@ -144,4 +219,57 @@
 
     <p class="leading-relaxed text-neutral-700">{description}</p>
   </div>
+
+  <!-- Right column: Action buttons -->
+  <div class="flex shrink-0 items-start gap-3 pt-1">
+    <!-- Like button -->
+    <div class="flex flex-col items-center gap-1">
+      <button
+        class="flex h-14 w-14 items-center justify-center rounded-full transition-all {checking ? 'border border-neutral-100 text-neutral-300' : liked ? 'bg-neutral-900 text-yellow-400' : 'border border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {likeAnimating ? 'action-pop' : ''}"
+        aria-label={liked ? 'Unlike' : 'Like'}
+        onclick={toggleLike}
+        disabled={checking}
+      >
+        <svg class="transition-all {checking ? 'h-4 w-4 animate-spin' : 'h-6 w-6'}" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      {#if discoveryInfo?.totalLikes}
+        <span class="text-xs text-neutral-400">{discoveryInfo.totalLikes}</span>
+      {/if}
+    </div>
+
+    <!-- Bookmark button -->
+    <div class="flex flex-col items-center gap-1">
+      <button
+        class="flex h-14 w-14 items-center justify-center rounded-full transition-all {checking ? 'border border-neutral-100 text-neutral-300' : bookmarked ? 'bg-neutral-900 text-yellow-400' : 'border border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {bookmarkAnimating ? 'action-pop' : ''}"
+        aria-label={bookmarked ? 'Remove from chest' : 'Add to chest'}
+        onclick={toggleBookmark}
+        disabled={checking}
+      >
+        <svg class="transition-all {checking ? 'h-4 w-4 animate-spin' : 'h-6 w-6'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+          <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+          <line x1="4" y1="13" x2="20" y2="13" />
+          <rect x="10" y="11" width="4" height="4" rx="1" />
+        </svg>
+      </button>
+      {#if discoveryInfo?.totalBookmarks}
+        <span class="text-xs text-neutral-400">{discoveryInfo.totalBookmarks}</span>
+      {/if}
+    </div>
+  </div>
 </div>
+
+<style>
+  @keyframes pop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.3); }
+    60% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+
+  :global(.action-pop) {
+    animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+</style>

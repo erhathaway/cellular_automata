@@ -109,10 +109,13 @@
       <button
         class="absolute bottom-2 left-2 flex h-8 w-8 items-center justify-center rounded-full opacity-0 shadow-sm backdrop-blur-md transition-opacity group-hover:opacity-100 {isBookmarked ? 'bg-orange-500/80 text-white opacity-100' : 'bg-white/40 text-white hover:bg-white/60'}"
         onclick={toggleBookmark}
-        aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+        aria-label={isBookmarked ? 'Remove from chest' : 'Add to chest'}
       >
-        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+          <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+          <line x1="4" y1="13" x2="20" y2="13" />
+          <rect x="10" y="11" width="4" height="4" rx="1" />
         </svg>
       </button>
     {/if}
