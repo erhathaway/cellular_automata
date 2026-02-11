@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 	// Get discoverer's name
 	const discoverer = await db
-		.select({ name: user.name, imageUrl: user.imageUrl })
+		.select({ name: user.name, displayName: user.displayName, imageUrl: user.imageUrl, avatarId: user.avatarId })
 		.from(user)
 		.where(eq(user.id, disc.discoveredByUserId))
 		.get();
@@ -98,8 +98,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	return json({
 		found: true,
 		fingerprint,
-		discoveredBy: discoverer?.name ?? 'Anonymous',
+		discoveredBy: discoverer?.displayName ?? discoverer?.name ?? 'Anonymous',
 		discoveredByImageUrl: discoverer?.imageUrl ?? null,
+		discoveredByAvatarId: discoverer?.avatarId ?? null,
 		discoveredAt: disc.discoveredAt,
 		saveCount: runs.length + pops.length,
 		totalLikes,

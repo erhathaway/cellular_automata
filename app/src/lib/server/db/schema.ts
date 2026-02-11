@@ -7,6 +7,8 @@ export const user = sqliteTable('user', {
 	email: text('email').notNull(),
 	name: text('name'),
 	imageUrl: text('image_url'),
+	displayName: text('display_name'),
+	avatarId: text('avatar_id'),
 	role: text('role', { enum: ['admin', 'editor', 'user'] })
 		.notNull()
 		.default('user'),

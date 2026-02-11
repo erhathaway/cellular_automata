@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api } from '$lib/api';
+  import PixelAvatar from './PixelAvatar.svelte';
 
   let {
     item,
@@ -148,5 +149,8 @@
   </div>
 
   <!-- Line 2: founder -->
-  <p class="mt-0.5 truncate text-sm text-neutral-500">{item.userName ?? 'Anonymous'}</p>
+  <div class="mt-0.5 flex items-center gap-1.5">
+    <PixelAvatar avatarId={item.userAvatarId} size={16} fallbackInitials={(item.userName ?? 'A')[0]} />
+    <p class="truncate text-sm text-neutral-500">{item.userName ?? 'Anonymous'}</p>
+  </div>
 </div>

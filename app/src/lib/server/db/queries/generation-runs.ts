@@ -97,8 +97,9 @@ export async function listGenerationRuns(params: ListGenerationRunsParams) {
 			likeCount: generationRun.likeCount,
 			bookmarkCount: generationRun.bookmarkCount,
 			createdAt: generationRun.createdAt,
-			userName: user.name,
-			userImageUrl: user.imageUrl
+			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+			userImageUrl: user.imageUrl,
+			userAvatarId: user.avatarId
 		})
 		.from(generationRun)
 		.leftJoin(user, eq(generationRun.userId, user.id))
@@ -139,8 +140,9 @@ export async function getGenerationRun(id: string) {
 			bookmarkCount: generationRun.bookmarkCount,
 			createdAt: generationRun.createdAt,
 			updatedAt: generationRun.updatedAt,
-			userName: user.name,
-			userImageUrl: user.imageUrl
+			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+			userImageUrl: user.imageUrl,
+			userAvatarId: user.avatarId
 		})
 		.from(generationRun)
 		.leftJoin(user, eq(generationRun.userId, user.id))

@@ -1,7 +1,19 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { SignedIn, SignedOut, UserButton } from 'svelte-clerk/client';
+  import { SignedIn, SignedOut } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import PixelAvatar from './PixelAvatar.svelte';
+  import SettingsModal from './SettingsModal.svelte';
+
+  type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
+
+  let {
+    userProfile = null
+  }: {
+    userProfile?: UserProfile;
+  } = $props();
+
+  let settingsOpen = $state(false);
 
   const topItems = [
     { href: '/', label: 'Mine', icon: 'pickaxe' },
@@ -127,9 +139,13 @@
   <!-- Auth -->
   <div class="mt-2 flex flex-col items-center border-t border-black/10 pt-3">
     <SignedIn>
-      <UserButton
-        appearance={{ elements: { avatarBox: 'w-8 h-8' } }}
-      />
+      <button
+        class="rounded-lg p-1 transition-colors hover:bg-black/5"
+        onclick={() => { settingsOpen = true; }}
+        aria-label="Settings"
+      >
+        <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={32} fallbackInitials="?" />
+      </button>
     </SignedIn>
     <SignedOut>
       <a
@@ -145,6 +161,8 @@
     </SignedOut>
   </div>
 </nav>
+
+<SettingsModal bind:open={settingsOpen} {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 
 {#if showGemFly}
   <div class="gem-fly" style={gemStyle}>

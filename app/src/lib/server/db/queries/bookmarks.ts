@@ -93,8 +93,9 @@ export async function listUserBookmarks(
 				seedPopulation: generationRun.seedPopulation,
 				likeCount: generationRun.likeCount,
 				createdAt: generationRun.createdAt,
-				userName: user.name,
-				userImageUrl: user.imageUrl
+				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+				userImageUrl: user.imageUrl,
+				userAvatarId: user.avatarId
 			})
 			.from(bookmark)
 			.innerJoin(generationRun, eq(bookmark.generationRunId, generationRun.id))
@@ -122,8 +123,9 @@ export async function listUserBookmarks(
 				thumbnail: cellPopulation.thumbnail,
 				likeCount: cellPopulation.likeCount,
 				createdAt: cellPopulation.createdAt,
-				userName: user.name,
-				userImageUrl: user.imageUrl
+				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+				userImageUrl: user.imageUrl,
+				userAvatarId: user.avatarId
 			})
 			.from(bookmark)
 			.innerJoin(cellPopulation, eq(bookmark.cellPopulationId, cellPopulation.id))
@@ -155,8 +157,9 @@ export async function listUserBookmarks(
 			thumbnail: cellPopulation.thumbnail,
 			likeCount: cellPopulation.likeCount,
 			createdAt: cellPopulation.createdAt,
-			userName: user.name,
-			userImageUrl: user.imageUrl
+			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+			userImageUrl: user.imageUrl,
+			userAvatarId: user.avatarId
 		})
 		.from(bookmark)
 		.innerJoin(cellPopulation, eq(bookmark.cellPopulationId, cellPopulation.id))

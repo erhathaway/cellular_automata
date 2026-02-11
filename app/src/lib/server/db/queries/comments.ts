@@ -41,8 +41,9 @@ export async function createComment(input: {
 			score: comment.score,
 			createdAt: comment.createdAt,
 			updatedAt: comment.updatedAt,
-			userName: user.name,
-			userImageUrl: user.imageUrl
+			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+			userImageUrl: user.imageUrl,
+			userAvatarId: user.avatarId
 		})
 		.from(comment)
 		.leftJoin(user, eq(comment.userId, user.id))
@@ -71,8 +72,9 @@ export async function getCommentsForFingerprint(
 			score: comment.score,
 			createdAt: comment.createdAt,
 			updatedAt: comment.updatedAt,
-			userName: user.name,
-			userImageUrl: user.imageUrl
+			userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+			userImageUrl: user.imageUrl,
+			userAvatarId: user.avatarId
 		})
 		.from(comment)
 		.leftJoin(user, eq(comment.userId, user.id))

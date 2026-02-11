@@ -2,6 +2,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { api } from '$lib/api';
+  import PixelAvatar from './PixelAvatar.svelte';
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
@@ -48,6 +49,7 @@
     found: boolean;
     discoveredBy?: string;
     discoveredByImageUrl?: string | null;
+    discoveredByAvatarId?: string | null;
     discoveredAt?: string;
     saveCount?: number;
     totalLikes?: number;
@@ -187,13 +189,11 @@
   <div class="flex w-40 shrink-0 flex-col items-center pt-1 text-center">
     <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">Mined by</p>
     {#if discoveryInfo?.found && !automataStore.isMining}
-      {#if discoveryInfo.discoveredByImageUrl}
-        <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-12 w-12 rounded-full" />
-      {:else}
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-200 text-base font-semibold text-neutral-500">
-          {discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
-        </div>
-      {/if}
+      <PixelAvatar
+        avatarId={discoveryInfo.discoveredByAvatarId ?? null}
+        size={48}
+        fallbackInitials={discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
+      />
       <p class="mt-2 text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
       <div class="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-xs text-neutral-500">
         {#if discoveryInfo.discoveredAt}

@@ -48,8 +48,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				likeCount: generationRun.likeCount,
 				bookmarkCount: generationRun.bookmarkCount,
 				createdAt: generationRun.createdAt,
-				userName: user.name,
-				userImageUrl: user.imageUrl
+				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+				userImageUrl: user.imageUrl,
+				userAvatarId: user.avatarId
 			})
 			.from(generationRun)
 			.leftJoin(user, eq(generationRun.userId, user.id))
@@ -89,8 +90,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				likeCount: cellPopulation.likeCount,
 				bookmarkCount: cellPopulation.bookmarkCount,
 				createdAt: cellPopulation.createdAt,
-				userName: user.name,
-				userImageUrl: user.imageUrl
+				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
+				userImageUrl: user.imageUrl,
+				userAvatarId: user.avatarId
 			})
 			.from(cellPopulation)
 			.leftJoin(user, eq(cellPopulation.userId, user.id))

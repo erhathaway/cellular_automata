@@ -1,5 +1,6 @@
 <script lang="ts">
   import { timeAgo } from '$lib/utils/timeAgo';
+  import PixelAvatar from '../PixelAvatar.svelte';
 
   export type CommentData = {
     id: string;
@@ -10,6 +11,7 @@
     createdAt: string;
     userName: string | null;
     userImageUrl: string | null;
+    userAvatarId: string | null;
   };
 
   let {
@@ -41,7 +43,9 @@
 </script>
 
 <div class="flex gap-3">
-  {#if comment.userImageUrl}
+  {#if comment.userAvatarId}
+    <PixelAvatar avatarId={comment.userAvatarId} size={32} fallbackInitials={initials} />
+  {:else if comment.userImageUrl}
     <img
       src={comment.userImageUrl}
       alt=""
