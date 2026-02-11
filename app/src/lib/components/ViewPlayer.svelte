@@ -76,6 +76,7 @@
     } else if (dim === 3 && view === 3) {
       automataManager.useThreeDimensionGenerator();
       automataManager.generationHistorySize = 1800;
+      automataManager.seedDensity = 0.12;
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 

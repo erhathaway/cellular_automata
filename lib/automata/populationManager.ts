@@ -2,11 +2,11 @@ import { UndefinedRequiredParameter } from './errors';
 import type { PopulationShape, Population } from './populationSeed';
 
 export default class PopulationManager {
-  static newState(): number {
-    return Math.round(Math.random());
+  static newState(density = 0.5): number {
+    return Math.random() < density ? 1 : 0;
   }
 
-  static seedPopulationByShape(shape: PopulationShape): Population {
+  static seedPopulationByShape(shape: PopulationShape, density = 0.5): Population {
     if (!shape) throw new UndefinedRequiredParameter('populationShape is not defined');
 
     const dimensions = Object.keys(shape).sort();
@@ -14,13 +14,13 @@ export default class PopulationManager {
     const dimensionPopulation = shape[firstDimension];
 
     if (dimensions.length === 1) {
-      return [...new Array(dimensionPopulation)].map(PopulationManager.newState);
+      return [...new Array(dimensionPopulation)].map(() => PopulationManager.newState(density));
     }
 
     const newShape = { ...shape };
     delete newShape[firstDimension];
     return [...new Array(dimensionPopulation)].map(() =>
-      PopulationManager.seedPopulationByShape(newShape)
+      PopulationManager.seedPopulationByShape(newShape, density)
     );
   }
 

@@ -153,7 +153,12 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.updateCamera();
   }
 
-  renderUpdateFn() {}
+  renderUpdateFn() {
+    // Keep directional light at camera position so cubes are always lit from the viewer's angle
+    if (this.directionalLight) {
+      this.directionalLight.position.copy(this.camera.position);
+    }
+  }
 
   updateCellShape(cellShape?: any) {
     if (cellShape) {

@@ -74,8 +74,10 @@ export default class AutomataManager {
     return this._historyIndex;
   }
 
+  seedDensity = 0.5;
+
   getSeedPopulation(): Population {
-    this._currentPopulation = PopulationManager.seedPopulationByShape(this._populationShape);
+    this._currentPopulation = PopulationManager.seedPopulationByShape(this._populationShape, this.seedDensity);
     this._history = [this._snapshotPopulation(this._currentPopulation)];
     this._historyIndex = 0;
     return this._currentPopulation;
@@ -111,7 +113,7 @@ export default class AutomataManager {
     this._neighborStateExtractor = threeDimensionNeighborhoodStateExtractor;
     this._stateReducer = lifeLikeStateReducer;
     this._ruleApplicator = new LifeLikeRuleApplicator();
-    this._ruleApplicator.rule = { survive: [5, 6], born: [1] };
+    this._ruleApplicator.rule = { survive: [4, 5], born: [5] };
   }
 
   private _computeStateOffCoords = (coords: any, currentPopulation: Population): number => {

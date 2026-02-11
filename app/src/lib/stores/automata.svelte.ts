@@ -33,7 +33,7 @@ function defaultShape(dim: number, viewer: number): Record<string, number> {
   if (dim === 1) return { x: 200 };
   if (dim === 2 && viewer === 2) return { x: 200, y: 200 };
   if (dim === 2 && viewer === 3) return { x: 70, y: 50 };
-  if (dim === 3) return { x: 20, y: 20, z: 35 };
+  if (dim === 3) return { x: 40, y: 40, z: 40 };
   return { x: 200, y: 200 };
 }
 
@@ -59,6 +59,7 @@ function defaultNeighbors(dim: number): string[] {
 
 function defaultRule(dim: number): AutomataRule {
   if (dim === 1) return { type: 'wolfram', rule: 110 };
+  if (dim === 3) return { type: 'conway', survive: [4, 5], born: [5] };
   return { type: 'conway', survive: [2, 3], born: [3] };
 }
 
