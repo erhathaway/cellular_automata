@@ -263,7 +263,16 @@ class AutomataStore {
         }
         return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
       };
-      this.setRule({ type: 'conway', survive: pick(), born: pick() });
+      const born = pick();
+      const survive = pick();
+      this.setRule({ type: 'conway', survive, born });
+
+      // Reduce radius to minimum needed for the rule's max neighbor count
+      const maxUsed = Math.max(...born, ...survive);
+      const minRadius = this._minRadiusForNeighborCount(this.dimension, maxUsed);
+      if (minRadius < this.neighborhoodRadius) {
+        this.setNeighborhoodRadius(minRadius);
+      }
     }
 
     // Randomize cell colors for 2D viewers
@@ -391,6 +400,17 @@ class AutomataStore {
     );
     this._ruleHistory.set(key, { ...this.rule });
     this._radiusHistory.set(key, this.neighborhoodRadius);
+  }
+
+  private _minRadiusForNeighborCount(dim: number, count: number): number {
+    for (let r = 1; r <= 10; r++) {
+      let n: number;
+      if (dim === 1) n = 2 * r;
+      else if (dim === 3) n = (2 * r + 1) ** 3 - 1;
+      else n = (2 * r + 1) ** 2 - 1;
+      if (n >= count) return r;
+    }
+    return 10;
   }
 
   private _restoreOrDefault() {
