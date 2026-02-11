@@ -25,7 +25,7 @@
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
-  <main class="relative h-full min-w-0 flex-1 overflow-hidden">
+  <main class="relative h-full min-w-0 flex-1 overflow-y-auto">
     {@render children()}
 
     <!-- Right toggle tab -->

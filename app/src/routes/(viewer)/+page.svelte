@@ -4,10 +4,19 @@
   import ViewModeSwitcher from '$lib/components/ViewModeSwitcher.svelte';
   import ViewControls from '$lib/components/ViewControls.svelte';
   import StableModal from '$lib/components/StableModal.svelte';
+  import ViewerDescription from '$lib/components/ViewerDescription.svelte';
+  import ViewerComments from '$lib/components/ViewerComments.svelte';
 </script>
 
-<ViewPlayer />
-<MenuPanel />
-<ViewModeSwitcher />
-<ViewControls />
-<StableModal />
+<section class="relative h-screen">
+  <ViewPlayer />
+  <MenuPanel />
+  <ViewModeSwitcher />
+  <ViewControls />
+  <StableModal />
+</section>
+
+<section class="relative z-10 bg-white">
+  <ViewerDescription />
+  <ViewerComments />
+</section>
