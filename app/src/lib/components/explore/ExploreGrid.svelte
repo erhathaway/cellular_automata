@@ -18,35 +18,23 @@
   } = $props();
 
   let containerEl = $state<HTMLElement>();
-  let scrollParent: HTMLElement | null = null;
-
-  function getScrollParent(el: HTMLElement): HTMLElement {
-    let node = el.parentElement;
-    while (node) {
-      const style = getComputedStyle(node);
-      if (/(auto|scroll)/.test(style.overflowY)) return node;
-      node = node.parentElement;
-    }
-    return document.documentElement;
-  }
 
   function checkNearBottom() {
-    if (!scrollParent || !onloadmore) return;
-    const el = scrollParent;
-    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 600;
-    if (nearBottom) {
+    if (!containerEl || !onloadmore) return;
+    const rect = containerEl.getBoundingClientRect();
+    // If the bottom of our content is within 800px of the viewport bottom, load more
+    if (rect.bottom < window.innerHeight + 800) {
       onloadmore();
     }
   }
 
-  // Set up scroll listener once container is available
+  // Listen for ANY scroll event (capture phase catches scrolls on all elements)
   $effect(() => {
     if (!containerEl) return;
-    scrollParent = getScrollParent(containerEl);
 
-    scrollParent.addEventListener('scroll', checkNearBottom, { passive: true });
+    document.addEventListener('scroll', checkNearBottom, { capture: true, passive: true });
     return () => {
-      scrollParent?.removeEventListener('scroll', checkNearBottom);
+      document.removeEventListener('scroll', checkNearBottom, { capture: true });
     };
   });
 
