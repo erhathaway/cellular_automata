@@ -27,12 +27,12 @@
   class="flex items-center"
   style="
     margin: 1px; flex-grow: 1;
-    {isDockedTop ? 'height: 100%; justify-content: center;' : 'width: 100%; border-bottom: 1px solid #0e0e0e;'}
+    {isDockedTop ? 'height: 100%; justify-content: center;' : 'width: 100%; border-bottom: 1px solid #e5e5e5;'}
     {onclick ? 'cursor: pointer;' : ''}
     {isDockedRight ? 'justify-content: flex-end;' : 'justify-content: flex-start;'}
   "
   style:background-color={isMenuMoving ? 'transparent' : undefined}
-  onmouseenter={(e) => { if (!isMenuMoving && onclick) (e.currentTarget as HTMLElement).style.backgroundColor = '#4040403d'; }}
+  onmouseenter={(e) => { if (!isMenuMoving && onclick) (e.currentTarget as HTMLElement).style.backgroundColor = '#f3f3f3'; }}
   onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
   onclick={handleClick}
 >
@@ -46,7 +46,7 @@
     <h1
       class="m-0 w-full select-none"
       style="
-        color: rgba(156,156,156,1); letter-spacing: 3px; min-width: 70px;
+        color: rgba(30,30,30,1); letter-spacing: 3px; min-width: 70px;
         {isDocked ? 'font-size: 20px;' : 'font-size: 15px;'}
         {isDockedRight ? 'text-align: right;' : 'text-align: left;'}
       "
@@ -56,9 +56,9 @@
     <h2
       class="m-0 w-full uppercase select-none"
       style="
-        color: white; font-size: 10px; letter-spacing: 2.3px; margin-top: 5px; margin-bottom: 5px;
+        color: rgba(100,100,100,1); font-size: 10px; letter-spacing: 2.3px; margin-top: 5px; margin-bottom: 5px;
         {isDockedRight ? 'text-align: right;' : 'text-align: left;'}
-        {isDockedTop ? 'border-bottom: 1px solid rgba(72, 72, 72, 0.5); padding-bottom: 5px;' : ''}
+        {isDockedTop ? 'border-bottom: 1px solid rgba(200, 200, 200, 0.5); padding-bottom: 5px;' : ''}
       "
     >
       {title}

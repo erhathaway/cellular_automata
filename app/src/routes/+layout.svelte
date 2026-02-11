@@ -35,11 +35,13 @@
 <div class="flex h-screen w-screen overflow-hidden">
 	<!-- Left drawer -->
 	<aside
-		class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
+		class="relative z-10 h-full shrink-0 transition-[width] duration-300 ease-out"
 		style:width="{leftOpen ? LEFT_WIDTH : 0}px"
-		style:background="linear-gradient(to right, rgb(0,0,0), rgba(0,0,0,0.92))"
 	>
-		<div class="h-full" style:width="{LEFT_WIDTH}px">
+		<div
+			class="h-full overflow-hidden"
+			style="width: {LEFT_WIDTH}px; background: white; box-shadow: 2px 0 6px rgba(0,0,0,0.15), 6px 0 14px rgba(0,0,0,0.1);"
+		>
 			<NavSidebar />
 		</div>
 	</aside>
@@ -50,8 +52,8 @@
 
 		<!-- Left toggle tab -->
 		<button
-			class="absolute left-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
-			style="border-radius: 0 6px 6px 0;"
+			class="absolute left-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-white text-neutral-400 transition-colors hover:text-black"
+			style="border: 1px solid #e5e5e5; border-left: none; border-radius: 0 6px 6px 0;"
 			onclick={toggleLeft}
 			aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
 		>

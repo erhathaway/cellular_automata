@@ -191,22 +191,22 @@
 
   // Nav style
   let navStyle = $derived.by(() => {
-    const base = 'background-color: black; background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62)); overflow: hidden;';
+    const base = 'background-color: white; overflow: hidden;';
     const transition = isTransitioning
       ? 'transition: left 0.3s ease-out, top 0.3s ease-out, width 0.3s ease-out, height 0.3s ease-out, border-radius 0.3s ease-out;'
       : '';
 
     if (isDockedLeft) {
-      return `${base} ${transition} left: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0;`;
+      return `${base} ${transition} left: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0; box-shadow: 2px 0 6px rgba(0,0,0,0.15), 6px 0 14px rgba(0,0,0,0.1);`;
     }
     if (isDockedRight) {
-      return `${base} ${transition} right: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0;`;
+      return `${base} ${transition} right: 0; top: 0; width: ${MENU_WIDTH}px; height: 100%; border-radius: 0; box-shadow: -2px 0 6px rgba(0,0,0,0.15), -6px 0 14px rgba(0,0,0,0.1);`;
     }
     if (isDockedTop) {
-      return `${base} ${transition} left: 0; top: 0; width: 100%; height: ${DOCKED_HORIZONTAL_HEIGHT}px; border-radius: 0;`;
+      return `${base} ${transition} left: 0; top: 0; width: 100%; height: ${DOCKED_HORIZONTAL_HEIGHT}px; border-radius: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1);`;
     }
     const h = isOpen ? UNDOCKED_MENU_HEIGHT : CLOSED_MENU_HEIGHT;
-    return `${base} ${transition} left: ${menuX}px; top: ${menuY}px; width: ${MENU_WIDTH}px; height: ${h}px; border-radius: 6px; border: 1px solid rgba(56,56,56,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);`;
+    return `${base} ${transition} left: ${menuX}px; top: ${menuY}px; width: ${MENU_WIDTH}px; height: ${h}px; border-radius: 6px; border: 1px solid rgba(220,220,220,0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1);`;
   });
 </script>
 
@@ -244,9 +244,9 @@
     style="{isDockedTop ? 'width: 50px; height: 100%;' : isDocked ? 'width: 100%; height: 60px;' : 'width: 100%; height: 35px; min-height: 35px;'}"
     onmousedown={onDragStart}
   >
-    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-500"></div>
-    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-500"></div>
-    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-500"></div>
+    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-400"></div>
+    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-400"></div>
+    <div class="mx-[3px] my-[5px] h-[6px] w-[6px] rounded-full bg-gray-400"></div>
   </div>
 
   {#if isOpen || isDocked}
@@ -322,9 +322,9 @@
   >
     <div
       class="flex flex-col items-center justify-center rounded-sm"
-      style="background-color: black;
-             background-image: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7), rgba(0,0,0,0.67), rgba(0,0,0,0.67), rgba(0,0,0,0.62));
-             box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+      style="background-color: white;
+             box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1);
+             border: 1px solid rgba(220,220,220,0.8);
              margin: 3px; padding: 16px;"
     >
       {#if activePopup === 'dimensions'}

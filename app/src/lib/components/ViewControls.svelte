@@ -287,7 +287,7 @@
 
     <!-- Bar Track -->
     <div
-      style="position: absolute; top: 50%; left: 0; right: 0; height: {active ? 8 : 6}px; transform: translateY(-50%); background: black; border-radius: 4px; transition: height 0.15s ease; overflow: hidden;"
+      style="position: absolute; top: 50%; left: 0; right: 0; height: {active ? 8 : 6}px; transform: translateY(-50%); background: black; border-radius: 4px; transition: height 0.15s ease; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1);"
     >
       <!-- Progress Fill -->
       <div
@@ -304,73 +304,79 @@
   </div>
 
   <!-- Buttons Row -->
-  <div class="absolute bottom-0 left-0 flex items-center gap-2">
-    <!-- Play Button -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="flex cursor-pointer items-center justify-center"
-      style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); color: white; background-color: black;"
-      onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(40,40,40,1)'; }}
-      onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'black'; }}
-      onclick={() => automataStore.togglePlay()}
-    >
-      {#if automataStore.isPlaying}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" style="height: 20px; width: 20px;">
-          <path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/>
+  <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between">
+    <!-- Left: Play + Reset -->
+    <div class="flex items-center gap-2">
+      <!-- Play Button -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center justify-center"
+        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.3), 0 6px 14px rgba(37,99,235,0.15); color: white; background-color: #2563eb;"
+        onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#1d4ed8'; }}
+        onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'; }}
+        onclick={() => automataStore.togglePlay()}
+      >
+        {#if automataStore.isPlaying}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" style="height: 20px; width: 20px;">
+            <path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/>
+          </svg>
+        {:else}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" style="height: 20px; width: 20px;">
+            <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>
+          </svg>
+        {/if}
+      </div>
+
+      <!-- Reset Button -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center justify-center"
+        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1); color: white; background-color: black;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(40,40,40,1)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'black'; }}
+        onclick={() => automataStore.reset()}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
         </svg>
-      {:else}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" style="height: 20px; width: 20px;">
-          <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>
+      </div>
+    </div>
+
+    <!-- Right: Bookmark + Comment -->
+    <div class="flex items-center gap-2">
+      <!-- Bookmark Button -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center justify-center"
+        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(234,179,8,0.3), 0 6px 14px rgba(234,179,8,0.15); color: white; background-color: #eab308;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#ca8a04'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#eab308'; }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
         </svg>
-      {/if}
-    </div>
+      </div>
 
-    <!-- Reset Button -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="flex cursor-pointer items-center justify-center"
-      style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); color: white; background-color: black;"
-      onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(40,40,40,1)'; }}
-      onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'black'; }}
-      onclick={() => automataStore.reset()}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-      </svg>
-    </div>
-
-    <!-- Bookmark Button -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="flex cursor-pointer items-center justify-center"
-      style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); color: white; background-color: black;"
-      onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(40,40,40,1)'; }}
-      onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'black'; }}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-      </svg>
-    </div>
-
-    <!-- Comment Button -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="flex cursor-pointer items-center justify-center"
-      style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); color: white; background-color: black;"
-      onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(40,40,40,1)'; }}
-      onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'black'; }}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zm-4 0H9v2h2V9z" clip-rule="evenodd" />
-      </svg>
+      <!-- Comment Button -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center justify-center"
+        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.3), 0 6px 14px rgba(16,185,129,0.15); color: white; background-color: #10b981;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#059669'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#10b981'; }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zm-4 0H9v2h2V9z" clip-rule="evenodd" />
+        </svg>
+      </div>
     </div>
   </div>
 </aside>

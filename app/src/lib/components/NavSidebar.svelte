@@ -27,8 +27,8 @@
         href={item.href}
         class="flex w-full flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors
           {active
-            ? 'bg-white/10 text-white'
-            : 'text-neutral-500 hover:text-neutral-300'}"
+            ? 'bg-blue-50 text-blue-600'
+            : 'text-black/70 hover:text-black hover:bg-black/5'}"
       >
         {#if item.icon === 'grid'}
           <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -64,8 +64,8 @@
         href={item.href}
         class="flex w-full flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors
           {active
-            ? 'bg-white/10 text-white'
-            : 'text-neutral-500 hover:text-neutral-300'}"
+            ? 'bg-blue-50 text-blue-600'
+            : 'text-black/70 hover:text-black hover:bg-black/5'}"
       >
         {#if item.icon === 'book-open'}
           <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">

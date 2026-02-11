@@ -14,9 +14,9 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="flex items-center justify-center"
-  style="height: 30px; width: 80px; text-align: center; padding: 10px; letter-spacing: 4px; font-size: 14px; border-radius: 2px; margin-left: -1px; color: {isActive ? 'yellow' : 'gray'}; border: 1px solid #5d5c5c; {isActive ? 'background-color: #00000047;' : ''} cursor: pointer;"
-  onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = 'white'; el.style.backgroundColor = 'black'; }}
-  onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = isActive ? 'yellow' : 'gray'; el.style.backgroundColor = isActive ? '#00000047' : 'transparent'; }}
+  style="height: 30px; width: 80px; text-align: center; padding: 10px; letter-spacing: 4px; font-size: 14px; border-radius: 2px; margin-left: -1px; color: {isActive ? '#2563eb' : '#555'}; border: 1px solid #d4d4d4; {isActive ? 'background-color: #eff6ff;' : ''} cursor: pointer;"
+  onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = 'black'; el.style.backgroundColor = '#f3f3f3'; }}
+  onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.color = isActive ? '#2563eb' : '#555'; el.style.backgroundColor = isActive ? '#eff6ff' : 'transparent'; }}
   onclick={onclick}
 >
   {@render children()}

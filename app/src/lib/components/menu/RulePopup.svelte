@@ -19,7 +19,7 @@
 
   {#if automataStore.rule.type === 'wolfram'}
     <div class="flex w-4/5 items-center gap-2">
-      <span class="text-xs text-gray-400" style="letter-spacing: 2px;">Rule #</span>
+      <span class="text-xs text-gray-500" style="letter-spacing: 2px;">Rule #</span>
       <input
         type="number"
         min="0"
@@ -31,14 +31,14 @@
             automataStore.setRule({ type: 'wolfram', rule: v });
           }
         }}
-        class="h-[30px] w-full border-b border-gray-500 bg-transparent text-white outline-none"
+        class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
         style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
       />
     </div>
   {:else}
     <div class="flex w-4/5 flex-col gap-3">
       <div class="flex items-center gap-2">
-        <span class="w-14 text-xs text-gray-400" style="letter-spacing: 2px;">Survive</span>
+        <span class="w-14 text-xs text-gray-500" style="letter-spacing: 2px;">Survive</span>
         <input
           type="text"
           value={automataStore.rule.survive.join(', ')}
@@ -50,12 +50,12 @@
               born: automataStore.rule.type === 'conway' ? automataStore.rule.born : [3],
             });
           }}
-          class="h-[30px] w-full border-b border-gray-500 bg-transparent text-white outline-none"
+          class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
           style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
         />
       </div>
       <div class="flex items-center gap-2">
-        <span class="w-14 text-xs text-gray-400" style="letter-spacing: 2px;">Born</span>
+        <span class="w-14 text-xs text-gray-500" style="letter-spacing: 2px;">Born</span>
         <input
           type="text"
           value={automataStore.rule.born.join(', ')}
@@ -67,7 +67,7 @@
               born,
             });
           }}
-          class="h-[30px] w-full border-b border-gray-500 bg-transparent text-white outline-none"
+          class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
           style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
         />
       </div>

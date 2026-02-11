@@ -16,7 +16,7 @@
   </div>
   {#each keys as dimName}
     <div class="mb-2.5 flex w-4/5 justify-center">
-      <div class="flex h-[30px] items-end" style="width: 20px; margin-right: 20px; color: white; flex-grow: 1;">
+      <div class="flex h-[30px] items-end" style="width: 20px; margin-right: 20px; color: #333; flex-grow: 1;">
         {dimName}
       </div>
       <input
@@ -28,7 +28,7 @@
             automataStore.setPopulationShapeDimension(dimName, v);
           }
         }}
-        class="h-[30px] border-b border-gray-500 bg-transparent text-white outline-none"
+        class="h-[30px] border-b border-gray-300 bg-transparent text-black outline-none"
         style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px; flex-grow: 2;"
       />
     </div>

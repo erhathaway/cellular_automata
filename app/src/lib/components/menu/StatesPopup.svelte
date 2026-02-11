@@ -23,13 +23,13 @@
   <!-- Key header -->
   <div class="mb-4 flex w-[200px] justify-between">
     <div
-      class="flex w-full justify-center border-b border-gray-500 px-5 py-1 text-center text-xs text-white"
+      class="flex w-full justify-center border-b border-gray-300 px-5 py-1 text-center text-xs text-black"
       style="letter-spacing: 3px;"
     >
       #
     </div>
     <div
-      class="flex w-full justify-center border-b border-gray-500 px-5 py-1 text-center text-xs text-white"
+      class="flex w-full justify-center border-b border-gray-300 px-5 py-1 text-center text-xs text-black"
       style="letter-spacing: 3px;"
     >
       Color
@@ -40,7 +40,7 @@
   <div class="flex w-[200px] flex-col">
     {#each automataStore.cellStates as cellState}
       <div class="flex h-10 w-[200px] items-center justify-evenly">
-        <div class="flex h-[30px] w-full items-center justify-center p-1 text-white" style="margin-left: 10px; margin-right: 20px;">
+        <div class="flex h-[30px] w-full items-center justify-center p-1 text-black" style="margin-left: 10px; margin-right: 20px;">
           {cellState.number}
         </div>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -51,7 +51,7 @@
           onclick={() => toggleColorEditor(cellState.number)}
         >
           <div
-            class="mr-1 h-[30px] w-[30px] border border-white"
+            class="mr-1 h-[30px] w-[30px] border border-gray-300"
             style="background-color: {hslString(cellState.color)};"
           ></div>
         </div>
@@ -59,7 +59,7 @@
 
       {#if editingState === cellState.number}
         <div class="mb-3 flex flex-col gap-2 px-2">
-          <label class="flex items-center gap-2 text-xs text-white">
+          <label class="flex items-center gap-2 text-xs text-black">
             H
             <input
               type="range"
@@ -75,7 +75,7 @@
               class="w-full"
             />
           </label>
-          <label class="flex items-center gap-2 text-xs text-white">
+          <label class="flex items-center gap-2 text-xs text-black">
             S
             <input
               type="range"
@@ -91,7 +91,7 @@
               class="w-full"
             />
           </label>
-          <label class="flex items-center gap-2 text-xs text-white">
+          <label class="flex items-center gap-2 text-xs text-black">
             L
             <input
               type="range"
