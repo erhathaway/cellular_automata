@@ -15,10 +15,15 @@
     if (rule.type === 'wolfram') {
       return `${name} — Rule ${rule.rule}`;
     }
-    const born = rule.born.join('');
-    const survive = rule.survive.join('');
+    const maxNums = 6;
+    const bornStr = rule.born.length > maxNums
+      ? rule.born.slice(0, maxNums).join('') + '…'
+      : rule.born.join('');
+    const surviveStr = rule.survive.length > maxNums
+      ? rule.survive.slice(0, maxNums).join('') + '…'
+      : rule.survive.join('');
     const nc = automataStore.neighbors.length;
-    return `${name} (${nc}n) — B${born}/S${survive}`;
+    return `${name} (${nc}n) — B${bornStr}/S${surviveStr}`;
   });
 
   let description = $derived.by(() => {
@@ -125,7 +130,7 @@
 
   <!-- Right column: Title + Description -->
   <div class="min-w-0 flex-1">
-    <h1 class="text-2xl font-bold text-neutral-900">{title}</h1>
+    <h1 class="truncate text-2xl font-bold text-neutral-900" title={title}>{title}</h1>
 
     <div class="mt-2 flex items-center gap-4 text-sm text-neutral-500">
       <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
