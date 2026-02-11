@@ -261,6 +261,15 @@ class AutomataStore {
       };
       this.setRule({ type: 'conway', survive: pick(), born: pick() });
     }
+
+    // Randomize cell colors for 2D viewers
+    if (this.dimension === 2) {
+      const h1 = Math.floor(Math.random() * 360);
+      const h0 = (h1 + 30 + Math.floor(Math.random() * 60)) % 360;
+      this.setCellStateColor(0, { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
+      this.setCellStateColor(1, { h: h1, s: 0.7 + Math.random() * 0.3, l: 0.25 + Math.random() * 0.25, a: 1 });
+    }
+
     this.reset();
   }
 
