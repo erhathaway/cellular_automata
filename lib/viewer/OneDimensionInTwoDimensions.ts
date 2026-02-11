@@ -95,6 +95,8 @@ export default class OneDimensionViewerInTwoDimensions extends BaseClass {
     super.clearGenerations();
     this.currentGenerationCount = 0;
     this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
+    this.scene.position.set(0, 0, 0);
+    this.totalDistanceToMovePerAnimation = 0;
   }
 
   initialize() {}

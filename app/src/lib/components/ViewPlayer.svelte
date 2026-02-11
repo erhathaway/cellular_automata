@@ -193,7 +193,7 @@
     let trailSize = 1;
     if (dim === 2 && view === 2) trailSize = 40;
     else if (dim === 2 && view === 3) trailSize = 60;
-    else if (dim === 1 && view === 2) trailSize = viewer.maxGenerationsToShow ? viewer.maxGenerationsToShow * 2 : 100;
+    else if (dim === 1 && view === 2) trailSize = viewer.maxGenerationsToShow || 100;
 
     // Seek automata manager to a position that allows trail preloading
     const seekStart = Math.max(0, target - trailSize);
@@ -207,6 +207,9 @@
     for (let i = 0; i < steps; i++) {
       viewer.addGeneration();
     }
+
+    // Ensure automata is at target (1D guard can block some addGeneration calls)
+    automataManager.seekTo(target);
 
     // Apply color gradient for 2D-2D viewer
     if (dim === 2 && view === 2 && viewer.meshes) {

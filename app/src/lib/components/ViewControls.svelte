@@ -17,9 +17,8 @@
       : 0
   );
 
-  let fillColor = $derived(
-    automataStore.hslString(automataStore.cellStates[1]?.color ?? { h: 0, s: 0, l: 0, a: 1 })
-  );
+  // Always use the 2D-2D blue for the progress bar
+  const fillColor = 'hsl(234, 70%, 40%)';
 
   let active = $derived(isHovering || isDragging);
 
