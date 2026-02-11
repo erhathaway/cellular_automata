@@ -22,7 +22,7 @@
   }
 </script>
 
-<div class="fixed top-4 left-1/2 -translate-x-1/2 z-20 flex gap-1 rounded-lg p-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+<div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex gap-1 rounded-lg p-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
   {#each modes as mode, i}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->

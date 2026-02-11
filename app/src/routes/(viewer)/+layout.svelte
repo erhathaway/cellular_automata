@@ -1,6 +1,4 @@
 <script lang="ts">
-  import SideMenu from '$lib/components/SideMenu.svelte';
-
   let { children } = $props();
 
   let leftOpen = $state(true);
@@ -39,7 +37,7 @@
     style:background="linear-gradient(to right, rgb(0,0,0), rgba(0,0,0,0.92))"
   >
     <div class="h-full" style:width="{DRAWER_WIDTH}px">
-      <SideMenu />
+      <!-- Left drawer content -->
     </div>
   </aside>
 

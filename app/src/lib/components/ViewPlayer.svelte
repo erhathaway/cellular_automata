@@ -268,6 +268,6 @@
 
 <div
   bind:this={containerEl}
-  class="fixed inset-0 z-0 overflow-hidden"
+  class="absolute inset-0 z-0 overflow-hidden"
   style:background-color={bgColor}
 ></div>

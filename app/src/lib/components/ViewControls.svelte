@@ -248,8 +248,8 @@
 </script>
 
 <aside
-  class="fixed z-20"
-  style="bottom: 20px; left: 250px; height: 76px; width: calc(100% - 500px); min-width: 400px;"
+  class="absolute z-20"
+  style="bottom: 20px; left: 20px; right: 20px; height: 76px;"
 >
   <!-- Progress Bar Hit Area -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
