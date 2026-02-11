@@ -214,6 +214,21 @@ export default class AutomataManager {
     );
   }
 
+  checkStability(lookback = 20): { stable: boolean; period: number } {
+    if (this._history.length < 2) return { stable: false, period: 0 };
+
+    const current = this._history[this._history.length - 1];
+    const searchStart = Math.max(0, this._history.length - 1 - lookback);
+
+    for (let i = this._history.length - 2; i >= searchStart; i--) {
+      const past = this._history[i];
+      if (current.length === past.length && current.every((b, j) => b === past[j])) {
+        return { stable: true, period: this._history.length - 1 - i };
+      }
+    }
+    return { stable: false, period: 0 };
+  }
+
   run(): Population {
     if (this.populationShapeChanged) {
       this.resizeCurrentPopulation();

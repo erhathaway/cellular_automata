@@ -27,6 +27,16 @@
       automataManager!.totalGenerations,
       automataManager!.generationHistorySize
     );
+
+    // Check for stability every 10 generations
+    if (automataManager!.totalGenerations % 10 === 0) {
+      const result = automataManager!.checkStability(20);
+      if (result.stable && !automataStore.stableDetected) {
+        automataStore.setStable(result.period);
+        automataStore.pause();
+      }
+    }
+
     return pop;
   }
 
@@ -48,6 +58,8 @@
     }
 
     if (!containerEl) return;
+
+    automataStore.dismissStable();
 
     const dim = automataStore.dimension;
     const view = automataStore.viewer;

@@ -3,6 +3,7 @@
 	import MenuPanel from '$lib/components/MenuPanel.svelte';
 	import ViewControls from '$lib/components/ViewControls.svelte';
 	import ViewModeSwitcher from '$lib/components/ViewModeSwitcher.svelte';
+	import StableModal from '$lib/components/StableModal.svelte';
 </script>
 
 <div class="relative h-full w-full">
@@ -10,4 +11,5 @@
 	<MenuPanel />
 	<ViewModeSwitcher />
 	<ViewControls />
+	<StableModal />
 </div>

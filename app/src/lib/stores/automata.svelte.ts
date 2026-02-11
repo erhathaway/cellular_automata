@@ -95,6 +95,10 @@ class AutomataStore {
   historyCapacity = $state(1);
   seekTarget: number | null = $state(null);
 
+  // Stability detection
+  stableDetected = $state(false);
+  stablePeriod = $state(0);
+
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
@@ -195,6 +199,18 @@ class AutomataStore {
     this.generationIndex = 0;
     this.totalGenerations = 0;
     this.seekTarget = null;
+    this.stableDetected = false;
+    this.stablePeriod = 0;
+  }
+
+  setStable(period: number) {
+    this.stableDetected = true;
+    this.stablePeriod = period;
+  }
+
+  dismissStable() {
+    this.stableDetected = false;
+    this.stablePeriod = 0;
   }
 
   updateGenerationInfo(index: number, total: number, capacity?: number) {
