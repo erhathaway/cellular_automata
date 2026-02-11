@@ -54,6 +54,11 @@ export default class BaseClass {
   updateRateInMS?: number;
   updateStartTime: number;
 
+  // Adaptive throttle: tracks natural frame interval during heavy computation
+  // so replay from history doesn't run faster than live computation did
+  private _naturalInterval = 0;
+  private _lastAnimateTime = 0;
+
   private _resizeHandler: () => void;
 
   constructor({ containerEl, type, populationShape, retrieveNextGeneration }: ViewerConstructorOptions) {
@@ -146,6 +151,7 @@ export default class BaseClass {
   }
   turnSimulationOn() {
     this.runSimulation = true;
+    this._lastAnimateTime = 0;
   }
 
   get containerWidth() {
@@ -193,7 +199,24 @@ export default class BaseClass {
           this.animateUpdateFn();
         }
       } else {
+        const now = performance.now();
+        const elapsed = this._lastAnimateTime > 0 ? now - this._lastAnimateTime : Infinity;
+
+        // Skip frame if replaying faster than the natural computation rate
+        if (this._naturalInterval > 0 && elapsed < this._naturalInterval * 0.8) {
+          return;
+        }
+
+        this._lastAnimateTime = now;
         this.animateUpdateFn();
+
+        // Track interval from frames where computation was heavy (>1 rAF frame)
+        // Replay frames are fast (~16ms) so they won't update this
+        if (elapsed > 20 && elapsed < 500) {
+          this._naturalInterval = this._naturalInterval === 0
+            ? elapsed
+            : this._naturalInterval * 0.9 + elapsed * 0.1;
+        }
       }
     }
   };
