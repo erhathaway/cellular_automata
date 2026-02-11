@@ -3,15 +3,14 @@
 
   let { children } = $props();
 
-  let leftExpanded = $state(false);
+  let leftOpen = $state(true);
   let rightOpen = $state(false);
 
-  const LEFT_COLLAPSED = 52;
-  const LEFT_EXPANDED = 168;
+  const LEFT_WIDTH = 72;
   const RIGHT_WIDTH = 260;
 
   function toggleLeft() {
-    leftExpanded = !leftExpanded;
+    leftOpen = !leftOpen;
     animateResize();
   }
 
@@ -37,10 +36,12 @@
   <!-- Left drawer -->
   <aside
     class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-    style:width="{leftExpanded ? LEFT_EXPANDED : LEFT_COLLAPSED}px"
+    style:width="{leftOpen ? LEFT_WIDTH : 0}px"
     style:background="linear-gradient(to right, rgb(0,0,0), rgba(0,0,0,0.92))"
   >
-    <NavSidebar expanded={leftExpanded} />
+    <div class="h-full" style:width="{LEFT_WIDTH}px">
+      <NavSidebar />
+    </div>
   </aside>
 
   <!-- Center: viewer content -->
@@ -52,10 +53,10 @@
       class="absolute left-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
       style="border-radius: 0 6px 6px 0;"
       onclick={toggleLeft}
-      aria-label={leftExpanded ? 'Collapse left panel' : 'Expand left panel'}
+      aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
     >
       <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-        {#if leftExpanded}
+        {#if leftOpen}
           <path d="M7.5 2L4.5 6L7.5 10" />
         {:else}
           <path d="M4.5 2L7.5 6L4.5 10" />

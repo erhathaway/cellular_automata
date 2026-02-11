@@ -34,7 +34,7 @@
 	});
 </script>
 
-<div class="fixed inset-0 flex items-start justify-center overflow-y-auto" style="background-color: rgba(0,0,0,0.95);">
+<div class="fixed inset-0 flex justify-center" style="background-color: rgba(0,0,0,0.95);">
 	<!-- Mobile nav bar -->
 	<div class="fixed left-0 top-0 z-40 flex h-[50px] w-full items-center bg-[#252525] px-5 md:hidden">
 		<button
@@ -48,88 +48,91 @@
 		</button>
 	</div>
 
-	<!-- Nav container (sidebar + exit buttons) -->
-	<div
-		class="mt-[10vh] flex h-[80vh] flex-col items-center max-md:fixed max-md:inset-0 max-md:z-40 max-md:mt-0 max-md:h-full max-md:w-full max-md:justify-start max-md:bg-black {sidebarOpen ? '' : 'max-md:hidden'}"
-	>
-		<!-- Exit / Home buttons -->
-		<div class="flex items-center justify-center" style="height: 70px;">
-			<a
-				href="/"
-				aria-label="Back to viewer"
-				class="mx-2.5 flex h-[50px] w-[50px] items-center justify-center rounded-full border-[3px] border-[rgba(56,56,56,0.9)] bg-transparent text-[rgba(56,56,56,0.9)] transition-colors hover:border-green-500 hover:text-green-500"
-			>
-				<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-				</svg>
-			</a>
-			<a
-				href="/intro"
-				aria-label="Home"
-				class="mx-2.5 flex h-[50px] w-[50px] items-center justify-center rounded-full border-[3px] border-[rgba(56,56,56,0.9)] bg-transparent text-[rgba(56,56,56,0.9)] transition-colors hover:border-green-500 hover:text-green-500"
-			>
-				<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-					<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-				</svg>
-			</a>
-		</div>
-
-		<!-- Sidebar -->
-		<nav
-			class="flex h-[70%] w-[250px] flex-col items-end justify-center"
-			style="border-right: 1px solid rgba(56, 56, 56, 0.6); color: rgba(156, 156, 156, 1); letter-spacing: 8px;"
+	<!-- Centered inner wrapper (nav + content side by side) -->
+	<div class="flex h-full">
+		<!-- Nav container (sidebar + exit buttons) — fixed on desktop -->
+		<div
+			class="flex h-full shrink-0 flex-col items-center pt-[10vh] max-md:fixed max-md:inset-0 max-md:z-40 max-md:pt-0 max-md:bg-black {sidebarOpen ? '' : 'max-md:hidden'}"
 		>
-			{#each docPages as page}
-				<button
-					onclick={() => loadDocComponent(page.slug)}
-					class="cursor-pointer border-none bg-transparent px-2.5 py-2.5 text-right transition-colors"
-					style="color: inherit; letter-spacing: 6px; margin: 10px; margin-right: 50px; padding-bottom: 10px;
-						{activeDoc === page.slug
-							? 'border-bottom: 1px solid white; margin-bottom: 15px; margin-top: 10px;'
-							: ''}"
-					class:hover-green={activeDoc !== page.slug}
+			<!-- Exit / Home buttons -->
+			<div class="flex items-center justify-center" style="height: 70px;">
+				<a
+					href="/"
+					aria-label="Back to viewer"
+					class="mx-2.5 flex h-[50px] w-[50px] items-center justify-center rounded-full border-[3px] border-[rgba(56,56,56,0.9)] bg-transparent text-[rgba(56,56,56,0.9)] transition-colors hover:border-green-500 hover:text-green-500"
 				>
-					{page.title}
-				</button>
-			{/each}
-		</nav>
-	</div>
+					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+					</svg>
+				</a>
+				<a
+					href="/intro"
+					aria-label="Home"
+					class="mx-2.5 flex h-[50px] w-[50px] items-center justify-center rounded-full border-[3px] border-[rgba(56,56,56,0.9)] bg-transparent text-[rgba(56,56,56,0.9)] transition-colors hover:border-green-500 hover:text-green-500"
+				>
+					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+					</svg>
+				</a>
+			</div>
 
-	<!-- Doc content -->
-	<div
-		bind:this={contentEl}
-		class="overflow-hidden max-md:px-5 {sidebarOpen ? 'max-md:hidden' : ''}"
-		style="width: 500px; padding-left: 100px; margin-left: 10px;"
-	>
-		<!-- Markdown content -->
-		<div class="doc" style="margin-top: 200px; margin-bottom: 100px;">
-			{#if DocComponent}
-				<DocComponent />
-			{:else}
-				<p style="color: rgba(156, 156, 156, 1);">Documentation coming soon...</p>
-			{/if}
+			<!-- Sidebar -->
+			<nav
+				class="flex h-[70%] w-[250px] flex-col items-end justify-center"
+				style="border-right: 1px solid rgba(56, 56, 56, 0.6); color: rgba(156, 156, 156, 1); letter-spacing: 8px;"
+			>
+				{#each docPages as page}
+					<button
+						onclick={() => loadDocComponent(page.slug)}
+						class="cursor-pointer border-none bg-transparent px-2.5 py-2.5 text-right transition-colors"
+						style="color: inherit; letter-spacing: 6px; margin: 10px; margin-right: 50px; padding-bottom: 10px;
+							{activeDoc === page.slug
+								? 'border-bottom: 1px solid white; margin-bottom: 15px; margin-top: 10px;'
+								: ''}"
+						class:hover-green={activeDoc !== page.slug}
+					>
+						{page.title}
+					</button>
+				{/each}
+			</nav>
 		</div>
 
-		<!-- Prev / Next navigation -->
-		<div class="mb-[50px] flex h-[100px] w-full items-center justify-center">
-			{#if prevPage}
-				<button
-					onclick={() => loadDocComponent(prevPage.slug)}
-					class="mx-5 flex cursor-pointer items-center border border-[rgba(56,56,56,0.6)] bg-transparent px-[15px] py-2.5 text-white transition-colors hover:border-green-500 hover:text-green-500"
-				>
-					<span class="mr-2 flex items-center text-[30px]">&larr;</span>
-					<span style="letter-spacing: 3px;">{prevPage.title}</span>
-				</button>
-			{/if}
-			{#if nextPage}
-				<button
-					onclick={() => loadDocComponent(nextPage.slug)}
-					class="mx-5 flex cursor-pointer items-center border border-[rgba(56,56,56,0.6)] bg-transparent px-[15px] py-2.5 text-white transition-colors hover:border-green-500 hover:text-green-500"
-				>
-					<span style="letter-spacing: 3px;">{nextPage.title}</span>
-					<span class="ml-2 flex items-center text-[30px]">&rarr;</span>
-				</button>
-			{/if}
+		<!-- Doc content (scrollable) -->
+		<div
+			bind:this={contentEl}
+			class="overflow-y-auto max-md:px-5 {sidebarOpen ? 'max-md:hidden' : ''}"
+			style="width: 600px; padding-left: 100px;"
+		>
+			<!-- Markdown content -->
+			<div class="doc" style="max-width: 500px; margin-top: 200px; margin-bottom: 100px;">
+				{#if DocComponent}
+					<DocComponent />
+				{:else}
+					<p style="color: rgba(156, 156, 156, 1);">Documentation coming soon...</p>
+				{/if}
+			</div>
+
+			<!-- Prev / Next navigation -->
+			<div class="mb-[50px] flex h-[100px] max-w-[500px] items-center justify-center">
+				{#if prevPage}
+					<button
+						onclick={() => loadDocComponent(prevPage.slug)}
+						class="mx-5 flex cursor-pointer items-center border border-[rgba(56,56,56,0.6)] bg-transparent px-[15px] py-2.5 text-white transition-colors hover:border-green-500 hover:text-green-500"
+					>
+						<span class="mr-2 flex items-center text-[30px]">&larr;</span>
+						<span style="letter-spacing: 3px;">{prevPage.title}</span>
+					</button>
+				{/if}
+				{#if nextPage}
+					<button
+						onclick={() => loadDocComponent(nextPage.slug)}
+						class="mx-5 flex cursor-pointer items-center border border-[rgba(56,56,56,0.6)] bg-transparent px-[15px] py-2.5 text-white transition-colors hover:border-green-500 hover:text-green-500"
+					>
+						<span style="letter-spacing: 3px;">{nextPage.title}</span>
+						<span class="ml-2 flex items-center text-[30px]">&rarr;</span>
+					</button>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
