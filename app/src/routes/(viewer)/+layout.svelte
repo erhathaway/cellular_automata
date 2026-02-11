@@ -1,4 +1,6 @@
 <script lang="ts">
+  import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
+
   let { children } = $props();
 
   let rightOpen = $state(false);
@@ -52,7 +54,7 @@
     style:background="linear-gradient(to left, rgb(0,0,0), rgba(0,0,0,0.92))"
   >
     <div class="h-full" style:width="{RIGHT_WIDTH}px">
-      <!-- Right drawer content (placeholder) -->
+      <RightDrawerContent />
     </div>
   </aside>
 </div>

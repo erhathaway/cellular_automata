@@ -1,6 +1,76 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { SignedIn } from 'svelte-clerk/client';
+  import SaveDialog from './SaveDialog.svelte';
+  import { api } from '$lib/api';
+
+  let saveDialogOpen = $state(false);
+  let savedEntityId: string | null = $state(null);
+  let savedEntityType: 'generation_run' | 'cell_population' | null = $state(null);
+  let isLiked = $state(false);
+  let isBookmarked = $state(false);
+  let likeCount = $state(0);
+
+  function handleSaved(info: { id: string; entityType: 'generation_run' | 'cell_population' }) {
+    savedEntityId = info.id;
+    savedEntityType = info.entityType;
+    isLiked = false;
+    isBookmarked = false;
+    likeCount = 0;
+  }
+
+  async function toggleLike() {
+    if (!savedEntityId || !savedEntityType) return;
+    const body = savedEntityType === 'generation_run'
+      ? { generationRunId: savedEntityId }
+      : { cellPopulationId: savedEntityId };
+    if (isLiked) {
+      isLiked = false;
+      likeCount = Math.max(0, likeCount - 1);
+      try {
+        await api('DELETE', '/api/likes', body);
+      } catch {
+        isLiked = true;
+        likeCount++;
+      }
+    } else {
+      isLiked = true;
+      likeCount++;
+      try {
+        await api('POST', '/api/likes', body);
+      } catch (err: any) {
+        if (!err.message?.startsWith('409')) {
+          isLiked = false;
+          likeCount = Math.max(0, likeCount - 1);
+        }
+      }
+    }
+  }
+
+  async function toggleBookmark() {
+    if (!savedEntityId || !savedEntityType) return;
+    const body = savedEntityType === 'generation_run'
+      ? { generationRunId: savedEntityId }
+      : { cellPopulationId: savedEntityId };
+    if (isBookmarked) {
+      isBookmarked = false;
+      try {
+        await api('DELETE', '/api/bookmarks', body);
+      } catch {
+        isBookmarked = true;
+      }
+    } else {
+      isBookmarked = true;
+      try {
+        await api('POST', '/api/bookmarks', body);
+      } catch (err: any) {
+        if (!err.message?.startsWith('409')) {
+          isBookmarked = false;
+        }
+      }
+    }
+  }
 
   let progressBarEl: HTMLElement;
   let previewCanvas: HTMLCanvasElement = $state(undefined as any);
@@ -347,37 +417,67 @@
 
     </div>
 
-    <!-- Right: Bookmark + Comment -->
+    <!-- Right: Save + Like + Bookmark -->
     <div class="flex items-center gap-2">
-      <!-- Bookmark Button -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <div
-        class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(234,179,8,0.3), 0 6px 14px rgba(234,179,8,0.15); color: white; background-color: #eab308;"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#ca8a04'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#eab308'; }}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-        </svg>
-      </div>
+      <!-- Save Button (signed in only) -->
+      <SignedIn>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="flex cursor-pointer items-center justify-center"
+          style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(20,184,166,0.3), 0 6px 14px rgba(20,184,166,0.15); color: white; background-color: #14b8a6;"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#0d9488'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#14b8a6'; }}
+          onclick={() => (saveDialogOpen = true)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9.707 2.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L6.293 7.707a1 1 0 01-1.414-1.414l4-4z" />
+            <path d="M3 15a2 2 0 012-2h10a2 2 0 012 2v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" />
+          </svg>
+        </div>
+      </SignedIn>
 
-      <!-- Comment Button -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <div
-        class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.3), 0 6px 14px rgba(16,185,129,0.15); color: white; background-color: #10b981;"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#059669'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#10b981'; }}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zm-4 0H9v2h2V9z" clip-rule="evenodd" />
-        </svg>
-      </div>
+      <!-- Like Button (only when saved) -->
+      {#if savedEntityId}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="flex cursor-pointer items-center justify-center"
+          style="height: 44px; min-width: 44px; padding: 0 8px; border-radius: 4px; box-shadow: 0 2px 6px rgba(239,68,68,0.3), 0 6px 14px rgba(239,68,68,0.15); color: white; background-color: {isLiked ? '#dc2626' : '#ef4444'};"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#dc2626'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = isLiked ? '#dc2626' : '#ef4444'; }}
+          onclick={toggleLike}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+          </svg>
+          {#if likeCount > 0}
+            <span class="ml-1 text-xs font-medium">{likeCount}</span>
+          {/if}
+        </div>
+      {/if}
+
+      <!-- Bookmark Button (only when saved) -->
+      {#if savedEntityId}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="flex cursor-pointer items-center justify-center"
+          style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(234,179,8,0.3), 0 6px 14px rgba(234,179,8,0.15); color: white; background-color: {isBookmarked ? '#ca8a04' : '#eab308'};"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#ca8a04'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = isBookmarked ? '#ca8a04' : '#eab308'; }}
+          onclick={toggleBookmark}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+          </svg>
+        </div>
+      {/if}
     </div>
   </div>
 </aside>
+
+<SaveDialog bind:open={saveDialogOpen} onsaved={handleSaved} />

@@ -99,6 +99,10 @@
     automataStore.renderPreviewFrame = (populations: any[], canvas: HTMLCanvasElement) => {
       if (viewer?.renderPreview) viewer.renderPreview(populations, canvas);
     };
+    automataStore.getCanvasDataURL = () => {
+      if (!viewer?.renderer?.domElement) return null;
+      return viewer.renderer.domElement.toDataURL('image/png');
+    };
 
     if (viewer) {
       // Set cell state colors
@@ -142,6 +146,7 @@
     mounted = false;
     automataStore.getPopulationAtIndex = null;
     automataStore.renderPreviewFrame = null;
+    automataStore.getCanvasDataURL = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;

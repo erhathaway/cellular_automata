@@ -5,7 +5,7 @@
   const topItems = [
     { href: '/', label: 'Viewer', icon: 'grid' },
     { href: '/explore', label: 'Explore', icon: 'compass' },
-    { href: '/bookmarks', label: 'Bookmarks', icon: 'bookmark' },
+    { href: '/bookmarks', label: 'My Saves', icon: 'bookmark' },
   ];
 
   const bottomItems = [

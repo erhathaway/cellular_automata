@@ -112,7 +112,7 @@ export default class BaseClass {
   updateScene() {}
 
   initRenderer() {
-    this.renderer = new WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer = new WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
     this.renderer.shadowMap.enabled = true;
     this.updateRenderer();
   }

@@ -111,6 +111,7 @@ class AutomataStore {
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
+  getCanvasDataURL: (() => string | null) | null = null;
 
   // Indexed history for shape, cellStates, and rule
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
@@ -299,6 +300,34 @@ class AutomataStore {
     this.cellStates = this._cellStatesHistory.get(key)
       ? this._cellStatesHistory.get(key)!.map((s) => ({ ...s }))
       : defaultCellStates(dim, viewer);
+  }
+
+  // --- Export for save ---
+  exportForSave() {
+    const rule = this.rule;
+    const ruleType = rule.type;
+    let ruleDefinition: string;
+    if (rule.type === 'wolfram') {
+      ruleDefinition = `W${rule.rule}`;
+    } else {
+      ruleDefinition = `B${rule.born.join('')}S${rule.survive.join('')}`;
+    }
+
+    let stability: 'evolving' | 'quasi_stable' | 'fixed' = 'evolving';
+    if (this.stableKind === 'exact') stability = 'fixed';
+    else if (this.stableKind === 'quasi') stability = 'quasi_stable';
+
+    return {
+      dimension: this.dimension,
+      viewer: this.viewer,
+      ruleType,
+      ruleDefinition,
+      populationShape: JSON.stringify(this.populationShape),
+      cellStates: JSON.stringify(this.cellStates),
+      generationIndex: this.generationIndex,
+      stability,
+      stablePeriod: this.stablePeriod || null
+    };
   }
 
   // --- Internal helpers ---
