@@ -24,7 +24,7 @@
     }
   }
 
-  function handleLoad(item: any) {
+  async function handleLoad(item: any) {
     const dim = item.dimension;
     const viewer = item.viewer;
     const rule = deserializeRule(item.ruleDefinition);
@@ -37,8 +37,15 @@
       automataStore.hydrateCombo(dim, viewer, settings);
     }
     automataStore.hydrateActive(dim, viewer);
-    if (item.seedPopulation) {
-      automataStore.savedSeed = base64ToUint8Array(item.seedPopulation);
+
+    // Fetch seed on demand (not included in list responses for performance)
+    if (item.entityType === 'generation_run') {
+      try {
+        const { seedPopulation } = await api<{ seedPopulation: string | null }>('GET', `/api/seed?id=${item.id}`);
+        automataStore.savedSeed = seedPopulation ? base64ToUint8Array(seedPopulation) : null;
+      } catch {
+        automataStore.savedSeed = null;
+      }
     } else {
       automataStore.savedSeed = null;
     }

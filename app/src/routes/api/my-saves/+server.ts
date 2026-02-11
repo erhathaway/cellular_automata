@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
-import { generationRun, cellPopulation, user, entityTag, tag } from '$lib/server/db/schema';
+import { generationRun, cellPopulation, user } from '$lib/server/db/schema';
 import { eq, desc, sql } from 'drizzle-orm';
 
 export const GET: RequestHandler = async ({ locals, url }) => {

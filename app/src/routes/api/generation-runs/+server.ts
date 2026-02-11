@@ -99,12 +99,5 @@ export const GET: RequestHandler = async ({ url }) => {
 		limit: limit ? parseInt(limit) : 20
 	});
 
-	const items = result.items.map((item: any) => {
-		if (item.seedPopulation) {
-			return { ...item, seedPopulation: (item.seedPopulation as Buffer).toString('base64') };
-		}
-		return item;
-	});
-
-	return json({ ...result, items });
+	return json(result);
 };
