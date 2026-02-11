@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SignedIn, SignedOut } from 'svelte-clerk/client';
+  import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
 
@@ -184,6 +184,41 @@
     </div>
   {/if}
 </SignedIn>
+
+<SignedOut>
+  {#if isUndiscovered && !automataStore.isMining && !(automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1)}
+    <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/'} asChild>
+      {#snippet children({ signIn })}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+          class="flex cursor-pointer items-center gap-2 rounded-full px-6 py-3 text-sm font-medium shadow-lg transition-colors"
+          style="background-color: #facc15; color: #000; box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#eab308'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#facc15'; }}
+          onclick={signIn}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 {animating ? 'gem-found' : ''}"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 3h12l4 6-10 13L2 9Z" />
+            <path d="M11 3 8 9l4 13 4-13-3-6" />
+            <path d="M2 9h20" />
+          </svg>
+          Sign in to claim
+        </div>
+      {/snippet}
+    </SignInButton>
+  {/if}
+</SignedOut>
 
 <style>
   @keyframes gem-bounce {
