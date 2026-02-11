@@ -104,7 +104,7 @@
     if (!previewCanvas || hoveredIndex < 0) return;
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
-    if (dim === 2 && view === 3) renderPreview3D();
+    if (view === 3) renderPreview3D();
     else if (dim === 2) renderPreview2D();
     else if (dim === 1) renderPreview1D();
   }
@@ -224,6 +224,9 @@
       const h = Math.max(1, numRows);
       return { width: maxW, height: Math.max(20, Math.round(maxW * h / w)) };
     }
+    if (dim === 3) {
+      return { width: maxW, height: maxW };
+    }
     return { width: 0, height: 0 };
   });
 
@@ -231,7 +234,7 @@
     active && hoveredIndex >= 0 && automataStore.totalGenerations > 1
   );
 
-  let showCanvas = $derived(showTooltip && automataStore.dimension !== 3);
+  let showCanvas = $derived(showTooltip);
 
   onMount(() => {
     window.addEventListener('mousemove', handleWindowMouseMove);
