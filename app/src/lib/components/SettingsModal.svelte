@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AVATARS } from '$lib/avatars';
   import PixelAvatar from './PixelAvatar.svelte';
+  import { SignOutButton } from 'svelte-clerk';
   import { api } from '$lib/api';
   import { goto } from '$app/navigation';
 
@@ -163,6 +164,16 @@
       >
         {saving ? 'Saving...' : 'Save'}
       </button>
+
+      <hr class="my-6 border-neutral-200" />
+
+      <SignOutButton redirectUrl="/intro">
+        <button
+          class="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
+        >
+          Log Out
+        </button>
+      </SignOutButton>
 
       <!-- Danger zone -->
       <hr class="my-6 border-neutral-200" />
