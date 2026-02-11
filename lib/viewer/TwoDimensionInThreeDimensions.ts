@@ -126,11 +126,11 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       const t = count > 1 ? i / (count - 1) : 1;
       const opacity = 0.05 + t * 0.95;
       // Shift hue: oldest → +270° from base, newest → base hue
-      const hue = (h + (1 - t) * 270) % 360;
-      // Shift lightness: oldest → 85%, newest → original
-      const lightness = Math.floor(85 - t * (85 - lPercent));
-      // Shift saturation: oldest → 30%, newest → original
-      const sat = Math.floor(30 + t * (sPercent - 30));
+      const hue = (h - (1 - t) * 190 + 360) % 360;
+      // Shift lightness: oldest → brighter (95%), newest → original
+      const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
+      // Shift saturation: oldest → full (100%), newest → original
+      const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
       if (group.children.length > 0) {
         const mat = (group.children[0] as Mesh).material as MeshLambertMaterial;
         mat.opacity = opacity;
@@ -206,9 +206,9 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
       // Same gradient as updateTrailAppearance
       const opacity = 0.05 + t * 0.95;
-      const hue = (baseH + (1 - t) * 270) % 360;
-      const lightness = Math.floor(85 - t * (85 - lPercent));
-      const sat = Math.floor(30 + t * (sPercent - 30));
+      const hue = (baseH - (1 - t) * 190 + 360) % 360;
+      const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
+      const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
 
       const mat = new MeshLambertMaterial({
         color: new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`),
