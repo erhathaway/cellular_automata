@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { generationRun, cellPopulation, user, like, bookmark, entityTag, tag } from '$lib/server/db/schema';
-import { eq, desc, and, sql, isNotNull } from 'drizzle-orm';
+import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	const type = url.searchParams.get('type') ?? 'all';
@@ -15,7 +15,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const auth = locals.auth();
 	const userId = auth.userId;
 
-	const items: any[] = [];
+	let runItems: any[] = [];
+	let popItems: any[] = [];
 
 	// Fetch generation runs
 	if (type === 'all' || type === 'generation_run') {
@@ -27,7 +28,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				? [desc(generationRun.likeCount), desc(generationRun.createdAt)]
 				: [desc(generationRun.createdAt)];
 
-		let runsQuery = db
+		runItems = await db
 			.select({
 				id: generationRun.id,
 				entityType: sql<string>`'generation_run'`.as('entity_type'),
@@ -54,46 +55,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.where(runConditions.length > 0 ? and(...runConditions) : undefined)
 			.orderBy(...runOrderBy)
 			.limit(type === 'all' ? Math.ceil(limit / 2) : limit);
-
-		const runs = await runsQuery;
-
-		// Fetch like/bookmark status for authenticated user
-		for (const run of runs) {
-			let isLikedByMe = false;
-			let isBookmarkedByMe = false;
-			if (userId) {
-				const userLike = await db
-					.select({ id: like.id })
-					.from(like)
-					.where(and(eq(like.userId, userId), eq(like.generationRunId, run.id)))
-					.get();
-				isLikedByMe = !!userLike;
-
-				const userBookmark = await db
-					.select({ id: bookmark.id })
-					.from(bookmark)
-					.where(
-						and(eq(bookmark.userId, userId), eq(bookmark.generationRunId, run.id))
-					)
-					.get();
-				isBookmarkedByMe = !!userBookmark;
-			}
-
-			// Fetch tags
-			const tags = await db
-				.select({ tagName: tag.name, entityTagId: entityTag.id, upvoteCount: entityTag.upvoteCount })
-				.from(entityTag)
-				.innerJoin(tag, eq(entityTag.tagId, tag.id))
-				.where(eq(entityTag.generationRunId, run.id))
-				.orderBy(desc(entityTag.upvoteCount));
-
-			items.push({
-				...run,
-				isLikedByMe,
-				isBookmarkedByMe,
-				tags
-			});
-		}
 	}
 
 	// Fetch cell populations
@@ -106,7 +67,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				? [desc(cellPopulation.likeCount), desc(cellPopulation.createdAt)]
 				: [desc(cellPopulation.createdAt)];
 
-		const pops = await db
+		popItems = await db
 			.select({
 				id: cellPopulation.id,
 				entityType: sql<string>`'cell_population'`.as('entity_type'),
@@ -135,44 +96,103 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.where(popConditions.length > 0 ? and(...popConditions) : undefined)
 			.orderBy(...popOrderBy)
 			.limit(type === 'all' ? Math.floor(limit / 2) : limit);
+	}
 
-		for (const pop of pops) {
-			let isLikedByMe = false;
-			let isBookmarkedByMe = false;
-			if (userId) {
-				const userLike = await db
-					.select({ id: like.id })
-					.from(like)
-					.where(
-						and(eq(like.userId, userId), eq(like.cellPopulationId, pop.id))
-					)
-					.get();
-				isLikedByMe = !!userLike;
+	// Batch fetch likes, bookmarks, and tags
+	const runIds = runItems.map((r) => r.id);
+	const popIds = popItems.map((p) => p.id);
 
-				const userBookmark = await db
-					.select({ id: bookmark.id })
-					.from(bookmark)
-					.where(
-						and(eq(bookmark.userId, userId), eq(bookmark.cellPopulationId, pop.id))
-					)
-					.get();
-				isBookmarkedByMe = !!userBookmark;
-			}
+	// Batch likes & bookmarks for authenticated user
+	const likedRunIds = new Set<string>();
+	const bookmarkedRunIds = new Set<string>();
+	const likedPopIds = new Set<string>();
+	const bookmarkedPopIds = new Set<string>();
 
-			const tags = await db
-				.select({ tagName: tag.name, entityTagId: entityTag.id, upvoteCount: entityTag.upvoteCount })
-				.from(entityTag)
+	if (userId) {
+		const [runLikes, runBookmarks, popLikes, popBookmarks] = await Promise.all([
+			runIds.length > 0
+				? db.select({ runId: like.generationRunId }).from(like)
+					.where(and(eq(like.userId, userId), inArray(like.generationRunId, runIds)))
+				: [],
+			runIds.length > 0
+				? db.select({ runId: bookmark.generationRunId }).from(bookmark)
+					.where(and(eq(bookmark.userId, userId), inArray(bookmark.generationRunId, runIds)))
+				: [],
+			popIds.length > 0
+				? db.select({ popId: like.cellPopulationId }).from(like)
+					.where(and(eq(like.userId, userId), inArray(like.cellPopulationId, popIds)))
+				: [],
+			popIds.length > 0
+				? db.select({ popId: bookmark.cellPopulationId }).from(bookmark)
+					.where(and(eq(bookmark.userId, userId), inArray(bookmark.cellPopulationId, popIds)))
+				: [],
+		]);
+
+		for (const r of runLikes) if (r.runId) likedRunIds.add(r.runId);
+		for (const r of runBookmarks) if (r.runId) bookmarkedRunIds.add(r.runId);
+		for (const p of popLikes) if (p.popId) likedPopIds.add(p.popId);
+		for (const p of popBookmarks) if (p.popId) bookmarkedPopIds.add(p.popId);
+	}
+
+	// Batch fetch tags
+	const [runTags, popTags] = await Promise.all([
+		runIds.length > 0
+			? db.select({
+				generationRunId: entityTag.generationRunId,
+				tagName: tag.name,
+				entityTagId: entityTag.id,
+				upvoteCount: entityTag.upvoteCount
+			}).from(entityTag)
 				.innerJoin(tag, eq(entityTag.tagId, tag.id))
-				.where(eq(entityTag.cellPopulationId, pop.id))
-				.orderBy(desc(entityTag.upvoteCount));
+				.where(inArray(entityTag.generationRunId, runIds))
+				.orderBy(desc(entityTag.upvoteCount))
+			: [],
+		popIds.length > 0
+			? db.select({
+				cellPopulationId: entityTag.cellPopulationId,
+				tagName: tag.name,
+				entityTagId: entityTag.id,
+				upvoteCount: entityTag.upvoteCount
+			}).from(entityTag)
+				.innerJoin(tag, eq(entityTag.tagId, tag.id))
+				.where(inArray(entityTag.cellPopulationId, popIds))
+				.orderBy(desc(entityTag.upvoteCount))
+			: [],
+	]);
 
-			items.push({
-				...pop,
-				isLikedByMe,
-				isBookmarkedByMe,
-				tags
-			});
-		}
+	// Group tags by entity id
+	const runTagsMap = new Map<string, any[]>();
+	for (const t of runTags) {
+		const id = t.generationRunId!;
+		if (!runTagsMap.has(id)) runTagsMap.set(id, []);
+		runTagsMap.get(id)!.push({ tagName: t.tagName, entityTagId: t.entityTagId, upvoteCount: t.upvoteCount });
+	}
+	const popTagsMap = new Map<string, any[]>();
+	for (const t of popTags) {
+		const id = t.cellPopulationId!;
+		if (!popTagsMap.has(id)) popTagsMap.set(id, []);
+		popTagsMap.get(id)!.push({ tagName: t.tagName, entityTagId: t.entityTagId, upvoteCount: t.upvoteCount });
+	}
+
+	// Assemble items
+	const items: any[] = [];
+
+	for (const run of runItems) {
+		items.push({
+			...run,
+			isLikedByMe: likedRunIds.has(run.id),
+			isBookmarkedByMe: bookmarkedRunIds.has(run.id),
+			tags: runTagsMap.get(run.id) ?? []
+		});
+	}
+
+	for (const pop of popItems) {
+		items.push({
+			...pop,
+			isLikedByMe: likedPopIds.has(pop.id),
+			isBookmarkedByMe: bookmarkedPopIds.has(pop.id),
+			tags: popTagsMap.get(pop.id) ?? []
+		});
 	}
 
 	// Sort combined results
