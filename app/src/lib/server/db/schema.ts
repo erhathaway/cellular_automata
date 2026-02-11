@@ -218,6 +218,57 @@ export const tagUpvote = sqliteTable(
 	(table) => [uniqueIndex('tag_upvote_entity_tag_user_idx').on(table.entityTagId, table.userId)]
 );
 
+// --- Comment (self-referencing for 1-level replies) ---
+
+export const comment = sqliteTable(
+	'comment',
+	{
+		id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		fingerprint: text('fingerprint').notNull(),
+		parentId: text('parent_id'),
+		body: text('body').notNull(),
+		score: integer('score').notNull().default(0),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date()),
+		updatedAt: integer('updated_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(table) => [
+		index('comment_fingerprint_idx').on(table.fingerprint),
+		index('comment_fingerprint_created_at_idx').on(table.fingerprint, table.createdAt),
+		index('comment_fingerprint_score_idx').on(table.fingerprint, table.score),
+		index('comment_parent_id_idx').on(table.parentId),
+		index('comment_user_id_idx').on(table.userId)
+	]
+);
+
+// --- Comment Vote ---
+
+export const commentVote = sqliteTable(
+	'comment_vote',
+	{
+		id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		commentId: text('comment_id')
+			.notNull()
+			.references(() => comment.id, { onDelete: 'cascade' }),
+		value: integer('value').notNull(), // +1 or -1
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(table) => [
+		uniqueIndex('comment_vote_user_comment_idx').on(table.userId, table.commentId)
+	]
+);
+
 // --- Discovery ---
 
 export const discovery = sqliteTable(
