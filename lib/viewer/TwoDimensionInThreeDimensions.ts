@@ -8,6 +8,8 @@ import {
   Color,
   BoxGeometry,
   Group,
+  Scene,
+  WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import BaseClass from './base';
@@ -20,6 +22,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   controls?: OrbitControls;
   ambientLight?: AmbientLight;
   directionalLight?: DirectionalLight;
+  private _previewRenderer?: WebGLRenderer;
 
   constructor(opts: ViewerConstructorOptions) {
     super({ ...opts, type: 'two-dimension-in-three-dimensions' });
@@ -166,6 +169,73 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     this.updateCellShape();
   }
 
+  renderPreview(population: number[][], canvas: HTMLCanvasElement) {
+    if (!this._previewRenderer) {
+      this._previewRenderer = new WebGLRenderer({ alpha: true, antialias: true });
+    }
+
+    const w = canvas.width || 160;
+    const h = canvas.height || 160;
+    this._previewRenderer.setSize(w, h);
+    this._previewRenderer.setClearColor(new Color(this.hslStringStates[0]), 1);
+
+    // Build temp scene with lighting
+    const tempScene = new Scene();
+    const ambient = new AmbientLight(0xffffff, 0.5);
+    tempScene.add(ambient);
+    const dirLight = new DirectionalLight(0xffffff, 1.0);
+    dirLight.position.set(200, 500, 300);
+    tempScene.add(dirLight);
+
+    // Build population cubes centered at origin
+    const diameter = this.cellShape.x;
+    const mat = new MeshLambertMaterial({ color: new Color(this.hslStringStates[1]) });
+    const geom = new BoxGeometry(diameter, diameter, diameter);
+    const xOff = (this._populationShape.x * diameter) / 2;
+    const yOff = ((this._populationShape.y || this._populationShape.x) * diameter) / 2;
+
+    population.forEach((col: number[], colNum: number) => {
+      col.forEach((cell: number, cellNum: number) => {
+        if (cell === 1) {
+          const cube = new Mesh(geom, mat);
+          cube.position.set(
+            diameter * colNum - xOff,
+            0,
+            diameter * cellNum - yOff
+          );
+          tempScene.add(cube);
+        }
+      });
+    });
+
+    // Camera matching current view angle relative to origin
+    const cam = new OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 1, 10000);
+    if (this.controls) {
+      const offset = new Vector3().copy(this.camera.position).sub(this.controls.target);
+      cam.position.copy(offset);
+    } else {
+      cam.position.set(-350, 800, 685);
+    }
+    cam.lookAt(0, 0, 0);
+    cam.zoom = (this.camera as OrthographicCamera).zoom;
+    cam.updateProjectionMatrix();
+
+    this._previewRenderer.render(tempScene, cam);
+
+    // Copy to preview canvas
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(this._previewRenderer.domElement, 0, 0);
+    }
+
+    // Cleanup temp objects
+    geom.dispose();
+    mat.dispose();
+    ambient.dispose();
+    dirLight.dispose();
+  }
+
   customObjectsCleanup() {
     if (this.ambientLight) {
       this.scene.remove(this.ambientLight);
@@ -177,6 +247,11 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       }
       this.scene.remove(this.directionalLight);
       this.dispose(this.directionalLight);
+    }
+    if (this._previewRenderer) {
+      try { this._previewRenderer.forceContextLoss(); } catch (_e) {}
+      this._previewRenderer.dispose();
+      this._previewRenderer = undefined;
     }
   }
 

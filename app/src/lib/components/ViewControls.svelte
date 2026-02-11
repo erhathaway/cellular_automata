@@ -102,8 +102,19 @@
   function renderPreview() {
     if (!previewCanvas || hoveredIndex < 0) return;
     const dim = automataStore.dimension;
-    if (dim === 2) renderPreview2D();
+    const view = automataStore.viewer;
+    if (dim === 2 && view === 3) renderPreview3D();
+    else if (dim === 2) renderPreview2D();
     else if (dim === 1) renderPreview1D();
+  }
+
+  function renderPreview3D() {
+    const pop = automataStore.getPopulationAtIndex?.(hoveredIndex);
+    if (!pop) return;
+    // Set canvas to display size for WebGL rendering
+    previewCanvas.width = previewDisplaySize.width;
+    previewCanvas.height = previewDisplaySize.height;
+    automataStore.renderPreviewFrame?.(pop, previewCanvas);
   }
 
   function renderPreview2D() {
@@ -254,7 +265,7 @@
           {#if showCanvas}
             <canvas
               bind:this={previewCanvas}
-              style="width: {previewDisplaySize.width}px; height: {previewDisplaySize.height}px; image-rendering: pixelated; border-radius: 2px;"
+              style="width: {previewDisplaySize.width}px; height: {previewDisplaySize.height}px; {automataStore.viewer === 3 ? '' : 'image-rendering: pixelated;'} border-radius: 2px;"
             ></canvas>
           {/if}
           <span

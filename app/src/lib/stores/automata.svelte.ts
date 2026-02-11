@@ -94,8 +94,9 @@ class AutomataStore {
   historyCapacity = $state(1);
   seekTarget: number | null = $state(null);
 
-  // Preview callback (set by ViewPlayer, not reactive)
+  // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
+  renderPreviewFrame: ((population: any, canvas: HTMLCanvasElement) => void) | null = null;
 
   // Indexed history for shape and cellStates
   private _shapeHistory: Map<string, Record<string, number>> = new Map();

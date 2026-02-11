@@ -79,10 +79,13 @@
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
-    // Wire preview callback
+    // Wire preview callbacks
     automataStore.getPopulationAtIndex = (index: number) => {
       if (!automataManager) return null;
       return automataManager.getPopulationAtIndex(index);
+    };
+    automataStore.renderPreviewFrame = (population: any, canvas: HTMLCanvasElement) => {
+      if (viewer?.renderPreview) viewer.renderPreview(population, canvas);
     };
 
     if (viewer) {
@@ -126,6 +129,7 @@
   onDestroy(() => {
     mounted = false;
     automataStore.getPopulationAtIndex = null;
+    automataStore.renderPreviewFrame = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;
