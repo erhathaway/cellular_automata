@@ -41,42 +41,42 @@
     </div>
   </aside>
 
-  <!-- Left toggle tab -->
-  <button
-    class="z-10 flex h-12 w-6 shrink-0 cursor-pointer items-center justify-center self-center border-none text-neutral-500 transition-colors hover:text-white"
-    style="background: rgba(0,0,0,0.7); border-radius: 0 6px 6px 0;"
-    onclick={toggleLeft}
-    aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
-  >
-    <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-      {#if leftOpen}
-        <path d="M7.5 2L4.5 6L7.5 10" />
-      {:else}
-        <path d="M4.5 2L7.5 6L4.5 10" />
-      {/if}
-    </svg>
-  </button>
-
   <!-- Center: viewer content -->
   <main class="relative h-full min-w-0 flex-1 overflow-hidden">
     {@render children()}
-  </main>
 
-  <!-- Right toggle tab -->
-  <button
-    class="z-10 flex h-12 w-6 shrink-0 cursor-pointer items-center justify-center self-center border-none text-neutral-500 transition-colors hover:text-white"
-    style="background: rgba(0,0,0,0.7); border-radius: 6px 0 0 6px;"
-    onclick={toggleRight}
-    aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
-  >
-    <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-      {#if rightOpen}
-        <path d="M4.5 2L7.5 6L4.5 10" />
-      {:else}
-        <path d="M7.5 2L4.5 6L7.5 10" />
-      {/if}
-    </svg>
-  </button>
+    <!-- Left toggle tab -->
+    <button
+      class="absolute left-0 top-1/2 z-30 flex h-12 w-6 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
+      style="border-radius: 0 6px 6px 0;"
+      onclick={toggleLeft}
+      aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
+    >
+      <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        {#if leftOpen}
+          <path d="M7.5 2L4.5 6L7.5 10" />
+        {:else}
+          <path d="M4.5 2L7.5 6L4.5 10" />
+        {/if}
+      </svg>
+    </button>
+
+    <!-- Right toggle tab -->
+    <button
+      class="absolute right-0 top-1/2 z-30 flex h-12 w-6 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
+      style="border-radius: 6px 0 0 6px;"
+      onclick={toggleRight}
+      aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
+    >
+      <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        {#if rightOpen}
+          <path d="M4.5 2L7.5 6L4.5 10" />
+        {:else}
+          <path d="M7.5 2L4.5 6L7.5 10" />
+        {/if}
+      </svg>
+    </button>
+  </main>
 
   <!-- Right drawer -->
   <aside
