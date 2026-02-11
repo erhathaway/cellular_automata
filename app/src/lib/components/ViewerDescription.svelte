@@ -91,7 +91,7 @@
 <div class="mx-auto max-w-3xl px-6 py-10">
   <h1 class="text-2xl font-bold text-neutral-900">{title}</h1>
 
-  <div class="mt-4 flex items-center gap-4 text-sm text-neutral-500">
+  <div class="mt-2 flex items-center gap-4 text-sm text-neutral-500">
     <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
     <span>·</span>
     <span>Grid {shapeText}</span>
@@ -99,38 +99,47 @@
     <span>{automataStore.neighbors.length} neighbors</span>
   </div>
 
-  <hr class="my-6 border-neutral-200" />
-
-  <p class="leading-relaxed text-neutral-700">{description}</p>
-
+  <!-- Creator row (YouTube-style) -->
   {#if discoveryInfo?.found}
-    <div class="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-      <div class="flex items-center gap-3">
-        {#if discoveryInfo.discoveredByImageUrl}
-          <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-8 w-8 rounded-full" />
-        {/if}
-        <div>
-          <p class="text-sm text-neutral-700">
-            Discovered by <span class="font-medium">{discoveryInfo.discoveredBy}</span>
-            {#if discoveryInfo.discoveredAt}
-              <span class="text-neutral-400"> on {formatDate(discoveryInfo.discoveredAt)}</span>
-            {/if}
-          </p>
-          <div class="mt-1 flex gap-4 text-xs text-neutral-500">
-            {#if discoveryInfo.saveCount}
-              <span>{discoveryInfo.saveCount} {discoveryInfo.saveCount === 1 ? 'save' : 'saves'}</span>
-            {/if}
-            {#if discoveryInfo.totalLikes}
-              <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
-            {/if}
-            {#if discoveryInfo.totalBookmarks}
-              <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
-            {/if}
-          </div>
+    <div class="mt-5 flex items-center gap-3">
+      {#if discoveryInfo.discoveredByImageUrl}
+        <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-10 w-10 rounded-full" />
+      {:else}
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-200 text-sm font-semibold text-neutral-500">
+          {discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
+        </div>
+      {/if}
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
+        <div class="flex items-center gap-3 text-xs text-neutral-500">
+          {#if discoveryInfo.discoveredAt}
+            <span>{formatDate(discoveryInfo.discoveredAt)}</span>
+          {/if}
+          {#if discoveryInfo.saveCount}
+            <span>{discoveryInfo.saveCount} {discoveryInfo.saveCount === 1 ? 'save' : 'saves'}</span>
+          {/if}
+          {#if discoveryInfo.totalLikes}
+            <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
+          {/if}
+          {#if discoveryInfo.totalBookmarks}
+            <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
+          {/if}
         </div>
       </div>
     </div>
   {:else if discoveryInfo && !discoveryInfo.found}
-    <p class="mt-6 text-sm text-neutral-400">Undiscovered — be the first to save this configuration!</p>
+    <div class="mt-5 flex items-center gap-3">
+      <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M20 21a8 8 0 1 0-16 0" />
+        </svg>
+      </div>
+      <p class="text-sm text-neutral-400">Undiscovered — be the first to save this configuration!</p>
+    </div>
   {/if}
+
+  <hr class="my-6 border-neutral-200" />
+
+  <p class="leading-relaxed text-neutral-700">{description}</p>
 </div>

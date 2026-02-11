@@ -6,13 +6,17 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
-  class="absolute right-5 bottom-28 z-20 flex cursor-pointer items-center justify-center"
-  style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(139,92,246,0.3), 0 6px 14px rgba(139,92,246,0.15); color: white; background-color: #8b5cf6;"
-  onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#7c3aed'; }}
-  onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#8b5cf6'; }}
+  class="flex cursor-pointer items-center gap-2 rounded-full px-6 py-3 text-sm font-medium shadow-lg transition-colors"
+  style="background-color: #000; color: #facc15; box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);"
+  onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#1a1a1a'; }}
+  onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#000'; }}
   onclick={() => automataStore.randomizeRule()}
 >
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 8.5c-.83 0-1.5-.67-1.5-1.5S6.67 5.5 7.5 5.5 9 6.17 9 7s-.67 1.5-1.5 1.5zm0 10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5S9 16.17 9 17s-.67 1.5-1.5 1.5zm4.5-5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-10c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5S18 6.17 18 7s-.67 1.5-1.5 1.5z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
+    <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
+    <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
+    <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
   </svg>
+  Mine for automata!
 </div>

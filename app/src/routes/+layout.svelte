@@ -42,7 +42,7 @@
 		>
 			<div
 				class="h-full overflow-hidden"
-				style="width: {LEFT_WIDTH}px; background: white; box-shadow: 2px 0 6px rgba(0,0,0,0.15), 6px 0 14px rgba(0,0,0,0.1);"
+				style="width: {LEFT_WIDTH}px; background: white; border-right: 1px solid #e5e5e5;"
 			>
 				<NavSidebar />
 			</div>

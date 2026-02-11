@@ -12,6 +12,45 @@
   let isBookmarked = $state(false);
   let likeCount = $state(0);
 
+  // Auto-hide controls
+  let controlsVisible = $state(false);
+  let fadeTimer: ReturnType<typeof setTimeout> | null = null;
+  const FADE_DELAY = 3000;
+
+  function showControls() {
+    controlsVisible = true;
+    resetFadeTimer();
+  }
+
+  function resetFadeTimer() {
+    if (fadeTimer) clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => {
+      // Don't hide if dragging the progress bar or save dialog is open
+      if (!isDragging && !saveDialogOpen) {
+        controlsVisible = false;
+      }
+    }, FADE_DELAY);
+  }
+
+  function handleParentMouseEnter() {
+    showControls();
+  }
+
+  function handleParentMouseLeave() {
+    if (!isDragging && !saveDialogOpen) {
+      controlsVisible = false;
+      if (fadeTimer) clearTimeout(fadeTimer);
+    }
+  }
+
+  function handleParentMouseMove() {
+    showControls();
+  }
+
+  function handleParentClick() {
+    showControls();
+  }
+
   function handleSaved(info: { id: string; entityType: 'generation_run' | 'cell_population' }) {
     savedEntityId = info.id;
     savedEntityType = info.entityType;
@@ -306,20 +345,40 @@
 
   let showCanvas = $derived(showTooltip);
 
+  let asideEl: HTMLElement;
+
   onMount(() => {
     window.addEventListener('mousemove', handleWindowMouseMove);
     window.addEventListener('mouseup', handleWindowMouseUp);
+
+    // Attach hover/click listeners to the parent viewer section
+    const parentSection = asideEl?.closest('section');
+    if (parentSection) {
+      parentSection.addEventListener('mouseenter', handleParentMouseEnter);
+      parentSection.addEventListener('mouseleave', handleParentMouseLeave);
+      parentSection.addEventListener('mousemove', handleParentMouseMove);
+      parentSection.addEventListener('click', handleParentClick);
+    }
+
     return () => {
       window.removeEventListener('mousemove', handleWindowMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
+      if (parentSection) {
+        parentSection.removeEventListener('mouseenter', handleParentMouseEnter);
+        parentSection.removeEventListener('mouseleave', handleParentMouseLeave);
+        parentSection.removeEventListener('mousemove', handleParentMouseMove);
+        parentSection.removeEventListener('click', handleParentClick);
+      }
       if (pendingFrame) cancelAnimationFrame(pendingFrame);
+      if (fadeTimer) clearTimeout(fadeTimer);
     };
   });
 </script>
 
 <aside
-  class="absolute z-20"
-  style="bottom: 20px; left: 20px; right: 20px; height: 76px;"
+  bind:this={asideEl}
+  class="absolute z-20 transition-opacity duration-500"
+  style="bottom: 20px; left: 20px; right: 20px; height: 76px; opacity: {controlsVisible ? 1 : 0}; pointer-events: {controlsVisible ? 'auto' : 'none'};"
 >
   <!-- Progress Bar Hit Area -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -383,9 +442,9 @@
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.3), 0 6px 14px rgba(37,99,235,0.15); color: white; background-color: #2563eb;"
-        onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#1d4ed8'; }}
-        onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'; }}
+        style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+        onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.85)'; }}
+        onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.7)'; }}
         onclick={() => automataStore.togglePlay()}
       >
         {#if automataStore.isPlaying}
@@ -405,9 +464,9 @@
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1); color: white; background-color: black;"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(40,40,40,1)'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'black'; }}
+        style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
         onclick={() => automataStore.reset()}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -426,9 +485,9 @@
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
           class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(20,184,166,0.3), 0 6px 14px rgba(20,184,166,0.15); color: white; background-color: #14b8a6;"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#0d9488'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#14b8a6'; }}
+          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
           onclick={() => (saveDialogOpen = true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -445,9 +504,9 @@
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
           class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; min-width: 44px; padding: 0 8px; border-radius: 4px; box-shadow: 0 2px 6px rgba(239,68,68,0.3), 0 6px 14px rgba(239,68,68,0.15); color: white; background-color: {isLiked ? '#dc2626' : '#ef4444'};"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#dc2626'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = isLiked ? '#dc2626' : '#ef4444'; }}
+          style="height: 44px; min-width: 44px; padding: 0 8px; border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
           onclick={toggleLike}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -466,9 +525,9 @@
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
           class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; width: 44px; border-radius: 4px; box-shadow: 0 2px 6px rgba(234,179,8,0.3), 0 6px 14px rgba(234,179,8,0.15); color: white; background-color: {isBookmarked ? '#ca8a04' : '#eab308'};"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = '#ca8a04'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = isBookmarked ? '#ca8a04' : '#eab308'; }}
+          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
           onclick={toggleBookmark}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
