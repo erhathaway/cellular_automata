@@ -16,6 +16,13 @@
   let isLiked = $state(item.isLikedByMe ?? false);
   let isBookmarked = $state(item.isBookmarkedByMe ?? false);
   let currentLikeCount = $state(item.likeCount ?? 0);
+  let thumbError = $state(false);
+
+  let thumbnailUrl = $derived(item.thumbnail
+    ? item.thumbnail
+    : (item.entityType && item.id)
+      ? `/api/thumbnail?type=${item.entityType}&id=${item.id}`
+      : null);
 
   function neighborCount(dim: number, radius: number): number {
     if (dim === 1) return 2;
@@ -90,8 +97,8 @@
 >
   <!-- Thumbnail -->
   <div class="relative aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
-    {#if item.thumbnail}
-      <img src={item.thumbnail} alt={displayTitle()} class="h-full w-full object-cover" />
+    {#if thumbnailUrl && !thumbError}
+      <img src={thumbnailUrl} alt={displayTitle()} class="h-full w-full object-cover" loading="lazy" onerror={() => { thumbError = true; }} />
     {:else}
       <div class="flex h-full w-full items-center justify-center text-neutral-300">
         <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

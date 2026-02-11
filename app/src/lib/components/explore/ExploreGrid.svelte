@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import CompactCard from '../CompactCard.svelte';
   import SkeletonCard from '../SkeletonCard.svelte';
 
@@ -16,58 +17,63 @@
     onloadmore?: () => void;
   } = $props();
 
-  let sentinelEl = $state<HTMLElement>();
+  let containerEl = $state<HTMLElement>();
+  let scrollParent: HTMLElement | null = null;
 
-  function findScrollParent(el: HTMLElement): HTMLElement | null {
+  function getScrollParent(el: HTMLElement): HTMLElement {
     let node = el.parentElement;
     while (node) {
       const style = getComputedStyle(node);
       if (/(auto|scroll)/.test(style.overflowY)) return node;
       node = node.parentElement;
     }
-    return null;
+    return document.documentElement;
   }
 
-  // Intersection observer for infinite scroll
-  // The parent's loadMore() guards against double-fetches,
-  // so we just fire onloadmore whenever the sentinel is visible.
+  function checkNearBottom() {
+    if (!scrollParent || !onloadmore) return;
+    const el = scrollParent;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 600;
+    if (nearBottom) {
+      onloadmore();
+    }
+  }
+
+  // Set up scroll listener once container is available
   $effect(() => {
-    if (!sentinelEl || !onloadmore) return;
-    const cb = onloadmore;
-    const scrollRoot = findScrollParent(sentinelEl);
+    if (!containerEl) return;
+    scrollParent = getScrollParent(containerEl);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          cb();
-        }
-      },
-      { root: scrollRoot, rootMargin: '400px' }
-    );
+    scrollParent.addEventListener('scroll', checkNearBottom, { passive: true });
+    return () => {
+      scrollParent?.removeEventListener('scroll', checkNearBottom);
+    };
+  });
 
-    observer.observe(sentinelEl);
-    return () => observer.disconnect();
+  // Re-check after loading finishes — content may not fill the viewport
+  $effect(() => {
+    if (!loading && hasMore && items.length > 0) {
+      tick().then(checkNearBottom);
+    }
   });
 </script>
 
-{#if items.length === 0 && !loading}
-  <div class="flex h-40 items-center justify-center">
-    <p class="text-neutral-400">No items yet</p>
-  </div>
-{:else}
-  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-    {#each items as item (item.id)}
-      <CompactCard {item} onclick={onload} interactive />
-    {/each}
-
-    {#if loading}
-      {#each { length: 6 } as _}
-        <SkeletonCard />
+<div bind:this={containerEl}>
+  {#if items.length === 0 && !loading}
+    <div class="flex h-40 items-center justify-center">
+      <p class="text-neutral-400">No items yet</p>
+    </div>
+  {:else}
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      {#each items as item (item.id)}
+        <CompactCard {item} onclick={onload} interactive />
       {/each}
-    {/if}
-  </div>
 
-  {#if hasMore && !loading}
-    <div bind:this={sentinelEl} class="h-1"></div>
+      {#if loading}
+        {#each { length: 6 } as _}
+          <SkeletonCard />
+        {/each}
+      {/if}
+    </div>
   {/if}
-{/if}
+</div>

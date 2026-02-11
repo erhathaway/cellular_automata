@@ -91,7 +91,6 @@ export async function listGenerationRuns(params: ListGenerationRunsParams) {
 			generationIndex: generationRun.generationIndex,
 			title: generationRun.title,
 			description: generationRun.description,
-			thumbnail: generationRun.thumbnail,
 			fingerprint: generationRun.fingerprint,
 			likeCount: generationRun.likeCount,
 			bookmarkCount: generationRun.bookmarkCount,
