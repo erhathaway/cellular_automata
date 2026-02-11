@@ -5,7 +5,7 @@
 
   let rightOpen = $state(true);
 
-  const RIGHT_WIDTH = 260;
+  const RIGHT_WIDTH = 360;
 
   function toggleRight() {
     rightOpen = !rightOpen;
