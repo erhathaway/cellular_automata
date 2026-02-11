@@ -2,15 +2,13 @@
   import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import MenuItemDisplay from './menu/MenuItemDisplay.svelte';
-  import DimensionPopup from './menu/DimensionPopup.svelte';
-  import ViewerPopup from './menu/ViewerPopup.svelte';
   import ShapePopup from './menu/ShapePopup.svelte';
   import StatesPopup from './menu/StatesPopup.svelte';
   import RulePopup from './menu/RulePopup.svelte';
   import NeighborhoodPopup from './menu/NeighborhoodPopup.svelte';
 
   const MENU_WIDTH = 160;
-  const UNDOCKED_MENU_HEIGHT = 550;
+  const UNDOCKED_MENU_HEIGHT = 420;
   const CLOSED_MENU_HEIGHT = 70;
   const DOCKED_HORIZONTAL_HEIGHT = 140;
   const DOCK_THRESHOLD = 10;
@@ -157,8 +155,6 @@
   }
 
   // Compute display values
-  let dimensionDisplay = $derived(`${automataStore.dimension}D`);
-  let viewerDisplay = $derived(`${automataStore.viewer}D`);
   let statesDisplay = $derived(`${automataStore.cellStates.length}`);
   let neighborsDisplay = $derived(
     automataStore.neighborhoodRadius > 1
@@ -266,20 +262,6 @@
         style="flex: 1; {isDockedTop ? 'flex-direction: row; height: 100%;' : 'flex-direction: column; width: 100%;'}"
       >
         <MenuItemDisplay
-          title="Cells"
-          value={dimensionDisplay}
-          isMenuMoving={isDragging}
-          {menuPlacement}
-          onclick={(el) => togglePopup('dimensions', el)}
-        />
-        <MenuItemDisplay
-          title="Viewer"
-          value={viewerDisplay}
-          isMenuMoving={isDragging}
-          {menuPlacement}
-          onclick={(el) => togglePopup('viewer', el)}
-        />
-        <MenuItemDisplay
           title="States"
           value={statesDisplay}
           isMenuMoving={isDragging}
@@ -333,11 +315,7 @@
              border: 1px solid rgba(220,220,220,0.8);
              margin: 3px; padding: 16px;"
     >
-      {#if activePopup === 'dimensions'}
-        <DimensionPopup />
-      {:else if activePopup === 'viewer'}
-        <ViewerPopup />
-      {:else if activePopup === 'shape'}
+      {#if activePopup === 'shape'}
         <ShapePopup />
       {:else if activePopup === 'states'}
         <StatesPopup />

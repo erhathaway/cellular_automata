@@ -1,5 +1,6 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { serializeRule } from '$lib/stores/persistence';
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
@@ -36,6 +37,55 @@
       .join(' × ')
   );
 
+  // Discovery lookup
+  interface DiscoveryInfo {
+    found: boolean;
+    discoveredBy?: string;
+    discoveredByImageUrl?: string | null;
+    discoveredAt?: string;
+    saveCount?: number;
+    totalLikes?: number;
+    totalBookmarks?: number;
+  }
+
+  let discoveryInfo: DiscoveryInfo | null = $state(null);
+  let lookupTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // Reactively look up discovery info when config changes
+  $effect(() => {
+    const rule = automataStore.rule;
+    const dim = automataStore.dimension;
+    const nr = automataStore.neighborhoodRadius;
+
+    // Build query params
+    const ruleType = rule.type;
+    const ruleDefinition = serializeRule(rule);
+
+    clearTimeout(lookupTimer);
+    lookupTimer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({
+          d: String(dim),
+          rt: ruleType,
+          rd: ruleDefinition,
+          nr: String(nr)
+        });
+        const res = await fetch(`/api/discovery?${params}`);
+        if (res.ok) {
+          discoveryInfo = await res.json();
+        } else {
+          discoveryInfo = null;
+        }
+      } catch {
+        discoveryInfo = null;
+      }
+    }, 500);
+  });
+
+  function formatDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
 </script>
 
 <div class="mx-auto max-w-3xl px-6 py-10">
@@ -52,4 +102,35 @@
   <hr class="my-6 border-neutral-200" />
 
   <p class="leading-relaxed text-neutral-700">{description}</p>
+
+  {#if discoveryInfo?.found}
+    <div class="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+      <div class="flex items-center gap-3">
+        {#if discoveryInfo.discoveredByImageUrl}
+          <img src={discoveryInfo.discoveredByImageUrl} alt="" class="h-8 w-8 rounded-full" />
+        {/if}
+        <div>
+          <p class="text-sm text-neutral-700">
+            Discovered by <span class="font-medium">{discoveryInfo.discoveredBy}</span>
+            {#if discoveryInfo.discoveredAt}
+              <span class="text-neutral-400"> on {formatDate(discoveryInfo.discoveredAt)}</span>
+            {/if}
+          </p>
+          <div class="mt-1 flex gap-4 text-xs text-neutral-500">
+            {#if discoveryInfo.saveCount}
+              <span>{discoveryInfo.saveCount} {discoveryInfo.saveCount === 1 ? 'save' : 'saves'}</span>
+            {/if}
+            {#if discoveryInfo.totalLikes}
+              <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
+            {/if}
+            {#if discoveryInfo.totalBookmarks}
+              <span>{discoveryInfo.totalBookmarks} {discoveryInfo.totalBookmarks === 1 ? 'bookmark' : 'bookmarks'}</span>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  {:else if discoveryInfo && !discoveryInfo.found}
+    <p class="mt-6 text-sm text-neutral-400">Undiscovered — be the first to save this configuration!</p>
+  {/if}
 </div>

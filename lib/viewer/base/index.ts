@@ -114,6 +114,7 @@ export default class BaseClass {
   initRenderer() {
     this.renderer = new WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
     this.renderer.shadowMap.enabled = true;
+    this.renderer.domElement.style.display = 'block';
     this.updateRenderer();
   }
 
@@ -133,9 +134,11 @@ export default class BaseClass {
     const ASPECT_RATIO = CONTAINER_WIDTH / CONTAINER_HEIGHT;
     const VIEW_ANGLE = 91;
     const NEAR = 0.1;
-    const FAR = 500;
+    // Position camera so the visible height exactly matches containerHeight
+    const z = CONTAINER_HEIGHT / (2 * Math.tan((VIEW_ANGLE / 2) * Math.PI / 180));
+    const FAR = Math.max(1000, z * 3);
     this.camera = new PerspectiveCamera(VIEW_ANGLE, ASPECT_RATIO, NEAR, FAR);
-    this.camera.position.set(0, 0, 360);
+    this.camera.position.set(0, 0, z);
     this.camera.lookAt(this.scene.position);
     this.updateCamera();
   }
@@ -166,7 +169,12 @@ export default class BaseClass {
     this.handleWindowResize();
     this.updateRenderer();
     if (this.camera && 'aspect' in this.camera) {
-      (this.camera as PerspectiveCamera).aspect = this.containerWidth / this.containerHeight;
+      const pc = this.camera as PerspectiveCamera;
+      pc.aspect = this.containerWidth / this.containerHeight;
+      // Reposition camera so content fills the view at new size
+      const z = this.containerHeight / (2 * Math.tan((pc.fov / 2) * Math.PI / 180));
+      pc.position.z = z;
+      pc.far = Math.max(1000, z * 3);
     }
     this.updateCamera();
   }

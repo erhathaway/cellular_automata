@@ -9,7 +9,7 @@
   import ViewerComments from '$lib/components/ViewerComments.svelte';
 </script>
 
-<section class="relative h-screen">
+<section class="relative m-4 overflow-hidden rounded-2xl" style="height: 75vh;">
   <ViewPlayer />
   <MenuPanel />
   <ViewModeSwitcher />

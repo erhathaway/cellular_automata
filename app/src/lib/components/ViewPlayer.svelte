@@ -289,6 +289,6 @@
 
 <div
   bind:this={containerEl}
-  class="sticky top-0 z-0 h-screen w-full overflow-hidden"
+  class="sticky top-0 z-0 h-full w-full overflow-hidden"
   style:background-color={bgColor}
 ></div>
