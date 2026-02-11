@@ -5,6 +5,7 @@
   import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import CompactCard from './CompactCard.svelte';
+  import SkeletonCard from './SkeletonCard.svelte';
 
   let topRuns: any[] = $state([]);
   let topPopulations: any[] = $state([]);
@@ -52,7 +53,22 @@
 
 <div class="flex h-full flex-col overflow-y-auto px-3 py-4">
   {#if loading}
-    <p class="text-center text-xs text-neutral-400">Loading...</p>
+    <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+      Popular Runs
+    </h3>
+    <div class="mb-4 flex flex-col gap-0.5">
+      {#each { length: 3 } as _}
+        <SkeletonCard />
+      {/each}
+    </div>
+    <h3 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+      Popular Populations
+    </h3>
+    <div class="flex flex-col gap-0.5">
+      {#each { length: 3 } as _}
+        <SkeletonCard />
+      {/each}
+    </div>
   {:else}
     <!-- Popular Runs -->
     {#if topRuns.length > 0}

@@ -8,7 +8,8 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const auth = locals.auth();
 	if (!auth.userId) return error(401, 'Authentication required');
 
-	const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '40'), 100);
+	const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0'), 0);
+	const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '20'), 100);
 
 	const [runs, pops] = await Promise.all([
 		db
@@ -39,7 +40,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			.leftJoin(user, eq(generationRun.userId, user.id))
 			.where(eq(generationRun.userId, auth.userId))
 			.orderBy(desc(generationRun.createdAt))
-			.limit(limit),
+			.limit(offset + limit),
 		db
 			.select({
 				id: cellPopulation.id,
@@ -68,18 +69,19 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			.leftJoin(user, eq(cellPopulation.userId, user.id))
 			.where(eq(cellPopulation.userId, auth.userId))
 			.orderBy(desc(cellPopulation.createdAt))
-			.limit(limit)
+			.limit(offset + limit)
 	]);
 
-	const items = [...runs, ...pops]
-		.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
-		.slice(0, limit)
-		.map((item) => {
-			if ('seedPopulation' in item && item.seedPopulation) {
-				return { ...item, seedPopulation: (item.seedPopulation as Buffer).toString('base64') };
-			}
-			return item;
-		});
+	const all = [...runs, ...pops]
+		.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
 
-	return json({ items });
+	const paged = all.slice(offset, offset + limit);
+	const items = paged.map((item) => {
+		if ('seedPopulation' in item && item.seedPopulation) {
+			return { ...item, seedPopulation: (item.seedPopulation as Buffer).toString('base64') };
+		}
+		return item;
+	});
+
+	return json({ items, hasMore: offset + limit < all.length });
 };

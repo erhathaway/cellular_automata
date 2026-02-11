@@ -6,8 +6,11 @@
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
 
+  const PAGE_SIZE = 20;
+
   let items: any[] = $state([]);
   let loading = $state(true);
+  let hasMore = $state(false);
 
   let filters = $state({
     type: 'all',
@@ -15,19 +18,42 @@
     sort: 'newest'
   });
 
+  function buildParams(offset: number) {
+    const params = new URLSearchParams();
+    if (filters.type !== 'all') params.set('type', filters.type);
+    if (filters.dimension) params.set('dimension', filters.dimension);
+    params.set('sort', filters.sort);
+    params.set('limit', String(PAGE_SIZE));
+    params.set('offset', String(offset));
+    return params;
+  }
+
   async function fetchItems() {
     loading = true;
+    items = [];
+    hasMore = false;
     try {
-      const params = new URLSearchParams();
-      if (filters.type !== 'all') params.set('type', filters.type);
-      if (filters.dimension) params.set('dimension', filters.dimension);
-      params.set('sort', filters.sort);
-      params.set('limit', '40');
-
-      const result = await api<{ items: any[] }>('GET', `/api/explore?${params.toString()}`);
+      const params = buildParams(0);
+      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/explore?${params.toString()}`);
       items = result.items;
+      hasMore = result.hasMore;
     } catch {
       items = [];
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true;
+    try {
+      const params = buildParams(items.length);
+      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/explore?${params.toString()}`);
+      items = [...items, ...result.items];
+      hasMore = result.hasMore;
+    } catch {
+      hasMore = false;
     } finally {
       loading = false;
     }
@@ -39,7 +65,6 @@
   }
 
   function handleLoad(item: any) {
-    // Parse the item's config and hydrate into the store
     const dim = item.dimension;
     const viewer = item.viewer;
     const rule = deserializeRule(item.ruleDefinition);
@@ -84,12 +109,6 @@
       />
     </div>
 
-    {#if loading}
-      <div class="flex h-40 items-center justify-center">
-        <p class="text-neutral-400">Loading...</p>
-      </div>
-    {:else}
-      <ExploreGrid {items} onload={handleLoad} />
-    {/if}
+    <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
   </div>
 </div>

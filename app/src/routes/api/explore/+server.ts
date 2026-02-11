@@ -10,6 +10,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const sort = url.searchParams.get('sort') ?? 'newest';
 	const tagFilter = url.searchParams.get('tag');
 	const cursor = url.searchParams.get('cursor');
+	const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0'), 0);
 	const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '20'), 50);
 
 	const auth = locals.auth();
@@ -56,7 +57,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.leftJoin(user, eq(generationRun.userId, user.id))
 			.where(runConditions.length > 0 ? and(...runConditions) : undefined)
 			.orderBy(...runOrderBy)
-			.limit(type === 'all' ? Math.ceil(limit / 2) : limit);
+			.limit(type === 'all' ? offset + limit : offset + limit);
 	}
 
 	// Fetch cell populations
@@ -98,7 +99,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			.leftJoin(user, eq(cellPopulation.userId, user.id))
 			.where(popConditions.length > 0 ? and(...popConditions) : undefined)
 			.orderBy(...popOrderBy)
-			.limit(type === 'all' ? Math.floor(limit / 2) : limit);
+			.limit(type === 'all' ? offset + limit : offset + limit);
 	}
 
 	// Batch fetch likes, bookmarks, and tags
@@ -209,5 +210,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		);
 	}
 
-	return json({ items: items.slice(0, limit) });
+	const paged = items.slice(offset, offset + limit);
+	return json({ items: paged, hasMore: offset + limit < items.length });
 };

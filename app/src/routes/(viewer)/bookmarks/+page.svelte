@@ -7,16 +7,36 @@
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
 
+  const PAGE_SIZE = 20;
+
   let items: any[] = $state([]);
   let loading = $state(true);
+  let hasMore = $state(false);
 
   async function fetchMySaves() {
     loading = true;
+    items = [];
+    hasMore = false;
     try {
-      const result = await api<{ items: any[] }>('GET', '/api/my-saves');
+      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/my-saves?limit=${PAGE_SIZE}&offset=0`);
       items = result.items;
+      hasMore = result.hasMore;
     } catch {
       items = [];
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true;
+    try {
+      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/my-saves?limit=${PAGE_SIZE}&offset=${items.length}`);
+      items = [...items, ...result.items];
+      hasMore = result.hasMore;
+    } catch {
+      hasMore = false;
     } finally {
       loading = false;
     }
@@ -62,16 +82,12 @@
     </SignedOut>
 
     <SignedIn>
-      {#if loading}
-        <div class="flex h-40 items-center justify-center">
-          <p class="text-neutral-400">Loading...</p>
-        </div>
-      {:else if items.length === 0}
+      {#if items.length === 0 && !loading}
         <div class="flex h-40 items-center justify-center">
           <p class="text-neutral-400">No saves yet. Use the save button on the viewer to save a configuration.</p>
         </div>
       {:else}
-        <ExploreGrid {items} onload={handleLoad} />
+        <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
       {/if}
     </SignedIn>
   </div>
