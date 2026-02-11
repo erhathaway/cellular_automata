@@ -40,6 +40,10 @@
     const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
     // Clamp to computed range
     hoveredIndex = Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
+    // Snap hoverX to clamped index position so tooltip doesn't float over the black region
+    if (automataStore.historyCapacity > 1) {
+      hoverX = (hoveredIndex / (automataStore.historyCapacity - 1)) * rect.width;
+    }
   }
 
   function handleMouseDown(e: MouseEvent) {
