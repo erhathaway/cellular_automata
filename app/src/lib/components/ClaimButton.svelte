@@ -58,8 +58,10 @@
 </script>
 
 <SignedIn>
-  {#if isUndiscovered === null}
-    <!-- Checking discovery status -->
+  {#if isUndiscovered === false}
+    <!-- Already discovered — show nothing -->
+  {:else if automataStore.isMining || isUndiscovered === null}
+    <!-- Show checking spinner while mining or while API is in flight -->
     <div
       class="flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium shadow-lg"
       style="background-color: #a3a3a3; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.15);"

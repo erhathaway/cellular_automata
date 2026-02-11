@@ -22,12 +22,12 @@
     <ViewControls />
     <StableModal />
   </section>
-  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center gap-3">
-    <div class="pointer-events-auto">
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center">
+    <div class="pointer-events-auto relative">
       <RandomRuleButton />
-    </div>
-    <div class="pointer-events-auto">
-      <ClaimButton />
+      <div class="pointer-events-auto absolute left-full top-0 ml-3 whitespace-nowrap">
+        <ClaimButton />
+      </div>
     </div>
   </div>
 </div>

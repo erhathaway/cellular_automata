@@ -108,6 +108,9 @@ class AutomataStore {
   seekTarget: number | null = $state(null);
   targetGeneration = $state(0);
 
+  // Mining animation state
+  isMining = $state(false);
+
   // Stability detection
   stableDetected = $state(false);
   stablePeriod = $state(0);
