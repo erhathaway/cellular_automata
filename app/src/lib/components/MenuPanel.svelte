@@ -9,7 +9,7 @@
   import RulePopup from './menu/RulePopup.svelte';
 
   const MENU_WIDTH = 160;
-  const UNDOCKED_MENU_HEIGHT = 600;
+  const UNDOCKED_MENU_HEIGHT = 550;
   const CLOSED_MENU_HEIGHT = 70;
   const DOCKED_HORIZONTAL_HEIGHT = 140;
   const DOCK_THRESHOLD = 10;
@@ -309,27 +309,6 @@
         />
       </div>
 
-      <!-- Bottom nav / side nav when docked top -->
-      <div class="flex {isDockedTop ? 'flex-col h-full' : 'w-full'}">
-        <a
-          href="/intro"
-          class="flex flex-1 items-center justify-center p-[10px] text-[20px] text-gray-500 hover:bg-gray-500 hover:text-[rgba(54,149,217,1)]"
-          style="{!isDocked ? 'border-bottom-left-radius: 6px;' : ''}"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-          </svg>
-        </a>
-        <a
-          href="/docs"
-          class="flex flex-1 items-center justify-center p-[10px] text-[20px] text-gray-500 hover:bg-gray-500 hover:text-[rgba(54,149,217,1)]"
-          style="{!isDocked ? 'border-bottom-right-radius: 6px;' : ''}"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-          </svg>
-        </a>
-      </div>
     </div>
   {/if}
 </nav>

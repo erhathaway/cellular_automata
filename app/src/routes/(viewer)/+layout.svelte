@@ -1,13 +1,17 @@
 <script lang="ts">
+  import NavSidebar from '$lib/components/NavSidebar.svelte';
+
   let { children } = $props();
 
-  let leftOpen = $state(true);
+  let leftExpanded = $state(false);
   let rightOpen = $state(false);
 
-  const DRAWER_WIDTH = 260;
+  const LEFT_COLLAPSED = 52;
+  const LEFT_EXPANDED = 168;
+  const RIGHT_WIDTH = 260;
 
   function toggleLeft() {
-    leftOpen = !leftOpen;
+    leftExpanded = !leftExpanded;
     animateResize();
   }
 
@@ -33,12 +37,10 @@
   <!-- Left drawer -->
   <aside
     class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-    style:width="{leftOpen ? DRAWER_WIDTH : 0}px"
+    style:width="{leftExpanded ? LEFT_EXPANDED : LEFT_COLLAPSED}px"
     style:background="linear-gradient(to right, rgb(0,0,0), rgba(0,0,0,0.92))"
   >
-    <div class="h-full" style:width="{DRAWER_WIDTH}px">
-      <!-- Left drawer content -->
-    </div>
+    <NavSidebar expanded={leftExpanded} />
   </aside>
 
   <!-- Center: viewer content -->
@@ -47,13 +49,13 @@
 
     <!-- Left toggle tab -->
     <button
-      class="absolute left-0 top-1/2 z-30 flex h-12 w-6 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
+      class="absolute left-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
       style="border-radius: 0 6px 6px 0;"
       onclick={toggleLeft}
-      aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
+      aria-label={leftExpanded ? 'Collapse left panel' : 'Expand left panel'}
     >
       <svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-        {#if leftOpen}
+        {#if leftExpanded}
           <path d="M7.5 2L4.5 6L7.5 10" />
         {:else}
           <path d="M4.5 2L7.5 6L4.5 10" />
@@ -63,7 +65,7 @@
 
     <!-- Right toggle tab -->
     <button
-      class="absolute right-0 top-1/2 z-30 flex h-12 w-6 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
+      class="absolute right-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-black text-neutral-500 transition-colors hover:text-white"
       style="border-radius: 6px 0 0 6px;"
       onclick={toggleRight}
       aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
@@ -81,10 +83,10 @@
   <!-- Right drawer -->
   <aside
     class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-    style:width="{rightOpen ? DRAWER_WIDTH : 0}px"
+    style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
     style:background="linear-gradient(to left, rgb(0,0,0), rgba(0,0,0,0.92))"
   >
-    <div class="h-full" style:width="{DRAWER_WIDTH}px">
+    <div class="h-full" style:width="{RIGHT_WIDTH}px">
       <!-- Right drawer content (placeholder) -->
     </div>
   </aside>
