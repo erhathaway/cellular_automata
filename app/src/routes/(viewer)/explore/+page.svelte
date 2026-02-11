@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { automataStore } from '$lib/stores/automata.svelte';
-  import { deserializeRule } from '$lib/stores/persistence';
+  import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
@@ -47,17 +47,14 @@
     const cellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
     const neighborhoodRadius = item.neighborhoodRadius ?? 1;
 
+    const settings = { populationShape: shape, rule: rule!, cellStates, neighborhoodRadius };
     if (rule) {
-      automataStore.hydrateCombo(dim, viewer, {
-        populationShape: shape,
-        rule,
-        cellStates,
-        neighborhoodRadius
-      });
+      automataStore.hydrateCombo(dim, viewer, settings);
     }
     automataStore.hydrateActive(dim, viewer);
     automataStore.reset();
-    goto('/');
+    const params = buildURLParams(dim, viewer, settings);
+    goto(`/?${params.toString()}`);
   }
 
   // Initial fetch

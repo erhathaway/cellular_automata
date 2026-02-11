@@ -76,6 +76,10 @@
       if (automataStore.neighborhoodRadius > 1) {
         // Life-like rules for 1D with extended radius
         automataManager.useLifeLikeGenerator();
+        // Wolfram rules don't work with LifeLike generator — convert
+        if (automataStore.rule.type === 'wolfram') {
+          automataStore.setRule({ type: 'conway', survive: [2, 3], born: [3] });
+        }
       } else {
         automataManager.useOneDimensionGenerator();
       }

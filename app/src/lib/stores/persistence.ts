@@ -5,6 +5,7 @@ import type {
   ComboSettings,
 } from './automata.svelte';
 import { VALID_COMBOS } from './automata.svelte';
+import { replaceState } from '$app/navigation';
 
 const STORAGE_KEY = 'cellular-automata-settings';
 
@@ -191,6 +192,7 @@ export function loadFromLocalStorage(): PersistedData | null {
 
 export function updateURL(dim: number, viewer: number, settings: ComboSettings, generation?: number): void {
   const params = buildURLParams(dim, viewer, settings, generation);
-  const url = `${window.location.pathname}?${params.toString()}`;
-  history.replaceState(null, '', url);
+  const url = new URL(window.location.href);
+  url.search = params.toString();
+  replaceState(url, {});
 }

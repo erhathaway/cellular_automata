@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import { automataStore, VALID_COMBOS } from '$lib/stores/automata.svelte';
   import {
     parseURLParams,
@@ -8,8 +9,9 @@
     updateURL,
   } from '$lib/stores/persistence';
 
-  let initialized = false;
-  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let initialized = $state(false);
+  let configDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 
   onMount(() => {
     const urlParsed = parseURLParams(new URLSearchParams(window.location.search));
@@ -42,29 +44,50 @@
     initialized = true;
   });
 
-  // Reactive sync: save to localStorage + update URL (debounced)
+  afterNavigate(({ to }) => {
+    if (initialized && to?.url.pathname === '/') {
+      doURLUpdate();
+    }
+  });
+
+  function doURLUpdate() {
+    if (window.location.pathname !== '/') return;
+    const dim = automataStore.dimension;
+    const viewer = automataStore.viewer;
+    const allCombos = automataStore.getAllComboSettings();
+    const activeKey = `${dim}-${viewer}`;
+    const activeSettings = allCombos[activeKey];
+    if (activeSettings) {
+      updateURL(dim, viewer, activeSettings, automataStore.totalGenerations);
+    }
+  }
+
+  // Config changes: save to localStorage + update URL (300ms debounce)
   $effect(() => {
     if (!initialized) return;
 
-    // Read reactive dependencies
     const dim = automataStore.dimension;
     const viewer = automataStore.viewer;
     const _shape = automataStore.populationShape;
     const _rule = automataStore.rule;
     const _cellStates = automataStore.cellStates;
     const _radius = automataStore.neighborhoodRadius;
-    const _gen = automataStore.totalGenerations;
 
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
+    clearTimeout(configDebounceTimer);
+    configDebounceTimer = setTimeout(() => {
       const allCombos = automataStore.getAllComboSettings();
       saveToLocalStorage(allCombos, dim, viewer);
-
-      const activeKey = `${dim}-${viewer}`;
-      const activeSettings = allCombos[activeKey];
-      if (activeSettings) {
-        updateURL(dim, viewer, activeSettings, automataStore.totalGenerations);
-      }
+      doURLUpdate();
     }, 300);
+  });
+
+  // Generation changes: update URL only (2s debounce — generations tick rapidly)
+  $effect(() => {
+    if (!initialized) return;
+
+    const _gen = automataStore.totalGenerations;
+
+    clearTimeout(genDebounceTimer);
+    genDebounceTimer = setTimeout(doURLUpdate, 2000);
   });
 </script>
