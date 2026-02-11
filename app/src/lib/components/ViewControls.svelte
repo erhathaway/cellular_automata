@@ -1,5 +1,53 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
+
+  let progressBarEl: HTMLElement;
+  let isDragging = false;
+  let wasPlayingBeforeDrag = false;
+
+  function getSeekIndexFromEvent(e: MouseEvent) {
+    if (!progressBarEl) return 0;
+    const rect = progressBarEl.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    return Math.round(ratio * (automataStore.totalGenerations - 1));
+  }
+
+  function handleMouseDown(e: MouseEvent) {
+    if (automataStore.totalGenerations <= 1) return;
+    isDragging = true;
+    wasPlayingBeforeDrag = automataStore.isPlaying;
+    if (wasPlayingBeforeDrag) automataStore.pause();
+    const index = getSeekIndexFromEvent(e);
+    automataStore.seekTo(index);
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isDragging) return;
+    const index = getSeekIndexFromEvent(e);
+    automataStore.seekTo(index);
+  }
+
+  function handleMouseUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (wasPlayingBeforeDrag) automataStore.play();
+  }
+
+  onMount(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  });
+
+  let progressPercent = $derived(
+    automataStore.totalGenerations > 1
+      ? (automataStore.generationIndex / (automataStore.totalGenerations - 1)) * 100
+      : 0
+  );
 </script>
 
 <aside
@@ -7,14 +55,31 @@
   style="bottom: 20px; left: 250px; height: 95px; width: calc(100% - 500px); min-width: 400px;"
 >
   <!-- Progress Bar -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <aside
-    class="absolute right-0 top-0 flex items-center justify-center text-center"
-    style="height: 14px; width: 100%; background-color: #4040403d; border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);"
-  ></aside>
+    bind:this={progressBarEl}
+    class="absolute right-0 top-0 flex items-center cursor-pointer"
+    style="height: 14px; width: 100%; background-color: black; border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); overflow: hidden;"
+    onmousedown={handleMouseDown}
+  >
+    <!-- Filled portion -->
+    <div
+      style="height: 100%; width: {progressPercent}%; background-color: rgba(156,156,156,0.3); border-radius: 7px 0 0 7px; pointer-events: none;"
+    ></div>
+    <!-- Playhead -->
+    {#if automataStore.totalGenerations > 1}
+      <div
+        style="position: absolute; left: {progressPercent}%; top: 0; width: 2px; height: 100%; background-color: rgba(156,156,156,0.8); transform: translateX(-1px); pointer-events: none;"
+      ></div>
+    {/if}
+  </aside>
 
   <!-- Play Button -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <aside
     class="absolute bottom-0 left-0 flex cursor-pointer items-center justify-center text-center"
     style="height: 60px; width: 70px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); color: rgba(156,156,156,1); font-size: 25px; background-color: black;"

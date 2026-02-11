@@ -88,6 +88,11 @@ class AutomataStore {
   isPlaying = $state(false);
   resetCounter = $state(0);
 
+  // Generation tracking for scrubber
+  generationIndex = $state(0);
+  totalGenerations = $state(0);
+  seekTarget: number | null = $state(null);
+
   // Indexed history for shape and cellStates
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
@@ -181,6 +186,22 @@ class AutomataStore {
 
   reset() {
     this.resetCounter++;
+    this.generationIndex = 0;
+    this.totalGenerations = 0;
+    this.seekTarget = null;
+  }
+
+  updateGenerationInfo(index: number, total: number) {
+    this.generationIndex = index;
+    this.totalGenerations = total;
+  }
+
+  seekTo(index: number) {
+    this.seekTarget = index;
+  }
+
+  clearSeekTarget() {
+    this.seekTarget = null;
   }
 
   // --- Internal helpers ---

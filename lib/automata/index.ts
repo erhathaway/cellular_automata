@@ -19,7 +19,8 @@ export default class AutomataManager {
   private _currentPopulation: Population | undefined;
   private _populationShape: PopulationShape = {};
   populationShapeChanged = false;
-  generationHistory: any[] = [];
+  private _history: Uint8Array[] = [];
+  private _historyIndex = -1;
   private _generationHistorySize = 20;
   private _generatorType: GeneratorType = 'twoDimension';
   private _neighborStateExtractor: any;
@@ -32,7 +33,8 @@ export default class AutomataManager {
     this._currentPopulation = undefined;
     this._populationShape = {};
     this.populationShapeChanged = false;
-    this.generationHistory = [];
+    this._history = [];
+    this._historyIndex = -1;
     this._generationHistorySize = 20;
   }
 
@@ -57,7 +59,6 @@ export default class AutomataManager {
   }
 
   set generationHistorySize(size: number) {
-    this.generationHistory = this.generationHistory.slice(-size);
     this._generationHistorySize = size;
   }
 
@@ -65,17 +66,19 @@ export default class AutomataManager {
     return this._generationHistorySize;
   }
 
-  getSeedPopulation(): Population {
-    this.currentPopulation = PopulationManager.seedPopulationByShape(this._populationShape);
-    return this.currentPopulation!;
+  get totalGenerations(): number {
+    return this._history.length;
   }
 
-  set currentPopulation(population: Population | undefined) {
-    if (population) {
-      this.generationHistory = this.generationHistory.slice(-this._generationHistorySize);
-      this.generationHistory.push(PopulationManager.compressPopulation(population));
-    }
-    this._currentPopulation = population;
+  get currentGenerationIndex(): number {
+    return this._historyIndex;
+  }
+
+  getSeedPopulation(): Population {
+    this._currentPopulation = PopulationManager.seedPopulationByShape(this._populationShape);
+    this._history = [this._snapshotPopulation(this._currentPopulation)];
+    this._historyIndex = 0;
+    return this._currentPopulation;
   }
 
   get currentPopulation(): Population | undefined {
@@ -121,8 +124,82 @@ export default class AutomataManager {
     return cellState;
   };
 
+  // Flatten a Population (arbitrarily nested number arrays) into a flat number[]
+  private _flattenPopulation(pop: Population): number[] {
+    const result: number[] = [];
+    const stack: any[] = [pop];
+    while (stack.length > 0) {
+      const item = stack.pop();
+      if (Array.isArray(item)) {
+        // Push in reverse so we process in order
+        for (let i = item.length - 1; i >= 0; i--) {
+          stack.push(item[i]);
+        }
+      } else {
+        result.push(item as number);
+      }
+    }
+    return result;
+  }
+
+  // Bitpack an array of 0/1 values into a Uint8Array (8 cells per byte)
+  _snapshotPopulation(pop: Population): Uint8Array {
+    const flat = this._flattenPopulation(pop);
+    const byteLen = Math.ceil(flat.length / 8);
+    const bytes = new Uint8Array(byteLen);
+    for (let i = 0; i < flat.length; i++) {
+      if (flat[i] === 1) {
+        bytes[i >> 3] |= 1 << (7 - (i & 7));
+      }
+    }
+    return bytes;
+  }
+
+  // Restore a Population from a bitpacked snapshot using the current _populationShape
+  _restorePopulation(snapshot: Uint8Array): Population {
+    const dims = Object.keys(this._populationShape).sort();
+
+    // Compute total cell count and unpack bits
+    let totalCells = 1;
+    for (const d of dims) totalCells *= this._populationShape[d];
+
+    const flat: number[] = new Array(totalCells);
+    for (let i = 0; i < totalCells; i++) {
+      flat[i] = (snapshot[i >> 3] >> (7 - (i & 7))) & 1;
+    }
+
+    // Reshape: dims are sorted, outermost first
+    if (dims.length === 1) {
+      return flat;
+    }
+
+    // Build shape sizes array from outermost to innermost
+    const sizes = dims.map((d) => this._populationShape[d]);
+
+    // Recursive reshape
+    function reshape(data: number[], shapeSizes: number[]): Population {
+      if (shapeSizes.length === 1) return data;
+      const outerSize = shapeSizes[0];
+      const innerTotal = data.length / outerSize;
+      const innerSizes = shapeSizes.slice(1);
+      const result: Population[] = [];
+      for (let i = 0; i < outerSize; i++) {
+        result.push(reshape(data.slice(i * innerTotal, (i + 1) * innerTotal), innerSizes));
+      }
+      return result;
+    }
+
+    return reshape(flat, sizes);
+  }
+
+  seekTo(index: number) {
+    const clamped = Math.max(0, Math.min(index, this._history.length - 1));
+    this._historyIndex = clamped;
+    this._currentPopulation = this._restorePopulation(this._history[clamped]);
+  }
+
   generateNextPopulationFromCurrent() {
-    this.currentPopulation = PopulationManager.generateNextPopulationFromCurrent(
+    this._currentPopulation = PopulationManager.generateNextPopulationFromCurrent(
       this._currentPopulation!,
       this._currentPopulation!,
       this._populationShape,
@@ -135,7 +212,28 @@ export default class AutomataManager {
       this.resizeCurrentPopulation();
       this.populationShapeChanged = false;
     }
+
+    // If we're behind the end of history, advance through existing snapshots
+    if (this._historyIndex < this._history.length - 1) {
+      this._historyIndex++;
+      this._currentPopulation = this._restorePopulation(this._history[this._historyIndex]);
+      return this._currentPopulation;
+    }
+
+    // Compute new generation
     this.generateNextPopulationFromCurrent();
+
+    // Snapshot and append
+    const snapshot = this._snapshotPopulation(this._currentPopulation!);
+    this._history.push(snapshot);
+
+    // Trim if over limit
+    if (this._history.length > this._generationHistorySize) {
+      const excess = this._history.length - this._generationHistorySize;
+      this._history.splice(0, excess);
+    }
+
+    this._historyIndex = this._history.length - 1;
     return this._currentPopulation!;
   }
 }

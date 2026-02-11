@@ -68,6 +68,11 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     }
   }
 
+  clearGenerations() {
+    super.clearGenerations();
+    this.currentGenerationCount = 0;
+  }
+
   initialize() {}
 
   animateUpdateFn() {

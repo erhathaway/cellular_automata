@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy, tick } from 'svelte';
+  import { Color } from 'three';
   import { automataStore } from '$lib/stores/automata.svelte';
   import {
     AutomataManager,
@@ -20,7 +21,12 @@
   let mounted = false;
 
   function retrieveNextGeneration() {
-    return automataManager!.run();
+    const pop = automataManager!.run();
+    automataStore.updateGenerationInfo(
+      automataManager!.currentGenerationIndex,
+      automataManager!.totalGenerations
+    );
+    return pop;
   }
 
   function setRule() {
@@ -56,19 +62,19 @@
 
     if (dim === 1 && view === 2) {
       automataManager.useOneDimensionGenerator();
-      automataManager.generationHistorySize = 1500;
+      automataManager.generationHistorySize = 5000;
       viewer = new OneDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 2) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 2;
+      automataManager.generationHistorySize = 5000;
       viewer = new TwoDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 3) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 20;
+      automataManager.generationHistorySize = 2000;
       viewer = new TwoDimensionInThreeDimensions(viewerConfig);
     } else if (dim === 3 && view === 3) {
       automataManager.useThreeDimensionGenerator();
-      automataManager.generationHistorySize = 20;
+      automataManager.generationHistorySize = 2000;
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
@@ -167,6 +173,53 @@
     const _rule = automataStore.rule;
     if (!automataManager) return;
     setRule();
+  });
+
+  // Watch for seek target
+  $effect(() => {
+    const target = automataStore.seekTarget;
+    if (target === null || !automataManager || !viewer) return;
+
+    // Determine trail size based on viewer type
+    const dim = automataStore.dimension;
+    const view = automataStore.viewer;
+    let trailSize = 1;
+    if (dim === 2 && view === 2) trailSize = 40;
+    else if (dim === 2 && view === 3) trailSize = 60;
+    else if (dim === 1 && view === 2) trailSize = viewer.maxGenerationsToShow ? viewer.maxGenerationsToShow * 2 : 100;
+
+    // Seek automata manager to a position that allows trail preloading
+    const seekStart = Math.max(0, target - trailSize);
+    automataManager.seekTo(seekStart);
+
+    // Clear all viewer meshes
+    viewer.clearGenerations();
+
+    // Preload trail by stepping through history
+    const steps = target - seekStart;
+    for (let i = 0; i < steps; i++) {
+      viewer.addGeneration();
+    }
+
+    // Apply color gradient for 2D-2D viewer
+    if (dim === 2 && view === 2 && viewer.meshes) {
+      const colorable = viewer.meshes.slice(-40);
+      const { h, s } = viewer.states[1];
+      const computedS = Math.floor(s * 100);
+      colorable.forEach((m: any, i: number) => {
+        const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
+        m.material.color.set(color);
+        m.position.z = 1 / (i + 1);
+      });
+    }
+
+    // Update store
+    automataStore.updateGenerationInfo(
+      automataManager.currentGenerationIndex,
+      automataManager.totalGenerations
+    );
+
+    automataStore.clearSeekTarget();
   });
 
   // Background color derived from cell state 0

@@ -91,6 +91,12 @@ export default class OneDimensionViewerInTwoDimensions extends BaseClass {
     }
   }
 
+  clearGenerations() {
+    super.clearGenerations();
+    this.currentGenerationCount = 0;
+    this.currrentGenerationYPosition = (this.containerHeight / 2) * -1;
+  }
+
   initialize() {}
 
   animateUpdateFn() {

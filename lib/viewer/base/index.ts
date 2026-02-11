@@ -165,6 +165,12 @@ export default class BaseClass {
     this.updateCamera();
   }
 
+  clearGenerations() {
+    while (this.meshes.length > 0) {
+      this.cleanUpRefsByMesh(this.meshes[0], true);
+    }
+  }
+
   // Subclass methods — override in child classes
   handleWindowResize() {}
   addGeneration() {}

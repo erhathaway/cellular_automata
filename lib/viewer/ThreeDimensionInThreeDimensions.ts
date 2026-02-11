@@ -99,6 +99,11 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
     this.cleanUpRefsByMesh(mesh, true);
   }
 
+  clearGenerations() {
+    super.clearGenerations();
+    this.currentGenerationCount = 0;
+  }
+
   initialize() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.createLight();
