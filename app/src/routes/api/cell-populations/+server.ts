@@ -1,5 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { db } from '$lib/server/db';
+import { cellPopulation } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import {
 	createCellPopulation,
 	listCellPopulations
@@ -44,6 +47,26 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		stablePeriod ?? null,
 		nr
 	);
+
+	// Check for existing record with same fingerprint (global dedup)
+	const existing = await db
+		.select({ id: cellPopulation.id, title: cellPopulation.title, userId: cellPopulation.userId })
+		.from(cellPopulation)
+		.where(eq(cellPopulation.fingerprint, fingerprint))
+		.limit(1);
+
+	if (existing.length > 0) {
+		return json(
+			{
+				error: 'duplicate',
+				message: 'This configuration already exists',
+				existingId: existing[0].id,
+				existingTitle: existing[0].title,
+				entityType: 'cell_population'
+			},
+			{ status: 409 }
+		);
+	}
 
 	const pop = await createCellPopulation({
 		userId: auth.userId,

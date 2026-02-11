@@ -73,7 +73,12 @@
     };
 
     if (dim === 1 && view === 2) {
-      automataManager.useOneDimensionGenerator();
+      if (automataStore.neighborhoodRadius > 1) {
+        // Life-like rules for 1D with extended radius
+        automataManager.useLifeLikeGenerator();
+      } else {
+        automataManager.useOneDimensionGenerator();
+      }
       automataManager.generationHistorySize = 10800;
       viewer = new OneDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 2) {
@@ -91,8 +96,8 @@
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
-    // Apply custom neighborhood radius (for 2D/3D with radius > 1)
-    if (dim !== 1 && automataStore.neighborhoodRadius > 1) {
+    // Apply custom neighborhood radius
+    if (automataStore.neighborhoodRadius > 1) {
       automataManager.neighbors = automataStore.neighbors;
     }
 
@@ -212,8 +217,7 @@
   // Watch for neighborhood radius changes
   $effect(() => {
     const _neighbors = automataStore.neighbors;
-    const dim = automataStore.dimension;
-    if (!automataManager || dim === 1) return;
+    if (!automataManager) return;
     automataManager.neighbors = _neighbors;
   });
 

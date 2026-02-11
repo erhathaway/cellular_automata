@@ -1,4 +1,4 @@
-import { generateMooreNeighbors2D, generateMooreNeighbors3D } from '$lib-core';
+import { generateMooreNeighbors1D, generateMooreNeighbors2D, generateMooreNeighbors3D } from '$lib-core';
 
 // --- HSL Color type ---
 export interface HSLColor {
@@ -63,7 +63,7 @@ export function defaultCellStates(dim: number, viewer: number): CellStateEntry[]
 }
 
 function defaultNeighbors(dim: number, radius: number = 1): string[] {
-  if (dim === 1) return [...ONE_D_NEIGHBORS];
+  if (dim === 1) return generateMooreNeighbors1D(radius);
   if (dim === 3) return generateMooreNeighbors3D(radius);
   return generateMooreNeighbors2D(radius);
 }
@@ -196,16 +196,17 @@ class AutomataStore {
   }
 
   setNeighborhoodRadius(r: number) {
-    // 1D stays radius 1 (Wolfram rules use 3-bit encoding)
-    if (this.dimension === 1) {
-      this.neighborhoodRadius = 1;
-      return;
-    }
     const clamped = Math.max(1, Math.min(10, r));
     if (clamped === this.neighborhoodRadius) return;
     this.neighborhoodRadius = clamped;
     this.neighbors = defaultNeighbors(this.dimension, clamped);
     this._radiusHistory.set(historyKey(this.dimension, this.viewer), clamped);
+
+    // 1D: Wolfram rules only work at radius 1, switch to life-like for larger
+    if (this.dimension === 1 && this.rule.type === 'wolfram' && clamped > 1) {
+      this.setRule({ type: 'conway', survive: [2, 3], born: [3] });
+    }
+
     this.reset();
   }
 
@@ -232,14 +233,15 @@ class AutomataStore {
   }
 
   randomizeRule() {
-    if (this.dimension === 1) {
+    // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
+    const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
+    const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
+    this.setNeighborhoodRadius(newRadius);
+
+    if (this.dimension === 1 && this.neighborhoodRadius === 1) {
+      // Wolfram rule for 1D radius 1
       this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
     } else {
-      // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
-      const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
-      const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
-      this.setNeighborhoodRadius(newRadius);
-
       const maxNeighbors = this.neighbors.length;
       const pick = () => {
         const arr: number[] = [];
@@ -315,7 +317,7 @@ class AutomataStore {
     const key = historyKey(dim, viewer);
     this.dimension = dim;
     this.viewer = viewer;
-    this.neighborhoodRadius = dim === 1 ? 1 : (this._radiusHistory.get(key) ?? 1);
+    this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
     this.neighbors = defaultNeighbors(dim, this.neighborhoodRadius);
     this.populationShape = this._shapeHistory.get(key)
       ? { ...this._shapeHistory.get(key)! }
@@ -387,10 +389,8 @@ class AutomataStore {
       ? { ...savedRule }
       : defaultRule(this.dimension);
 
-    // Restore radius (1D always stays 1)
-    this.neighborhoodRadius = this.dimension === 1
-      ? 1
-      : (this._radiusHistory.get(key) ?? 1);
+    // Restore radius
+    this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
     this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius);
   }
 }

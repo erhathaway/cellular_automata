@@ -6,6 +6,7 @@ export {
   oneDimension as oneDimensionNeighborhoodExtractor,
   twoDimension as twoDimensionNeighborhoodExtractor,
   threeDimension as threeDimensionNeighborhoodExtractor,
+  generateMooreNeighbors1D,
   generateMooreNeighbors2D,
   generateMooreNeighbors3D,
 } from './automata/neighborhoodStateExtractor';

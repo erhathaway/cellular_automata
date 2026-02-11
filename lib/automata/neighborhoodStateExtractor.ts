@@ -103,6 +103,15 @@ function coordPart(axis: string, delta: number): string {
   return delta > 0 ? `${axis}+${delta}` : `${axis}${delta}`;
 }
 
+export function generateMooreNeighbors1D(radius: number): string[] {
+  const neighbors: string[] = [];
+  for (let dx = -radius; dx <= radius; dx++) {
+    if (dx === 0) continue;
+    neighbors.push(coordPart('x', dx));
+  }
+  return neighbors;
+}
+
 export function generateMooreNeighbors2D(radius: number): string[] {
   const neighbors: string[] = [];
   for (let dx = -radius; dx <= radius; dx++) {

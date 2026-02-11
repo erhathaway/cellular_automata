@@ -78,7 +78,15 @@ export default class AutomataManager {
   set neighbors(neighborStrings: string[]) {
     const extractors = createCoordinateExtractors(neighborStrings);
     const dims = neighborStrings[0]?.split('|').length ?? 2;
-    if (dims === 2) {
+    if (dims === 1) {
+      this._neighborStateExtractor = (
+        cellCoords: { x: number },
+        neighborhoodArr: number[]
+      ) => ({
+        neighbors: extractors.map((fn) => fn(cellCoords, neighborhoodArr)),
+        cell: neighborhoodArr[cellCoords.x],
+      });
+    } else if (dims === 2) {
       this._neighborStateExtractor = (
         cellCoords: { x: number; y: number },
         neighborhoodMatrix: number[][]

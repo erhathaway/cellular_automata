@@ -1,5 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { db } from '$lib/server/db';
+import { generationRun } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import {
 	createGenerationRun,
 	listGenerationRuns
@@ -33,6 +36,26 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 	const nr = neighborhoodRadius ?? 1;
 	const fingerprint = generationRunFingerprint(dimension, ruleType, ruleDefinition, nr);
+
+	// Check for existing record with same fingerprint (global dedup)
+	const existing = await db
+		.select({ id: generationRun.id, title: generationRun.title, userId: generationRun.userId })
+		.from(generationRun)
+		.where(eq(generationRun.fingerprint, fingerprint))
+		.limit(1);
+
+	if (existing.length > 0) {
+		return json(
+			{
+				error: 'duplicate',
+				message: 'This configuration already exists',
+				existingId: existing[0].id,
+				existingTitle: existing[0].title,
+				entityType: 'generation_run'
+			},
+			{ status: 409 }
+		);
+	}
 
 	const run = await createGenerationRun({
 		userId: auth.userId,
