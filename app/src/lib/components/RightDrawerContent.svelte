@@ -34,7 +34,8 @@
       automataStore.hydrateCombo(dim, viewer, {
         populationShape: shape,
         rule,
-        cellStates
+        cellStates,
+        neighborhoodRadius: item.neighborhoodRadius ?? 1
       });
     }
     automataStore.hydrateActive(dim, viewer);

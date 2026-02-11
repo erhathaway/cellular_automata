@@ -5,6 +5,7 @@
   import ViewControls from '$lib/components/ViewControls.svelte';
   import StableModal from '$lib/components/StableModal.svelte';
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
+  import ClaimButton from '$lib/components/ClaimButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
 </script>
@@ -21,9 +22,12 @@
     <ViewControls />
     <StableModal />
   </section>
-  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center">
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center gap-3">
     <div class="pointer-events-auto">
       <RandomRuleButton />
+    </div>
+    <div class="pointer-events-auto">
+      <ClaimButton />
     </div>
   </div>
 </div>
