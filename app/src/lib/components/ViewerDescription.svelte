@@ -124,6 +124,7 @@
     const rule = automataStore.rule;
     const dim = automataStore.dimension;
     const nr = automataStore.neighborhoodRadius;
+    const _claimed = automataStore.claimAnimationCounter;
 
     // Build query params
     const ruleType = rule.type;
