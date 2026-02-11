@@ -2,12 +2,13 @@
   import { automataStore } from '$lib/stores/automata.svelte';
 
   let mining = $derived(automataStore.isMining);
+  let miningTimer: ReturnType<typeof setTimeout> | undefined;
 
   function handleClick() {
-    if (mining) return;
+    clearTimeout(miningTimer);
     automataStore.isMining = true;
     automataStore.randomizeRule();
-    setTimeout(() => { automataStore.isMining = false; }, 5000);
+    miningTimer = setTimeout(() => { automataStore.isMining = false; }, 5000);
   }
 </script>
 
