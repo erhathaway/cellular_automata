@@ -148,8 +148,9 @@
 
     <div class="chip-stack">
       <div class="owner-chip">
+        <span class="owner-claim-badge">CLAIM</span>
         <div class="owner-content">
-          <PixelAvatar avatarId={item.userAvatarId} size={44} fallbackInitials={(item.userName ?? 'A')[0]} />
+          <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} />
           <div class="owner-info">
             <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
             {#if item.createdAt}
@@ -453,20 +454,53 @@
   }
 
   .owner-chip {
-    background: #1c1917;
-    border: 1px solid #44403c;
+    position: relative;
+    background: rgba(28, 25, 23, 0.36);
+    border: 1px solid rgba(250, 250, 249, 0.28);
     border-radius: 6px;
-    box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
     min-width: 0;
+    width: 220px;
     max-width: 72%;
+  }
+
+  .owner-chip::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 5px;
+    background: radial-gradient(120% 140% at 32% 48%, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.28) 45%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .owner-claim-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    color: #facc15;
+    text-transform: uppercase;
+    line-height: 1;
+    padding: 2px 5px;
+    border: 1px solid #44403c;
+    border-radius: 4px;
+    background: rgba(28, 25, 23, 0.9);
+    z-index: 2;
   }
 
   .owner-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
-    gap: 4px;
-    padding: 8px;
+    gap: 8px;
+    padding: 12px 8px 8px;
+    position: relative;
+    z-index: 1;
   }
 
   .owner-info {
@@ -475,27 +509,7 @@
     align-items: flex-start;
     gap: 1px;
     min-width: 0;
-  }
-
-  .rule-text {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: #facc15;
-    margin: 0 0 1px;
-    padding: 2px 8px 3px;
-    background: #1c1917;
-    border: 1px solid #44403c;
-    border-radius: 6px;
-    box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
-    display: inline-block;
-    width: fit-content;
-    max-width: 72%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    line-height: 1.15;
+    padding-top: 2px;
   }
 
   .username-inline {
@@ -541,6 +555,27 @@
     font-family: 'Space Mono', monospace;
     font-size: 12px;
     color: #78716c;
+  }
+
+  .rule-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: #facc15;
+    margin: 0 0 1px;
+    padding: 2px 8px 3px;
+    background: #1c1917;
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
+    display: inline-block;
+    width: fit-content;
+    max-width: 72%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.15;
   }
 
   .time-ago {
