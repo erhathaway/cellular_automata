@@ -91,17 +91,18 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #44403c;
-    background: white;
-    border: 2px solid #292524;
+    color: #a8a29e;
+    background: #1c1917;
+    border: 2px solid #44403c;
     border-radius: 8px;
     padding: 8px 24px;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
   .load-more:hover {
-    background: #1c1917;
+    background: #292524;
     color: #facc15;
+    border-color: #facc15;
   }
 </style>

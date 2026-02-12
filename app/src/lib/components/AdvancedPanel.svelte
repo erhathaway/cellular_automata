@@ -1,6 +1,8 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
-  import type { AutomataRule, HSLColor } from '$lib/stores/automata.svelte';
+  import type { HSLColor } from '$lib/stores/automata.svelte';
+  import { getLattice, latticesForDimension, generateNeighborhood, defaultLattice } from '$lib-core';
+  import type { LatticeType, LatticeDefinition } from '$lib-core';
 
   let { onclose }: { onclose: () => void } = $props();
 
@@ -34,89 +36,152 @@
     return { h, s, l, a: 1 };
   }
 
-  // Parse neighbor string like "x+1|y-2" into offset tuple
-  function parseNeighborOffset(s: string): number[] {
-    return s.split('|').map((part) => {
-      const m = part.match(/[+-]\d+/);
-      return m ? parseInt(m[0], 10) : 0;
-    });
-  }
-
   // --- Derived state ---
   let dim = $derived(automataStore.dimension);
   let viewer = $derived(automataStore.viewer);
+  let lattice = $derived(automataStore.lattice);
   let rule = $derived(automataStore.rule);
   let radius = $derived(automataStore.neighborhoodRadius);
-  let allNeighbors = $derived(automataStore.allNeighborsForRadius);
-  let neighborEnabled = $derived(automataStore.neighborEnabled);
-  let activeCount = $derived(neighborEnabled.filter(Boolean).length);
-  let maxN = $derived(allNeighbors.length);
+  let shapeRules = $derived(automataStore.shapeRules);
   let isWolfram = $derived(dim === 1 && radius === 1);
 
-  // Grid size for neighborhood visualization
-  let gridRadius = $derived(radius);
-  let gridCols = $derived(dim === 1 ? 2 * gridRadius + 1 : 2 * gridRadius + 1);
-  let cellSize = $derived(Math.max(14, Math.min(28, Math.floor(120 / gridCols))));
+  // Available lattices for current dimension
+  let availableLattices = $derived(dim >= 2 ? latticesForDimension(dim as 2 | 3) : []);
+  let latticeConfig = $derived(dim >= 2 ? getLattice(lattice) : null);
+  let isMultiShape = $derived(latticeConfig?.shapes != null && latticeConfig.shapes.length > 1);
 
-  // Parse all neighbor offsets for grid
-  let neighborOffsets = $derived(allNeighbors.map(parseNeighborOffset));
-
-  // Build grid layers for neighborhood visualization
-  let gridLayers = $derived.by(() => {
-    if (dim === 1) {
-      // 1D: single row
-      return [{ z: 0, cells: buildLayer1D() }];
-    }
-    if (dim === 2) {
-      // 2D: single grid
-      return [{ z: 0, cells: buildLayer2D(0) }];
-    }
-    // 3D: z-layer slices
-    const layers: { z: number; cells: GridCell[][] }[] = [];
-    for (let z = -gridRadius; z <= gridRadius; z++) {
-      layers.push({ z, cells: buildLayer2D(z) });
-    }
-    return layers;
+  // Full neighborhood config from lattice (includes per-shape data)
+  let neighborhoodConfig = $derived.by(() => {
+    if (dim === 1) return null;
+    return generateNeighborhood(lattice, radius);
   });
 
+  // Per-shape neighborhood info for multi-shape lattices
+  interface ShapeNeighborInfo {
+    label: string;
+    offsets: [number, number][];
+    count: number;
+    geometry: string;
+  }
+
+  let shapeNeighborInfos = $derived.by((): ShapeNeighborInfo[] => {
+    if (!isMultiShape || !latticeConfig?.shapes || !neighborhoodConfig) return [];
+    const nc = neighborhoodConfig;
+    return latticeConfig.shapes.map((shape, i) => ({
+      label: shape.label,
+      offsets: nc.shapeOffsets2D?.[i] ?? [],
+      count: nc.shapeNeighborCounts?.[i] ?? 0,
+      geometry: shape.geometry,
+    }));
+  });
+
+  // Single-shape neighborhood (for non-multi-shape lattices and 1D)
+  let singleOffsets = $derived.by((): number[][] => {
+    if (dim === 1) {
+      return automataStore.allNeighborsForRadius.map((s) =>
+        s.split('|').map((part) => {
+          const m = part.match(/[+-]\d+/);
+          return m ? parseInt(m[0], 10) : 0;
+        })
+      );
+    }
+    if (neighborhoodConfig?.offsets2D) {
+      return neighborhoodConfig.offsets2D.map(([dx, dy]) => [dx, dy]);
+    }
+    if (neighborhoodConfig?.offsets3D) {
+      return neighborhoodConfig.offsets3D.map(([dx, dy, dz]) => [dx, dy, dz]);
+    }
+    return [];
+  });
+
+  let neighborEnabled = $derived(automataStore.neighborEnabled);
+  let activeCount = $derived(neighborEnabled.filter(Boolean).length);
+  let totalNeighborCount = $derived(automataStore.allNeighborsForRadius.length);
+
+  // --- Grid cell type ---
   interface GridCell {
     x: number;
     y: number;
     isSelf: boolean;
-    neighborIndex: number; // -1 if not a neighbor position
+    neighborIndex: number;
     enabled: boolean;
+    shapeIndex?: number; // which shape this cell is (for multi-shape)
   }
 
-  function buildLayer1D(): GridCell[][] {
-    const row: GridCell[] = [];
-    for (let x = -gridRadius; x <= gridRadius; x++) {
-      const isSelf = x === 0;
-      const ni = neighborOffsets.findIndex((o) => o[0] === x);
-      row.push({ x, y: 0, isSelf, neighborIndex: ni, enabled: ni >= 0 && neighborEnabled[ni] });
+  // Compute grid radius from offsets
+  function gridRadiusFromOffsets(offsets: number[][]): number {
+    let maxR = 1;
+    for (const o of offsets) {
+      for (const v of o) maxR = Math.max(maxR, Math.abs(v));
     }
-    return [row];
+    return maxR;
   }
 
-  function buildLayer2D(z: number): GridCell[][] {
+  // Cell size that scales down for large grids
+  function cellSizeForRadius(r: number): number {
+    return Math.max(14, Math.min(28, Math.floor(120 / (2 * r + 1))));
+  }
+
+  // CSS clip-path for different lattice shapes
+  function cellClipPath(geometry: string | undefined): string {
+    if (geometry === 'hexprism') return 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
+    if (geometry === 'triprism') return 'polygon(50% 0%, 100% 100%, 0% 100%)';
+    if (geometry === 'octprism') return 'polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)';
+    return ''; // square = no clip
+  }
+
+  // The geometry for the current single-shape lattice
+  let singleGeometry = $derived(latticeConfig?.geometry ?? (dim === 1 ? 'box' : 'box'));
+
+  // Build a 2D grid layer from offsets (generic)
+  function buildGrid(offsets: number[][], gRadius: number, shapeAtFn?: (x: number, y: number) => number): GridCell[][] {
     const rows: GridCell[][] = [];
-    for (let y = gridRadius; y >= -gridRadius; y--) {
+    for (let y = gRadius; y >= -gRadius; y--) {
       const row: GridCell[] = [];
-      for (let x = -gridRadius; x <= gridRadius; x++) {
-        const isSelf = x === 0 && y === 0 && z === 0;
-        let ni = -1;
-        if (dim === 2) {
-          ni = neighborOffsets.findIndex((o) => o[0] === x && o[1] === y);
-        } else {
-          ni = neighborOffsets.findIndex((o) => o[0] === x && o[1] === y && o[2] === z);
-        }
-        row.push({ x, y, isSelf, neighborIndex: ni, enabled: ni >= 0 && neighborEnabled[ni] });
+      for (let x = -gRadius; x <= gRadius; x++) {
+        const isSelf = x === 0 && y === 0;
+        const ni = offsets.findIndex((o) => o[0] === x && o[1] === y);
+        const shapeIndex = shapeAtFn ? shapeAtFn(x, y) : undefined;
+        row.push({ x, y, isSelf, neighborIndex: ni, enabled: ni >= 0, shapeIndex });
       }
       rows.push(row);
     }
     return rows;
   }
 
-  // --- Rule toggle helpers ---
+  // Build 1D grid
+  function build1DGrid(offsets: number[][]): GridCell[][] {
+    const gRadius = gridRadiusFromOffsets(offsets);
+    const row: GridCell[] = [];
+    for (let x = -gRadius; x <= gRadius; x++) {
+      const isSelf = x === 0;
+      const ni = offsets.findIndex((o) => o[0] === x);
+      row.push({ x, y: 0, isSelf, neighborIndex: ni, enabled: ni >= 0 && neighborEnabled[ni] });
+    }
+    return [row];
+  }
+
+  // Build 3D grid layers
+  function build3DLayers(offsets: number[][]): { z: number; grid: GridCell[][] }[] {
+    const gRadius = gridRadiusFromOffsets(offsets);
+    const layers: { z: number; grid: GridCell[][] }[] = [];
+    for (let z = -gRadius; z <= gRadius; z++) {
+      const rows: GridCell[][] = [];
+      for (let y = gRadius; y >= -gRadius; y--) {
+        const row: GridCell[] = [];
+        for (let x = -gRadius; x <= gRadius; x++) {
+          const isSelf = x === 0 && y === 0 && z === 0;
+          const ni = offsets.findIndex((o) => o[0] === x && o[1] === y && o[2] === z);
+          row.push({ x, y, isSelf, neighborIndex: ni, enabled: ni >= 0 && neighborEnabled[ni] });
+        }
+        rows.push(row);
+      }
+      layers.push({ z, grid: rows });
+    }
+    return layers;
+  }
+
+  // --- Rule toggle helpers (single shape) ---
   function toggleBorn(n: number) {
     if (rule.type !== 'conway') return;
     const born = rule.born.includes(n)
@@ -134,8 +199,26 @@
   }
 
   function setWolframRule(val: number) {
-    const clamped = Math.max(0, Math.min(255, val));
-    automataStore.setRule({ type: 'wolfram', rule: clamped });
+    automataStore.setRule({ type: 'wolfram', rule: Math.max(0, Math.min(255, val)) });
+  }
+
+  // --- Rule toggle helpers (per-shape) ---
+  function toggleShapeBorn(shapeIdx: number, n: number) {
+    if (!shapeRules) return;
+    const r = shapeRules[shapeIdx];
+    const born = r.born.includes(n)
+      ? r.born.filter((v) => v !== n)
+      : [...r.born, n].sort((a, b) => a - b);
+    automataStore.setShapeRule(shapeIdx, { survive: [...r.survive], born });
+  }
+
+  function toggleShapeSurvive(shapeIdx: number, n: number) {
+    if (!shapeRules) return;
+    const r = shapeRules[shapeIdx];
+    const survive = r.survive.includes(n)
+      ? r.survive.filter((v) => v !== n)
+      : [...r.survive, n].sort((a, b) => a - b);
+    automataStore.setShapeRule(shapeIdx, { survive, born: [...r.born] });
   }
 </script>
 
@@ -161,9 +244,9 @@
     </button>
   </div>
 
-  <!-- Body: 4-column grid -->
+  <!-- Body -->
   <div class="panel-body">
-    <!-- DIMENSIONS -->
+    <!-- DIMENSIONS + LATTICE -->
     <div class="section">
       <div class="section-title">DIMENSIONS</div>
 
@@ -192,6 +275,20 @@
           {/each}
         </div>
       </div>
+
+      {#if availableLattices.length > 0}
+        <div class="field">
+          <span class="field-label">Lattice</span>
+          <div class="toggle-row toggle-row-wrap">
+            {#each availableLattices as lat}
+              <button
+                class="toggle-btn {lattice === lat.type ? 'active' : ''}"
+                onclick={() => automataStore.setLattice(lat.type)}
+              >{lat.label}</button>
+            {/each}
+          </div>
+        </div>
+      {/if}
 
       <div class="field">
         <span class="field-label">Grid</span>
@@ -250,11 +347,43 @@
             onchange={(e) => setWolframRule(parseInt((e.target as HTMLInputElement).value))}
           />
         </div>
+      {:else if isMultiShape && shapeRules && latticeConfig?.shapes}
+        <!-- Per-shape Born/Survive -->
+        {#each latticeConfig.shapes as shape, si}
+          {@const sr = shapeRules[si]}
+          {@const maxN = shapeNeighborInfos[si]?.count ?? shape.neighborCount}
+          <div class="shape-rule-group">
+            <div class="shape-label">{shape.label}</div>
+            <div class="field">
+              <span class="field-label">Born</span>
+              <div class="rule-toggles">
+                {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
+                  <button
+                    class="rule-btn {sr.born.includes(n) ? 'active' : ''}"
+                    onclick={() => toggleShapeBorn(si, n)}
+                  >{n}</button>
+                {/each}
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Survive</span>
+              <div class="rule-toggles">
+                {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
+                  <button
+                    class="rule-btn {sr.survive.includes(n) ? 'active' : ''}"
+                    onclick={() => toggleShapeSurvive(si, n)}
+                  >{n}</button>
+                {/each}
+              </div>
+            </div>
+          </div>
+        {/each}
       {:else}
+        <!-- Single-shape Born/Survive -->
         <div class="field">
           <span class="field-label">Born</span>
           <div class="rule-toggles">
-            {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
+            {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.born.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
                 onclick={() => toggleBorn(n)}
@@ -265,7 +394,7 @@
         <div class="field">
           <span class="field-label">Survive</span>
           <div class="rule-toggles">
-            {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
+            {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.survive.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
                 onclick={() => toggleSurvive(n)}
@@ -279,39 +408,131 @@
     <!-- NEIGHBORHOOD -->
     <div class="section">
       <div class="section-title">NEIGHBORHOOD</div>
-      <div class="neighbor-count">{activeCount} / {maxN} active</div>
 
-      <div class="neighbor-grid-wrap">
-        {#each gridLayers as layer}
-          {#if dim === 3}
-            <div class="layer-label">z={layer.z}</div>
-          {/if}
-          <div class="neighbor-grid" style="--cell-size: {cellSize}px; --grid-cols: {gridCols};">
-            {#each layer.cells as row}
+      {#if isMultiShape && shapeNeighborInfos.length > 0}
+        <!-- Per-shape neighborhood grids -->
+        {#each shapeNeighborInfos as info, si}
+          {@const gRadius = gridRadiusFromOffsets(info.offsets.map(([dx, dy]) => [dx, dy]))}
+          {@const cs = cellSizeForRadius(gRadius)}
+          {@const cols = 2 * gRadius + 1}
+          {@const clip = cellClipPath(info.geometry)}
+          {@const grid = buildGrid(
+            info.offsets.map(([dx, dy]) => [dx, dy]),
+            gRadius,
+            neighborhoodConfig?.shapeAt
+          )}
+          <div class="shape-neighborhood">
+            <div class="shape-label">{info.label}</div>
+            <div class="neighbor-count">{info.count} neighbors</div>
+            <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
+              {#each grid as row}
+                {#each row as cell}
+                  {#if cell.isSelf}
+                    <div class="n-cell n-self" style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}">
+                      <span class="self-dot"></span>
+                    </div>
+                  {:else if cell.neighborIndex >= 0}
+                    <div
+                      class="n-cell n-neighbor n-on"
+                      style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
+                    ></div>
+                  {:else}
+                    <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
+                  {/if}
+                {/each}
+              {/each}
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <!-- Single-shape neighborhood -->
+        <div class="neighbor-count">{activeCount} / {totalNeighborCount} active</div>
+        {@const clip = cellClipPath(singleGeometry)}
+
+        {#if dim === 1}
+          {@const grid1D = build1DGrid(singleOffsets)}
+          {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
+          {@const cs = cellSizeForRadius(gRadius)}
+          {@const cols = 2 * gRadius + 1}
+          <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
+            {#each grid1D as row}
               {#each row as cell}
                 {#if cell.isSelf}
-                  <div class="n-cell n-self" style="width: {cellSize}px; height: {cellSize}px;">
+                  <div class="n-cell n-self" style="width: {cs}px; height: {cs}px;">
                     <span class="self-dot"></span>
                   </div>
                 {:else if cell.neighborIndex >= 0}
                   <div
                     class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
-                    style="width: {cellSize}px; height: {cellSize}px;"
+                    style="width: {cs}px; height: {cs}px;"
                     onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                   ></div>
                 {:else}
-                  <div class="n-cell n-empty" style="width: {cellSize}px; height: {cellSize}px;"></div>
+                  <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
                 {/if}
               {/each}
             {/each}
           </div>
-        {/each}
-      </div>
+        {:else if dim === 3}
+          {@const layers = build3DLayers(singleOffsets)}
+          {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
+          {@const cs = cellSizeForRadius(gRadius)}
+          {@const cols = 2 * gRadius + 1}
+          <div class="neighbor-grid-wrap">
+            {#each layers as layer}
+              <div class="layer-label">z={layer.z}</div>
+              <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
+                {#each layer.grid as row}
+                  {#each row as cell}
+                    {#if cell.isSelf}
+                      <div class="n-cell n-self" style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}">
+                        <span class="self-dot"></span>
+                      </div>
+                    {:else if cell.neighborIndex >= 0}
+                      <div
+                        class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
+                        style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
+                        onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
+                      ></div>
+                    {:else}
+                      <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
+                    {/if}
+                  {/each}
+                {/each}
+              </div>
+            {/each}
+          </div>
+        {:else}
+          {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
+          {@const cs = cellSizeForRadius(gRadius)}
+          {@const cols = 2 * gRadius + 1}
+          {@const grid2D = buildGrid(singleOffsets, gRadius)}
+          <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
+            {#each grid2D as row}
+              {#each row as cell}
+                {#if cell.isSelf}
+                  <div class="n-cell n-self" style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}">
+                    <span class="self-dot"></span>
+                  </div>
+                {:else if cell.neighborIndex >= 0}
+                  <div
+                    class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
+                    style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
+                    onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
+                  ></div>
+                {:else}
+                  <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
+                {/if}
+              {/each}
+            {/each}
+          </div>
+        {/if}
 
-      <div class="neighbor-actions">
-        <button class="small-btn" onclick={() => automataStore.setAllNeighborsEnabled(true)}>All On</button>
-        <button class="small-btn" onclick={() => automataStore.setAllNeighborsEnabled(false)}>All Off</button>
-      </div>
+        <div class="neighbor-actions">
+          <button class="small-btn" onclick={() => automataStore.setAllNeighborsEnabled(true)}>All On</button>
+          <button class="small-btn" onclick={() => automataStore.setAllNeighborsEnabled(false)}>All Off</button>
+        </div>
+      {/if}
     </div>
 
     <!-- COLORS -->
@@ -475,6 +696,10 @@
     gap: 4px;
   }
 
+  .toggle-row-wrap {
+    flex-wrap: wrap;
+  }
+
   .toggle-btn {
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -542,6 +767,25 @@
     width: 52px;
   }
 
+  /* Shape rule groups */
+  .shape-rule-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid #33302e;
+    border-radius: 5px;
+    background: rgba(41, 37, 36, 0.5);
+  }
+
+  .shape-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: #fbbf24;
+    text-transform: uppercase;
+  }
+
   .rule-toggles {
     display: flex;
     flex-wrap: wrap;
@@ -581,6 +825,16 @@
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: #a8a29e;
+  }
+
+  .shape-neighborhood {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid #33302e;
+    border-radius: 5px;
+    background: rgba(41, 37, 36, 0.5);
   }
 
   .neighbor-grid-wrap {

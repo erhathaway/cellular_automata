@@ -82,7 +82,7 @@
 
   .toggle-group {
     display: flex;
-    border: 2px solid #292524;
+    border: 2px solid #44403c;
     border-radius: 8px;
     overflow: hidden;
   }
@@ -97,21 +97,21 @@
     border: none;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
-    background: white;
+    background: #1c1917;
     color: #78716c;
   }
 
   .toggle-btn:not(:last-child) {
-    border-right: 1px solid #d6d3d1;
+    border-right: 1px solid #44403c;
   }
 
   .toggle-btn:hover {
-    background: #f5f5f4;
-    color: #1c1917;
+    background: #292524;
+    color: #d6d3d1;
   }
 
   .toggle-btn.active {
-    background: #1c1917;
+    background: #292524;
     color: #facc15;
   }
 
@@ -120,9 +120,9 @@
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.04em;
-    color: #44403c;
-    background: white;
-    border: 2px solid #292524;
+    color: #a8a29e;
+    background: #1c1917;
+    border: 2px solid #44403c;
     border-radius: 8px;
     padding: 6px 28px 6px 12px;
     cursor: pointer;
@@ -134,7 +134,7 @@
   }
 
   .filter-select:hover {
-    border-color: #44403c;
+    border-color: #57534e;
   }
 
   .filter-select:focus {

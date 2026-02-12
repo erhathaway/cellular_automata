@@ -241,11 +241,9 @@
     overflow: visible;
     margin-bottom: 6px;
     padding: 10px;
-    background: white;
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.06),
-      0 4px 12px rgba(0, 0, 0, 0.04),
-      inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    background: #1c1917;
+    border: 1px solid #44403c;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
   /* ── Corner brackets: thick black L-shapes ── */
@@ -260,32 +258,32 @@
   .corner.tl {
     top: -1px;
     left: -1px;
-    border-top: 4px solid #1c1917;
-    border-left: 4px solid #1c1917;
+    border-top: 4px solid #facc15;
+    border-left: 4px solid #facc15;
     border-top-left-radius: 4px;
   }
 
   .corner.tr {
     top: -1px;
     right: -1px;
-    border-top: 4px solid #1c1917;
-    border-right: 4px solid #1c1917;
+    border-top: 4px solid #facc15;
+    border-right: 4px solid #facc15;
     border-top-right-radius: 4px;
   }
 
   .corner.bl {
     bottom: -1px;
     left: -1px;
-    border-bottom: 4px solid #1c1917;
-    border-left: 4px solid #1c1917;
+    border-bottom: 4px solid #facc15;
+    border-left: 4px solid #facc15;
     border-bottom-left-radius: 4px;
   }
 
   .corner.br {
     bottom: -1px;
     right: -1px;
-    border-bottom: 4px solid #1c1917;
-    border-right: 4px solid #1c1917;
+    border-bottom: 4px solid #facc15;
+    border-right: 4px solid #facc15;
     border-bottom-right-radius: 4px;
   }
 
@@ -301,32 +299,32 @@
   .corner-inner.tl {
     top: 3px;
     left: 3px;
-    border-top: 3px solid #ffffff;
-    border-left: 3px solid #ffffff;
+    border-top: 3px solid #1c1917;
+    border-left: 3px solid #1c1917;
     border-top-left-radius: 2px;
   }
 
   .corner-inner.tr {
     top: 3px;
     right: 3px;
-    border-top: 3px solid #ffffff;
-    border-right: 3px solid #ffffff;
+    border-top: 3px solid #1c1917;
+    border-right: 3px solid #1c1917;
     border-top-right-radius: 2px;
   }
 
   .corner-inner.bl {
     bottom: 3px;
     left: 3px;
-    border-bottom: 3px solid #ffffff;
-    border-left: 3px solid #ffffff;
+    border-bottom: 3px solid #1c1917;
+    border-left: 3px solid #1c1917;
     border-bottom-left-radius: 2px;
   }
 
   .corner-inner.br {
     bottom: 3px;
     right: 3px;
-    border-bottom: 3px solid #ffffff;
-    border-right: 3px solid #ffffff;
+    border-bottom: 3px solid #1c1917;
+    border-right: 3px solid #1c1917;
     border-bottom-right-radius: 2px;
   }
 
@@ -397,7 +395,7 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    background: #f5f5f4;
+    background: #0c0a09;
     border-radius: 4px;
     overflow: hidden;
   }
@@ -533,7 +531,7 @@
     font-family: 'Space Grotesk', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    color: #111111;
+    color: #d6d3d1;
     margin: 0;
     line-height: 1.2;
     min-width: 0;
@@ -599,7 +597,7 @@
   .time-ago {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
-    color: #111111;
+    color: #78716c;
     flex-shrink: 0;
   }
 

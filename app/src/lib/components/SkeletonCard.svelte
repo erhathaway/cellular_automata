@@ -44,29 +44,29 @@
 
   .corner.tl {
     top: -1px; left: -1px;
-    border-top: 3px solid #d6d3d1;
-    border-left: 3px solid #d6d3d1;
+    border-top: 3px solid #44403c;
+    border-left: 3px solid #44403c;
     border-top-left-radius: 4px;
   }
 
   .corner.tr {
     top: -1px; right: -1px;
-    border-top: 3px solid #d6d3d1;
-    border-right: 3px solid #d6d3d1;
+    border-top: 3px solid #44403c;
+    border-right: 3px solid #44403c;
     border-top-right-radius: 4px;
   }
 
   .corner.bl {
     bottom: -1px; left: -1px;
-    border-bottom: 3px solid #d6d3d1;
-    border-left: 3px solid #d6d3d1;
+    border-bottom: 3px solid #44403c;
+    border-left: 3px solid #44403c;
     border-bottom-left-radius: 4px;
   }
 
   .corner.br {
     bottom: -1px; right: -1px;
-    border-bottom: 3px solid #d6d3d1;
-    border-right: 3px solid #d6d3d1;
+    border-bottom: 3px solid #44403c;
+    border-right: 3px solid #44403c;
     border-bottom-right-radius: 4px;
   }
 
@@ -83,7 +83,7 @@
     right: 16px;
     height: 2px;
     background: repeating-linear-gradient(
-      90deg, #d6d3d1 0px, #d6d3d1 3px, transparent 3px, transparent 7px
+      90deg, #44403c 0px, #44403c 3px, transparent 3px, transparent 7px
     );
     background-size: 14px 2px;
   }
@@ -96,7 +96,7 @@
     bottom: 16px;
     width: 2px;
     background: repeating-linear-gradient(
-      180deg, #d6d3d1 0px, #d6d3d1 3px, transparent 3px, transparent 7px
+      180deg, #44403c 0px, #44403c 3px, transparent 3px, transparent 7px
     );
     background-size: 2px 14px;
   }
@@ -108,7 +108,7 @@
     width: 100%;
     aspect-ratio: 1;
     border-radius: 4px;
-    background: linear-gradient(110deg, #f5f5f4 30%, #ede9e4 50%, #f5f5f4 70%);
+    background: linear-gradient(110deg, #1c1917 30%, #292524 50%, #1c1917 70%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.8s ease-in-out infinite;
   }
@@ -133,7 +133,7 @@
   .bar {
     height: 10px;
     border-radius: 4px;
-    background: linear-gradient(110deg, #f5f5f4 30%, #ede9e4 50%, #f5f5f4 70%);
+    background: linear-gradient(110deg, #1c1917 30%, #292524 50%, #1c1917 70%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.8s ease-in-out infinite;
   }
@@ -148,7 +148,7 @@
     height: 16px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: linear-gradient(110deg, #f5f5f4 30%, #ede9e4 50%, #f5f5f4 70%);
+    background: linear-gradient(110deg, #1c1917 30%, #292524 50%, #1c1917 70%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.8s ease-in-out infinite;
   }

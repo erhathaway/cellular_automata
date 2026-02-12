@@ -78,9 +78,9 @@
   onMount(fetchMySaves);
 </script>
 
-<div class="bg-white">
+<div class="chest-bg">
   <div class="mx-auto max-w-7xl px-6 py-8">
-    <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1c1917; margin: 0 0 24px;">My Chest</h1>
+    <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #facc15; margin: 0 0 24px;">My Chest</h1>
 
     <SignedOut>
       <div class="flex h-40 items-center justify-center">
@@ -101,3 +101,10 @@
     </SignedIn>
   </div>
 </div>
+
+<style>
+  .chest-bg {
+    background: #000;
+    min-height: 100%;
+  }
+</style>
