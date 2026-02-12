@@ -67,6 +67,7 @@
       <div class="nail"></div>
     </div>
 
+    <span class="pretitle">Lattice</span>
     <svg xmlns="http://www.w3.org/2000/svg" class="grid-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <!-- 3x3 grid of dots connected by lines -->
       <line class="grid-line" x1="6" y1="6" x2="18" y2="6" />
@@ -123,9 +124,9 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     cursor: pointer;
-    padding: 10px 14px;
+    padding: 18px 22px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -140,7 +141,7 @@
     color: #67e8f9;
     transition: border-color 0.15s, background-color 0.15s;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-    min-height: 48px;
+    min-height: 64px;
   }
 
   .lattice-btn:hover:not(.is-disabled),
@@ -156,8 +157,8 @@
   }
 
   .grid-icon {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
     filter: drop-shadow(0 0 7px rgba(103, 232, 249, 0.6));
   }
@@ -173,9 +174,22 @@
     stroke-width: 0.8;
   }
 
+  .pretitle {
+    position: absolute;
+    top: 8px;
+    left: 74px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    pointer-events: none;
+  }
+
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 13px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #cffafe;

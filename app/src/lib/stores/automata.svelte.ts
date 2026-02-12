@@ -42,7 +42,7 @@ export interface ComboSettings {
   shapeRules?: { survive: number[]; born: number[] }[];
 }
 
-export type MiningDifficulty = 'easy' | 'medium' | 'hard';
+export type MiningDifficulty = 'random' | 'easy' | 'medium' | 'hard';
 
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
 
@@ -438,12 +438,14 @@ class AutomataStore {
 
     // Phase 2: Radius
     if (!skipRadius) {
-      const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
+      const radiusByDifficulty: Record<Exclude<MiningDifficulty, 'random'>, number[]> = {
         easy: [1],
         medium: [2, 3],
         hard: [4, 5, 6],
       };
-      const radiusPool = radiusByDifficulty[this.miningDifficulty];
+      const radiusPool = this.miningDifficulty === 'random'
+        ? [1, 2, 3, 4, 5, 6]
+        : radiusByDifficulty[this.miningDifficulty];
       const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];
       this.setNeighborhoodRadius(newRadius);
     }

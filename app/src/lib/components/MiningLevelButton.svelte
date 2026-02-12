@@ -14,6 +14,7 @@
     range: string;
     note: string;
   }> = [
+    { key: 'random', label: 'Random', range: 'r: 1-6', note: 'Mine picks randomly' },
     { key: 'easy', label: 'Easy', range: 'r: 1', note: 'Calmer patterns' },
     { key: 'medium', label: 'Medium', range: 'r: 2-3', note: 'Balanced chaos' },
     { key: 'hard', label: 'Hard', range: 'r: 4-6', note: 'High volatility' },
@@ -62,6 +63,7 @@
       <div class="nail"></div>
     </div>
 
+    <span class="pretitle">Level</span>
     <svg xmlns="http://www.w3.org/2000/svg" class="dial" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <circle class="dial-rim" cx="12" cy="12" r="9" />
       <circle class="dial-face" cx="12" cy="12" r="7" />
@@ -73,16 +75,16 @@
         class="dial-needle"
         x1="12"
         y1="12"
-        x2={current.key === 'easy' ? '8.4' : current.key === 'medium' ? '12' : '15.6'}
-        y2={current.key === 'easy' ? '8.6' : current.key === 'medium' ? '6.6' : '8.6'}
+        x2={current.key === 'easy' ? '8.4' : current.key === 'hard' ? '15.6' : '12'}
+        y2={current.key === 'easy' ? '8.6' : current.key === 'hard' ? '8.6' : '6.6'}
       />
       <path
         class="dial-tip"
         d={current.key === 'easy'
           ? 'M8.1 8.3 L9.1 8.5 L8.5 9.1 Z'
-          : current.key === 'medium'
-            ? 'M11.5 6.2 L12.5 6.2 L12 5.2 Z'
-            : 'M15.9 8.3 L15.5 9.1 L14.9 8.5 Z'}
+          : current.key === 'hard'
+            ? 'M15.9 8.3 L15.5 9.1 L14.9 8.5 Z'
+            : 'M11.5 6.2 L12.5 6.2 L12 5.2 Z'}
       />
     </svg>
 
@@ -119,9 +121,9 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     cursor: pointer;
-    padding: 10px 14px;
+    padding: 18px 22px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -136,7 +138,7 @@
     color: #67e8f9;
     transition: border-color 0.15s, background-color 0.15s;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-    min-height: 48px;
+    min-height: 64px;
   }
 
   .level-btn:hover:not(.is-disabled),
@@ -152,8 +154,8 @@
   }
 
   .dial {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
     filter: drop-shadow(0 0 7px rgba(103, 232, 249, 0.6));
   }
@@ -191,9 +193,22 @@
     stroke-width: 0.45;
   }
 
+  .pretitle {
+    position: absolute;
+    top: 8px;
+    left: 74px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    pointer-events: none;
+  }
+
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 13px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #cffafe;
