@@ -246,7 +246,7 @@
     justify-content: center;
     width: 84px;
     height: 84px;
-    border-radius: 18px;
+    border-radius: 12px;
     background: #e7e5e4;
     border: 2px solid #d6d3d1;
     color: #57534e;
