@@ -3,15 +3,21 @@ import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { generationRun, cellPopulation, user, like, bookmark, entityTag, tag } from '$lib/server/db/schema';
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
+import { LEVELS } from '$lib/levels';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	const type = url.searchParams.get('type') ?? 'all';
 	const dimension = url.searchParams.get('dimension');
 	const sort = url.searchParams.get('sort') ?? 'newest';
 	const tagFilter = url.searchParams.get('tag');
+	const level = url.searchParams.get('level');
+	const lattice = url.searchParams.get('lattice');
 	const cursor = url.searchParams.get('cursor');
 	const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0'), 0);
 	const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '20'), 50);
+
+	// Resolve level to radius values
+	const levelRadii = level ? LEVELS.find(l => l.key === level)?.radii : undefined;
 
 	const auth = locals.auth();
 	const userId = auth.userId;
@@ -23,6 +29,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	if (type === 'all' || type === 'generation_run') {
 		const runConditions = [];
 		if (dimension) runConditions.push(eq(generationRun.dimension, parseInt(dimension)));
+		if (levelRadii) runConditions.push(inArray(generationRun.neighborhoodRadius, [...levelRadii]));
+		if (lattice) runConditions.push(eq(generationRun.latticeType, lattice));
 
 		const runOrderBy =
 			sort === 'most_liked'
@@ -62,6 +70,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	if (type === 'all' || type === 'cell_population') {
 		const popConditions = [];
 		if (dimension) popConditions.push(eq(cellPopulation.dimension, parseInt(dimension)));
+		if (levelRadii) popConditions.push(inArray(cellPopulation.neighborhoodRadius, [...levelRadii]));
+		if (lattice) popConditions.push(eq(cellPopulation.latticeType, lattice));
 
 		const popOrderBy =
 			sort === 'most_liked'

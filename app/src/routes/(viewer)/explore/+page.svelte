@@ -14,8 +14,8 @@
   let loading = $state(true);
   let hasMore = $state(false);
 
-  function loadFilters(): { type: string; dimension: string; sort: string } {
-    const defaults = { type: 'all', dimension: '', sort: 'newest' };
+  function loadFilters(): { type: string; dimension: string; sort: string; level: string; lattice: string } {
+    const defaults = { type: 'all', dimension: '', sort: 'newest', level: '', lattice: '' };
     try {
       const stored = sessionStorage.getItem(SESSION_KEY);
       if (stored) {
@@ -32,6 +32,8 @@
     const params = new URLSearchParams();
     if (filters.type !== 'all') params.set('type', filters.type);
     if (filters.dimension) params.set('dimension', filters.dimension);
+    if (filters.level) params.set('level', filters.level);
+    if (filters.lattice) params.set('lattice', filters.lattice);
     params.set('sort', filters.sort);
     params.set('limit', String(PAGE_SIZE));
     params.set('offset', String(offset));
@@ -69,7 +71,7 @@
     }
   }
 
-  function handleFilterChange(newFilters: { type: string; dimension: string; sort: string }) {
+  function handleFilterChange(newFilters: { type: string; dimension: string; sort: string; level: string; lattice: string }) {
     filters = newFilters;
     try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(newFilters)); } catch {}
     fetchItems();
@@ -122,6 +124,8 @@
           type={filters.type}
           dimension={filters.dimension}
           sort={filters.sort}
+          level={filters.level}
+          lattice={filters.lattice}
           onchange={handleFilterChange}
         />
       </div>

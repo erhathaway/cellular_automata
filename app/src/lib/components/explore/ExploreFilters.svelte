@@ -1,18 +1,29 @@
 <script lang="ts">
+  import { LEVELS } from '$lib/levels';
+  import { LATTICE_REGISTRY } from '$lib-core';
+
+  type Filters = { type: string; dimension: string; sort: string; level: string; lattice: string };
+
   let {
     type = 'all',
     dimension = '',
     sort = 'newest',
+    level = '',
+    lattice = '',
     onchange
   }: {
     type: string;
     dimension: string;
     sort: string;
-    onchange: (filters: { type: string; dimension: string; sort: string }) => void;
+    level: string;
+    lattice: string;
+    onchange: (filters: Filters) => void;
   } = $props();
 
+  const latticeEntries = Object.entries(LATTICE_REGISTRY as Record<string, { label: string }>);
+
   function emit() {
-    onchange({ type, dimension, sort });
+    onchange({ type, dimension, sort, level, lattice });
   }
 </script>
 
@@ -32,10 +43,26 @@
 
   <!-- Dimension filter -->
   <select class="filter-select" bind:value={dimension} onchange={emit}>
-    <option value="">All Dimensions</option>
+    <option value="">All Dims</option>
     <option value="1">1D</option>
     <option value="2">2D</option>
     <option value="3">3D</option>
+  </select>
+
+  <!-- Level filter -->
+  <select class="filter-select" bind:value={level} onchange={emit}>
+    <option value="">All Levels</option>
+    {#each LEVELS as l}
+      <option value={l.key}>{l.label}</option>
+    {/each}
+  </select>
+
+  <!-- Lattice filter -->
+  <select class="filter-select" bind:value={lattice} onchange={emit}>
+    <option value="">All Lattices</option>
+    {#each latticeEntries as [key, def]}
+      <option value={key}>{def.label}</option>
+    {/each}
   </select>
 
   <!-- Sort -->
