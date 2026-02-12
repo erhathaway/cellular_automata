@@ -145,13 +145,27 @@
         </button>
       {/if}
     </div>
+
+    <div class="chip-stack">
+      <div class="owner-chip">
+        <div class="owner-content">
+          <PixelAvatar avatarId={item.userAvatarId} size={44} fallbackInitials={(item.userName ?? 'A')[0]} />
+          <div class="owner-info">
+            <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
+            {#if item.createdAt}
+              <span class="time-ago">{timeAgo(item.createdAt)}</span>
+            {/if}
+          </div>
+        </div>
+      </div>
+      <p class="rule-text">
+        {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
+      </p>
+    </div>
   </div>
 
   <!-- Clean metadata below -->
   <div class="info-row">
-    <p class="rule-text">
-      {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
-    </p>
     {#if interactive}
       <button
         class="like-btn {isLiked ? 'liked' : ''}"
@@ -170,14 +184,6 @@
         </svg>
         {item.likeCount ?? 0}
       </span>
-    {/if}
-  </div>
-
-  <div class="meta-row">
-    <PixelAvatar avatarId={item.userAvatarId} size={16} fallbackInitials={(item.userName ?? 'A')[0]} />
-    <p class="username">{item.userName ?? 'Anonymous'}</p>
-    {#if item.createdAt}
-      <span class="time-ago">· {timeAgo(item.createdAt)}</span>
     {/if}
   </div>
 </div>
@@ -199,6 +205,7 @@
     position: relative;
     border-radius: 6px;
     overflow: visible;
+    margin-bottom: 24px;
   }
 
   /* ── Corner brackets: thick black L-shapes ── */
@@ -426,21 +433,81 @@
   .info-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 0;
     padding: 0 2px;
+  }
+
+  .chip-stack {
+    position: absolute;
+    left: 8px;
+    bottom: 0;
+    transform: translateY(8%);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    pointer-events: none;
+  }
+
+  .owner-chip {
+    background: #1c1917;
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
+    min-width: 0;
+    max-width: 72%;
+  }
+
+  .owner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .owner-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    min-width: 0;
   }
 
   .rule-text {
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: #57534e;
-    margin: 0;
+    font-size: 9px;
+    color: #facc15;
+    margin: 0 0 1px;
+    padding: 2px 8px 3px;
+    background: #1c1917;
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
+    display: inline-block;
+    width: fit-content;
+    max-width: 72%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+
+  .username-inline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    color: #e7e5e4;
+    margin: 0;
+    line-height: 1.2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .like-btn {
@@ -476,28 +543,9 @@
     color: #78716c;
   }
 
-  /* Meta row */
-  .meta-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 4px;
-    padding: 0 2px;
-  }
-
-  .username {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    color: #78716c;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .time-ago {
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 9px;
     color: #a8a29e;
     flex-shrink: 0;
   }
