@@ -241,6 +241,7 @@
     position: relative;
     overflow: visible;
     z-index: 1;
+    width: 460px;
     padding: 14px 14px 18px;
     background-color: #1c1917;
     background-image:
@@ -350,6 +351,7 @@
 
   .label-found {
     color: #fde047;
+    font-size: 16px;
   }
 
   .sub-label {
