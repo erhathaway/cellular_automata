@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { CategoryId, MinerConfig } from '$lib/miner/types';
+	import type { CategoryId, MinerConfig, PartSprite } from '$lib/miner/types';
 	import { SKIN_TONES } from '$lib/miner/skinTones';
-	import { DEFAULT_CONFIG, randomConfig } from '$lib/miner/parts/index';
+	import { CATEGORIES, DEFAULT_CONFIG, randomConfig } from '$lib/miner/parts/index';
+	import { renderPartThumbnail } from '$lib/miner/renderer';
 	import MinerPreview from './MinerPreview.svelte';
-	import MinerPartPicker from './MinerPartPicker.svelte';
 
 	let {
 		initialConfig,
@@ -28,14 +28,50 @@
 	function handleSkinTone(index: number) {
 		config = { ...config, skinTone: index };
 	}
+
+	const THUMB_SCALE = 3;
+
+	function thumbAction(canvas: HTMLCanvasElement, params: { sprite: PartSprite; skinTone: number }) {
+		function paint(p: { sprite: PartSprite; skinTone: number }) {
+			canvas.width = p.sprite.width * THUMB_SCALE;
+			canvas.height = p.sprite.height * THUMB_SCALE;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return;
+			ctx.imageSmoothingEnabled = false;
+			renderPartThumbnail(ctx, p.sprite, p.skinTone, THUMB_SCALE);
+		}
+		paint(params);
+		return {
+			update(newParams: { sprite: PartSprite; skinTone: number }) {
+				paint(newParams);
+			}
+		};
+	}
 </script>
 
 <div class="editor">
-	<!-- Preview + controls -->
-	<div class="preview-area">
+	<!-- Left: preview column -->
+	<div class="left-col">
 		<div class="preview-frame">
 			<MinerPreview {config} scale={8} />
 		</div>
+
+		<div class="skin-row">
+			<span class="skin-label">Skin</span>
+			<div class="skin-tones">
+				{#each SKIN_TONES as tone, i}
+					<button
+						class="skin-swatch"
+						class:active={config.skinTone === i}
+						style="background-color: {tone.base};"
+						onclick={() => handleSkinTone(i)}
+						aria-label={tone.name}
+						title={tone.name}
+					></button>
+				{/each}
+			</div>
+		</div>
+
 		<button class="btn-random" onclick={handleRandom}>
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<rect width="12" height="12" x="2" y="10" rx="2" ry="2" />
@@ -47,50 +83,52 @@
 			</svg>
 			Random
 		</button>
-	</div>
 
-	<!-- Skin tone selector -->
-	<div class="skin-row">
-		<span class="skin-label">Skin</span>
-		<div class="skin-tones">
-			{#each SKIN_TONES as tone, i}
-				<button
-					class="skin-swatch"
-					class:active={config.skinTone === i}
-					style="background-color: {tone.base};"
-					onclick={() => handleSkinTone(i)}
-					aria-label={tone.name}
-					title={tone.name}
-				></button>
-			{/each}
+		<div class="actions">
+			<button class="btn-outline" onclick={oncancel}>Cancel</button>
+			<button class="btn-save" onclick={() => onsave(config)}>Save</button>
 		</div>
 	</div>
 
-	<div class="divider"></div>
-
-	<!-- Part picker -->
-	<MinerPartPicker {config} onselect={handleSelect} />
-
-	<!-- Actions -->
-	<div class="actions">
-		<button class="btn-outline" onclick={oncancel}>Cancel</button>
-		<button class="btn-save" onclick={() => onsave(config)}>Save</button>
+	<!-- Right: all categories, vertically scrollable -->
+	<div class="right-col">
+		{#each CATEGORIES as cat}
+			<div class="cat-row">
+				<span class="cat-label">{cat.label}</span>
+				<div class="cat-options">
+					{#each cat.options as option (option.id)}
+						<button
+							class="option-btn"
+							class:selected={config[cat.id] === option.id}
+							onclick={() => handleSelect(cat.id, option.id)}
+						>
+							<canvas
+								class="option-thumb"
+								use:thumbAction={{ sprite: option, skinTone: config.skinTone }}
+								style="image-rendering: pixelated;"
+							></canvas>
+							<span class="option-name">{option.name}</span>
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/each}
 	</div>
 </div>
 
 <style>
 	.editor {
 		display: flex;
-		flex-direction: column;
-		gap: 0;
+		gap: 24px;
 	}
 
-	.preview-area {
+	/* ---- Left column ---- */
+	.left-col {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: center;
-		gap: 20px;
-		padding: 8px 0 12px;
+		gap: 14px;
+		flex-shrink: 0;
 	}
 
 	.preview-frame {
@@ -100,16 +138,55 @@
 		background: #0c0a09;
 		border: 2px solid #292524;
 		border-radius: 10px;
-		padding: 8px;
+		padding: 10px;
+	}
+
+	.skin-row {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.skin-label {
+		font-family: 'Space Mono', monospace;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #57534e;
+	}
+
+	.skin-tones {
+		display: flex;
+		gap: 5px;
+	}
+
+	.skin-swatch {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		border: 2px solid transparent;
+		cursor: pointer;
+		transition: border-color 0.15s, box-shadow 0.15s;
+	}
+
+	.skin-swatch:hover {
+		border-color: #78716c;
+	}
+
+	.skin-swatch.active {
+		border-color: #facc15;
+		box-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
 	}
 
 	.btn-random {
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		padding: 8px 14px;
+		padding: 8px 16px;
 		font-family: 'Space Mono', monospace;
-		font-size: 10px;
+		font-size: 11px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -127,64 +204,15 @@
 		background: rgba(250, 204, 21, 0.05);
 	}
 
-	/* Skin tone */
-	.skin-row {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 12px;
-		padding: 4px 0 8px;
-	}
-
-	.skin-label {
-		font-family: 'Space Mono', monospace;
-		font-size: 10px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: #57534e;
-	}
-
-	.skin-tones {
-		display: flex;
-		gap: 6px;
-	}
-
-	.skin-swatch {
-		width: 22px;
-		height: 22px;
-		border-radius: 50%;
-		border: 2px solid transparent;
-		cursor: pointer;
-		transition: border-color 0.15s, box-shadow 0.15s;
-	}
-
-	.skin-swatch:hover {
-		border-color: #78716c;
-	}
-
-	.skin-swatch.active {
-		border-color: #facc15;
-		box-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
-	}
-
-	/* Divider */
-	.divider {
-		height: 1px;
-		background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-		margin: 12px 0;
-	}
-
-	/* Actions */
 	.actions {
 		display: flex;
-		gap: 10px;
-		margin-top: 20px;
+		gap: 8px;
+		width: 100%;
 	}
 
 	.btn-outline {
 		flex: 1;
-		padding: 10px 16px;
+		padding: 10px 12px;
 		font-family: 'Space Mono', monospace;
 		font-size: 11px;
 		font-weight: 700;
@@ -205,7 +233,7 @@
 
 	.btn-save {
 		flex: 1;
-		padding: 10px 16px;
+		padding: 10px 12px;
 		font-family: 'Space Mono', monospace;
 		font-size: 11px;
 		font-weight: 700;
@@ -222,5 +250,86 @@
 	.btn-save:hover {
 		background: #fde047;
 		box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+	}
+
+	/* ---- Right column ---- */
+	.right-col {
+		flex: 1;
+		min-width: 0;
+		overflow-y: auto;
+		max-height: 520px;
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		padding-right: 4px;
+		scrollbar-width: thin;
+		scrollbar-color: #44403c transparent;
+	}
+
+	.right-col::-webkit-scrollbar { width: 5px; }
+	.right-col::-webkit-scrollbar-track { background: transparent; }
+	.right-col::-webkit-scrollbar-thumb { background: #44403c; border-radius: 3px; }
+
+	.cat-row {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.cat-label {
+		font-family: 'Space Mono', monospace;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: #78716c;
+	}
+
+	.cat-options {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+
+	.option-btn {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		padding: 6px 8px;
+		background: none;
+		border: 1px solid transparent;
+		border-radius: 6px;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.option-btn:hover {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: #292524;
+	}
+
+	.option-btn.selected {
+		background: rgba(250, 204, 21, 0.1);
+		border-color: #facc15;
+		box-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
+	}
+
+	.option-thumb {
+		display: block;
+		max-width: 48px;
+		max-height: 48px;
+	}
+
+	.option-name {
+		font-family: 'Space Mono', monospace;
+		font-size: 9px;
+		letter-spacing: 0.04em;
+		color: #57534e;
+		line-height: 1;
+	}
+
+	.option-btn.selected .option-name {
+		color: #facc15;
 	}
 </style>

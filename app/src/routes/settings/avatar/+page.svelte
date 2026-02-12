@@ -109,7 +109,7 @@
 
 	.avatar-inner {
 		width: 100%;
-		max-width: 520px;
+		max-width: 780px;
 		padding: 0 24px;
 	}
 
