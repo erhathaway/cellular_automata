@@ -10,8 +10,9 @@
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
+  import { automataStore } from '$lib/stores/automata.svelte';
 
-  let advancedOpen = $state(false);
+  let advancedOpen = $derived(automataStore.advancedMode);
 </script>
 
 <div class="relative m-4" style="height: 75vh;">
@@ -55,7 +56,7 @@
     </div>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => advancedOpen = !advancedOpen}>
+    <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
       <div class="nails">
         <div class="nail"></div>
         <div class="nail"></div>
@@ -81,7 +82,7 @@
 
   {#if advancedOpen}
     <div class="advanced-panel-slot">
-      <AdvancedPanel onclose={() => advancedOpen = false} />
+      <AdvancedPanel onclose={() => automataStore.setAdvancedMode(false)} />
     </div>
   {/if}
 

@@ -363,8 +363,16 @@
   <div class="panel-body">
     <!-- DIMENSIONS + LATTICE -->
     <div class="section">
-      <div class="section-title">DIMENSIONS</div>
+      <div class="section-header">
+        <div class="section-title">DIMENSIONS</div>
+        <button class="section-toggle {automataStore.lockDimensions ? 'toggle-on' : ''}"
+          onclick={() => automataStore.setLockDimensions(!automataStore.lockDimensions)}
+          aria-label="Lock dimensions">
+          <span class="toggle-track"><span class="toggle-knob"></span></span>
+        </button>
+      </div>
 
+      <div class="section-body {!automataStore.lockDimensions ? 'section-disabled' : ''}">
       <div class="field">
         <span class="field-label">Cell</span>
         <div class="toggle-row">
@@ -429,12 +437,21 @@
           {/each}
         </div>
       </div>
+      </div>
     </div>
 
     <!-- RULES -->
     <div class="section section-rules">
-      <div class="section-title">RULES</div>
+      <div class="section-header">
+        <div class="section-title">RULES</div>
+        <button class="section-toggle {automataStore.lockRules ? 'toggle-on' : ''}"
+          onclick={() => automataStore.setLockRules(!automataStore.lockRules)}
+          aria-label="Lock rules">
+          <span class="toggle-track"><span class="toggle-knob"></span></span>
+        </button>
+      </div>
 
+      <div class="section-body {!automataStore.lockRules ? 'section-disabled' : ''}">
       <div class="field">
         <span class="field-label">Radius</span>
         <input
@@ -518,12 +535,21 @@
           </div>
         </div>
       {/if}
+      </div>
     </div>
 
     <!-- NEIGHBORHOOD -->
     <div class="section">
-      <div class="section-title">NEIGHBORHOOD</div>
+      <div class="section-header">
+        <div class="section-title">NEIGHBORHOOD</div>
+        <button class="section-toggle {automataStore.lockNeighborhood ? 'toggle-on' : ''}"
+          onclick={() => automataStore.setLockNeighborhood(!automataStore.lockNeighborhood)}
+          aria-label="Lock neighborhood">
+          <span class="toggle-track"><span class="toggle-knob"></span></span>
+        </button>
+      </div>
 
+      <div class="section-body {!automataStore.lockNeighborhood ? 'section-disabled' : ''}">
       {#if isMultiShape && shapeNeighborInfos.length > 0}
         <!-- Per-shape neighborhood grids -->
         {#each shapeNeighborInfos as info, si}
@@ -687,11 +713,21 @@
           <button class="small-btn" onclick={() => automataStore.setAllNeighborsEnabled(false)}>All Off</button>
         </div>
       {/if}
+      </div>
     </div>
 
     <!-- COLORS -->
     <div class="section">
-      <div class="section-title">COLORS</div>
+      <div class="section-header">
+        <div class="section-title">COLORS</div>
+        <button class="section-toggle {automataStore.lockColors ? 'toggle-on' : ''}"
+          onclick={() => automataStore.setLockColors(!automataStore.lockColors)}
+          aria-label="Lock colors">
+          <span class="toggle-track"><span class="toggle-knob"></span></span>
+        </button>
+      </div>
+
+      <div class="section-body {!automataStore.lockColors ? 'section-disabled' : ''}">
       {#each automataStore.cellStates as cs}
         <div class="color-row">
           <span class="color-label">{cs.number === 0 ? 'Dead' : 'Alive'}</span>
@@ -706,6 +742,7 @@
           />
         </div>
       {/each}
+      </div>
     </div>
   </div>
 </div>
@@ -881,6 +918,13 @@
     min-width: 0;
   }
 
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
   .section-title {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
@@ -888,6 +932,64 @@
     color: #78716c;
     text-transform: uppercase;
     margin-bottom: 2px;
+  }
+
+  .section-toggle {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-track {
+    display: block;
+    position: relative;
+    width: 32px;
+    height: 16px;
+    border-radius: 8px;
+    background: #292524;
+    border: 1px solid #44403c;
+    transition: all 0.2s;
+  }
+
+  .toggle-knob {
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #78716c;
+    transition: all 0.2s;
+  }
+
+  .toggle-on .toggle-track {
+    background: rgba(34, 211, 238, 0.2);
+    border-color: #22d3ee;
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.3);
+  }
+
+  .toggle-on .toggle-knob {
+    left: 18px;
+    background: #67e8f9;
+    box-shadow: 0 0 6px rgba(103, 232, 249, 0.6);
+  }
+
+  .section-body {
+    display: contents;
+  }
+
+  .section-disabled {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(0.8);
   }
 
   .field {

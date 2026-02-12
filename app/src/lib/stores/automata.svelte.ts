@@ -143,6 +143,13 @@ class AutomataStore {
   // Persistence hydration flag — true once PersistenceManager has applied URL/localStorage state
   hydrated = $state(false);
 
+  // Advanced mode lock state
+  advancedMode = $state(false);
+  lockDimensions = $state(false);
+  lockRules = $state(false);
+  lockNeighborhood = $state(false);
+  lockColors = $state(false);
+
   // Seed population state
   savedSeed: Uint8Array | null = $state(null);
   useSavedSeed: boolean = $state(true);
@@ -352,94 +359,111 @@ class AutomataStore {
     this.savedSeed = null;
     this.useSavedSeed = true;
 
-    if (this.miningLattice !== 'random') {
-      // Force dimension to match the selected lattice
-      const latticeDim = getLattice(this.miningLattice).dimension as 1 | 2 | 3;
-      if (latticeDim !== this.dimension) {
-        this.setDimension(latticeDim as 1 | 2 | 3);
-      }
-      if (this.miningLattice !== this.lattice) {
-        this.setLattice(this.miningLattice);
-      }
-    } else {
-      // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
-      if (this.viewer === 2 && this.dimension <= 2) {
-        const newDim = Math.random() < 0.5 ? 1 : 2;
-        if (newDim !== this.dimension) {
-          this.setDimension(newDim as 1 | 2);
-        }
-      }
+    const skipDimensions = this.advancedMode && this.lockDimensions;
+    const skipRules = this.advancedMode && this.lockRules;
+    const skipColors = this.advancedMode && this.lockColors;
 
-      // Randomize lattice for 2D/3D dimensions
-      if (this.dimension >= 2) {
-        const available = latticesForDimension(this.dimension as 2 | 3);
-        const randomLattice = available[Math.floor(Math.random() * available.length)];
-        if (randomLattice.type !== this.lattice) {
-          this.setLattice(randomLattice.type);
+    // Phase 1: Dimensions + Lattice
+    if (!skipDimensions) {
+      if (this.miningLattice !== 'random') {
+        // Force dimension to match the selected lattice
+        const latticeDim = getLattice(this.miningLattice).dimension as 1 | 2 | 3;
+        if (latticeDim !== this.dimension) {
+          this.setDimension(latticeDim as 1 | 2 | 3);
+        }
+        if (this.miningLattice !== this.lattice) {
+          this.setLattice(this.miningLattice);
+        }
+      } else {
+        // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
+        if (this.viewer === 2 && this.dimension <= 2) {
+          const newDim = Math.random() < 0.5 ? 1 : 2;
+          if (newDim !== this.dimension) {
+            this.setDimension(newDim as 1 | 2);
+          }
+        }
+
+        // Randomize lattice for 2D/3D dimensions
+        if (this.dimension >= 2) {
+          const available = latticesForDimension(this.dimension as 2 | 3);
+          const randomLattice = available[Math.floor(Math.random() * available.length)];
+          if (randomLattice.type !== this.lattice) {
+            this.setLattice(randomLattice.type);
+          }
         }
       }
     }
 
-    // Randomize radius from selected mining difficulty band
-    const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
-      easy: [1],
-      medium: [2, 3],
-      hard: [4, 5, 6],
-    };
-    const radiusPool = radiusByDifficulty[this.miningDifficulty];
-    const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];
-    this.setNeighborhoodRadius(newRadius);
+    // Phase 2+3: Radius + Rules
+    if (!skipRules) {
+      // Randomize radius from selected mining difficulty band
+      const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
+        easy: [1],
+        medium: [2, 3],
+        hard: [4, 5, 6],
+      };
+      const radiusPool = radiusByDifficulty[this.miningDifficulty];
+      const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];
+      this.setNeighborhoodRadius(newRadius);
 
-    if (this.dimension === 1 && this.neighborhoodRadius === 1) {
-      // Wolfram rule for 1D radius 1
-      this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
-    } else {
-      const latticeConfig = getLattice(this.lattice);
+      if (this.dimension === 1 && this.neighborhoodRadius === 1) {
+        // Wolfram rule for 1D radius 1
+        this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
+      } else {
+        const latticeConfig = getLattice(this.lattice);
 
-      if (latticeConfig.shapes && this.shapeRules) {
-        // Multi-shape: randomize each shape's rule independently
-        const newShapeRules = latticeConfig.shapes.map(shape => {
-          const maxN = shape.neighborCount;
+        if (latticeConfig.shapes && this.shapeRules) {
+          // Multi-shape: randomize each shape's rule independently
+          const newShapeRules = latticeConfig.shapes.map(shape => {
+            const maxN = shape.neighborCount;
+            const pick = () => {
+              const arr: number[] = [];
+              for (let i = 0; i <= maxN; i++) {
+                if (Math.random() < 0.25) arr.push(i);
+              }
+              return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxN + 1))];
+            };
+            return { survive: pick(), born: pick() };
+          });
+          this.shapeRules = newShapeRules;
+          this.rule = { type: 'conway', survive: [...newShapeRules[0].survive], born: [...newShapeRules[0].born] };
+          const key = historyKey(this.dimension, this.viewer, this.lattice);
+          this._shapeRulesHistory.set(key, newShapeRules.map(r => ({ ...r })));
+          this._ruleHistory.set(key, { ...this.rule });
+        } else {
+          const maxNeighbors = this.neighbors.length;
           const pick = () => {
             const arr: number[] = [];
-            for (let i = 0; i <= maxN; i++) {
+            for (let i = 0; i <= maxNeighbors; i++) {
               if (Math.random() < 0.25) arr.push(i);
             }
-            return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxN + 1))];
+            return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
           };
-          return { survive: pick(), born: pick() };
-        });
-        this.shapeRules = newShapeRules;
-        this.rule = { type: 'conway', survive: [...newShapeRules[0].survive], born: [...newShapeRules[0].born] };
-        const key = historyKey(this.dimension, this.viewer, this.lattice);
-        this._shapeRulesHistory.set(key, newShapeRules.map(r => ({ ...r })));
-        this._ruleHistory.set(key, { ...this.rule });
-      } else {
-        const maxNeighbors = this.neighbors.length;
-        const pick = () => {
-          const arr: number[] = [];
-          for (let i = 0; i <= maxNeighbors; i++) {
-            if (Math.random() < 0.25) arr.push(i);
-          }
-          return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
-        };
-        const born = pick();
-        const survive = pick();
-        this.setRule({ type: 'conway', survive, born });
-
+          const born = pick();
+          const survive = pick();
+          this.setRule({ type: 'conway', survive, born });
+        }
       }
     }
 
-    // Randomize cell colors for 2D viewers
-    if (this.dimension === 2) {
-      const h1 = Math.floor(Math.random() * 360);
-      const h0 = (h1 + 30 + Math.floor(Math.random() * 60)) % 360;
-      this.setCellStateColor(0, { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
-      this.setCellStateColor(1, { ...LIVING_BLACK });
+    // Phase 4: Colors
+    if (!skipColors) {
+      if (this.dimension === 2) {
+        const h1 = Math.floor(Math.random() * 360);
+        const h0 = (h1 + 30 + Math.floor(Math.random() * 60)) % 360;
+        this.setCellStateColor(0, { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
+        this.setCellStateColor(1, { ...LIVING_BLACK });
+      }
     }
 
     this.reset();
   }
+
+  setAdvancedMode(active: boolean) { this.advancedMode = active; }
+  setLockDimensions(v: boolean) { this.lockDimensions = v; }
+  setLockRules(v: boolean) { this.lockRules = v; }
+  setLockNeighborhood(v: boolean) { this.lockNeighborhood = v; }
+  setLockColors(v: boolean) { this.lockColors = v; }
 
   setMiningDifficulty(difficulty: MiningDifficulty) {
     this.miningDifficulty = difficulty;
