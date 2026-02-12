@@ -44,47 +44,59 @@
     </svg>
   </div>
 {:else}
-  <div class="badge" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));">
-    <svg width="44" height="60" viewBox="0 0 44 60" fill="none">
-      <!-- Ribbon left drape -->
-      <path d="M14 0 L8 0 L2 28 L8 24 L14 28 Z" fill="url(#{uid}-rl)"/>
-      <path d="M14 0 L14 28 L8 24 L2 28" stroke="#57534e" stroke-width="0.5" opacity="0.3"/>
-      <!-- Ribbon right drape -->
-      <path d="M30 0 L36 0 L42 28 L36 24 L30 28 Z" fill="url(#{uid}-rr)"/>
-      <path d="M30 0 L30 28 L36 24 L42 28" stroke="#57534e" stroke-width="0.5" opacity="0.3"/>
-      <!-- Ribbon center band -->
-      <rect x="13" y="0" width="18" height="22" rx="1" fill="url(#{uid}-rc)"/>
-      <line x1="16" y1="0" x2="16" y2="22" stroke="#78716c" stroke-width="0.5" opacity="0.3"/>
-      <line x1="22" y1="0" x2="22" y2="22" stroke="#78716c" stroke-width="0.5" opacity="0.2"/>
-      <line x1="28" y1="0" x2="28" y2="22" stroke="#78716c" stroke-width="0.5" opacity="0.3"/>
-      <!-- Medal disc -->
-      <circle cx="22" cy="40" r="17" fill="url(#{uid}-disc)" stroke="#57534e" stroke-width="1.5"/>
-      <!-- Raised rim -->
-      <circle cx="22" cy="40" r="14" fill="none" stroke="#78716c" stroke-width="1" opacity="0.5"/>
-      <circle cx="22" cy="40" r="14.5" fill="none" stroke="#292524" stroke-width="0.5" opacity="0.4"/>
-      <!-- Highlight -->
-      <ellipse cx="18" cy="35" rx="4" ry="6" fill="white" opacity="0.06"/>
-      <!-- Number -->
-      <text x="22" y="45" text-anchor="middle" font-family="'Space Mono', monospace" font-size="15" font-weight="700" fill="#d6d3d1" stroke="#292524" stroke-width="0.3">{rank}</text>
+  <div class="badge" style="filter: drop-shadow(0 3px 8px rgba(0,0,0,0.6));">
+    <svg width="48" height="66" viewBox="0 0 48 66" fill="none">
+      <!-- Ribbon V-fold: left strip (behind) -->
+      <path d="M9 0 H19 L25 26 H22 Z" fill="url(#{uid}-rl)"/>
+      <path d="M11 0 L23 26" stroke="#4a2828" stroke-width="1.5" opacity="0.5"/>
+      <path d="M17 0 L24.5 26" stroke="#4a2828" stroke-width="1.5" opacity="0.5"/>
+      <!-- Ribbon V-fold: right strip (in front, overlapping) -->
+      <path d="M29 0 H39 L23 26 H26 Z" fill="url(#{uid}-rr)"/>
+      <path d="M31 0 L23.5 26" stroke="#4a2828" stroke-width="1.5" opacity="0.5"/>
+      <path d="M37 0 L25 26" stroke="#4a2828" stroke-width="1.5" opacity="0.5"/>
+      <!-- Fold shadow at V point -->
+      <path d="M22 22 L25.5 26 H22 Z" fill="rgba(0,0,0,0.3)"/>
+
+      <!-- Metal ring connecting ribbon to medal -->
+      <circle cx="24" cy="29" r="3" fill="#3a3530" stroke="#8a8380" stroke-width="1.2"/>
+      <circle cx="24" cy="29" r="1.2" fill="#6b6560"/>
+
+      <!-- Medal outer disc -->
+      <circle cx="24" cy="48" r="17" fill="url(#{uid}-disc)" stroke="#8a8380" stroke-width="1.8"/>
+      <!-- Outer rim highlight -->
+      <circle cx="24" cy="48" r="16" fill="none" stroke="rgba(210,205,200,0.12)" stroke-width="0.6"/>
+      <!-- Raised inner rim -->
+      <circle cx="24" cy="48" r="13.5" fill="none" stroke="#6b6560" stroke-width="1.2"/>
+      <circle cx="24" cy="48" r="12.8" fill="none" stroke="rgba(210,205,200,0.08)" stroke-width="0.4"/>
+      <!-- Inner medallion -->
+      <circle cx="24" cy="48" r="12.5" fill="url(#{uid}-inner)"/>
+
+      <!-- Specular highlight -->
+      <ellipse cx="19" cy="42" rx="6" ry="8" fill="white" opacity="0.07"/>
+
+      <!-- Rank number -->
+      <text x="24" y="53" text-anchor="middle" font-family="'Space Mono', monospace" font-size="15" font-weight="700" fill="#e7e5e4" stroke="#292524" stroke-width="0.3">{rank}</text>
+
       <defs>
-        <linearGradient id="{uid}-rl" x1="2" y1="0" x2="14" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#44403c"/>
-          <stop offset="100%" stop-color="#57534e"/>
+        <linearGradient id="{uid}-rl" x1="9" y1="0" x2="19" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#5a3535"/>
+          <stop offset="50%" stop-color="#7a4a4a"/>
+          <stop offset="100%" stop-color="#5a3535"/>
         </linearGradient>
-        <linearGradient id="{uid}-rr" x1="30" y1="0" x2="42" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#57534e"/>
-          <stop offset="100%" stop-color="#44403c"/>
+        <linearGradient id="{uid}-rr" x1="29" y1="0" x2="39" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#5a3535"/>
+          <stop offset="50%" stop-color="#7a4a4a"/>
+          <stop offset="100%" stop-color="#5a3535"/>
         </linearGradient>
-        <linearGradient id="{uid}-rc" x1="13" y1="0" x2="31" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#57534e"/>
+        <radialGradient id="{uid}-disc" cx="0.35" cy="0.3" r="0.7">
+          <stop offset="0%" stop-color="#a8a29e"/>
           <stop offset="30%" stop-color="#78716c"/>
-          <stop offset="70%" stop-color="#78716c"/>
-          <stop offset="100%" stop-color="#57534e"/>
-        </linearGradient>
-        <radialGradient id="{uid}-disc" cx="0.4" cy="0.35" r="0.65">
-          <stop offset="0%" stop-color="#78716c"/>
-          <stop offset="50%" stop-color="#57534e"/>
-          <stop offset="100%" stop-color="#292524"/>
+          <stop offset="70%" stop-color="#57534e"/>
+          <stop offset="100%" stop-color="#3a3530"/>
+        </radialGradient>
+        <radialGradient id="{uid}-inner" cx="0.4" cy="0.35" r="0.6">
+          <stop offset="0%" stop-color="#6b6560"/>
+          <stop offset="100%" stop-color="#44403c"/>
         </radialGradient>
       </defs>
     </svg>
