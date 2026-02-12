@@ -32,6 +32,7 @@ export default class AutomataManager {
 
   // Fast-path fields (single-shape)
   private _neighborOffsets2D: [number, number][] = [];
+  private _neighborOffsets2DByParity: [[number, number][], [number, number][]] | null = null;
   private _neighborOffsets3D: [number, number, number][] = [];
   private _bornLookup: Uint8Array = new Uint8Array(0);
   private _surviveLookup: Uint8Array = new Uint8Array(0);
@@ -66,6 +67,7 @@ export default class AutomataManager {
   // Parse neighbor strings into numeric offset arrays
   private _parseNeighborOffsets(neighborStrings: string[]): void {
     this._neighborOffsets2D = [];
+    this._neighborOffsets2DByParity = null;
     this._neighborOffsets3D = [];
     if (neighborStrings.length === 0) return;
     const dims = neighborStrings[0].split('|').length;
@@ -104,7 +106,7 @@ export default class AutomataManager {
       const neighborCount =
         this._generatorType === 'threeDimension'
           ? this._neighborOffsets3D.length
-          : this._neighborOffsets2D.length;
+          : (this._neighborOffsets2DByParity ? this._neighborOffsets2DByParity[0].length : this._neighborOffsets2D.length);
       if (neighborCount > 0) {
         this._buildRuleLookups(rule, neighborCount);
       }
@@ -220,6 +222,7 @@ export default class AutomataManager {
     this._stateReducer = oneDimensionStateReducer;
     this._ruleApplicator = new OneDimensionRuleApplicator();
     this._neighborOffsets2D = [];
+    this._neighborOffsets2DByParity = null;
     this._neighborOffsets3D = [];
     this._bornLookup = new Uint8Array(0);
     this._surviveLookup = new Uint8Array(0);
@@ -235,6 +238,7 @@ export default class AutomataManager {
       [0, 1], [1, 1], [1, 0], [1, -1],
       [0, -1], [-1, -1], [-1, 0], [-1, 1],
     ];
+    this._neighborOffsets2DByParity = null;
     this._neighborOffsets3D = [];
     this._clearMultiShape();
   }
@@ -246,6 +250,7 @@ export default class AutomataManager {
     this._ruleApplicator = new LifeLikeRuleApplicator();
     this._ruleApplicator.rule = { survive: [4, 5], born: [5] };
     this._neighborOffsets2D = [];
+    this._neighborOffsets2DByParity = null;
     this._neighborOffsets3D = [];
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
@@ -281,10 +286,12 @@ export default class AutomataManager {
     // Override fast-path offsets with properly typed ones
     if (neighborhood.offsets2D) {
       this._neighborOffsets2D = neighborhood.offsets2D;
+      this._neighborOffsets2DByParity = neighborhood.parityOffsets2D ?? null;
       this._neighborOffsets3D = [];
     }
     if (neighborhood.offsets3D) {
       this._neighborOffsets2D = [];
+      this._neighborOffsets2DByParity = null;
       this._neighborOffsets3D = neighborhood.offsets3D;
     }
 
@@ -369,6 +376,7 @@ export default class AutomataManager {
     const pop = this._currentPopulation as number[][];
     const W = pop.length;
     const H = pop[0].length;
+    const parityOffsets = this._neighborOffsets2DByParity;
     const offsets = this._neighborOffsets2D;
     const numOffsets = offsets.length;
     const born = this._bornLookup;
@@ -379,9 +387,11 @@ export default class AutomataManager {
       const row = new Array(H);
       const popX = pop[x];
       for (let y = 0; y < H; y++) {
+        const currentOffsets = parityOffsets ? parityOffsets[y & 1] : offsets;
+        const currentNumOffsets = parityOffsets ? currentOffsets.length : numOffsets;
         let liveCount = 0;
-        for (let n = 0; n < numOffsets; n++) {
-          const off = offsets[n];
+        for (let n = 0; n < currentNumOffsets; n++) {
+          const off = currentOffsets[n];
           liveCount += pop[((x + off[0]) % W + W) % W][((y + off[1]) % H + H) % H];
         }
         row[y] = popX[y] === 1 ? survive[liveCount] : born[liveCount];

@@ -5,6 +5,8 @@ export type GeometryType = 'box' | 'hexprism' | 'triprism' | 'sphere' | 'octpris
 export interface NeighborhoodConfig {
   // Single-shape (uniform lattices)
   offsets2D?: [number, number][];
+  // Row-parity-aware offsets (index 0 = even row, 1 = odd row)
+  parityOffsets2D?: [[number, number][], [number, number][]];
   offsets3D?: [number, number, number][];
 
   // Multi-shape (when shapeCount > 1)
@@ -58,6 +60,39 @@ function offsets3DToStrings(offsets: [number, number, number][]): string[] {
     const zPart = dz === 0 ? 'z' : dz > 0 ? `z+${dz}` : `z${dz}`;
     return `${xPart}|${yPart}|${zPart}`;
   });
+}
+
+function oddrToAxial(col: number, row: number): { q: number; r: number } {
+  const q = col - ((row - (row & 1)) / 2);
+  return { q, r: row };
+}
+
+function axialToOddr(q: number, r: number): { col: number; row: number } {
+  const col = q + ((r - (r & 1)) / 2);
+  return { col, row: r };
+}
+
+function hexParityOffsets(radius: number): [[number, number][], [number, number][]] {
+  const offsetsByParity: [[number, number][], [number, number][]] = [[], []];
+
+  for (let parity = 0; parity <= 1; parity++) {
+    const base = oddrToAxial(0, parity);
+    const offsets: [number, number][] = [];
+
+    for (let dq = -radius; dq <= radius; dq++) {
+      for (let dr = -radius; dr <= radius; dr++) {
+        if (dq === 0 && dr === 0) continue;
+        if (Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr)) > radius) continue;
+
+        const p = axialToOddr(base.q + dq, base.r + dr);
+        offsets.push([p.col, p.row - parity]);
+      }
+    }
+
+    offsetsByParity[parity] = offsets;
+  }
+
+  return offsetsByParity;
 }
 
 // --- BFS helper for 3D lattices with uniform offsets ---
@@ -216,19 +251,19 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     neighborCount: 6,
     defaultRule: { survive: [3, 4], born: [2] },
     neighborhood(radius) {
-      const offsets: [number, number][] = [];
-      for (let dq = -radius; dq <= radius; dq++) {
-        for (let dr = -radius; dr <= radius; dr++) {
-          if (dq === 0 && dr === 0) continue;
-          if (Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr)) <= radius) {
-            offsets.push([dq, dr]);
-          }
-        }
-      }
-      return { offsets2D: offsets, neighborStrings: offsets2DToStrings(offsets), neighborCount: offsets.length };
+      const parityOffsets = hexParityOffsets(radius);
+      // Keep offsets2D/neighborStrings populated for generic consumers;
+      // simulation fast-path uses parityOffsets2D when available.
+      const offsets = parityOffsets[0];
+      return {
+        offsets2D: offsets,
+        parityOffsets2D: parityOffsets,
+        neighborStrings: offsets2DToStrings(offsets),
+        neighborCount: offsets.length,
+      };
     },
     position2D: (col, row, size) => ({
-      x: size * (SQRT3 * col + (SQRT3 / 2) * row),
+      x: size * SQRT3 * (col + (row & 1) * 0.5),
       y: size * 1.5 * row,
     }),
     geometry: 'hexprism',
