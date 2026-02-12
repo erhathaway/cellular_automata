@@ -11,11 +11,13 @@
     onsettingsclick,
     onhistoryclick,
     historyOpen = false,
+    dark = false,
   }: {
     userProfile?: UserProfile;
     onsettingsclick?: () => void;
     onhistoryclick?: () => void;
     historyOpen?: boolean;
+    dark?: boolean;
   } = $props();
 
   const topItems = [
@@ -71,7 +73,7 @@
   }
 </script>
 
-<nav class="nav-rail">
+<nav class="nav-rail" class:dark>
   <!-- Top items -->
   <div class="nav-group">
     {#each topItems as item}
@@ -257,7 +259,7 @@
   }
 
   .icon-frame.active {
-    background: #1c1917;
+    background: #000000;
     border-color: #292524;
     box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
     animation: frame-activate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -276,7 +278,7 @@
     }
     50% {
       transform: scale(1.06);
-      background: #1c1917;
+      background: #000000;
       box-shadow: 0 0 14px rgba(250, 204, 21, 0.4);
     }
     75% {
@@ -284,7 +286,7 @@
     }
     100% {
       transform: scale(1);
-      background: #1c1917;
+      background: #000000;
       border-color: #292524;
       box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
     }
@@ -321,6 +323,57 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  /* Dark mode overrides */
+  .dark .auth-section {
+    border-top-color: #44403c;
+  }
+
+  .dark .nav-item:hover {
+    background: #292524;
+    color: #d6d3d1;
+  }
+
+  .dark .nav-item.active {
+    color: #facc15;
+  }
+
+  .dark .icon-frame {
+    background: #292524;
+    color: #a8a29e;
+  }
+
+  .dark .icon-frame :global(svg) {
+    color: #a8a29e;
+    stroke: #a8a29e;
+  }
+
+  .dark .icon-frame.active {
+    background: #000000;
+  }
+
+  .dark .icon-frame.active :global(svg) {
+    color: #facc15;
+    stroke: #facc15;
+  }
+
+  .dark .nav-item:hover .icon-frame:not(.active) {
+    background: #44403c;
+    border-color: #57534e;
+  }
+
+  .dark .nav-item:hover .icon-frame:not(.active) :global(svg) {
+    color: #d6d3d1;
+    stroke: #d6d3d1;
+  }
+
+  .dark .nav-label {
+    color: #78716c;
+  }
+
+  .dark .nav-label.active {
+    color: #facc15;
   }
 
   .gem-fly {
