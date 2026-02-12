@@ -145,8 +145,12 @@ class AutomataStore {
 
   // Advanced mode lock state
   advancedMode = $state(false);
-  lockDimensions = $state(false);
-  lockRules = $state(false);
+  lockCell = $state(false);
+  lockViewer = $state(false);
+  lockLattice = $state(false);
+  lockRadius = $state(false);
+  lockBorn = $state(false);
+  lockSurvive = $state(false);
   lockNeighborhood = $state(false);
   lockColors = $state(false);
 
@@ -460,8 +464,12 @@ class AutomataStore {
   }
 
   setAdvancedMode(active: boolean) { this.advancedMode = active; }
-  setLockDimensions(v: boolean) { this.lockDimensions = v; }
-  setLockRules(v: boolean) { this.lockRules = v; }
+  setLockCell(v: boolean) { this.lockCell = v; }
+  setLockViewer(v: boolean) { this.lockViewer = v; }
+  setLockLattice(v: boolean) { this.lockLattice = v; }
+  setLockRadius(v: boolean) { this.lockRadius = v; }
+  setLockBorn(v: boolean) { this.lockBorn = v; }
+  setLockSurvive(v: boolean) { this.lockSurvive = v; }
   setLockNeighborhood(v: boolean) { this.lockNeighborhood = v; }
   setLockColors(v: boolean) { this.lockColors = v; }
 
