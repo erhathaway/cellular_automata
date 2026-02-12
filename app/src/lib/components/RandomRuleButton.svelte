@@ -222,9 +222,9 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 14px;
     cursor: pointer;
-    padding: 10px 18px;
+    padding: 20px 38px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -274,14 +274,14 @@
   }
 
   .pickaxe {
-    width: 22px;
-    height: 22px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
   }
 
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 22px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -295,8 +295,8 @@
   /* Mini CA grid overlaid where the label text is */
   .ca-grid {
     position: absolute;
-    left: 48px;
-    right: 18px;
+    left: 88px;
+    right: 36px;
     top: 50%;
     transform: translateY(-50%);
     display: grid;
@@ -339,10 +339,10 @@
 
   .progress-track {
     position: absolute;
-    left: 18px;
-    right: 18px;
-    bottom: 6px;
-    height: 3px;
+    left: 36px;
+    right: 36px;
+    bottom: 7px;
+    height: 4px;
     background: rgba(250, 204, 21, 0.2);
     border-radius: 2px;
     overflow: hidden;

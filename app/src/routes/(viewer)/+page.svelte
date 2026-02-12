@@ -5,6 +5,7 @@
   import ViewControls from '$lib/components/ViewControls.svelte';
   import StableModal from '$lib/components/StableModal.svelte';
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
+  import MiningLevelButton from '$lib/components/MiningLevelButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
@@ -28,9 +29,16 @@
     <ViewControls />
     <StableModal />
   </section>
-  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center">
-    <div class="pointer-events-auto relative">
-      <RandomRuleButton />
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 translate-y-1/2">
+    <div class="controls-row">
+      <div class="controls-left pointer-events-auto">
+        <div class="pipe-backdrop"></div>
+        <MiningLevelButton />
+      </div>
+      <div class="controls-center pointer-events-auto">
+        <RandomRuleButton />
+      </div>
+      <div class="controls-right"></div>
     </div>
   </div>
 </div>
@@ -85,5 +93,120 @@
   @keyframes electric-v {
     0%   { background-position: 0 0; }
     100% { background-position: 0 18px; }
+  }
+
+  .controls-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+  }
+
+  .controls-left {
+    justify-self: end;
+    margin-right: 38px;
+    position: relative;
+  }
+
+  .controls-center {
+    justify-self: center;
+    position: relative;
+  }
+
+  .controls-right {
+    justify-self: start;
+  }
+
+  .controls-left :global(.level-root) {
+    transform: translateX(-2px);
+  }
+
+  /* Glowing connector pipe from level button to mine button */
+  .controls-left::after {
+    content: '';
+    position: absolute;
+    left: calc(100% - 4px);
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 42px;
+    height: 14px;
+    border-radius: 3px;
+    border: 2px solid #0e7490;
+    background:
+      linear-gradient(
+        90deg,
+        #0c4a6e 0%,
+        #22d3ee 50%,
+        #0c4a6e 100%
+      );
+    box-shadow:
+      0 0 10px rgba(34, 211, 238, 0.75),
+      inset 0 0 6px rgba(103, 232, 249, 0.95);
+    pointer-events: none;
+    z-index: 2;
+    animation: connector-pulse 1.1s ease-in-out infinite;
+  }
+
+  .controls-left::before {
+    content: '';
+    position: absolute;
+    left: calc(100% + 38px);
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
+    border: 1px solid #44403c;
+    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .controls-left .pipe-backdrop {
+    position: absolute;
+    left: calc(100% - 5px);
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 50px;
+    height: 18px;
+    border-radius: 3px;
+    background: #1c1917;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .controls-center::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
+    border: 1px solid #44403c;
+    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  @keyframes connector-pulse {
+    0% {
+      box-shadow:
+        0 0 8px rgba(34, 211, 238, 0.45),
+        inset 0 0 4px rgba(34, 211, 238, 0.45);
+    }
+    50% {
+      box-shadow:
+        0 0 14px rgba(34, 211, 238, 0.9),
+        inset 0 0 8px rgba(103, 232, 249, 0.85);
+    }
+    100% {
+      box-shadow:
+        0 0 8px rgba(34, 211, 238, 0.45),
+        inset 0 0 4px rgba(34, 211, 238, 0.45);
+    }
   }
 </style>

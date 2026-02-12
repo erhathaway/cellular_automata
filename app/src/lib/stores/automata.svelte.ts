@@ -40,6 +40,8 @@ export interface ComboSettings {
   shapeRules?: { survive: number[]; born: number[] }[];
 }
 
+export type MiningDifficulty = 'easy' | 'medium' | 'hard';
+
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
 
 // --- Default shapes by dimension+viewer combo ---
@@ -118,6 +120,7 @@ class AutomataStore {
 
   // Mining animation state
   isMining = $state(false);
+  miningDifficulty: MiningDifficulty = $state('medium');
   claimAnimationCounter = $state(0);
   claimGemOrigin: { x: number; y: number } | null = $state(null);
 
@@ -329,9 +332,14 @@ class AutomataStore {
       }
     }
 
-    // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
-    const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
-    const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
+    // Randomize radius from selected mining difficulty band
+    const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
+      easy: [1, 2],
+      medium: [3, 4, 5],
+      hard: [6, 7, 8, 9, 10],
+    };
+    const radiusPool = radiusByDifficulty[this.miningDifficulty];
+    const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];
     this.setNeighborhoodRadius(newRadius);
 
     if (this.dimension === 1 && this.neighborhoodRadius === 1) {
@@ -371,12 +379,6 @@ class AutomataStore {
         const survive = pick();
         this.setRule({ type: 'conway', survive, born });
 
-        // Reduce radius to minimum needed for the rule's max neighbor count
-        const maxUsed = Math.max(...born, ...survive);
-        const minRadius = this._minRadiusForNeighborCount(this.dimension, maxUsed);
-        if (minRadius < this.neighborhoodRadius) {
-          this.setNeighborhoodRadius(minRadius);
-        }
       }
     }
 
@@ -389,6 +391,10 @@ class AutomataStore {
     }
 
     this.reset();
+  }
+
+  setMiningDifficulty(difficulty: MiningDifficulty) {
+    this.miningDifficulty = difficulty;
   }
 
   setStable(kind: 'exact' | 'quasi', period: number) {
