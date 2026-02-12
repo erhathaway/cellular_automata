@@ -21,7 +21,7 @@
 	let settingsOpen = $state(false);
 	let historyOpen = $state(false);
 
-	const NAV_WIDTH = 72;
+	const NAV_WIDTH = 88;
 	const HISTORY_WIDTH = 280;
 	let leftWidth = $derived(historyOpen ? NAV_WIDTH + HISTORY_WIDTH : NAV_WIDTH);
 
