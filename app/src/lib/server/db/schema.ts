@@ -274,6 +274,56 @@ export const commentVote = sqliteTable(
 	]
 );
 
+// --- User Achievement ---
+
+export const userAchievement = sqliteTable(
+	'user_achievement',
+	{
+		id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		achievementId: text('achievement_id').notNull(),
+		earnedAt: integer('earned_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date()),
+		seen: integer('seen', { mode: 'boolean' }).notNull().default(false)
+	},
+	(t) => [
+		uniqueIndex('user_achievement_unique_idx').on(t.userId, t.achievementId),
+		index('user_achievement_user_id_idx').on(t.userId)
+	]
+);
+
+// --- User Generation View ---
+
+export const userGenerationView = sqliteTable(
+	'user_generation_view',
+	{
+		id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		latticeType: text('lattice_type'),
+		ruleDefinition: text('rule_definition').notNull(),
+		dimension: integer('dimension').notNull(),
+		neighborhoodRadius: integer('neighborhood_radius').notNull().default(1),
+		viewedAt: integer('viewed_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(t) => [
+		uniqueIndex('user_gen_view_unique_idx').on(
+			t.userId,
+			t.latticeType,
+			t.ruleDefinition,
+			t.dimension,
+			t.neighborhoodRadius
+		),
+		index('user_gen_view_user_id_idx').on(t.userId)
+	]
+);
+
 // --- Discovery ---
 
 export const discovery = sqliteTable(

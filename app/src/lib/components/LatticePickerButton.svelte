@@ -88,6 +88,14 @@
     </svg>
 
     <span class="label">{current.label}</span>
+
+    {#if disabled}
+      <div class="disabled-overlay">
+        <div class="cross-line cross-line-1"></div>
+        <div class="cross-line cross-line-2"></div>
+        <div class="disabled-pill">Advanced Mode</div>
+      </div>
+    {/if}
   </div>
 
   {#if open}
@@ -328,6 +336,49 @@
     border-radius: 50%;
     background: #67e8f9;
     box-shadow: 0 0 3px rgba(103, 232, 249, 0.25);
+  }
+
+  .disabled-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .cross-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 110%;
+    height: 1px;
+    background: #44403c;
+    transform-origin: center;
+  }
+
+  .cross-line-1 {
+    transform: translate(-50%, -50%) rotate(25deg);
+  }
+
+  .cross-line-2 {
+    transform: translate(-50%, -50%) rotate(-25deg);
+  }
+
+  .disabled-pill {
+    position: relative;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #78716c;
+    background: #1c1917;
+    border: 1px solid #44403c;
+    border-radius: 10px;
+    padding: 3px 10px;
+    white-space: nowrap;
   }
 
   @media (max-width: 700px) {
