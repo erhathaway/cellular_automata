@@ -42,82 +42,241 @@
   );
 </script>
 
-<div class="flex gap-3">
-  {#if comment.userAvatarId}
-    <PixelAvatar avatarId={comment.userAvatarId} size={32} fallbackInitials={initials} />
-  {:else if comment.userImageUrl}
-    <img
-      src={comment.userImageUrl}
-      alt=""
-      class="h-8 w-8 shrink-0 rounded-full"
-    />
-  {:else}
-    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-xs font-semibold text-neutral-500 dark:bg-neutral-700 dark:text-neutral-300">
-      {initials}
-    </div>
-  {/if}
+<div class="entry">
+  <!-- Left: vote rail -->
+  <div class="vote-rail">
+    <button
+      class="vote-btn {myVote === 1 ? 'active' : ''}"
+      onclick={() => onvote(comment.id, 1)}
+      aria-label="Upvote"
+    >
+      <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 2L10 8H2z" /></svg>
+    </button>
+    <span class="vote-score {myVote === 1 ? 'up' : ''} {myVote === -1 ? 'down' : ''}">{comment.score}</span>
+    <button
+      class="vote-btn {myVote === -1 ? 'active down' : ''}"
+      onclick={() => onvote(comment.id, -1)}
+      aria-label="Downvote"
+    >
+      <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 10L2 4h8z" /></svg>
+    </button>
+  </div>
 
-  <div class="min-w-0 flex-1">
-    <div class="flex items-baseline gap-2">
-      <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-        {comment.userName ?? 'Anonymous'}
-      </span>
-      <span class="text-xs text-neutral-400 dark:text-neutral-500">
-        {timeAgo(comment.createdAt)}
-      </span>
-    </div>
-
-    <p class="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-      {comment.body}
-    </p>
-
-    <div class="mt-1.5 flex items-center gap-3">
-      <!-- Vote controls -->
-      <div class="flex items-center gap-1">
-        <button
-          class="rounded p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 {myVote === 1 ? 'text-blue-500 dark:text-blue-400' : ''}"
-          onclick={() => onvote(comment.id, 1)}
-          aria-label="Upvote"
-        >
-          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3z" clip-rule="evenodd" />
-            <path d="M10 7.5a.75.75 0 01.75.75v7a.75.75 0 01-1.5 0v-7A.75.75 0 0110 7.5z" />
-          </svg>
-        </button>
-        <span class="min-w-[1.25rem] text-center text-xs font-medium {myVote === 1 ? 'text-blue-500 dark:text-blue-400' : myVote === -1 ? 'text-red-500 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400'}">
-          {comment.score}
-        </span>
-        <button
-          class="rounded p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 {myVote === -1 ? 'text-red-500 dark:text-red-400' : ''}"
-          onclick={() => onvote(comment.id, -1)}
-          aria-label="Downvote"
-        >
-          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 17a.75.75 0 01-.55-.24l-3.25-3.5a.75.75 0 111.1-1.02L10 15.148l2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5A.75.75 0 0110 17z" clip-rule="evenodd" />
-            <path d="M10 12.5a.75.75 0 01-.75-.75v-7a.75.75 0 011.5 0v7a.75.75 0 01-.75.75z" />
-          </svg>
-        </button>
+  <!-- Right: content -->
+  <div class="content">
+    <!-- Avatar + meta row -->
+    <div class="meta-row">
+      <div class="avatar-wrap">
+        {#if comment.userAvatarId}
+          <PixelAvatar avatarId={comment.userAvatarId} size={20} fallbackInitials={initials} />
+        {:else if comment.userImageUrl}
+          <img src={comment.userImageUrl} alt="" class="avatar-img" />
+        {:else}
+          <div class="avatar-fallback">{initials}</div>
+        {/if}
       </div>
+      <span class="author">{comment.userName ?? 'Anonymous'}</span>
+      <span class="dot">·</span>
+      <span class="time">{timeAgo(comment.createdAt)}</span>
+    </div>
 
-      <!-- Reply button (top-level only) -->
+    <!-- Body -->
+    <p class="body">{comment.body}</p>
+
+    <!-- Actions -->
+    <div class="actions">
       {#if isTopLevel && onreply}
-        <button
-          class="text-xs font-medium text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300"
-          onclick={onreply}
-        >
+        <button class="action-btn" onclick={onreply}>
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 17 4 12 9 7" />
+            <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+          </svg>
           Reply
         </button>
       {/if}
-
-      <!-- Delete button (own comments only) -->
       {#if currentUserId && currentUserId === comment.userId}
-        <button
-          class="text-xs font-medium text-neutral-400 hover:text-red-500 dark:text-neutral-500 dark:hover:text-red-400"
-          onclick={() => ondelete(comment.id)}
-        >
+        <button class="action-btn delete" onclick={() => ondelete(comment.id)}>
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <path d="m19 6-.7 11.4a2 2 0 0 1-2 1.6H7.7a2 2 0 0 1-2-1.6L5 6" />
+          </svg>
           Delete
         </button>
       {/if}
     </div>
   </div>
 </div>
+
+<style>
+  .entry {
+    display: flex;
+    gap: 0;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .entry:first-child {
+    border-top: none;
+  }
+
+  /* Vote rail */
+  .vote-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    width: 32px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .vote-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #44403c;
+    border-radius: 2px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .vote-btn svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .vote-btn:hover {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
+  }
+
+  .vote-btn.active {
+    color: #facc15;
+  }
+
+  .vote-btn.active.down {
+    color: #ef4444;
+  }
+
+  .vote-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #57534e;
+    min-width: 16px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .vote-score.up { color: #facc15; }
+  .vote-score.down { color: #ef4444; }
+
+  /* Content */
+  .content {
+    flex: 1;
+    min-width: 0;
+    padding-left: 8px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .avatar-wrap {
+    flex-shrink: 0;
+  }
+
+  .avatar-img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+
+  .avatar-fallback {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #292524;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    color: #78716c;
+  }
+
+  .author {
+    font-family: 'Space Grotesk Variable', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #d6d3d1;
+  }
+
+  .dot {
+    color: #44403c;
+    font-size: 10px;
+  }
+
+  .time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #57534e;
+  }
+
+  .body {
+    font-family: 'Space Grotesk Variable', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #a8a29e;
+    white-space: pre-wrap;
+    margin-top: 4px;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #57534e;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .action-btn:hover {
+    color: #d6d3d1;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .action-btn.delete:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .action-icon {
+    width: 12px;
+    height: 12px;
+  }
+</style>

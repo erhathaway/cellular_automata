@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="thread">
   <CommentItem
     comment={parent}
     myVote={userVotes[parent.id] ?? 0}
@@ -41,7 +41,7 @@
 
   <!-- Reply input -->
   {#if showReplyInput}
-    <div class="ml-11">
+    <div class="reply-indent">
       <CommentInput
         onsubmit={handleReply}
         placeholder="Add a reply..."
@@ -52,7 +52,7 @@
 
   <!-- Replies -->
   {#if replies.length > 0}
-    <div class="ml-11 flex flex-col gap-3 border-l-2 border-neutral-100 pl-4 dark:border-neutral-800">
+    <div class="replies">
       {#each replies as reply (reply.id)}
         <CommentItem
           comment={reply}
@@ -66,3 +66,24 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .thread {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .reply-indent {
+    margin-left: 44px;
+  }
+
+  .replies {
+    margin-left: 44px;
+    padding-left: 16px;
+    border-left: 2px solid #e7e5e4;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+</style>
