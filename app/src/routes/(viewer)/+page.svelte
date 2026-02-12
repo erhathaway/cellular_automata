@@ -3,7 +3,6 @@
   import MenuPanel from '$lib/components/MenuPanel.svelte';
   import ViewModeSwitcher from '$lib/components/ViewModeSwitcher.svelte';
   import ViewControls from '$lib/components/ViewControls.svelte';
-  import StableModal from '$lib/components/StableModal.svelte';
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
   import MiningLevelButton from '$lib/components/MiningLevelButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
@@ -27,7 +26,6 @@
       <MenuPanel />
     </div>
     <ViewControls />
-    <StableModal />
   </section>
   <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 translate-y-1/2">
     <div class="controls-row">

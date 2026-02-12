@@ -151,6 +151,13 @@
         <div class="iw-v">No living cells for 5 consecutive generations.</div>
       </div>
     </div>
+  {:else if automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1}
+    <div class="warning-row">
+      <div class="frozen-card">
+        <div class="iw-k">Frozen automata detected</div>
+        <div class="iw-v">No cells are being born or dying</div>
+      </div>
+    </div>
   {:else if automataStore.interventionTaken}
     <div class="warning-row">
       <div class="intervention-card">
@@ -264,6 +271,17 @@
     box-shadow:
       0 0 0 1px rgba(248, 113, 113, 0.2) inset,
       0 0 12px rgba(239, 68, 68, 0.28);
+  }
+
+  .frozen-card {
+    width: 100%;
+    border: 1px solid #60a5fa;
+    border-radius: 6px;
+    padding: 10px;
+    background: rgba(59, 130, 246, 0.16);
+    box-shadow:
+      0 0 0 1px rgba(96, 165, 250, 0.2) inset,
+      0 0 12px rgba(59, 130, 246, 0.24);
   }
 
   .iw-k {

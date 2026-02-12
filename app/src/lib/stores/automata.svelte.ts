@@ -517,7 +517,7 @@ class AutomataStore {
     this.interventionTaken = true;
     this.interventionTitle = 'Emergency intervention taken';
     this.interventionReason =
-      `Explosive automata detected: living/dead counts are cycling in a repeating <=5-value band (periods ${livingPeriod}/${deadPeriod}). Slowing simulation to 0.33 FPS.`;
+      'Explosive automata detected: slowing simulation to prevent harm to equiepemnt';
     this.interventionUpdateRateMs = 3000;
   }
 
