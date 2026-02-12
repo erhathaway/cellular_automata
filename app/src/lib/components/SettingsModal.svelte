@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { AVATARS } from '$lib/avatars';
   import PixelAvatar from './PixelAvatar.svelte';
   import { SignOutButton } from 'svelte-clerk';
   import { api } from '$lib/api';
@@ -18,7 +17,6 @@
   } = $props();
 
   let displayName = $state('');
-  let selectedAvatarId = $state('');
   let saving = $state(false);
   let saveMsg = $state('');
   let errorMsg = $state('');
@@ -32,7 +30,6 @@
   $effect(() => {
     if (open && userProfile) {
       displayName = userProfile.displayName ?? '';
-      selectedAvatarId = userProfile.avatarId ?? '';
       saveMsg = '';
       errorMsg = '';
       showDeleteConfirm = false;
@@ -40,7 +37,7 @@
     }
   });
 
-  let canSave = $derived(displayName.trim().length >= 1 && selectedAvatarId !== '');
+  let canSave = $derived(displayName.trim().length >= 1);
 
   async function save() {
     if (!canSave || saving) return;
@@ -49,8 +46,7 @@
     saveMsg = '';
     try {
       const result = await api<NonNullable<UserProfile>>('PATCH', '/api/user/profile', {
-        displayName: displayName.trim(),
-        avatarId: selectedAvatarId
+        displayName: displayName.trim()
       });
       onprofileupdated(result);
       saveMsg = 'Saved!';
@@ -81,6 +77,11 @@
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape' && !saving && !deleting) open = false;
+  }
+
+  function goToChangeAvatar() {
+    open = false;
+    goto('/settings/avatar');
   }
 </script>
 
@@ -115,6 +116,21 @@
 
       <div class="divider"></div>
 
+      <!-- Avatar display + change button -->
+      <div class="avatar-section">
+        <div class="avatar-display">
+          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={56} />
+        </div>
+        <div class="avatar-info">
+          <p class="avatar-current-name">{userProfile?.displayName ?? 'No name set'}</p>
+          <button class="btn-change-avatar" onclick={goToChangeAvatar}>
+            Change Avatar
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
       <!-- Email (read-only) -->
       <div class="field">
         <label class="field-label">Email</label>
@@ -131,23 +147,6 @@
           maxlength={30}
           class="field-input"
         />
-      </div>
-
-      <!-- Avatar picker -->
-      <div class="field">
-        <p class="field-label">Avatar</p>
-        <div class="avatar-grid">
-          {#each AVATARS as avatar}
-            <button
-              class="avatar-btn"
-              class:selected={selectedAvatarId === avatar.id}
-              onclick={() => { selectedAvatarId = avatar.id; }}
-            >
-              <PixelAvatar avatarId={avatar.id} size={36} />
-              <span class="avatar-name">{avatar.name}</span>
-            </button>
-          {/each}
-        </div>
       </div>
 
       {#if errorMsg}
@@ -329,6 +328,63 @@
     margin: 18px 0;
   }
 
+  /* Avatar section */
+  .avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .avatar-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    background: #0c0a09;
+    border: 1px solid #292524;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .avatar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .avatar-current-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d6d3d1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-change-avatar {
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.25);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .btn-change-avatar:hover {
+    background: rgba(250, 204, 21, 0.18);
+    border-color: #facc15;
+  }
+
   /* Fields */
   .field {
     margin-top: 14px;
@@ -379,50 +435,6 @@
 
   .field-input::placeholder {
     color: #44403c;
-  }
-
-  /* Avatar grid */
-  .avatar-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .avatar-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 4px;
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  .avatar-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: #292524;
-  }
-
-  .avatar-btn.selected {
-    background: rgba(250, 204, 21, 0.1);
-    border-color: #facc15;
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
-  }
-
-  .avatar-name {
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 0.04em;
-    color: #57534e;
-    line-height: 1;
-  }
-
-  .avatar-btn.selected .avatar-name {
-    color: #facc15;
   }
 
   /* Messages */
