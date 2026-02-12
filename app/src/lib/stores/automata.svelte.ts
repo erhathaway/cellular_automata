@@ -14,6 +14,8 @@ export interface CellStateEntry {
   color: HSLColor;
 }
 
+const LIVING_BLACK: HSLColor = { h: 0, s: 0, l: 0, a: 1 };
+
 // --- Neighbor coordinate strings ---
 const ONE_D_NEIGHBORS = ['x-1', 'x+1'];
 const TWO_D_NEIGHBORS = [
@@ -56,15 +58,11 @@ export function defaultShape(dim: number, viewer: number): Record<string, number
 // --- Default cell states by dimension+viewer combo ---
 export function defaultCellStates(dim: number, viewer: number): CellStateEntry[] {
   const white: HSLColor = { h: 360, s: 1, l: 1, a: 1 };
-  const black: HSLColor = { h: 0, s: 0, l: 0, a: 1 };
-  const blue: HSLColor = { h: 234, s: 0.7, l: 0.55, a: 1 };
-  const orange: HSLColor = { h: 39, s: 1, l: 0.5, a: 1 };
-
-  if (dim === 1) return [{ number: 0, color: white }, { number: 1, color: black }];
-  if (dim === 2 && viewer === 2) return [{ number: 0, color: white }, { number: 1, color: blue }];
-  if (dim === 2 && viewer === 3) return [{ number: 0, color: white }, { number: 1, color: blue }];
-  if (dim === 3) return [{ number: 0, color: white }, { number: 1, color: orange }];
-  return [{ number: 0, color: white }, { number: 1, color: blue }];
+  if (dim === 1) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
+  if (dim === 2 && viewer === 2) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
+  if (dim === 2 && viewer === 3) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
+  if (dim === 3) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
+  return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
 }
 
 function defaultNeighbors(dim: number, radius: number = 1, lattice?: LatticeType): string[] {
@@ -103,7 +101,7 @@ class AutomataStore {
   populationShape: Record<string, number> = $state({ x: 200, y: 100 });
   cellStates: CellStateEntry[] = $state([
     { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
-    { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },
+    { number: 1, color: { ...LIVING_BLACK } },
   ]);
   neighbors: string[] = $state([...TWO_D_NEIGHBORS]);
   neighborhoodRadius = $state(1);
@@ -158,7 +156,7 @@ class AutomataStore {
     this._shapeHistory.set(key, { x: 200, y: 200 });
     this._cellStatesHistory.set(key, [
       { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
-      { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },
+      { number: 1, color: { ...LIVING_BLACK } },
     ]);
     this._ruleHistory.set(key, { type: 'conway', survive: [2, 3], born: [3] });
   }
@@ -174,6 +172,14 @@ class AutomataStore {
 
   hslString(color: HSLColor): string {
     return `hsl(${Math.floor(color.h)}, ${Math.floor(color.s * 100)}%, ${Math.floor(color.l * 100)}%)`;
+  }
+
+  private _enforceLivingBlack(states: CellStateEntry[]): CellStateEntry[] {
+    return states.map((s) => (
+      s.number === 1
+        ? { ...s, color: { ...LIVING_BLACK } }
+        : { ...s }
+    ));
   }
 
   // --- Actions ---
@@ -248,8 +254,11 @@ class AutomataStore {
   }
 
   setCellStateColor(stateNumber: number, color: HSLColor) {
-    this.cellStates = this.cellStates.map((s) =>
-      s.number === stateNumber ? { ...s, color } : s
+    const nextColor = stateNumber === 1 ? { ...LIVING_BLACK } : color;
+    this.cellStates = this._enforceLivingBlack(
+      this.cellStates.map((s) =>
+        s.number === stateNumber ? { ...s, color: nextColor } : s
+      )
     );
     this._cellStatesHistory.set(
       historyKey(this.dimension, this.viewer),
@@ -387,7 +396,7 @@ class AutomataStore {
       const h1 = Math.floor(Math.random() * 360);
       const h0 = (h1 + 30 + Math.floor(Math.random() * 60)) % 360;
       this.setCellStateColor(0, { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
-      this.setCellStateColor(1, { h: h1, s: 0.7 + Math.random() * 0.3, l: 0.25 + Math.random() * 0.25, a: 1 });
+      this.setCellStateColor(1, { ...LIVING_BLACK });
     }
 
     this.reset();
@@ -459,7 +468,7 @@ class AutomataStore {
       this._ruleHistory.set(key, { ...settings.rule });
     }
     if (settings.cellStates) {
-      this._cellStatesHistory.set(key, settings.cellStates.map((s) => ({ ...s })));
+      this._cellStatesHistory.set(key, this._enforceLivingBlack(settings.cellStates));
     }
     if (settings.neighborhoodRadius !== undefined) {
       this._radiusHistory.set(key, settings.neighborhoodRadius);
@@ -485,7 +494,7 @@ class AutomataStore {
       ? { ...this._ruleHistory.get(key)! }
       : defaultRule(dim, lat);
     this.cellStates = this._cellStatesHistory.get(key)
-      ? this._cellStatesHistory.get(key)!.map((s) => ({ ...s }))
+      ? this._enforceLivingBlack(this._cellStatesHistory.get(key)!)
       : defaultCellStates(dim, viewer);
     const savedSR = this._shapeRulesHistory.get(key);
     if (savedSR) {
@@ -588,7 +597,7 @@ class AutomataStore {
 
     const savedStates = this._cellStatesHistory.get(key);
     this.cellStates = savedStates
-      ? savedStates.map((s) => ({ ...s }))
+      ? this._enforceLivingBlack(savedStates)
       : defaultCellStates(this.dimension, this.viewer);
 
     const savedRule = this._ruleHistory.get(key);

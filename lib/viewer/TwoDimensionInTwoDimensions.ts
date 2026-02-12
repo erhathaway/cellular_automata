@@ -294,7 +294,13 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
         const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
         mat.color.set(color);
       }
-      m.position.z = 1 / (i + 1);
+      // Keep trail ordered with older generations in front of newer ones...
+      // ...but force the newest (current living) generation to the very front.
+      if (i === last) {
+        m.position.z = 2;
+      } else {
+        m.position.z = (last - i) / (last || 1);
+      }
     });
     this.addGeneration();
 
