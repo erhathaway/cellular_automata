@@ -74,12 +74,6 @@
     }, 500);
   });
 
-  function encodeSnapshot(snapshot: Uint8Array): string {
-    let binary = '';
-    for (let i = 0; i < snapshot.length; i++) binary += String.fromCharCode(snapshot[i]);
-    return btoa(binary);
-  }
-
   async function claim() {
     if (saving || saved) return;
 
@@ -96,16 +90,13 @@
       const data = automataStore.exportForSave();
       const thumbnail = automataStore.getCanvasDataURL?.() ?? undefined;
 
-      // 1. Save generation run
       const res = await fetch('/api/generation-runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, thumbnail })
       });
-      let generationRunId: string | undefined;
       if (res.status === 409) {
-        const body = await res.json();
-        generationRunId = body.existingId;
+        // Already exists — treat as success
       } else if (!res.ok) {
         let msg = `Server error (${res.status})`;
         try {
@@ -115,30 +106,9 @@
           msg = (await res.text()) || msg;
         }
         throw new Error(msg);
-      } else {
-        const body = await res.json();
-        generationRunId = body.id;
       }
 
-      // 2. Save cell population
-      const popSnapshot = automataStore.getCurrentPopulationSnapshot?.();
-      const popData = popSnapshot ? encodeSnapshot(popSnapshot) : undefined;
-      const popRes = await fetch('/api/cell-populations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          generationRunId,
-          populationData: popData,
-          stepCount: data.generationIndex ?? 1,
-          thumbnail
-        })
-      });
-      if (!popRes.ok && popRes.status !== 409) {
-        console.warn('Cell population save failed:', popRes.status);
-      }
-
-      // 3. Hide gem and launch the flying gem from the captured position
+      // 2. Hide gem and launch the flying gem from the captured position
       if (gemOrigin) {
         automataStore.claimGemOrigin = gemOrigin;
       }
