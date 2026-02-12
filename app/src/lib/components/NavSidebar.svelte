@@ -8,10 +8,14 @@
 
   let {
     userProfile = null,
-    onsettingsclick
+    onsettingsclick,
+    onhistoryclick,
+    historyOpen = false,
   }: {
     userProfile?: UserProfile;
     onsettingsclick?: () => void;
+    onhistoryclick?: () => void;
+    historyOpen?: boolean;
   } = $props();
 
   const topItems = [
@@ -103,6 +107,24 @@
         <span class="text-[10px]">{item.label}</span>
       </a>
     {/each}
+  </div>
+
+  <!-- History -->
+  <div class="mt-2 flex flex-col items-center">
+    <button
+      class="flex w-full flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors
+        {historyOpen
+          ? 'bg-yellow-50 text-yellow-600'
+          : 'text-black/70 hover:text-black hover:bg-black/5'}"
+      onclick={() => onhistoryclick?.()}
+      aria-label="History"
+    >
+      <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <polyline points="12,7 12,12 15.5,14" />
+      </svg>
+      <span class="text-[10px]">History</span>
+    </button>
   </div>
 
   <!-- Spacer -->

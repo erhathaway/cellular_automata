@@ -2,9 +2,14 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import NavSidebar from '$lib/components/NavSidebar.svelte';
+	import HistoryPanel from '$lib/components/HistoryPanel.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import { ClerkProvider, SignedIn } from 'svelte-clerk';
+	import { goto } from '$app/navigation';
+	import { automataStore } from '$lib/stores/automata.svelte';
+	import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
+	import type { HistoryEntry } from '$lib/stores/history.svelte';
 
 	let { children, data } = $props();
 
@@ -13,8 +18,11 @@
 
 	let leftOpen = $state(true);
 	let settingsOpen = $state(false);
+	let historyOpen = $state(false);
 
-	const LEFT_WIDTH = 72;
+	const NAV_WIDTH = 72;
+	const HISTORY_WIDTH = 280;
+	let leftWidth = $derived(historyOpen ? NAV_WIDTH + HISTORY_WIDTH : NAV_WIDTH);
 
 	function toggleLeft() {
 		leftOpen = !leftOpen;
@@ -32,6 +40,35 @@
 		}
 		requestAnimationFrame(loop);
 	}
+
+	function toggleHistory() {
+		historyOpen = !historyOpen;
+		animateResize();
+	}
+
+	function handleHistoryLoad(entry: HistoryEntry) {
+		const rule = deserializeRule(entry.ruleDefinition);
+		if (!rule) return;
+
+		const settings = {
+			populationShape: { ...entry.populationShape },
+			rule,
+			cellStates: entry.cellStates.map((s) => ({ ...s })),
+			neighborhoodRadius: entry.neighborhoodRadius,
+		};
+
+		automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
+		automataStore.hydrateActive(entry.dimension, entry.viewer);
+		automataStore.savedSeed = null;
+		automataStore.useSavedSeed = true;
+		automataStore.reset();
+
+		const params = buildURLParams(entry.dimension, entry.viewer, settings);
+		goto(`/?${params.toString()}`);
+
+		historyOpen = false;
+		animateResize();
+	}
 </script>
 
 <svelte:head>
@@ -44,13 +81,23 @@
 		<!-- Left drawer -->
 		<aside
 			class="relative z-10 h-full shrink-0 transition-[width] duration-300 ease-out"
-			style:width="{leftOpen ? LEFT_WIDTH : 0}px"
+			style:width="{leftOpen ? leftWidth : 0}px"
 		>
-			<div
-				class="h-full overflow-hidden"
-				style="width: {LEFT_WIDTH}px; background: white; border-right: 1px solid #e5e5e5;"
-			>
-				<NavSidebar {userProfile} onsettingsclick={() => { settingsOpen = true; }} />
+			<div class="flex h-full" style="width: {leftWidth}px;">
+				<div
+					class="h-full shrink-0 overflow-hidden"
+					style="width: {NAV_WIDTH}px; background: white; border-right: 1px solid #e5e5e5;"
+				>
+					<NavSidebar {userProfile} {historyOpen} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
+				</div>
+				{#if historyOpen}
+					<div
+						class="h-full shrink-0 overflow-hidden bg-white"
+						style="width: {HISTORY_WIDTH}px; border-right: 1px solid #e5e5e5;"
+					>
+						<HistoryPanel onload={handleHistoryLoad} />
+					</div>
+				{/if}
 			</div>
 		</aside>
 

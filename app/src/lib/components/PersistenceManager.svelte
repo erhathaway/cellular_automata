@@ -6,12 +6,15 @@
     parseURLParams,
     loadFromLocalStorage,
     saveToLocalStorage,
+    serializeRule,
     updateURL,
   } from '$lib/stores/persistence';
+  import { historyStore } from '$lib/stores/history.svelte';
 
   let initialized = $state(false);
   let configDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let historyDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 
   onMount(() => {
     const urlParsed = parseURLParams(new URLSearchParams(window.location.search));
@@ -89,5 +92,33 @@
 
     clearTimeout(genDebounceTimer);
     genDebounceTimer = setTimeout(doURLUpdate, 2000);
+  });
+
+  // History recording: capture config changes to browsable history (300ms debounce)
+  $effect(() => {
+    if (!initialized) return;
+
+    const dim = automataStore.dimension;
+    const viewer = automataStore.viewer;
+    const shape = automataStore.populationShape;
+    const rule = automataStore.rule;
+    const cellStates = automataStore.cellStates;
+    const radius = automataStore.neighborhoodRadius;
+
+    clearTimeout(historyDebounceTimer);
+    historyDebounceTimer = setTimeout(() => {
+      const ruleDefinition = serializeRule(rule);
+      historyStore.addEntry({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        dimension: dim,
+        viewer,
+        ruleType: rule.type,
+        ruleDefinition,
+        neighborhoodRadius: radius,
+        populationShape: { ...shape },
+        cellStates: cellStates.map((s) => ({ ...s })),
+      });
+    }, 300);
   });
 </script>
