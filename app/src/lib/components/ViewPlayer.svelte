@@ -125,6 +125,9 @@
       canvas.height = Math.round(120 * (source.height / source.width)) || 90;
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
+      // Fill white first — WebGL canvas has alpha, transparent areas become black in JPEG
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
       return canvas.toDataURL('image/jpeg', 0.5);
     };
