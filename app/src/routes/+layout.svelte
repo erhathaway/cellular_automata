@@ -27,7 +27,7 @@
 	let historyOpen = $state(false);
 
 	const NAV_WIDTH = 120;
-	const HISTORY_WIDTH = 280;
+	const HISTORY_WIDTH = 380;
 
 	function toggleLeft() {
 		leftOpen = !leftOpen;
@@ -122,8 +122,8 @@
 		position: absolute;
 		inset: 0;
 		z-index: 50;
-		background: rgba(28, 25, 23, 0.25);
-		backdrop-filter: blur(3px);
+		background: rgba(0, 0, 0, 0.45);
+		backdrop-filter: blur(4px);
 	}
 
 	.history-panel {
@@ -132,9 +132,11 @@
 		bottom: 0;
 		left: 0;
 		z-index: 55;
-		background: white;
-		border-right: 1px solid #d6d3d1;
-		box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+		background: #1c1917;
+		border-right: 1px solid #44403c;
+		box-shadow:
+			4px 0 24px rgba(0, 0, 0, 0.4),
+			0 0 12px rgba(250, 204, 21, 0.04);
 		overflow: hidden;
 		animation: slide-in 0.25s ease-out;
 	}
