@@ -1,6 +1,7 @@
 <script lang="ts">
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
   import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
+  import GalleryStats from '$lib/components/explore/GalleryStats.svelte';
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
@@ -95,7 +96,16 @@
     style:border-left="1px solid #e7e5e4"
   >
     <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
-      <RightDrawerContent />
+      {#if $page.url.pathname === '/explore'}
+        <div class="gallery-stats-panel">
+          <div class="gallery-stats-header">
+            <span class="gallery-stats-title">Gallery Stats</span>
+          </div>
+          <GalleryStats />
+        </div>
+      {:else}
+        <RightDrawerContent />
+      {/if}
       {#if viewerUiStore.analysisOpen && $page.url.pathname === '/'}
         <div class="analysis-overlay">
           <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
@@ -143,6 +153,29 @@
   .toggle-tab:hover {
     background: #292524;
     color: #fde047;
+  }
+
+  .gallery-stats-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: white;
+  }
+
+  .gallery-stats-header {
+    display: flex;
+    align-items: center;
+    padding: 18px 18px 14px 18px;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .gallery-stats-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1c1917;
   }
 
   .analysis-overlay {
