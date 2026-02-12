@@ -19,6 +19,9 @@
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
 
+	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/docs'));
+	let blackNav = $derived($page.url.pathname.startsWith('/docs'));
+
 	let leftOpen = $state(true);
 	let settingsOpen = $state(false);
 	let historyOpen = $state(false);
@@ -86,10 +89,10 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
 			class="relative z-10 h-full shrink-0"
-			style="width: {NAV_WIDTH}px; background: {$page.url.pathname === '/' ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {$page.url.pathname === '/' ? '#44403c' : '#d6d3d1'};"
+			style="width: {NAV_WIDTH}px; background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};"
 			onclick={() => { if (historyOpen) { historyOpen = false; animateResize(); } }}
 		>
-			<NavSidebar {userProfile} {historyOpen} dark={$page.url.pathname === '/'} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
+			<NavSidebar {userProfile} {historyOpen} dark={darkNav} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
 		</div>
 
 		<!-- Main content -->
