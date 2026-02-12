@@ -58,6 +58,33 @@ Business and helper logic used by the app.
 
 The mobx state tree (MST) models. These are used to sync application state between various features and services
 
+## Achievements
+
+Users earn achievements through exploration and mining. Achievements are grouped into four categories:
+
+**Taste** — Earned by viewing many automata while liking few (selective taste). Revocable if ratio changes.
+- **Miner with Taste** — Like <10% of viewed automata (min 10 views)
+- **Aspiring Artist** — Like <5% of viewed automata (min 20 views)
+
+**Mining Rank** — Earned by having highly-liked claims. Non-revocable.
+- **Starting Miner** — Claim in top 90% of liked claims
+- **Amateur Miner** — Top 50%
+- **Intermediate Miner** — Top 25%
+- **Skilled Miner** — Top 10%
+- **Expert Miner** — Top 5%
+
+**Work Ethic** — Earned by saving generation runs. Non-revocable.
+- **Slow and Steady** — 30+ saved runs
+- **Workaholic** — 100+ saved runs
+- **Obsessive Employee** — 1000+ saved runs
+
+**Operator** — Earned by exploring many configs without claiming most. Revocable.
+- **Smooth Operator** — Claim <50% of weekly views (min 10)
+- **Advanced Operator** — Claim <10% of weekly views (min 20)
+- **Skilled Operator** — Claim <5% of weekly views (min 50)
+
+View achievements in My Chest > Achievements tab. Click "Check for updates" to scan for newly earned achievements.
+
 ## RELEASE TODO
 
 1. Hook mobx changes into automata viewer. AKA: changing a menu field will change the automata.
