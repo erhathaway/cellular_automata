@@ -3,6 +3,7 @@ import type {
   HSLColor,
   CellStateEntry,
   ComboSettings,
+  MiningDifficulty,
 } from './automata.svelte';
 import { VALID_COMBOS, defaultRule } from './automata.svelte';
 import { replaceState } from '$app/navigation';
@@ -225,15 +226,19 @@ export interface PersistedData {
   combos: Record<string, ComboSettings>;
   activeDimension: number;
   activeViewer: number;
+  miningDifficulty?: MiningDifficulty;
+  miningLattice?: LatticeType | 'random';
 }
 
 export function saveToLocalStorage(
   combos: Record<string, ComboSettings>,
   activeDimension: number,
   activeViewer: number,
+  miningDifficulty?: MiningDifficulty,
+  miningLattice?: LatticeType | 'random',
 ): void {
   try {
-    const data: PersistedData = { combos, activeDimension, activeViewer };
+    const data: PersistedData = { combos, activeDimension, activeViewer, miningDifficulty, miningLattice };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
     // quota exceeded or unavailable — silently fail

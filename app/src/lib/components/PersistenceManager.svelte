@@ -32,6 +32,14 @@
       }
     }
 
+    // Restore mining preferences
+    if (stored?.miningDifficulty) {
+      automataStore.setMiningDifficulty(stored.miningDifficulty);
+    }
+    if (stored?.miningLattice) {
+      automataStore.setMiningLattice(stored.miningLattice);
+    }
+
     // If URL has params, override that combo's settings
     // Drop corrupted rules from old single-char serialization (duplicates are impossible)
     if (urlParsed?.settings?.rule?.type === 'conway') {
@@ -105,11 +113,13 @@
     const _cellStates = automataStore.cellStates;
     const _radius = automataStore.neighborhoodRadius;
     const _lattice = automataStore.lattice;
+    const _miningDifficulty = automataStore.miningDifficulty;
+    const _miningLattice = automataStore.miningLattice;
 
     clearTimeout(configDebounceTimer);
     configDebounceTimer = setTimeout(() => {
       const allCombos = automataStore.getAllComboSettings();
-      saveToLocalStorage(allCombos, dim, viewer);
+      saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice);
       doURLUpdate();
     }, 300);
   });

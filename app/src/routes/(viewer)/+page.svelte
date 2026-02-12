@@ -5,6 +5,7 @@
   import ViewControls from '$lib/components/ViewControls.svelte';
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
   import MiningLevelButton from '$lib/components/MiningLevelButton.svelte';
+  import LatticePickerButton from '$lib/components/LatticePickerButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
@@ -36,7 +37,10 @@
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
       </div>
-      <div class="controls-right"></div>
+      <div class="controls-right pointer-events-auto">
+        <div class="pipe-backdrop-right"></div>
+        <LatticePickerButton />
+      </div>
     </div>
   </div>
 </div>
@@ -113,6 +117,8 @@
 
   .controls-right {
     justify-self: start;
+    margin-left: 38px;
+    position: relative;
   }
 
   .controls-left :global(.level-root) {
@@ -174,10 +180,40 @@
     z-index: 1;
   }
 
-  .controls-center::before {
+  .controls-right :global(.lattice-root) {
+    transform: translateX(2px);
+  }
+
+  /* Glowing connector pipe from mine button to lattice button */
+  .controls-right::after {
     content: '';
     position: absolute;
-    left: -22px;
+    right: calc(100% - 4px);
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 42px;
+    height: 14px;
+    border-radius: 3px;
+    border: 2px solid #0e7490;
+    background:
+      linear-gradient(
+        90deg,
+        #0c4a6e 0%,
+        #22d3ee 50%,
+        #0c4a6e 100%
+      );
+    box-shadow:
+      0 0 10px rgba(34, 211, 238, 0.75),
+      inset 0 0 6px rgba(103, 232, 249, 0.95);
+    pointer-events: none;
+    z-index: 2;
+    animation: connector-pulse 1.1s ease-in-out infinite;
+  }
+
+  .controls-right::before {
+    content: '';
+    position: absolute;
+    right: calc(100% + 38px);
     top: calc(50% - 8px);
     transform: translateY(-50%);
     width: 4px;
@@ -188,6 +224,43 @@
     box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
     pointer-events: none;
     z-index: 2;
+  }
+
+  .controls-right .pipe-backdrop-right {
+    position: absolute;
+    right: calc(100% - 5px);
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 50px;
+    height: 18px;
+    border-radius: 3px;
+    background: #1c1917;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .controls-center::before,
+  .controls-center::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
+    border: 1px solid #44403c;
+    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .controls-center::before {
+    left: -22px;
+  }
+
+  .controls-center::after {
+    right: -22px;
   }
 
   @keyframes connector-pulse {

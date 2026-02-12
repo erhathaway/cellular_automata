@@ -119,6 +119,7 @@ class AutomataStore {
   // Mining animation state
   isMining = $state(false);
   miningDifficulty: MiningDifficulty = $state('medium');
+  miningLattice: LatticeType | 'random' = $state('random');
   claimAnimationCounter = $state(0);
   claimGemOrigin: { x: number; y: number } | null = $state(null);
 
@@ -335,20 +336,31 @@ class AutomataStore {
     this.savedSeed = null;
     this.useSavedSeed = true;
 
-    // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
-    if (this.viewer === 2 && this.dimension <= 2) {
-      const newDim = Math.random() < 0.5 ? 1 : 2;
-      if (newDim !== this.dimension) {
-        this.setDimension(newDim as 1 | 2);
+    if (this.miningLattice !== 'random') {
+      // Force dimension to match the selected lattice
+      const latticeDim = getLattice(this.miningLattice).dimension as 1 | 2 | 3;
+      if (latticeDim !== this.dimension) {
+        this.setDimension(latticeDim as 1 | 2 | 3);
       }
-    }
+      if (this.miningLattice !== this.lattice) {
+        this.setLattice(this.miningLattice);
+      }
+    } else {
+      // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
+      if (this.viewer === 2 && this.dimension <= 2) {
+        const newDim = Math.random() < 0.5 ? 1 : 2;
+        if (newDim !== this.dimension) {
+          this.setDimension(newDim as 1 | 2);
+        }
+      }
 
-    // Randomize lattice for 2D/3D dimensions
-    if (this.dimension >= 2) {
-      const available = latticesForDimension(this.dimension as 2 | 3);
-      const randomLattice = available[Math.floor(Math.random() * available.length)];
-      if (randomLattice.type !== this.lattice) {
-        this.setLattice(randomLattice.type);
+      // Randomize lattice for 2D/3D dimensions
+      if (this.dimension >= 2) {
+        const available = latticesForDimension(this.dimension as 2 | 3);
+        const randomLattice = available[Math.floor(Math.random() * available.length)];
+        if (randomLattice.type !== this.lattice) {
+          this.setLattice(randomLattice.type);
+        }
       }
     }
 
@@ -415,6 +427,10 @@ class AutomataStore {
 
   setMiningDifficulty(difficulty: MiningDifficulty) {
     this.miningDifficulty = difficulty;
+  }
+
+  setMiningLattice(lattice: LatticeType | 'random') {
+    this.miningLattice = lattice;
   }
 
   setStable(kind: 'exact' | 'quasi', period: number) {
