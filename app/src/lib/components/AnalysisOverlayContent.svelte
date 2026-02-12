@@ -326,7 +326,7 @@
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(250, 204, 21, 0.04);
-    padding: 10px;
+    padding: 16px;
   }
 
   .count-header {
@@ -407,7 +407,7 @@
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.35);
-    padding: 10px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -419,7 +419,7 @@
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.35);
-    padding: 10px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
