@@ -205,12 +205,18 @@
     background-color: #fafaf9;
   }
 
-  /* Containment frame — no solid border, corners + electric edges */
+  /* Containment frame — gallery picture frame */
   .containment-frame {
     position: relative;
     border-radius: 6px;
     overflow: visible;
     margin-bottom: 6px;
+    padding: 10px;
+    background: white;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.04);
   }
 
   /* ── Corner brackets: thick black L-shapes ── */
