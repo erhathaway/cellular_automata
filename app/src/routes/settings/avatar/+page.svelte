@@ -100,21 +100,28 @@
 	.avatar-page {
 		display: flex;
 		justify-content: center;
-		align-items: center;
-		min-height: 100%;
+		align-items: stretch;
+		height: 100%;
 		width: 100%;
 		background: #000;
-		padding: 24px 0;
+		padding: 32px 0;
+		box-sizing: border-box;
 	}
 
 	.avatar-inner {
 		width: 100%;
 		max-width: 900px;
 		padding: 0 24px;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.avatar-panel {
 		position: relative;
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
 		background-color: #1c1917;
 		background-image:
 			repeating-linear-gradient(

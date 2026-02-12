@@ -120,6 +120,8 @@
 	.editor {
 		display: flex;
 		gap: 36px;
+		flex: 1;
+		min-height: 0;
 	}
 
 	/* ---- Left column ---- */
@@ -256,8 +258,8 @@
 	.right-col {
 		flex: 1;
 		min-width: 0;
+		min-height: 0;
 		overflow-y: auto;
-		max-height: 600px;
 		display: flex;
 		flex-direction: column;
 		gap: 28px;
