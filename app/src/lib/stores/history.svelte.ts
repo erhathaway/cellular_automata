@@ -10,6 +10,7 @@ export interface HistoryEntry {
   neighborhoodRadius: number;
   populationShape: Record<string, number>;
   cellStates: CellStateEntry[];
+  thumbnail?: string;
 }
 
 const MAX_ENTRIES = 100;
@@ -58,6 +59,15 @@ class HistoryStore {
     }
 
     this.entries = [entry, ...this.entries].slice(0, MAX_ENTRIES);
+    this.persist();
+  }
+
+  updateLatestThumbnail(thumbnail: string) {
+    if (this.entries.length === 0) return;
+    this.entries[0].thumbnail = thumbnail;
+  }
+
+  flush() {
     this.persist();
   }
 

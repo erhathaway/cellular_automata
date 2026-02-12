@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { afterNavigate } from '$app/navigation';
   import { automataStore, VALID_COMBOS } from '$lib/stores/automata.svelte';
   import {
@@ -15,6 +15,7 @@
   let configDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let historyDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let thumbnailInterval: ReturnType<typeof setInterval> | undefined;
 
   onMount(() => {
     const urlParsed = parseURLParams(new URLSearchParams(window.location.search));
@@ -45,6 +46,26 @@
     // else: keep defaults (2-2)
 
     initialized = true;
+
+    // Capture thumbnail every 2s to keep latest history entry up to date
+    thumbnailInterval = setInterval(() => {
+      const thumb = automataStore.captureThumbnail?.();
+      if (thumb) {
+        historyStore.updateLatestThumbnail(thumb);
+      }
+    }, 2000);
+
+    // Persist history on page unload so latest thumbnail is saved
+    window.addEventListener('beforeunload', flushHistory);
+  });
+
+  function flushHistory() {
+    historyStore.flush();
+  }
+
+  onDestroy(() => {
+    clearInterval(thumbnailInterval);
+    window.removeEventListener('beforeunload', flushHistory);
   });
 
   afterNavigate(({ to }) => {

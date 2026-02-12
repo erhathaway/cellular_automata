@@ -125,6 +125,7 @@ class AutomataStore {
   getPopulationAtIndex: ((index: number) => any) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
   getCanvasDataURL: (() => string | null) | null = null;
+  captureThumbnail: (() => string | null) | null = null;
   getSeedSnapshot: (() => Uint8Array | null) | null = null;
 
   // Indexed history for shape, cellStates, rule, and radius

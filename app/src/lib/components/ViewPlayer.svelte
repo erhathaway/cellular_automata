@@ -117,6 +117,17 @@
       if (!viewer?.renderer?.domElement) return null;
       return viewer.renderer.domElement.toDataURL('image/png');
     };
+    automataStore.captureThumbnail = () => {
+      if (!viewer?.renderer?.domElement) return null;
+      const source = viewer.renderer.domElement;
+      const canvas = document.createElement('canvas');
+      canvas.width = 120;
+      canvas.height = Math.round(120 * (source.height / source.width)) || 90;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.5);
+    };
     automataStore.getSeedSnapshot = () => {
       if (!automataManager) return null;
       const pop = automataManager.getPopulationAtIndex(0);
@@ -183,6 +194,7 @@
     automataStore.getPopulationAtIndex = null;
     automataStore.renderPreviewFrame = null;
     automataStore.getCanvasDataURL = null;
+    automataStore.captureThumbnail = null;
     automataStore.getSeedSnapshot = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}

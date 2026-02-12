@@ -57,9 +57,24 @@
       <div class="flex flex-col">
         {#each historyStore.entries as entry (entry.id)}
           <button
-            class="flex items-start gap-2 px-4 py-2.5 text-left transition-colors hover:bg-neutral-50 border-b border-neutral-100"
+            class="flex items-start gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-neutral-50 border-b border-neutral-100"
             onclick={() => onload(entry)}
           >
+            {#if entry.thumbnail}
+              <img
+                src={entry.thumbnail}
+                alt=""
+                class="mt-0.5 h-10 w-14 shrink-0 rounded border border-neutral-200 object-cover"
+              />
+            {:else}
+              <div class="mt-0.5 flex h-10 w-14 shrink-0 items-center justify-center rounded border border-neutral-200 bg-neutral-50">
+                <svg class="h-4 w-4 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-5-5L5 21" />
+                </svg>
+              </div>
+            {/if}
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
                 <span class="text-sm font-medium text-neutral-800 truncate">
