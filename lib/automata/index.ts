@@ -12,7 +12,7 @@ import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApp
 import type { LifeLikeRule } from './ruleApplicator';
 import PopulationManager from './populationManager';
 import type { PopulationShape, Population } from './populationSeed';
-import { getLattice } from './lattice';
+import { getLattice, generateNeighborhood } from './lattice';
 import type { LatticeType } from './lattice';
 
 type GeneratorType = 'oneDimension' | 'twoDimension' | 'threeDimension';
@@ -263,33 +263,30 @@ export default class AutomataManager {
     return this._latticeType;
   }
 
-  setLattice(latticeType: LatticeType) {
-    const config = getLattice(latticeType);
+  setLattice(latticeType: LatticeType, radius: number = 1) {
+    const neighborhood = generateNeighborhood(latticeType, radius);
     this._latticeType = latticeType;
 
-    if (config.dimension === 2) {
-      this._neighborOffsets2D = config.offsets as [number, number][];
+    // Set neighbor strings on the generic path (also parses offsets via _parseNeighborOffsets)
+    this.neighbors = neighborhood.neighborStrings;
+
+    // Override fast-path offsets with properly typed ones from generateNeighborhood
+    if (neighborhood.offsets2D) {
+      this._neighborOffsets2D = neighborhood.offsets2D;
       this._neighborOffsets3D = [];
-      if (config.parityOffsets) {
-        this._triOffsetsEven2D = config.parityOffsets.even;
-        this._triOffsetsOdd2D = config.parityOffsets.odd;
-      } else {
-        this._triOffsetsEven2D = [];
-        this._triOffsetsOdd2D = [];
-      }
-    } else {
+    }
+    if (neighborhood.offsets3D) {
       this._neighborOffsets2D = [];
-      this._neighborOffsets3D = config.offsets as [number, number, number][];
-      this._triOffsetsEven2D = [];
-      this._triOffsetsOdd2D = [];
+      this._neighborOffsets3D = neighborhood.offsets3D;
     }
 
-    // Set neighbor strings on the generic path too
-    this.neighbors = config.neighborStrings;
+    // Set parity offsets for triangular
+    this._triOffsetsEven2D = neighborhood.parityOffsets?.even ?? [];
+    this._triOffsetsOdd2D = neighborhood.parityOffsets?.odd ?? [];
 
-    // Rebuild rule lookups with new neighbor count
+    // Rebuild rule lookups with correct neighbor count
     if (this._rule && Array.isArray(this._rule.born) && Array.isArray(this._rule.survive)) {
-      this._buildRuleLookups(this._rule, config.neighborCount);
+      this._buildRuleLookups(this._rule, neighborhood.neighborCount);
     }
   }
 

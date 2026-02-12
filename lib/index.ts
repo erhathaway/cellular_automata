@@ -19,12 +19,13 @@ export type { LifeLikeRule } from './automata/ruleApplicator';
 
 export {
   getLattice,
+  generateNeighborhood,
   latticesForDimension,
   defaultLattice,
   isValidLattice,
   LATTICE_REGISTRY,
 } from './automata/lattice';
-export type { LatticeType, LatticeDefinition } from './automata/lattice';
+export type { LatticeType, LatticeDefinition, NeighborhoodConfig } from './automata/lattice';
 
 export { default as BaseViewer } from './viewer/base/index';
 export type { HSLColor, CellState, ViewerConstructorOptions } from './viewer/base/index';

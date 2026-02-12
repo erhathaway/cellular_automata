@@ -188,6 +188,150 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
   },
 };
 
+// --- Neighborhood generation at arbitrary radius ---
+
+export interface NeighborhoodConfig {
+  offsets2D?: [number, number][];
+  offsets3D?: [number, number, number][];
+  parityOffsets?: { even: [number, number][]; odd: [number, number][] };
+  neighborStrings: string[];
+  neighborCount: number;
+}
+
+function generateSquareNeighborhood(radius: number): NeighborhoodConfig {
+  const offsets: [number, number][] = [];
+  for (let dx = -radius; dx <= radius; dx++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      if (dx === 0 && dy === 0) continue;
+      offsets.push([dx, dy]);
+    }
+  }
+  return { offsets2D: offsets, neighborStrings: offsets2DToStrings(offsets), neighborCount: offsets.length };
+}
+
+function generateHexNeighborhood(radius: number): NeighborhoodConfig {
+  const offsets: [number, number][] = [];
+  for (let dq = -radius; dq <= radius; dq++) {
+    for (let dr = -radius; dr <= radius; dr++) {
+      if (dq === 0 && dr === 0) continue;
+      // Hex distance in axial coords: max(|dq|, |dr|, |dq+dr|)
+      if (Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr)) <= radius) {
+        offsets.push([dq, dr]);
+      }
+    }
+  }
+  return { offsets2D: offsets, neighborStrings: offsets2DToStrings(offsets), neighborCount: offsets.length };
+}
+
+function bfsTriOffsets(radius: number, originEven: boolean): [number, number][] {
+  const visited = new Set<string>();
+  visited.add('0,0');
+  let frontier: [number, number][] = [[0, 0]];
+
+  for (let step = 0; step < radius; step++) {
+    const nextFrontier: [number, number][] = [];
+    for (const [x, y] of frontier) {
+      // Determine if this cell uses TRI_EVEN or TRI_ODD offsets
+      const useEven = originEven ? (x + y) % 2 === 0 : (x + y) % 2 !== 0;
+      const offsets = useEven ? TRI_EVEN : TRI_ODD;
+      for (const [dx, dy] of offsets) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const key = `${nx},${ny}`;
+        if (!visited.has(key)) {
+          visited.add(key);
+          nextFrontier.push([nx, ny]);
+        }
+      }
+    }
+    frontier = nextFrontier;
+  }
+
+  const result: [number, number][] = [];
+  for (const key of visited) {
+    if (key === '0,0') continue;
+    const [x, y] = key.split(',').map(Number);
+    result.push([x, y]);
+  }
+  return result;
+}
+
+function generateTriNeighborhood(radius: number): NeighborhoodConfig {
+  const evenOffsets = bfsTriOffsets(radius, true);
+  const oddOffsets = bfsTriOffsets(radius, false);
+  return {
+    offsets2D: evenOffsets,
+    parityOffsets: { even: evenOffsets, odd: oddOffsets },
+    neighborStrings: offsets2DToStrings(evenOffsets),
+    neighborCount: evenOffsets.length,
+  };
+}
+
+function generateCubicNeighborhood(radius: number): NeighborhoodConfig {
+  const offsets: [number, number, number][] = [];
+  for (let dx = -radius; dx <= radius; dx++) {
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dz = -radius; dz <= radius; dz++) {
+        if (dx === 0 && dy === 0 && dz === 0) continue;
+        offsets.push([dx, dy, dz]);
+      }
+    }
+  }
+  return { offsets3D: offsets, neighborStrings: offsets3DToStrings(offsets), neighborCount: offsets.length };
+}
+
+function bfs3DOffsets(baseOffsets: [number, number, number][], radius: number): [number, number, number][] {
+  const visited = new Set<string>();
+  visited.add('0,0,0');
+  let frontier: [number, number, number][] = [[0, 0, 0]];
+
+  for (let step = 0; step < radius; step++) {
+    const nextFrontier: [number, number, number][] = [];
+    for (const [x, y, z] of frontier) {
+      for (const [dx, dy, dz] of baseOffsets) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const nz = z + dz;
+        const key = `${nx},${ny},${nz}`;
+        if (!visited.has(key)) {
+          visited.add(key);
+          nextFrontier.push([nx, ny, nz]);
+        }
+      }
+    }
+    frontier = nextFrontier;
+  }
+
+  const result: [number, number, number][] = [];
+  for (const key of visited) {
+    if (key === '0,0,0') continue;
+    const [x, y, z] = key.split(',').map(Number);
+    result.push([x, y, z]);
+  }
+  return result;
+}
+
+function generateFCCNeighborhood(radius: number): NeighborhoodConfig {
+  const offsets = bfs3DOffsets(FCC_12, radius);
+  return { offsets3D: offsets, neighborStrings: offsets3DToStrings(offsets), neighborCount: offsets.length };
+}
+
+function generateHexPrismNeighborhood(radius: number): NeighborhoodConfig {
+  const offsets = bfs3DOffsets(HEX_PRISM_20, radius);
+  return { offsets3D: offsets, neighborStrings: offsets3DToStrings(offsets), neighborCount: offsets.length };
+}
+
+export function generateNeighborhood(latticeType: LatticeType, radius: number = 1): NeighborhoodConfig {
+  switch (latticeType) {
+    case 'square': return generateSquareNeighborhood(radius);
+    case 'hexagonal': return generateHexNeighborhood(radius);
+    case 'triangular': return generateTriNeighborhood(radius);
+    case 'cubic': return generateCubicNeighborhood(radius);
+    case 'fcc': return generateFCCNeighborhood(radius);
+    case 'hexagonal_prism': return generateHexPrismNeighborhood(radius);
+  }
+}
+
 // --- Helpers ---
 
 export function getLattice(type: LatticeType): LatticeDefinition {

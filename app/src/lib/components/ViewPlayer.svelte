@@ -120,13 +120,11 @@
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
 
-    // Apply lattice configuration
-    if (automataStore.lattice !== 'square' && automataStore.lattice !== 'cubic') {
-      automataManager.setLattice(automataStore.lattice);
-    }
-
-    // Apply custom neighborhood radius
-    if (automataStore.neighborhoodRadius > 1) {
+    // Apply lattice configuration with radius (all 2D/3D lattices go through the same system)
+    if (dim >= 2) {
+      automataManager.setLattice(automataStore.lattice, automataStore.neighborhoodRadius);
+    } else if (automataStore.neighborhoodRadius > 1) {
+      // 1D doesn't use lattice system, just set neighbors directly
       automataManager.neighbors = automataStore.neighbors;
     }
 
@@ -298,8 +296,14 @@
   // Watch for neighborhood radius changes
   $effect(() => {
     const _neighbors = automataStore.neighbors;
+    const lattice = automataStore.lattice;
+    const radius = automataStore.neighborhoodRadius;
     if (!automataManager) return;
-    automataManager.neighbors = _neighbors;
+    if (automataStore.dimension >= 2) {
+      automataManager.setLattice(lattice, radius);
+    } else {
+      automataManager.neighbors = _neighbors;
+    }
   });
 
   // Watch for seek target

@@ -1,4 +1,4 @@
-import { generateMooreNeighbors1D, generateMooreNeighbors2D, generateMooreNeighbors3D, getLattice, latticesForDimension, defaultLattice, isValidLattice } from '$lib-core';
+import { generateMooreNeighbors1D, getLattice, generateNeighborhood, latticesForDimension, defaultLattice, isValidLattice } from '$lib-core';
 import type { LatticeType } from '$lib-core';
 
 // --- HSL Color type ---
@@ -65,24 +65,16 @@ export function defaultCellStates(dim: number, viewer: number): CellStateEntry[]
 }
 
 function defaultNeighbors(dim: number, radius: number = 1, lattice?: LatticeType): string[] {
-  // If a non-default lattice is set, use its neighbor strings (radius is ignored for non-square/cubic)
-  if (lattice && lattice !== defaultLattice(dim)) {
-    const config = getLattice(lattice);
-    return config.neighborStrings;
-  }
   if (dim === 1) return generateMooreNeighbors1D(radius);
-  if (dim === 3) return generateMooreNeighbors3D(radius);
-  return generateMooreNeighbors2D(radius);
+  const lat = lattice ?? defaultLattice(dim);
+  return generateNeighborhood(lat, radius).neighborStrings;
 }
 
 export function defaultRule(dim: number, lattice?: LatticeType): AutomataRule {
-  if (lattice && lattice !== defaultLattice(dim)) {
-    const config = getLattice(lattice);
-    return { type: 'conway', survive: config.defaultRule.survive, born: config.defaultRule.born };
-  }
   if (dim === 1) return { type: 'wolfram', rule: 110 };
-  if (dim === 3) return { type: 'conway', survive: [4, 5], born: [5] };
-  return { type: 'conway', survive: [2, 3], born: [3] };
+  const lat = lattice ?? defaultLattice(dim);
+  const config = getLattice(lat);
+  return { type: 'conway', survive: [...config.defaultRule.survive], born: [...config.defaultRule.born] };
 }
 
 function defaultViewer(dim: number): number {
@@ -212,10 +204,11 @@ class AutomataStore {
     this.lattice = newLattice;
 
     // Update neighbors and rule from lattice config
+    const neighborhood = generateNeighborhood(newLattice, 1);
     const config = getLattice(newLattice);
-    this.neighbors = config.neighborStrings;
+    this.neighbors = neighborhood.neighborStrings;
     this.neighborhoodRadius = 1;
-    this.rule = { type: 'conway', survive: config.defaultRule.survive, born: config.defaultRule.born };
+    this.rule = { type: 'conway', survive: [...config.defaultRule.survive], born: [...config.defaultRule.born] };
 
     // Save to lattice history
     const key = historyKey(this.dimension, this.viewer, this.lattice);
@@ -305,9 +298,7 @@ class AutomataStore {
     }
 
     // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
-    // Only for square/cubic lattices; non-standard lattices keep radius 1
-    const isDefaultLattice = this.lattice === defaultLattice(this.dimension);
-    const radiusWeights = isDefaultLattice ? [1, 1, 1, 2, 2, 3, 3, 4, 5] : [1];
+    const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
     const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
     this.setNeighborhoodRadius(newRadius);
 
@@ -482,12 +473,15 @@ class AutomataStore {
   }
 
   private _minRadiusForNeighborCount(dim: number, count: number): number {
+    if (dim === 1) {
+      for (let r = 1; r <= 10; r++) {
+        if (2 * r >= count) return r;
+      }
+      return 10;
+    }
     for (let r = 1; r <= 10; r++) {
-      let n: number;
-      if (dim === 1) n = 2 * r;
-      else if (dim === 3) n = (2 * r + 1) ** 3 - 1;
-      else n = (2 * r + 1) ** 2 - 1;
-      if (n >= count) return r;
+      const nc = generateNeighborhood(this.lattice, r).neighborCount;
+      if (nc >= count) return r;
     }
     return 10;
   }
