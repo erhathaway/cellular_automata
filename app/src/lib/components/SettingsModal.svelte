@@ -109,7 +109,7 @@
       <!-- Profile identity hero -->
       <div class="profile-hero">
         <button class="avatar-frame" onclick={goToChangeAvatar} aria-label="Change avatar">
-          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={64} />
+          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={64} centered />
           <div class="avatar-edit-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
@@ -304,16 +304,20 @@
 
   .avatar-frame {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     width: 84px;
     height: 84px;
+    padding: 0;
     background: #0c0a09;
     border: 2px solid #292524;
     border-radius: 12px;
     cursor: pointer;
     transition: border-color 0.15s;
+  }
+
+  .avatar-frame > :global(:first-child) {
+    display: block;
   }
 
   .avatar-frame:hover {
