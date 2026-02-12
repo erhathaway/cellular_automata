@@ -146,31 +146,31 @@
 
 <div class="analysis-body">
   {#if automataStore.allAutomataDied}
-    <div class="warning-row">
-      <div class="extinction-card">
-        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-        <div class="iw-k">All automata died</div>
-        <div class="iw-v">No living cells for 5 consecutive generations.</div>
-      </div>
+    <div class="status-card extinction-card">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+      <div class="iw-k">All automata died</div>
+      <div class="iw-v">No living cells for 5 consecutive generations.</div>
     </div>
   {:else if automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1}
-    <div class="warning-row">
-      <div class="frozen-card">
-        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-        <div class="iw-k">Frozen automata detected</div>
-        <div class="iw-v">No cells are being born or dying</div>
-      </div>
+    <div class="status-card frozen-card">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+      <div class="iw-k">Frozen automata detected</div>
+      <div class="iw-v">No cells are being born or dying</div>
     </div>
   {:else if automataStore.interventionTaken}
-    <div class="warning-row">
-      <div class="intervention-card">
-        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-        <div class="iw-k">{automataStore.interventionTitle}</div>
-        <div class="iw-v">{automataStore.interventionReason}</div>
-      </div>
+    <div class="status-card intervention-card">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+      <div class="iw-k">{automataStore.interventionTitle}</div>
+      <div class="iw-v">{automataStore.interventionReason}</div>
+    </div>
+  {:else}
+    <div class="status-card healthy-card">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+      <div class="iw-k">All systems healthy</div>
     </div>
   {/if}
 
@@ -261,17 +261,27 @@
     overflow-y: auto;
   }
 
-  .warning-row {
+  .status-card {
+    position: relative;
+    border-radius: 6px;
+    padding: 18px;
+    min-height: 150px;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .healthy-card {
+    border: 1px solid #44403c;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .healthy-card .iw-k {
+    color: #57534e;
   }
 
   .intervention-card {
-    position: relative;
-    width: 100%;
     border: 1px solid #f59e0b;
-    border-radius: 6px;
-    padding: 10px;
     background: rgba(245, 158, 11, 0.12);
     box-shadow:
       0 0 0 1px rgba(250, 204, 21, 0.18) inset,
@@ -279,11 +289,7 @@
   }
 
   .extinction-card {
-    position: relative;
-    width: 100%;
     border: 1px solid #ef4444;
-    border-radius: 6px;
-    padding: 10px;
     background: rgba(239, 68, 68, 0.16);
     box-shadow:
       0 0 0 1px rgba(248, 113, 113, 0.2) inset,
@@ -291,11 +297,7 @@
   }
 
   .frozen-card {
-    position: relative;
-    width: 100%;
     border: 1px solid #60a5fa;
-    border-radius: 6px;
-    padding: 10px;
     background: rgba(59, 130, 246, 0.16);
     box-shadow:
       0 0 0 1px rgba(96, 165, 250, 0.2) inset,
@@ -304,7 +306,8 @@
 
   .iw-k {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 16px;
+    font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #fef3c7;
@@ -313,9 +316,9 @@
   .iw-v {
     margin-top: 6px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    line-height: 1.35;
-    color: #fde68a;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #d6d3d1;
   }
 
   .count-card {
