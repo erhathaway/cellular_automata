@@ -107,12 +107,13 @@
         <span class="label">Surveying...</span>
       </div>
     {:else if !discoveryInfo.found}
-      <div class="icon-placeholder">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="gem">
+        <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 3h12l4 6-10 13L2 9Z" />
           <path d="M11 3 8 9l4 13 4-13-3-6" />
           <path d="M2 9h20" />
         </svg>
+        <div class="gem-glow"></div>
       </div>
       <div class="info">
         <span class="label">Unclaimed territory</span>
@@ -251,5 +252,39 @@
     0% { transform: translateX(-2px) rotate(-5deg); }
     50% { transform: translateX(2px) rotate(5deg); }
     100% { transform: translateX(-2px) rotate(-5deg); }
+  }
+
+  .gem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+  }
+
+  .gem-icon {
+    color: #facc15;
+    filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));
+    animation: gem-spin 3s linear infinite;
+  }
+
+  .gem-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.25) 0%, transparent 70%);
+    animation: gem-pulse 1.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gem-spin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+  }
+
+  @keyframes gem-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
   }
 </style>
