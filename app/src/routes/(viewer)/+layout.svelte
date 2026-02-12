@@ -92,8 +92,8 @@
   <aside
     class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
     style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
-    style:background="white"
-    style:border-left="1px solid #e7e5e4"
+    style:background="#000"
+    style:border-left="1px solid #44403c"
   >
     <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
       {#if $page.url.pathname === '/explore'}
@@ -153,14 +153,14 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: #000;
   }
 
   .gallery-stats-header {
     display: flex;
     align-items: center;
     padding: 18px 18px 14px 18px;
-    border-bottom: 1px solid #e7e5e4;
+    border-bottom: 1px solid #44403c;
   }
 
   .gallery-stats-title {
@@ -169,7 +169,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #1c1917;
+    color: #facc15;
   }
 
   .analysis-overlay {
