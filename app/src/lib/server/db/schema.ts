@@ -2,24 +2,28 @@ import { integer, sqliteTable, text, blob, index, uniqueIndex } from 'drizzle-or
 
 // --- User ---
 
-export const user = sqliteTable('user', {
-	id: text('id').primaryKey(), // Clerk user ID (e.g. "user_2x...")
-	email: text('email').notNull(),
-	name: text('name'),
-	imageUrl: text('image_url'),
-	displayName: text('display_name'),
-	avatarId: text('avatar_id'),
-	minerConfig: text('miner_config'),
-	role: text('role', { enum: ['admin', 'editor', 'user'] })
-		.notNull()
-		.default('user'),
-	createdAt: integer('created_at', { mode: 'timestamp' })
-		.notNull()
-		.$defaultFn(() => new Date()),
-	updatedAt: integer('updated_at', { mode: 'timestamp' })
-		.notNull()
-		.$defaultFn(() => new Date())
-});
+export const user = sqliteTable(
+	'user',
+	{
+		id: text('id').primaryKey(), // Clerk user ID (e.g. "user_2x...")
+		email: text('email').notNull(),
+		name: text('name'),
+		imageUrl: text('image_url'),
+		displayName: text('display_name'),
+		avatarId: text('avatar_id'),
+		minerConfig: text('miner_config'),
+		role: text('role', { enum: ['admin', 'editor', 'user'] })
+			.notNull()
+			.default('user'),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date()),
+		updatedAt: integer('updated_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(table) => [uniqueIndex('user_display_name_idx').on(table.displayName)]
+);
 
 // --- Generation Run ---
 
