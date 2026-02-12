@@ -218,73 +218,195 @@
   </div>
 
   <!-- Right column: Action buttons -->
-  <div class="flex shrink-0 items-start gap-3 pt-1">
-    <!-- Copy link button -->
-    <div class="flex flex-col items-center gap-1">
+  <div class="action-buttons">
+    <!-- Copy link -->
+    <div class="action-col">
       <button
-        class="flex h-14 w-14 items-center justify-center rounded-full border transition-all {copied ? 'border-green-300 text-green-500' : 'border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {copied ? 'action-pop' : ''}"
+        class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
         aria-label="Copy link"
         onclick={copyLink}
       >
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         {#if copied}
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 6 9 17l-5-5" />
           </svg>
         {:else}
-          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
         {/if}
       </button>
-      {#if copied}
-        <span class="copied-label text-xs font-medium text-green-500">Copied!</span>
-      {/if}
+      <span class="action-label">{copied ? 'Copied!' : 'Link'}</span>
     </div>
 
-    <!-- Like button -->
-    <div class="flex flex-col items-center gap-1">
+    <!-- Like -->
+    <div class="action-col">
       <button
-        class="flex h-14 w-14 items-center justify-center rounded-full transition-all {checking ? 'border border-neutral-100 text-neutral-300' : liked ? 'bg-neutral-900 text-yellow-400' : 'border border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {likeAnimating ? 'action-pop' : ''}"
+        class="action-btn {liked ? 'active' : ''} {likeAnimating ? 'action-pop' : ''}"
+        class:checking
         aria-label={liked ? 'Unlike' : 'Like'}
         onclick={toggleLike}
         disabled={checking}
       >
-        <svg class="transition-all {checking ? 'h-4 w-4 animate-spin' : 'h-6 w-6'}" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-        </svg>
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        {#if checking}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        {:else}
+          <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+          </svg>
+        {/if}
       </button>
-      {#if discoveryInfo?.totalLikes}
-        <span class="text-xs text-neutral-400">{discoveryInfo.totalLikes}</span>
-      {/if}
+      <span class="action-label">{discoveryInfo?.totalLikes || ''}</span>
     </div>
 
-    <!-- Bookmark button -->
-    <div class="flex flex-col items-center gap-1">
+    <!-- Bookmark -->
+    <div class="action-col">
       <button
-        class="flex h-14 w-14 items-center justify-center rounded-full transition-all {checking ? 'border border-neutral-100 text-neutral-300' : bookmarked ? 'bg-neutral-900 text-yellow-400' : 'border border-neutral-200 text-neutral-400 hover:border-neutral-400 hover:text-neutral-600'} {bookmarkAnimating ? 'action-pop' : ''}"
+        class="action-btn {bookmarked ? 'active' : ''} {bookmarkAnimating ? 'action-pop' : ''}"
+        class:checking
         aria-label={bookmarked ? 'Remove from chest' : 'Add to chest'}
         onclick={toggleBookmark}
         disabled={checking}
       >
-        <svg class="transition-all {checking ? 'h-4 w-4 animate-spin' : 'h-6 w-6'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-          <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-          <line x1="4" y1="13" x2="20" y2="13" />
-          <rect x="10" y="11" width="4" height="4" rx="1" />
-        </svg>
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        {#if checking}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        {:else}
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+            <line x1="4" y1="13" x2="20" y2="13" />
+            <rect x="10" y="11" width="4" height="4" rx="1" />
+          </svg>
+        {/if}
       </button>
-      {#if discoveryInfo?.totalBookmarks}
-        <span class="text-xs text-neutral-400">{discoveryInfo.totalBookmarks}</span>
-      {/if}
+      <span class="action-label">{discoveryInfo?.totalBookmarks || ''}</span>
     </div>
   </div>
 </div>
 
 <style>
+  .action-buttons {
+    display: flex;
+    flex-shrink: 0;
+    align-items: flex-start;
+    gap: 10px;
+    padding-top: 4px;
+  }
+
+  .action-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background-color: #1c1917;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 8px,
+        rgba(68, 64, 60, 0.12) 8px,
+        rgba(68, 64, 60, 0.12) 9px
+      );
+    border: 2px solid #44403c;
+    border-radius: 6px;
+    color: #a8a29e;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  }
+
+  .action-btn:hover {
+    border-color: #78716c;
+    color: #fafaf9;
+    background-color: #292524;
+  }
+
+  .action-btn.active {
+    border-color: #facc15;
+    color: #facc15;
+  }
+
+  .action-btn.active:hover {
+    border-color: #facc15;
+    color: #facc15;
+    background-color: #292524;
+  }
+
+  .action-btn.checking {
+    color: #57534e;
+    cursor: default;
+  }
+
+  .action-btn.checking:hover {
+    border-color: #44403c;
+    color: #57534e;
+    background-color: #1c1917;
+  }
+
+  .btn-nails {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    right: 5px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .btn-nails-bottom {
+    top: auto;
+    bottom: 3px;
+  }
+
+  .btn-nail {
+    width: 4px;
+    height: 4px;
+    background: #57534e;
+    border-radius: 50%;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5);
+  }
+
+  .action-icon {
+    width: 20px;
+    height: 20px;
+    transition: width 0.15s, height 0.15s;
+  }
+
+  .action-icon.spin {
+    width: 16px;
+    height: 16px;
+    animation: spinner 1s linear infinite;
+  }
+
+  .action-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #a8a29e;
+    min-height: 14px;
+  }
+
   @keyframes pop {
     0% { transform: scale(1); }
-    30% { transform: scale(1.3); }
+    30% { transform: scale(1.2); }
     60% { transform: scale(0.9); }
     100% { transform: scale(1); }
   }
@@ -293,12 +415,8 @@
     animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .copied-label {
-    animation: fade-in 0.2s ease-out;
-  }
-
-  @keyframes fade-in {
-    0% { opacity: 0; transform: translateY(4px); }
-    100% { opacity: 1; transform: translateY(0); }
+  @keyframes spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 </style>

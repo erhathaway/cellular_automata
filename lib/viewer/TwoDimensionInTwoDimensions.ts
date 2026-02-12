@@ -269,6 +269,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   clearGenerations() {
     super.clearGenerations();
     this.currentGenerationCount = 0;
+    this.updateRateInMS = undefined;
   }
 
   initialize() {
@@ -296,6 +297,11 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
       m.position.z = 1 / (i + 1);
     });
     this.addGeneration();
+
+    // Gradually slow down after 100 generations
+    if (this.currentGenerationCount >= 100 && !this.updateRateInMS) {
+      this.updateRateInMS = 100;
+    }
   }
 
   renderUpdateFn() {}
