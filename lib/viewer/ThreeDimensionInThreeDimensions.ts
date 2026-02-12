@@ -68,6 +68,12 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
         geom.rotateY(Math.PI / 6);
         return geom;
       }
+      case 'octprism': {
+        const r = diameter / 2;
+        const geom = new CylinderGeometry(r, r, diameter, 8);
+        geom.rotateY(Math.PI / 8);
+        return geom;
+      }
       case 'box':
       default:
         return new BoxGeometry(diameter, diameter, diameter);

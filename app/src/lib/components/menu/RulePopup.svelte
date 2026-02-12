@@ -1,11 +1,18 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { getLattice } from '$lib-core';
+  import type { LatticeType } from '$lib-core';
 
   function parseNumberList(str: string): number[] {
     return str
       .split(',')
       .map((s) => parseInt(s.trim()))
       .filter((n) => !isNaN(n));
+  }
+
+  function getShapeLabels(): string[] {
+    const lattice = getLattice(automataStore.lattice as LatticeType);
+    return lattice.shapes?.map(s => s.label) ?? [];
   }
 </script>
 
@@ -34,6 +41,47 @@
         class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
         style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
       />
+    </div>
+  {:else if automataStore.shapeRules}
+    {@const labels = getShapeLabels()}
+    <div class="flex w-4/5 flex-col gap-4">
+      {#each automataStore.shapeRules as shapeRule, i}
+        <div class="flex flex-col gap-2">
+          <span class="text-xs text-gray-400" style="letter-spacing: 2px;">{labels[i] ?? `Shape ${i}`}</span>
+          <div class="flex items-center gap-2">
+            <span class="w-14 text-xs text-gray-500" style="letter-spacing: 2px;">Survive</span>
+            <input
+              type="text"
+              value={shapeRule.survive.join(', ')}
+              onchange={(e) => {
+                const survive = parseNumberList((e.target as HTMLInputElement).value);
+                automataStore.setShapeRule(i, {
+                  survive,
+                  born: automataStore.shapeRules![i].born,
+                });
+              }}
+              class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
+              style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-14 text-xs text-gray-500" style="letter-spacing: 2px;">Born</span>
+            <input
+              type="text"
+              value={shapeRule.born.join(', ')}
+              onchange={(e) => {
+                const born = parseNumberList((e.target as HTMLInputElement).value);
+                automataStore.setShapeRule(i, {
+                  survive: automataStore.shapeRules![i].survive,
+                  born,
+                });
+              }}
+              class="h-[30px] w-full border-b border-gray-300 bg-transparent text-black outline-none"
+              style="border-top: none; border-left: none; border-right: none; letter-spacing: 3px;"
+            />
+          </div>
+        </div>
+      {/each}
     </div>
   {:else}
     <div class="flex w-4/5 flex-col gap-3">

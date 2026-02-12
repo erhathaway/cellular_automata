@@ -37,6 +37,7 @@ export interface ComboSettings {
   cellStates: CellStateEntry[];
   neighborhoodRadius?: number;
   lattice?: LatticeType;
+  shapeRules?: { survive: number[]; born: number[] }[];
 }
 
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
@@ -124,6 +125,9 @@ class AutomataStore {
   stablePeriod = $state(0);
   stableKind: 'exact' | 'quasi' | 'none' = $state('none');
 
+  // Per-shape rules for multi-shape lattices (null = single-shape)
+  shapeRules: { survive: number[]; born: number[] }[] | null = $state(null);
+
   // Seed population state
   savedSeed: Uint8Array | null = $state(null);
   useSavedSeed: boolean = $state(true);
@@ -141,6 +145,7 @@ class AutomataStore {
   private _ruleHistory: Map<string, AutomataRule> = new Map();
   private _radiusHistory: Map<string, number> = new Map();
   private _latticeHistory: Map<string, LatticeType> = new Map();
+  private _shapeRulesHistory: Map<string, { survive: number[]; born: number[] }[]> = new Map();
 
   constructor() {
     // Save initial state
@@ -210,11 +215,24 @@ class AutomataStore {
     this.neighborhoodRadius = 1;
     this.rule = { type: 'conway', survive: [...config.defaultRule.survive], born: [...config.defaultRule.born] };
 
+    // Set per-shape rules if multi-shape lattice
+    if (config.shapes) {
+      this.shapeRules = config.shapes.map(s => ({
+        survive: [...s.defaultRule.survive],
+        born: [...s.defaultRule.born],
+      }));
+    } else {
+      this.shapeRules = null;
+    }
+
     // Save to lattice history
     const key = historyKey(this.dimension, this.viewer, this.lattice);
     this._latticeHistory.set(`${this.dimension}-${this.viewer}`, newLattice);
     this._ruleHistory.set(key, { ...this.rule });
     this._radiusHistory.set(key, 1);
+    if (this.shapeRules) {
+      this._shapeRulesHistory.set(key, this.shapeRules.map(r => ({ ...r })));
+    }
 
     this.reset();
   }
@@ -236,7 +254,19 @@ class AutomataStore {
 
   setRule(newRule: AutomataRule) {
     this.rule = newRule;
-    this._ruleHistory.set(historyKey(this.dimension, this.viewer), { ...newRule });
+    this._ruleHistory.set(historyKey(this.dimension, this.viewer, this.lattice), { ...newRule });
+  }
+
+  setShapeRule(shapeIndex: number, rule: { survive: number[]; born: number[] }) {
+    if (!this.shapeRules) return;
+    this.shapeRules = this.shapeRules.map((r, i) => i === shapeIndex ? { ...rule } : r);
+    // Keep primary rule in sync with first shape
+    if (shapeIndex === 0) {
+      this.rule = { type: 'conway', survive: [...rule.survive], born: [...rule.born] };
+    }
+    const key = historyKey(this.dimension, this.viewer, this.lattice);
+    this._shapeRulesHistory.set(key, this.shapeRules.map(r => ({ ...r })));
+    this._ruleHistory.set(key, { ...this.rule });
   }
 
   setNeighborhoodRadius(r: number) {
@@ -306,23 +336,45 @@ class AutomataStore {
       // Wolfram rule for 1D radius 1
       this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
     } else {
-      const maxNeighbors = this.neighbors.length;
-      const pick = () => {
-        const arr: number[] = [];
-        for (let i = 0; i <= maxNeighbors; i++) {
-          if (Math.random() < 0.25) arr.push(i);
-        }
-        return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
-      };
-      const born = pick();
-      const survive = pick();
-      this.setRule({ type: 'conway', survive, born });
+      const latticeConfig = getLattice(this.lattice);
 
-      // Reduce radius to minimum needed for the rule's max neighbor count
-      const maxUsed = Math.max(...born, ...survive);
-      const minRadius = this._minRadiusForNeighborCount(this.dimension, maxUsed);
-      if (minRadius < this.neighborhoodRadius) {
-        this.setNeighborhoodRadius(minRadius);
+      if (latticeConfig.shapes && this.shapeRules) {
+        // Multi-shape: randomize each shape's rule independently
+        const newShapeRules = latticeConfig.shapes.map(shape => {
+          const maxN = shape.neighborCount;
+          const pick = () => {
+            const arr: number[] = [];
+            for (let i = 0; i <= maxN; i++) {
+              if (Math.random() < 0.25) arr.push(i);
+            }
+            return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxN + 1))];
+          };
+          return { survive: pick(), born: pick() };
+        });
+        this.shapeRules = newShapeRules;
+        this.rule = { type: 'conway', survive: [...newShapeRules[0].survive], born: [...newShapeRules[0].born] };
+        const key = historyKey(this.dimension, this.viewer, this.lattice);
+        this._shapeRulesHistory.set(key, newShapeRules.map(r => ({ ...r })));
+        this._ruleHistory.set(key, { ...this.rule });
+      } else {
+        const maxNeighbors = this.neighbors.length;
+        const pick = () => {
+          const arr: number[] = [];
+          for (let i = 0; i <= maxNeighbors; i++) {
+            if (Math.random() < 0.25) arr.push(i);
+          }
+          return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
+        };
+        const born = pick();
+        const survive = pick();
+        this.setRule({ type: 'conway', survive, born });
+
+        // Reduce radius to minimum needed for the rule's max neighbor count
+        const maxUsed = Math.max(...born, ...survive);
+        const minRadius = this._minRadiusForNeighborCount(this.dimension, maxUsed);
+        if (minRadius < this.neighborhoodRadius) {
+          this.setNeighborhoodRadius(minRadius);
+        }
       }
     }
 
@@ -371,13 +423,16 @@ class AutomataStore {
       const dvKey = `${dim}-${viewer}`;
       const lat = this._latticeHistory.get(dvKey) ?? defaultLattice(dim);
       const key = historyKey(dim, viewer, lat);
-      result[dvKey] = {
+      const combo: ComboSettings = {
         populationShape: this._shapeHistory.get(key) ?? defaultShape(dim, viewer),
         rule: this._ruleHistory.get(key) ?? defaultRule(dim, lat),
         cellStates: this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer),
         neighborhoodRadius: this._radiusHistory.get(key) ?? 1,
         lattice: lat !== defaultLattice(dim) ? lat : undefined,
       };
+      const savedSR = this._shapeRulesHistory.get(key);
+      if (savedSR) combo.shapeRules = savedSR.map(r => ({ ...r }));
+      result[dvKey] = combo;
     }
     return result;
   }
@@ -401,6 +456,9 @@ class AutomataStore {
     if (settings.neighborhoodRadius !== undefined) {
       this._radiusHistory.set(key, settings.neighborhoodRadius);
     }
+    if (settings.shapeRules) {
+      this._shapeRulesHistory.set(key, settings.shapeRules.map(r => ({ ...r })));
+    }
   }
 
   hydrateActive(dim: number, viewer: number) {
@@ -421,6 +479,15 @@ class AutomataStore {
     this.cellStates = this._cellStatesHistory.get(key)
       ? this._cellStatesHistory.get(key)!.map((s) => ({ ...s }))
       : defaultCellStates(dim, viewer);
+    const savedSR = this._shapeRulesHistory.get(key);
+    if (savedSR) {
+      this.shapeRules = savedSR.map(r => ({ ...r }));
+    } else {
+      const config = getLattice(lat);
+      this.shapeRules = config.shapes
+        ? config.shapes.map(s => ({ survive: [...s.defaultRule.survive], born: [...s.defaultRule.born] }))
+        : null;
+    }
   }
 
   // --- Export for save ---
@@ -443,12 +510,20 @@ class AutomataStore {
       ? btoa(String.fromCharCode(...seedSnapshot))
       : undefined;
 
+    let shapeRulesDefinition: string | undefined;
+    if (this.shapeRules) {
+      shapeRulesDefinition = this.shapeRules
+        .map(r => `B${r.born.join(',')}S${r.survive.join(',')}`)
+        .join(';');
+    }
+
     return {
       dimension: this.dimension,
       viewer: this.viewer,
       lattice: this.lattice !== defaultLattice(this.dimension) ? this.lattice : undefined,
       ruleType,
       ruleDefinition,
+      shapeRulesDefinition,
       populationShape: JSON.stringify(this.populationShape),
       cellStates: JSON.stringify(this.cellStates),
       neighborhoodRadius: this.neighborhoodRadius,
@@ -470,6 +545,9 @@ class AutomataStore {
     this._ruleHistory.set(key, { ...this.rule });
     this._radiusHistory.set(key, this.neighborhoodRadius);
     this._latticeHistory.set(`${this.dimension}-${this.viewer}`, this.lattice);
+    if (this.shapeRules) {
+      this._shapeRulesHistory.set(key, this.shapeRules.map(r => ({ ...r })));
+    }
   }
 
   private _minRadiusForNeighborCount(dim: number, count: number): number {
@@ -513,6 +591,17 @@ class AutomataStore {
     // Restore radius
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
     this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius, this.lattice);
+
+    // Restore shape rules
+    const savedSR = this._shapeRulesHistory.get(key);
+    if (savedSR) {
+      this.shapeRules = savedSR.map(r => ({ ...r }));
+    } else {
+      const config = getLattice(this.lattice);
+      this.shapeRules = config.shapes
+        ? config.shapes.map(s => ({ survive: [...s.defaultRule.survive], born: [...s.defaultRule.born] }))
+        : null;
+    }
   }
 }
 

@@ -16,8 +16,8 @@ import type { BufferGeometry } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import BaseClass from './base';
 import type { ViewerConstructorOptions } from './base';
-import { getLattice } from '../automata/lattice';
-import type { LatticeType } from '../automata/lattice';
+import { getLattice, generateNeighborhood } from '../automata/lattice';
+import type { LatticeType, GeometryType } from '../automata/lattice';
 
 export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   currentGenerationCount = 0;
@@ -56,24 +56,54 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   handleWindowResize() {}
 
-  private _createCellGeometry(diameter: number): BufferGeometry {
-    const lattice = getLattice(this._latticeType as LatticeType);
-    switch (lattice.geometry) {
+  // Cached per-shape geometries and shapeAt function for multi-shape lattices
+  private _shapeGeometries: BufferGeometry[] | null = null;
+  private _shapeAt: ((x: number, y: number) => number) | null = null;
+
+  private _createGeometryForType(type: GeometryType, diameter: number, rotationY: number = 0): BufferGeometry {
+    let geom: BufferGeometry;
+    switch (type) {
       case 'hexprism': {
         const r = diameter / 2;
-        const geom = new CylinderGeometry(r, r, diameter, 6);
+        geom = new CylinderGeometry(r, r, diameter, 6);
         geom.rotateY(Math.PI / 6);
-        return geom;
+        break;
       }
       case 'triprism': {
-        // Equilateral triangle extruded: use a 3-sided cylinder
         const r = diameter / 2;
-        return new CylinderGeometry(r, r, diameter, 3);
+        geom = new CylinderGeometry(r, r, diameter, 3);
+        break;
+      }
+      case 'octprism': {
+        const r = diameter / 2;
+        geom = new CylinderGeometry(r, r, diameter, 8);
+        break;
       }
       case 'box':
       default:
-        return new BoxGeometry(diameter, diameter, diameter);
+        geom = new BoxGeometry(diameter, diameter, diameter);
     }
+    if (rotationY) geom.rotateY(rotationY);
+    return geom;
+  }
+
+  private _createCellGeometry(diameter: number): BufferGeometry {
+    const lattice = getLattice(this._latticeType as LatticeType);
+    return this._createGeometryForType(lattice.geometry ?? 'box', diameter);
+  }
+
+  private _ensureShapeGeometries(diameter: number): void {
+    const lattice = getLattice(this._latticeType as LatticeType);
+    if (!lattice.shapes) {
+      this._shapeGeometries = null;
+      this._shapeAt = null;
+      return;
+    }
+    const neighborhood = generateNeighborhood(this._latticeType as LatticeType, 1);
+    this._shapeAt = neighborhood.shapeAt ?? null;
+    this._shapeGeometries = lattice.shapes.map(shape =>
+      this._createGeometryForType(shape.geometry, diameter * shape.geometryScale, shape.geometryRotationY)
+    );
   }
 
   addGeneration() {
@@ -83,12 +113,16 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       transparent: true,
       opacity: 1,
     });
-    const geometry = this._createCellGeometry(diameter);
-    const group = new Group();
-
     this.materials.push(material);
-    this.geometries.push(geometry);
 
+    // Build per-shape geometries if multi-shape, else single geometry
+    this._ensureShapeGeometries(diameter);
+    const useShapes = this._shapeGeometries && this._shapeAt;
+    const singleGeometry = useShapes ? null : this._createCellGeometry(diameter);
+    const geometriesToTrack = useShapes ? this._shapeGeometries! : [singleGeometry!];
+    for (const g of geometriesToTrack) this.geometries.push(g);
+
+    const group = new Group();
     const generationState = this.retrieveNextGeneration() as number[][];
 
     if (this._populationShape.x !== generationState.length) {
@@ -126,7 +160,10 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
             px = size * columnNumber - cx;
             pz = size * cellNumber - cz;
           }
-          const cube = new Mesh(geometry, material);
+          const geom = useShapes
+            ? this._shapeGeometries![this._shapeAt!(columnNumber, cellNumber)]
+            : singleGeometry!;
+          const cube = new Mesh(geom, material);
           cube.position.set(px, 0, pz);
           group.add(cube);
         }

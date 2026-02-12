@@ -66,6 +66,10 @@
     } else {
       automataManager.rule = { survive: rule.survive, born: rule.born };
     }
+    // Apply per-shape rules if multi-shape lattice
+    if (automataStore.shapeRules) {
+      automataManager.setShapeRules(automataStore.shapeRules);
+    }
   }
 
   function initViewer(shouldRun = false) {
@@ -291,6 +295,13 @@
     const _rule = automataStore.rule;
     if (!automataManager) return;
     setRule();
+  });
+
+  // Watch for shape rule changes
+  $effect(() => {
+    const sr = automataStore.shapeRules;
+    if (!automataManager || !sr) return;
+    automataManager.setShapeRules(sr);
   });
 
   // Watch for neighborhood radius changes

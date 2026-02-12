@@ -1,23 +1,42 @@
-export type LatticeType = 'square' | 'hexagonal' | 'triangular' | 'cubic' | 'fcc' | 'hexagonal_prism';
+export type LatticeType = 'square' | 'hexagonal' | 'triangular' | 'cubic' | 'fcc' | 'hexagonal_prism' | 'truncated_square';
+
+export type GeometryType = 'box' | 'hexprism' | 'triprism' | 'sphere' | 'octprism';
 
 export interface NeighborhoodConfig {
+  // Single-shape (uniform lattices)
   offsets2D?: [number, number][];
   offsets3D?: [number, number, number][];
-  parityOffsets?: { even: [number, number][]; odd: [number, number][] };
+
+  // Multi-shape (when shapeCount > 1)
+  shapeCount?: number;                              // default 1
+  shapeAt?: (x: number, y: number) => number;       // shape index at grid position
+  shapeOffsets2D?: [number, number][][];             // offsets per shape index
+  shapeNeighborCounts?: number[];                    // neighbor count per shape
+
   neighborStrings: string[];
+  neighborCount: number;                             // max across all shapes
+}
+
+export interface ShapeInfo {
+  label: string;
   neighborCount: number;
+  defaultRule: { survive: number[]; born: number[] };
+  geometry: GeometryType;
+  geometryScale: number;        // size relative to grid cell spacing (1.0 = fill grid cell)
+  geometryRotationY: number;    // rotation around Y axis in radians
 }
 
 export interface LatticeDefinition {
   type: LatticeType;
   label: string;
   dimension: 2 | 3;
-  neighborCount: number;                         // r=1 neighbor count (for UI display)
+  neighborCount: number;                         // r=1 max neighbor count (for UI display)
   defaultRule: { survive: number[]; born: number[] };
-  neighborhood: (radius: number) => NeighborhoodConfig;  // per-lattice, per-shape, per-radius
+  neighborhood: (radius: number) => NeighborhoodConfig;
   position2D?: (col: number, row: number, size: number) => { x: number; y: number };
   position3D?: (x: number, y: number, z: number, size: number) => { px: number; py: number; pz: number };
-  geometry: 'box' | 'hexprism' | 'triprism' | 'sphere';
+  geometry?: GeometryType;       // for single-shape lattices (when shapes is undefined)
+  shapes?: ShapeInfo[];          // for multi-shape lattices
 }
 
 const SQRT3 = Math.sqrt(3);
@@ -74,12 +93,82 @@ function bfs3D(baseOffsets: [number, number, number][], radius: number): Neighbo
   return { offsets3D: offsets, neighborStrings: offsets3DToStrings(offsets), neighborCount: offsets.length };
 }
 
+// --- BFS helper for multi-shape 2D lattices ---
+
+function bfsMultiShape2D(
+  r1OffsetsPerShape: [number, number][][],
+  shapeAt: (x: number, y: number) => number,
+  shapeCount: number,
+  radius: number,
+): { shapeOffsets: [number, number][][]; shapeNeighborCounts: number[] } {
+  const shapeOffsets: [number, number][][] = [];
+  const shapeNeighborCounts: number[] = [];
+
+  for (let s = 0; s < shapeCount; s++) {
+    // Find an exemplar position with this shape
+    let ex = 0, ey = 0;
+    outer: for (let y = 0; y < shapeCount * 2; y++) {
+      for (let x = 0; x < shapeCount * 2; x++) {
+        if (shapeAt(x, y) === s) { ex = x; ey = y; break outer; }
+      }
+    }
+
+    // BFS from (0,0) using exemplar to determine neighbor shapes
+    const visited = new Set<string>();
+    visited.add('0,0');
+    let frontier: [number, number][] = [[0, 0]];
+
+    for (let step = 0; step < radius; step++) {
+      const nextFrontier: [number, number][] = [];
+      for (const [dx, dy] of frontier) {
+        const cellShape = shapeAt(ex + dx, ey + dy);
+        const offsets = r1OffsetsPerShape[cellShape];
+        for (const [ox, oy] of offsets) {
+          const nx = dx + ox;
+          const ny = dy + oy;
+          const key = `${nx},${ny}`;
+          if (!visited.has(key)) {
+            visited.add(key);
+            nextFrontier.push([nx, ny]);
+          }
+        }
+      }
+      frontier = nextFrontier;
+    }
+
+    const offsets: [number, number][] = [];
+    for (const key of visited) {
+      if (key === '0,0') continue;
+      const [cx, cy] = key.split(',').map(Number);
+      offsets.push([cx, cy]);
+    }
+
+    shapeOffsets.push(offsets);
+    shapeNeighborCounts.push(offsets.length);
+  }
+
+  return { shapeOffsets, shapeNeighborCounts };
+}
+
+// --- Safe modulo shape-at for checkerboard patterns ---
+
+function checkerboardShapeAt(x: number, y: number): number {
+  return ((x + y) % 2 + 2) % 2;
+}
+
 // --- Base offset definitions ---
 
-// Triangular "Moore" neighborhood: edge + vertex sharing (6 neighbors at r=1)
-// Up triangles (even parity) and down triangles (odd parity) have different offsets
-const TRI_EVEN: [number, number][] = [[-1, 0], [1, 0], [0, -1], [-1, -1], [1, -1], [0, 1]];
-const TRI_ODD: [number, number][] = [[-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1], [0, -1]];
+// Triangular r=1 offsets per parity (up=even, down=odd)
+const TRI_UP: [number, number][] = [[-1, 0], [1, 0], [0, -1], [-1, -1], [1, -1], [0, 1]];
+const TRI_DOWN: [number, number][] = [[-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1], [0, -1]];
+
+// Truncated square r=1 offsets per shape (octagon=0, square=1)
+const TRUNC_SQ_OCT: [number, number][] = [
+  [-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1],
+];
+const TRUNC_SQ_SQ: [number, number][] = [
+  [-1, 0], [1, 0], [0, -1], [0, 1],
+];
 
 // FCC 12 face-diagonal neighbors
 const FCC_12: [number, number, number][] = [
@@ -107,7 +196,6 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 2,
     neighborCount: 8,
     defaultRule: { survive: [2, 3], born: [3] },
-    // Moore neighborhood: all cells within Chebyshev distance r
     neighborhood(radius) {
       const offsets: [number, number][] = [];
       for (let dx = -radius; dx <= radius; dx++) {
@@ -127,7 +215,6 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 2,
     neighborCount: 6,
     defaultRule: { survive: [3, 4], born: [2] },
-    // Axial distance: all cells where max(|dq|, |dr|, |dq+dr|) <= r
     neighborhood(radius) {
       const offsets: [number, number][] = [];
       for (let dq = -radius; dq <= radius; dq++) {
@@ -152,48 +239,25 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 2,
     neighborCount: 6,
     defaultRule: { survive: [2, 3], born: [2] },
-    // BFS with parity-dependent offsets: up triangles (even) and down triangles (odd)
-    // have different neighbor sets at each position
+    shapes: [
+      { label: 'Up', neighborCount: 6, defaultRule: { survive: [2, 3], born: [2] },
+        geometry: 'triprism', geometryScale: 1, geometryRotationY: Math.PI / 2 },
+      { label: 'Down', neighborCount: 6, defaultRule: { survive: [2, 3], born: [2] },
+        geometry: 'triprism', geometryScale: 1, geometryRotationY: -Math.PI / 2 },
+    ],
     neighborhood(radius) {
-      function bfsTri(originEven: boolean): [number, number][] {
-        const visited = new Set<string>();
-        visited.add('0,0');
-        let frontier: [number, number][] = [[0, 0]];
-
-        for (let step = 0; step < radius; step++) {
-          const nextFrontier: [number, number][] = [];
-          for (const [x, y] of frontier) {
-            const useEven = originEven ? (x + y) % 2 === 0 : (x + y) % 2 !== 0;
-            const offsets = useEven ? TRI_EVEN : TRI_ODD;
-            for (const [dx, dy] of offsets) {
-              const nx = x + dx;
-              const ny = y + dy;
-              const key = `${nx},${ny}`;
-              if (!visited.has(key)) {
-                visited.add(key);
-                nextFrontier.push([nx, ny]);
-              }
-            }
-          }
-          frontier = nextFrontier;
-        }
-
-        const result: [number, number][] = [];
-        for (const key of visited) {
-          if (key === '0,0') continue;
-          const [cx, cy] = key.split(',').map(Number);
-          result.push([cx, cy]);
-        }
-        return result;
-      }
-
-      const evenOffsets = bfsTri(true);
-      const oddOffsets = bfsTri(false);
+      const { shapeOffsets, shapeNeighborCounts } = bfsMultiShape2D(
+        [TRI_UP, TRI_DOWN], checkerboardShapeAt, 2, radius,
+      );
+      const maxCount = Math.max(...shapeNeighborCounts);
       return {
-        offsets2D: evenOffsets,
-        parityOffsets: { even: evenOffsets, odd: oddOffsets },
-        neighborStrings: offsets2DToStrings(evenOffsets),
-        neighborCount: evenOffsets.length,
+        shapeCount: 2,
+        shapeAt: checkerboardShapeAt,
+        shapeOffsets2D: shapeOffsets,
+        shapeNeighborCounts,
+        offsets2D: shapeOffsets[0],
+        neighborStrings: offsets2DToStrings(shapeOffsets[0]),
+        neighborCount: maxCount,
       };
     },
     position2D: (col, row, size) => {
@@ -205,7 +269,41 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
         y: row * triHeight + (isDown ? triHeight / 3 : 0),
       };
     },
-    geometry: 'triprism',
+  },
+  truncated_square: {
+    type: 'truncated_square',
+    label: 'Trunc Sq',
+    dimension: 2,
+    neighborCount: 8,
+    defaultRule: { survive: [2, 3], born: [3] },
+    shapes: [
+      { label: 'Octagon', neighborCount: 8,
+        defaultRule: { survive: [2, 3], born: [3] },
+        geometry: 'octprism',
+        geometryScale: Math.SQRT2 / Math.cos(Math.PI / 8),
+        geometryRotationY: Math.PI / 8 },
+      { label: 'Square', neighborCount: 4,
+        defaultRule: { survive: [1, 2], born: [1] },
+        geometry: 'box',
+        geometryScale: 2 - Math.SQRT2,
+        geometryRotationY: 0 },
+    ],
+    neighborhood(radius) {
+      const { shapeOffsets, shapeNeighborCounts } = bfsMultiShape2D(
+        [TRUNC_SQ_OCT, TRUNC_SQ_SQ], checkerboardShapeAt, 2, radius,
+      );
+      const maxCount = Math.max(...shapeNeighborCounts);
+      return {
+        shapeCount: 2,
+        shapeAt: checkerboardShapeAt,
+        shapeOffsets2D: shapeOffsets,
+        shapeNeighborCounts,
+        offsets2D: shapeOffsets[0],
+        neighborStrings: offsets2DToStrings(shapeOffsets[0]),
+        neighborCount: maxCount,
+      };
+    },
+    position2D: (col, row, size) => ({ x: size * col, y: size * row }),
   },
   cubic: {
     type: 'cubic',
@@ -213,7 +311,6 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 3,
     neighborCount: 26,
     defaultRule: { survive: [4, 5], born: [5] },
-    // Moore 3D: all cells within Chebyshev distance r
     neighborhood(radius) {
       const offsets: [number, number, number][] = [];
       for (let dx = -radius; dx <= radius; dx++) {
@@ -239,7 +336,6 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 3,
     neighborCount: 12,
     defaultRule: { survive: [3, 4], born: [4] },
-    // BFS with 12 face-diagonal base offsets
     neighborhood: (radius) => bfs3D(FCC_12, radius),
     position3D: (x, y, z, size) => ({
       px: size * x,
@@ -254,7 +350,6 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     dimension: 3,
     neighborCount: 20,
     defaultRule: { survive: [5, 6, 7], born: [5] },
-    // BFS with 20 hex prism base offsets
     neighborhood: (radius) => bfs3D(HEX_PRISM_20, radius),
     position3D: (x, y, z, size) => ({
       px: size * (SQRT3 * x + (SQRT3 / 2) * y),

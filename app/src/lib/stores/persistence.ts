@@ -48,6 +48,31 @@ export function deserializeRule(s: string): AutomataRule | null {
   return { type: 'conway', born, survive };
 }
 
+// --- Shape rules serialization ---
+
+export function serializeShapeRules(rules: { survive: number[]; born: number[] }[]): string {
+  return rules.map(r => `B${r.born.join(',')}S${r.survive.join(',')}`).join(';');
+}
+
+export function deserializeShapeRules(s: string): { survive: number[]; born: number[] }[] | null {
+  const parts = s.split(';');
+  if (parts.length === 0) return null;
+  const rules: { survive: number[]; born: number[] }[] = [];
+  for (const part of parts) {
+    const match = part.match(/^B([0-9,]*)S([0-9,]*)$/);
+    if (!match) return null;
+    const parseNums = (str: string): number[] => {
+      if (!str) return [];
+      return str.includes(',') ? str.split(',').map(Number) : str.split('').map(Number);
+    };
+    const born = parseNums(match[1]);
+    const survive = parseNums(match[2]);
+    if (born.some(isNaN) || survive.some(isNaN)) return null;
+    rules.push({ survive, born });
+  }
+  return rules;
+}
+
 // --- Color serialization ---
 
 export function serializeColor(color: HSLColor): string {
@@ -95,6 +120,10 @@ export function buildURLParams(
 
   if (settings.lattice) {
     params.set('lt', settings.lattice);
+  }
+
+  if (settings.shapeRules) {
+    params.set('sr', serializeShapeRules(settings.shapeRules));
   }
 
   if (generation && generation > 0) {
@@ -170,6 +199,13 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
   const ltStr = params.get('lt');
   if (ltStr && isValidLattice(ltStr)) {
     settings.lattice = ltStr;
+  }
+
+  // Parse shape rules
+  const srStr = params.get('sr');
+  if (srStr) {
+    const shapeRules = deserializeShapeRules(srStr);
+    if (shapeRules) settings.shapeRules = shapeRules;
   }
 
   // Parse generation

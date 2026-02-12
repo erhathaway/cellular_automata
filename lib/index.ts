@@ -25,7 +25,7 @@ export {
   isValidLattice,
   LATTICE_REGISTRY,
 } from './automata/lattice';
-export type { LatticeType, LatticeDefinition, NeighborhoodConfig } from './automata/lattice';
+export type { LatticeType, LatticeDefinition, NeighborhoodConfig, ShapeInfo, GeometryType } from './automata/lattice';
 
 export { default as BaseViewer } from './viewer/base/index';
 export type { HSLColor, CellState, ViewerConstructorOptions } from './viewer/base/index';
