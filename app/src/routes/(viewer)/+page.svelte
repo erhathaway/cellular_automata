@@ -45,7 +45,7 @@
   </div>
 </div>
 
-<section class="relative z-10 bg-white">
+<section class="relative z-10 bg-black">
   <ViewerDescription />
   <ViewerComments />
 </section>

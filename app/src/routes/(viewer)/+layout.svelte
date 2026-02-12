@@ -67,7 +67,7 @@
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
-  <main class="relative h-full min-w-0 flex-1 overflow-y-auto">
+  <main class="viewer-main relative h-full min-w-0 flex-1 overflow-y-auto" style="background: blue;">
     {@render children()}
 
     <!-- Right toggle tab -->
@@ -113,6 +113,13 @@
 </div>
 
 <style>
+  .viewer-main {
+    scrollbar-width: none;
+  }
+  .viewer-main::-webkit-scrollbar {
+    display: none;
+  }
+
   .toggle-tab {
     position: absolute;
     right: 0;

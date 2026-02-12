@@ -343,7 +343,7 @@
     font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 24px;
     font-weight: 700;
-    color: #1c1917;
+    color: #fde047;
     letter-spacing: -0.02em;
     white-space: nowrap;
     overflow: hidden;
@@ -365,26 +365,26 @@
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     font-weight: 400;
-    color: #78716c;
+    color: #a8a29e;
   }
 
   .stat-icon {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    color: #a8a29e;
+    color: #d6d3d1;
   }
 
   .stat-dot {
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: #d6d3d1;
+    background: #57534e;
   }
 
   .divider {
     height: 1px;
-    background: linear-gradient(90deg, #d6d3d1 0%, transparent 100%);
+    background: linear-gradient(90deg, #57534e 0%, transparent 100%);
     margin: 16px 0;
   }
 
@@ -393,7 +393,7 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 1.75;
-    color: #57534e;
+    color: #a8a29e;
   }
 
   .action-buttons {
@@ -501,7 +501,7 @@
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     font-weight: 400;
-    color: #a8a29e;
+    color: #78716c;
     min-height: 14px;
   }
 
