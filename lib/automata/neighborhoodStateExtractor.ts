@@ -5,17 +5,11 @@ type CoordinateExtractor = (coords: { x: number; y?: number; z?: number }, arr: 
 
 const before =
   (mag: number): ExtractorFn =>
-  (i, arr) => {
-    const state = arr[i - mag];
-    return state === undefined ? arr.slice(-1)[0] : state;
-  };
+  (i, arr) => arr[((i - mag) % arr.length + arr.length) % arr.length];
 
 const after =
   (mag: number): ExtractorFn =>
-  (i, arr) => {
-    const state = arr[i + mag];
-    return state === undefined ? arr[0] : state;
-  };
+  (i, arr) => arr[(i + mag) % arr.length];
 
 const same: ExtractorFn = (i, arr) => arr[i];
 
