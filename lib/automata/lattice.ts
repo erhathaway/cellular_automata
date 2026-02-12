@@ -241,9 +241,9 @@ export const LATTICE_REGISTRY: Record<LatticeType, LatticeDefinition> = {
     defaultRule: { survive: [2, 3], born: [2] },
     shapes: [
       { label: 'Up', neighborCount: 6, defaultRule: { survive: [2, 3], born: [2] },
-        geometry: 'triprism', geometryScale: 1, geometryRotationY: Math.PI / 2 },
+        geometry: 'triprism', geometryScale: 2, geometryRotationY: Math.PI / 2 },
       { label: 'Down', neighborCount: 6, defaultRule: { survive: [2, 3], born: [2] },
-        geometry: 'triprism', geometryScale: 1, geometryRotationY: -Math.PI / 2 },
+        geometry: 'triprism', geometryScale: 2, geometryRotationY: -Math.PI / 2 },
     ],
     neighborhood(radius) {
       const { shapeOffsets, shapeNeighborCounts } = bfsMultiShape2D(

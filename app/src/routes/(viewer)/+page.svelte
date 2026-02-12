@@ -8,9 +8,11 @@
   import ClaimButton from '$lib/components/ClaimButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
+  import CornerBlocks from '$lib/components/CornerBlocks.svelte';
 </script>
 
 <div class="relative m-4" style="height: 75vh;">
+  <CornerBlocks />
   <section class="relative h-full overflow-hidden rounded-2xl">
     <ViewPlayer />
     <div class="pointer-events-none absolute inset-0 z-10 rounded-2xl" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.15), inset 0 0 2px rgba(0,0,0,0.1);"></div>

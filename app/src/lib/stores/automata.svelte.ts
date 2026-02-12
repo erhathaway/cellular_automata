@@ -45,7 +45,7 @@ export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
 // --- Default shapes by dimension+viewer combo ---
 export function defaultShape(dim: number, viewer: number): Record<string, number> {
   if (dim === 1) return { x: 200 };
-  if (dim === 2 && viewer === 2) return { x: 150, y: 150 };
+  if (dim === 2 && viewer === 2) return { x: 200, y: 100 };
   if (dim === 2 && viewer === 3) return { x: 70, y: 50 };
   if (dim === 3) return { x: 40, y: 40, z: 40 };
   return { x: 150, y: 150 };
@@ -98,7 +98,7 @@ class AutomataStore {
   dimension = $state(2);
   viewer = $state(2);
   lattice: LatticeType = $state('square');
-  populationShape: Record<string, number> = $state({ x: 200, y: 200 });
+  populationShape: Record<string, number> = $state({ x: 200, y: 100 });
   cellStates: CellStateEntry[] = $state([
     { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
     { number: 1, color: { h: 234, s: 0.7, l: 0.4, a: 1 } },

@@ -60,28 +60,29 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   private _shapeGeometries: BufferGeometry[] | null = null;
   private _shapeAt: ((x: number, y: number) => number) | null = null;
 
-  private _createGeometryForType(type: GeometryType, diameter: number, rotationY: number = 0): BufferGeometry {
+  private _createGeometryForType(type: GeometryType, diameter: number, rotationY: number = 0, height?: number): BufferGeometry {
+    const h = height ?? diameter;
     let geom: BufferGeometry;
     switch (type) {
       case 'hexprism': {
         const r = diameter / 2;
-        geom = new CylinderGeometry(r, r, diameter, 6);
+        geom = new CylinderGeometry(r, r, h, 6);
         geom.rotateY(Math.PI / 6);
         break;
       }
       case 'triprism': {
         const r = diameter / 2;
-        geom = new CylinderGeometry(r, r, diameter, 3);
+        geom = new CylinderGeometry(r, r, h, 3);
         break;
       }
       case 'octprism': {
         const r = diameter / 2;
-        geom = new CylinderGeometry(r, r, diameter, 8);
+        geom = new CylinderGeometry(r, r, h, 8);
         break;
       }
       case 'box':
       default:
-        geom = new BoxGeometry(diameter, diameter, diameter);
+        geom = new BoxGeometry(diameter, h, diameter);
     }
     if (rotationY) geom.rotateY(rotationY);
     return geom;
@@ -102,7 +103,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     const neighborhood = generateNeighborhood(this._latticeType as LatticeType, 1);
     this._shapeAt = neighborhood.shapeAt ?? null;
     this._shapeGeometries = lattice.shapes.map(shape =>
-      this._createGeometryForType(shape.geometry, diameter * shape.geometryScale, shape.geometryRotationY)
+      this._createGeometryForType(shape.geometry, diameter * shape.geometryScale, shape.geometryRotationY, diameter)
     );
   }
 
