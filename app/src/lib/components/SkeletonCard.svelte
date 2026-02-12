@@ -1,11 +1,15 @@
-<div class="skeleton-unit">
-  <!-- Corner electrodes -->
-  <span class="electrode tl"></span>
-  <span class="electrode tr"></span>
-  <span class="electrode bl"></span>
-  <span class="electrode br"></span>
-
-  <div class="thumb-placeholder"></div>
+<div class="card">
+  <div class="containment-frame">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+    <span class="edge top"></span>
+    <span class="edge bottom"></span>
+    <span class="edge left"></span>
+    <span class="edge right"></span>
+    <div class="thumb-placeholder"></div>
+  </div>
   <div class="info-row">
     <div class="bar w60"></div>
     <div class="bar w8"></div>
@@ -18,31 +22,87 @@
 </div>
 
 <style>
-  .skeleton-unit {
+  .card {
+    padding: 6px 6px 8px;
+    border-radius: 6px;
+  }
+
+  .containment-frame {
     position: relative;
-    padding: 8px;
-    border: 2px solid #d6d3d1;
-    border-radius: 8px;
-    background: white;
+    border-radius: 6px;
+    overflow: visible;
   }
 
-  /* Corner electrodes */
-  .electrode {
+  /* Corner brackets */
+  .corner {
     position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #d6d3d1;
-    box-shadow:
-      inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(0, 0, 0, 0.08);
-    z-index: 2;
+    width: 16px;
+    height: 16px;
+    z-index: 3;
+    pointer-events: none;
   }
 
-  .electrode.tl { top: -3px; left: -3px; }
-  .electrode.tr { top: -3px; right: -3px; }
-  .electrode.bl { bottom: -3px; left: -3px; }
-  .electrode.br { bottom: -3px; right: -3px; }
+  .corner.tl {
+    top: -1px; left: -1px;
+    border-top: 3px solid #d6d3d1;
+    border-left: 3px solid #d6d3d1;
+    border-top-left-radius: 4px;
+  }
+
+  .corner.tr {
+    top: -1px; right: -1px;
+    border-top: 3px solid #d6d3d1;
+    border-right: 3px solid #d6d3d1;
+    border-top-right-radius: 4px;
+  }
+
+  .corner.bl {
+    bottom: -1px; left: -1px;
+    border-bottom: 3px solid #d6d3d1;
+    border-left: 3px solid #d6d3d1;
+    border-bottom-left-radius: 4px;
+  }
+
+  .corner.br {
+    bottom: -1px; right: -1px;
+    border-bottom: 3px solid #d6d3d1;
+    border-right: 3px solid #d6d3d1;
+    border-bottom-right-radius: 4px;
+  }
+
+  /* Electric edges (muted for skeleton) */
+  .edge {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.25;
+  }
+
+  .edge.top, .edge.bottom {
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg, #d6d3d1 0px, #d6d3d1 3px, transparent 3px, transparent 7px
+    );
+    background-size: 14px 2px;
+  }
+
+  .edge.top { top: 0; }
+  .edge.bottom { bottom: 0; }
+
+  .edge.left, .edge.right {
+    top: 16px;
+    bottom: 16px;
+    width: 2px;
+    background: repeating-linear-gradient(
+      180deg, #d6d3d1 0px, #d6d3d1 3px, transparent 3px, transparent 7px
+    );
+    background-size: 2px 14px;
+  }
+
+  .edge.left { left: 0; }
+  .edge.right { right: 0; }
 
   .thumb-placeholder {
     width: 100%;
@@ -59,6 +119,7 @@
     justify-content: space-between;
     gap: 8px;
     margin-top: 8px;
+    padding: 0 2px;
   }
 
   .meta-row {
@@ -66,6 +127,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 6px;
+    padding: 0 2px;
   }
 
   .bar {

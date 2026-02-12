@@ -94,51 +94,56 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="containment-unit" onclick={() => onclick?.(item)}>
-  <!-- Corner electrodes -->
-  <span class="electrode tl"></span>
-  <span class="electrode tr"></span>
-  <span class="electrode bl"></span>
-  <span class="electrode br"></span>
+<div class="card" onclick={() => onclick?.(item)}>
+  <!-- Containment field — just the image -->
+  <div class="containment-frame">
+    <!-- Corner brackets -->
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
 
-  <!-- Thumbnail -->
-  <div class="thumb-wrapper">
-    {#if thumbnailUrl && !thumbError}
-      <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
-    {:else}
-      <div class="thumb-fallback">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-        </svg>
-      </div>
-    {/if}
+    <!-- Electric edges between corners -->
+    <span class="edge top"></span>
+    <span class="edge bottom"></span>
+    <span class="edge left"></span>
+    <span class="edge right"></span>
 
-    <!-- Scanline overlay -->
-    <div class="scanlines"></div>
+    <div class="thumb-inner">
+      {#if thumbnailUrl && !thumbError}
+        <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
+      {:else}
+        <div class="thumb-fallback">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+        </div>
+      {/if}
 
-    <!-- Inner shadow -->
-    <div class="inner-shadow"></div>
+      <!-- Scanline overlay -->
+      <div class="scanlines"></div>
 
-    {#if interactive}
-      <button
-        class="bookmark-btn {isBookmarked ? 'active' : ''}"
-        onclick={toggleBookmark}
-        aria-label={isBookmarked ? 'Remove from chest' : 'Add to chest'}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-          <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-          <line x1="4" y1="13" x2="20" y2="13" />
-          <rect x="10" y="11" width="4" height="4" rx="1" />
-        </svg>
-      </button>
-    {/if}
+      {#if interactive}
+        <button
+          class="bookmark-btn {isBookmarked ? 'active' : ''}"
+          onclick={toggleBookmark}
+          aria-label={isBookmarked ? 'Remove from chest' : 'Add to chest'}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+            <line x1="4" y1="13" x2="20" y2="13" />
+            <rect x="10" y="11" width="4" height="4" rx="1" />
+          </svg>
+        </button>
+      {/if}
+    </div>
   </div>
 
-  <!-- Line 1: rule info + like -->
+  <!-- Clean metadata below -->
   <div class="info-row">
     <p class="rule-text">
       {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
@@ -164,7 +169,6 @@
     {/if}
   </div>
 
-  <!-- Line 2: user + time -->
   <div class="meta-row">
     <PixelAvatar avatarId={item.userAvatarId} size={16} fallbackInitials={(item.userName ?? 'A')[0]} />
     <p class="username">{item.userName ?? 'Anonymous'}</p>
@@ -175,71 +179,135 @@
 </div>
 
 <style>
-  .containment-unit {
-    position: relative;
-    padding: 8px;
-    border: 2px solid #292524;
-    border-radius: 8px;
+  .card {
+    padding: 6px 6px 8px;
     cursor: pointer;
-    background: white;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-    animation: containment-pulse 3s ease-in-out infinite;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
   }
 
-  .containment-unit:hover {
-    border-color: #44403c;
-    background-color: #fefce8;
-    animation: none;
-    box-shadow:
-      0 0 8px rgba(250, 204, 21, 0.3),
-      0 0 20px rgba(250, 204, 21, 0.15);
+  .card:hover {
+    background-color: #fafaf9;
   }
 
-  @keyframes containment-pulse {
-    0%, 100% {
-      box-shadow: 0 0 4px rgba(250, 204, 21, 0.08), 0 0 12px rgba(250, 204, 21, 0.04);
-    }
-    50% {
-      box-shadow: 0 0 6px rgba(250, 204, 21, 0.18), 0 0 16px rgba(250, 204, 21, 0.08);
-    }
+  /* Containment frame — no solid border, corners + electric edges */
+  .containment-frame {
+    position: relative;
+    border-radius: 6px;
+    overflow: visible;
   }
 
-  /* Corner electrodes */
-  .electrode {
+  /* ── Corner brackets: thick black L-shapes ── */
+  .corner {
     position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #78716c;
-    box-shadow:
-      inset 0 -1px 0 rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(0, 0, 0, 0.3),
-      0 0 3px rgba(250, 204, 21, 0.2);
+    width: 16px;
+    height: 16px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .corner.tl {
+    top: -1px;
+    left: -1px;
+    border-top: 3px solid #1c1917;
+    border-left: 3px solid #1c1917;
+    border-top-left-radius: 4px;
+  }
+
+  .corner.tr {
+    top: -1px;
+    right: -1px;
+    border-top: 3px solid #1c1917;
+    border-right: 3px solid #1c1917;
+    border-top-right-radius: 4px;
+  }
+
+  .corner.bl {
+    bottom: -1px;
+    left: -1px;
+    border-bottom: 3px solid #1c1917;
+    border-left: 3px solid #1c1917;
+    border-bottom-left-radius: 4px;
+  }
+
+  .corner.br {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 3px solid #1c1917;
+    border-right: 3px solid #1c1917;
+    border-bottom-right-radius: 4px;
+  }
+
+  /* ── Electric edges between corners ── */
+  .edge {
+    position: absolute;
     z-index: 2;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: none;
   }
 
-  .containment-unit:hover .electrode {
-    background: #facc15;
-    box-shadow:
-      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(0, 0, 0, 0.2),
-      0 0 6px rgba(250, 204, 21, 0.6);
+  .edge.top, .edge.bottom {
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      #facc15 0px,
+      #facc15 3px,
+      transparent 3px,
+      transparent 7px
+    );
+    background-size: 14px 2px;
+    animation: electric-h 0.6s linear infinite;
+    opacity: 0.5;
+    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
   }
 
-  .electrode.tl { top: -3px; left: -3px; }
-  .electrode.tr { top: -3px; right: -3px; }
-  .electrode.bl { bottom: -3px; left: -3px; }
-  .electrode.br { bottom: -3px; right: -3px; }
+  .edge.top { top: 0; }
+  .edge.bottom { bottom: 0; }
+
+  .edge.left, .edge.right {
+    top: 16px;
+    bottom: 16px;
+    width: 2px;
+    background: repeating-linear-gradient(
+      180deg,
+      #facc15 0px,
+      #facc15 3px,
+      transparent 3px,
+      transparent 7px
+    );
+    background-size: 2px 14px;
+    animation: electric-v 0.6s linear infinite;
+    opacity: 0.5;
+    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
+  }
+
+  .edge.left { left: 0; }
+  .edge.right { right: 0; }
+
+  .card:hover .edge {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6));
+  }
+
+  @keyframes electric-h {
+    0%   { background-position: 0 0; }
+    100% { background-position: 14px 0; }
+  }
+
+  @keyframes electric-v {
+    0%   { background-position: 0 0; }
+    100% { background-position: 0 14px; }
+  }
 
   /* Thumbnail */
-  .thumb-wrapper {
+  .thumb-inner {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    overflow: hidden;
-    border-radius: 4px;
     background: #f5f5f4;
+    border-radius: 4px;
+    overflow: hidden;
   }
 
   .thumb-img {
@@ -266,30 +334,9 @@
       0deg,
       transparent,
       transparent 3px,
-      rgba(41, 37, 36, 0.04) 3px,
-      rgba(41, 37, 36, 0.04) 4px
+      rgba(41, 37, 36, 0.035) 3px,
+      rgba(41, 37, 36, 0.035) 4px
     );
-    transition: opacity 0.3s ease;
-    opacity: 0.6;
-  }
-
-  .containment-unit:hover .scanlines {
-    opacity: 1;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(250, 204, 21, 0.06) 3px,
-      rgba(250, 204, 21, 0.06) 4px
-    );
-  }
-
-  .inner-shadow {
-    position: absolute;
-    inset: 0;
-    border-radius: 4px;
-    pointer-events: none;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
   }
 
   .bookmark-btn {
@@ -312,7 +359,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
-  .containment-unit:hover .bookmark-btn {
+  .card:hover .bookmark-btn {
     opacity: 1;
   }
 
@@ -337,6 +384,7 @@
     justify-content: space-between;
     gap: 8px;
     margin-top: 8px;
+    padding: 0 2px;
   }
 
   .rule-text {
@@ -389,6 +437,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 4px;
+    padding: 0 2px;
   }
 
   .username {
