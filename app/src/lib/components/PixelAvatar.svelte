@@ -62,11 +62,11 @@
 </script>
 
 {#if isMiner && minerDataUrl && cropUpper}
-  <div class="shrink-0" style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%;">
+  <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;">
     <img
       src={minerDataUrl}
       alt="Miner avatar"
-      style="image-rendering: pixelated; width: {size}px; height: auto; display: block;"
+      style="image-rendering: pixelated; width: 100%; height: auto; display: block;"
     />
   </div>
 {:else if isMiner && minerDataUrl}

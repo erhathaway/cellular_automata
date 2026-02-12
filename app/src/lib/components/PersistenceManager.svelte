@@ -38,28 +38,27 @@
       }
     }
 
-    // Restore mining preferences
-    if (stored?.miningDifficulty) {
-      automataStore.setMiningDifficulty(stored.miningDifficulty);
-    }
-    if (stored?.miningLattice) {
-      automataStore.setMiningLattice(stored.miningLattice);
-    }
+    // Restore user preferences (only when NOT loading from a new/shared URL)
+    if (!isNewUrl && stored) {
+      // Mining button preferences
+      if (stored.miningDifficulty) automataStore.setMiningDifficulty(stored.miningDifficulty);
+      if (stored.miningLattice) automataStore.setMiningLattice(stored.miningLattice);
 
-    // Restore advanced lock state (only when NOT loading from a new/shared URL)
-    if (!isNewUrl && stored?.advancedLocks) {
+      // Advanced lock state
       const locks = stored.advancedLocks;
-      if (locks.advancedMode) automataStore.setAdvancedMode(true);
-      if (locks.lockCell) automataStore.setLockCell(true);
-      if (locks.lockViewer) automataStore.setLockViewer(true);
-      if (locks.lockLattice) automataStore.setLockLattice(true);
-      if (locks.lockRadius) automataStore.setLockRadius(true);
-      if (locks.lockBorn) automataStore.setLockBorn(true);
-      if (locks.lockSurvive) automataStore.setLockSurvive(true);
-      if (locks.lockShapeBorn) automataStore.lockShapeBorn = [...locks.lockShapeBorn];
-      if (locks.lockShapeSurvive) automataStore.lockShapeSurvive = [...locks.lockShapeSurvive];
-      if (locks.lockNeighborhood) automataStore.setLockNeighborhood(true);
-      if (locks.lockColors) automataStore.setLockColors(true);
+      if (locks) {
+        if (locks.advancedMode) automataStore.setAdvancedMode(true);
+        if (locks.lockCell) automataStore.setLockCell(true);
+        if (locks.lockViewer) automataStore.setLockViewer(true);
+        if (locks.lockLattice) automataStore.setLockLattice(true);
+        if (locks.lockRadius) automataStore.setLockRadius(true);
+        if (locks.lockBorn) automataStore.setLockBorn(true);
+        if (locks.lockSurvive) automataStore.setLockSurvive(true);
+        if (locks.lockShapeBorn) automataStore.lockShapeBorn = [...locks.lockShapeBorn];
+        if (locks.lockShapeSurvive) automataStore.lockShapeSurvive = [...locks.lockShapeSurvive];
+        if (locks.lockNeighborhood) automataStore.setLockNeighborhood(true);
+        if (locks.lockColors) automataStore.setLockColors(true);
+      }
     }
 
     // If URL has params, override that combo's settings
@@ -83,7 +82,7 @@
     }
     // else: keep defaults (2-2)
 
-    // Restore neighbor enabled state AFTER hydration (hydrateActive resets them)
+    // Restore neighbor enabled state AFTER hydration (hydrateActive resets them via _setFullNeighbors)
     if (!isNewUrl && stored?.advancedLocks) {
       const locks = stored.advancedLocks;
       if (locks.neighborEnabled && locks.neighborEnabled.length === automataStore.neighborEnabled.length) {
@@ -93,6 +92,8 @@
         automataStore.shapeNeighborEnabled = locks.shapeNeighborEnabled.map(a => [...a]);
       }
     }
+    // Note: neighbor enabled must stay separate from the main preference block above
+    // because hydrateActive() (which runs between them) resets these arrays.
 
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
@@ -183,8 +184,9 @@
         neighborEnabled: [...automataStore.neighborEnabled],
         shapeNeighborEnabled: automataStore.shapeNeighborEnabled.map(a => [...a]),
       };
-      saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice, advancedLocks);
       doURLUpdate();
+      const fingerprint = urlFingerprint(window.location.search);
+      saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice, advancedLocks, fingerprint);
     }, 300);
   });
 
