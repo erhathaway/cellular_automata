@@ -9,6 +9,9 @@
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
+  import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
+
+  let advancedOpen = $state(false);
 </script>
 
 <div class="relative m-4" style="height: 75vh;">
@@ -36,6 +39,34 @@
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
+        <!-- Advanced button below mine button -->
+        <div class="advanced-toggle">
+          <div class="adv-pipe"></div>
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => advancedOpen = !advancedOpen}>
+            <div class="nails">
+              <div class="nail"></div>
+              <div class="nail"></div>
+            </div>
+            <div class="nails nails-bottom">
+              <div class="nail"></div>
+              <div class="nail"></div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14" />
+              <line x1="4" y1="10" x2="4" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12" y2="3" />
+              <line x1="20" y1="21" x2="20" y2="16" />
+              <line x1="20" y1="12" x2="20" y2="3" />
+              <line x1="1" y1="14" x2="7" y2="14" />
+              <line x1="9" y1="8" x2="15" y2="8" />
+              <line x1="17" y1="16" x2="23" y2="16" />
+            </svg>
+            <span class="adv-label">Advanced</span>
+          </div>
+        </div>
       </div>
       <div class="controls-right pointer-events-auto">
         <div class="pipe-backdrop-right"></div>
@@ -44,6 +75,12 @@
     </div>
   </div>
 </div>
+
+{#if advancedOpen}
+  <div class="advanced-panel-slot">
+    <AdvancedPanel onclose={() => advancedOpen = false} />
+  </div>
+{/if}
 
 <section class="relative z-10 bg-black">
   <ViewerDescription />
@@ -261,6 +298,106 @@
 
   .controls-center::after {
     right: -22px;
+  }
+
+  /* Advanced toggle button */
+  .advanced-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -2px;
+  }
+
+  .adv-pipe {
+    width: 14px;
+    height: 18px;
+    border-radius: 3px;
+    border: 2px solid #0e7490;
+    background:
+      linear-gradient(
+        180deg,
+        #0c4a6e 0%,
+        #22d3ee 50%,
+        #0c4a6e 100%
+      );
+    box-shadow:
+      0 0 10px rgba(34, 211, 238, 0.75),
+      inset 0 0 6px rgba(103, 232, 249, 0.95);
+    animation: connector-pulse 1.1s ease-in-out infinite;
+  }
+
+  .adv-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #1c1917;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 8px,
+        rgba(68, 64, 60, 0.12) 8px,
+        rgba(68, 64, 60, 0.12) 9px
+      );
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    color: #67e8f9;
+    transition: border-color 0.15s, background-color 0.15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .adv-btn:hover,
+  .adv-btn.adv-open {
+    border-color: #67e8f9;
+    background-color: #292524;
+  }
+
+  .adv-btn .nails {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    right: 6px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .adv-btn .nails-bottom {
+    top: auto;
+    bottom: 4px;
+  }
+
+  .adv-btn .nail {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #67e8f9;
+    box-shadow: 0 0 3px rgba(103, 232, 249, 0.25);
+  }
+
+  .adv-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 5px rgba(103, 232, 249, 0.5));
+  }
+
+  .adv-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #cffafe;
+    white-space: nowrap;
+  }
+
+  .advanced-panel-slot {
+    position: relative;
+    z-index: 10;
+    margin-top: 28px;
   }
 
   @keyframes connector-pulse {

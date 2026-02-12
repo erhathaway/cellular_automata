@@ -104,6 +104,8 @@ class AutomataStore {
     { number: 1, color: { ...LIVING_BLACK } },
   ]);
   neighbors: string[] = $state([...TWO_D_NEIGHBORS]);
+  allNeighborsForRadius: string[] = $state([...TWO_D_NEIGHBORS]);
+  neighborEnabled: boolean[] = $state(TWO_D_NEIGHBORS.map(() => true));
   neighborhoodRadius = $state(1);
   rule: AutomataRule = $state({ type: 'conway', survive: [2, 3], born: [3] });
   isPlaying = $state(false);
@@ -236,7 +238,7 @@ class AutomataStore {
     // Update neighbors and rule from lattice config
     const neighborhood = generateNeighborhood(newLattice, 1);
     const config = getLattice(newLattice);
-    this.neighbors = neighborhood.neighborStrings;
+    this._setFullNeighbors(neighborhood.neighborStrings);
     this.neighborhoodRadius = 1;
     this.rule = { type: 'conway', survive: [...config.defaultRule.survive], born: [...config.defaultRule.born] };
 
@@ -301,7 +303,7 @@ class AutomataStore {
     const clamped = Math.max(1, Math.min(10, r));
     if (clamped === this.neighborhoodRadius) return;
     this.neighborhoodRadius = clamped;
-    this.neighbors = defaultNeighbors(this.dimension, clamped, this.lattice);
+    this._setFullNeighbors(defaultNeighbors(this.dimension, clamped, this.lattice));
     this._radiusHistory.set(historyKey(this.dimension, this.viewer, this.lattice), clamped);
 
     // 1D: Wolfram rules only work at radius 1, switch to life-like for larger
@@ -310,6 +312,17 @@ class AutomataStore {
     }
 
     this.reset();
+  }
+
+  toggleNeighbor(index: number) {
+    if (index < 0 || index >= this.neighborEnabled.length) return;
+    this.neighborEnabled = this.neighborEnabled.map((v, i) => i === index ? !v : v);
+    this.neighbors = this.allNeighborsForRadius.filter((_, i) => this.neighborEnabled[i]);
+  }
+
+  setAllNeighborsEnabled(enabled: boolean) {
+    this.neighborEnabled = this.allNeighborsForRadius.map(() => enabled);
+    this.neighbors = enabled ? [...this.allNeighborsForRadius] : [];
   }
 
   togglePlay() {
@@ -612,7 +625,7 @@ class AutomataStore {
     this.viewer = viewer;
     this.lattice = lat;
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
-    this.neighbors = defaultNeighbors(dim, this.neighborhoodRadius, lat);
+    this._setFullNeighbors(defaultNeighbors(dim, this.neighborhoodRadius, lat));
     this.populationShape = this._shapeHistory.get(key)
       ? { ...this._shapeHistory.get(key)! }
       : defaultShape(dim, viewer);
@@ -693,6 +706,12 @@ class AutomataStore {
     }
   }
 
+  private _setFullNeighbors(allNeighbors: string[]) {
+    this.allNeighborsForRadius = [...allNeighbors];
+    this.neighborEnabled = allNeighbors.map(() => true);
+    this.neighbors = [...allNeighbors];
+  }
+
   private _minRadiusForNeighborCount(dim: number, count: number): number {
     if (dim === 1) {
       for (let r = 1; r <= 10; r++) {
@@ -733,7 +752,7 @@ class AutomataStore {
 
     // Restore radius
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
-    this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius, this.lattice);
+    this._setFullNeighbors(defaultNeighbors(this.dimension, this.neighborhoodRadius, this.lattice));
 
     // Restore shape rules
     const savedSR = this._shapeRulesHistory.get(key);

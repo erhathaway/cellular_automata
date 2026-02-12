@@ -2,8 +2,8 @@ import type { CategoryId, MinerConfig, PartSprite } from './types';
 import { SKIN_TONES } from './skinTones';
 import { getSprite, Z_ORDER } from './parts/index';
 
-export const CANVAS_W = 16;
-export const CANVAS_H = 24;
+export const CANVAS_W = 48;
+export const CANVAS_H = 72;
 
 /** Layers that bob up on odd ticks (idle breathing) */
 const HEAD_LAYERS: CategoryId[] = [
@@ -94,7 +94,7 @@ export function renderMiner(
 	ctx.clearRect(0, 0, w, h);
 
 	const tone = SKIN_TONES[config.skinTone] ?? SKIN_TONES[0];
-	const headBob = anim.tick % 8 < 4 ? 0 : -1; // bob up 1px every other 4-tick cycle
+	const headBob = anim.tick % 8 < 4 ? 0 : -3; // bob up 3px every other 4-tick cycle (3x res)
 
 	for (const catId of Z_ORDER) {
 		const partId = config[catId];
