@@ -59,12 +59,12 @@
 			<!-- Header -->
 			<div class="panel-header">
 				<button class="back-btn" onclick={handleCancel} aria-label="Go back">
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
 					</svg>
 				</button>
 				<div class="title-row">
-					<svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg class="title-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
 					</svg>
 					<span class="panel-title">Miner Editor</span>
@@ -109,7 +109,7 @@
 
 	.avatar-inner {
 		width: 100%;
-		max-width: 780px;
+		max-width: 900px;
 		padding: 0 24px;
 	}
 
@@ -126,7 +126,7 @@
 			);
 		border: 2px solid #44403c;
 		border-radius: 10px;
-		padding: 32px 28px;
+		padding: 36px 32px;
 	}
 
 	/* Nails */
@@ -164,11 +164,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 34px;
-		height: 34px;
+		width: 40px;
+		height: 40px;
 		border: none;
 		background: rgba(255, 255, 255, 0.05);
-		border-radius: 6px;
+		border-radius: 8px;
 		color: #78716c;
 		cursor: pointer;
 		transition: color 0.15s, background 0.15s;
@@ -182,7 +182,7 @@
 	.title-row {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: 12px;
 	}
 
 	.title-icon {
@@ -192,7 +192,7 @@
 
 	.panel-title {
 		font-family: 'Space Mono', monospace;
-		font-size: 17px;
+		font-size: 22px;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
@@ -203,15 +203,15 @@
 	.divider {
 		height: 1px;
 		background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-		margin: 20px 0;
+		margin: 24px 0;
 	}
 
 	/* Error */
 	.msg-error {
-		margin-bottom: 16px;
+		margin-bottom: 18px;
 		text-align: center;
 		font-family: 'Space Mono', monospace;
-		font-size: 14px;
+		font-size: 16px;
 		color: #ef4444;
 	}
 
@@ -229,7 +229,7 @@
 
 	.saving-text {
 		font-family: 'Space Mono', monospace;
-		font-size: 18px;
+		font-size: 22px;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
@@ -240,9 +240,9 @@
 	.classic-link {
 		display: block;
 		text-align: center;
-		margin-top: 20px;
+		margin-top: 24px;
 		font-family: 'Space Mono', monospace;
-		font-size: 13px;
+		font-size: 15px;
 		letter-spacing: 0.06em;
 		color: #57534e;
 		text-decoration: none;

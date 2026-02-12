@@ -29,7 +29,7 @@
 		config = { ...config, skinTone: index };
 	}
 
-	const THUMB_SCALE = 4;
+	const THUMB_SCALE = 5;
 
 	function thumbAction(canvas: HTMLCanvasElement, params: { sprite: PartSprite; skinTone: number }) {
 		function paint(p: { sprite: PartSprite; skinTone: number }) {
@@ -73,7 +73,7 @@
 		</div>
 
 		<button class="btn-random" onclick={handleRandom}>
-			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<rect width="12" height="12" x="2" y="10" rx="2" ry="2" />
 				<circle cx="8" cy="16" r="1" fill="currentColor" />
 				<circle cx="5" cy="13" r="1" fill="currentColor" />
@@ -119,7 +119,7 @@
 <style>
 	.editor {
 		display: flex;
-		gap: 28px;
+		gap: 36px;
 	}
 
 	/* ---- Left column ---- */
@@ -127,7 +127,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 18px;
+		gap: 22px;
 		flex-shrink: 0;
 	}
 
@@ -137,34 +137,34 @@
 		justify-content: center;
 		background: #0c0a09;
 		border: 2px solid #292524;
-		border-radius: 12px;
-		padding: 12px;
+		border-radius: 14px;
+		padding: 16px;
 	}
 
 	.skin-row {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.skin-label {
 		font-family: 'Space Mono', monospace;
-		font-size: 14px;
+		font-size: 18px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: #78716c;
+		color: #a8a29e;
 	}
 
 	.skin-tones {
 		display: flex;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.skin-swatch {
-		width: 32px;
-		height: 32px;
+		width: 40px;
+		height: 40px;
 		border-radius: 50%;
 		border: 3px solid transparent;
 		cursor: pointer;
@@ -177,23 +177,23 @@
 
 	.skin-swatch.active {
 		border-color: #facc15;
-		box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+		box-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
 	}
 
 	.btn-random {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 10px 20px;
+		gap: 10px;
+		padding: 14px 24px;
 		font-family: 'Space Mono', monospace;
-		font-size: 13px;
+		font-size: 16px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: #a8a29e;
 		background: rgba(255, 255, 255, 0.05);
 		border: 1px solid #44403c;
-		border-radius: 6px;
+		border-radius: 8px;
 		cursor: pointer;
 		transition: color 0.15s, background 0.15s, border-color 0.15s;
 	}
@@ -206,22 +206,22 @@
 
 	.actions {
 		display: flex;
-		gap: 10px;
+		gap: 12px;
 		width: 100%;
 	}
 
 	.btn-outline {
 		flex: 1;
-		padding: 12px 14px;
+		padding: 14px 16px;
 		font-family: 'Space Mono', monospace;
-		font-size: 13px;
+		font-size: 16px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: #a8a29e;
 		background: rgba(255, 255, 255, 0.05);
 		border: 1px solid #44403c;
-		border-radius: 6px;
+		border-radius: 8px;
 		cursor: pointer;
 		transition: color 0.15s, background 0.15s;
 	}
@@ -233,23 +233,23 @@
 
 	.btn-save {
 		flex: 1;
-		padding: 12px 14px;
+		padding: 14px 16px;
 		font-family: 'Space Mono', monospace;
-		font-size: 13px;
+		font-size: 16px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: #1c1917;
 		background: #facc15;
 		border: none;
-		border-radius: 6px;
+		border-radius: 8px;
 		cursor: pointer;
 		transition: background 0.15s, box-shadow 0.15s;
 	}
 
 	.btn-save:hover {
 		background: #fde047;
-		box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+		box-shadow: 0 0 14px rgba(250, 204, 21, 0.3);
 	}
 
 	/* ---- Right column ---- */
@@ -257,75 +257,75 @@
 		flex: 1;
 		min-width: 0;
 		overflow-y: auto;
-		max-height: 560px;
+		max-height: 600px;
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		padding-right: 6px;
+		gap: 28px;
+		padding-right: 8px;
 		scrollbar-width: thin;
 		scrollbar-color: #44403c transparent;
 	}
 
-	.right-col::-webkit-scrollbar { width: 6px; }
+	.right-col::-webkit-scrollbar { width: 7px; }
 	.right-col::-webkit-scrollbar-track { background: transparent; }
-	.right-col::-webkit-scrollbar-thumb { background: #44403c; border-radius: 3px; }
+	.right-col::-webkit-scrollbar-thumb { background: #44403c; border-radius: 4px; }
 
 	.cat-row {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.cat-label {
 		font-family: 'Space Mono', monospace;
-		font-size: 14px;
+		font-size: 18px;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		color: #a8a29e;
+		color: #d6d3d1;
 	}
 
 	.cat-options {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.option-btn {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 6px;
-		padding: 8px 10px;
+		gap: 8px;
+		padding: 10px 12px;
 		background: none;
-		border: 1px solid transparent;
-		border-radius: 8px;
+		border: 2px solid transparent;
+		border-radius: 10px;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s;
 	}
 
 	.option-btn:hover {
 		background: rgba(255, 255, 255, 0.05);
-		border-color: #292524;
+		border-color: #44403c;
 	}
 
 	.option-btn.selected {
 		background: rgba(250, 204, 21, 0.1);
 		border-color: #facc15;
-		box-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
+		box-shadow: 0 0 12px rgba(250, 204, 21, 0.15);
 	}
 
 	.option-thumb {
 		display: block;
-		max-width: 64px;
-		max-height: 64px;
+		max-width: 80px;
+		max-height: 80px;
 	}
 
 	.option-name {
 		font-family: 'Space Mono', monospace;
-		font-size: 12px;
+		font-size: 15px;
 		letter-spacing: 0.04em;
-		color: #78716c;
+		color: #a8a29e;
 		line-height: 1;
 	}
 
