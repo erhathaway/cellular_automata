@@ -136,10 +136,11 @@
   // Whether to use hex staggered layout
   let isHexLayout = $derived(singleGeometry === 'hexprism');
 
-  // Positioned cell for absolute-positioned hex grids
+  // Positioned cell for absolute-positioned hex/tri grids
   interface PositionedCell extends GridCell {
     left: number;
     top: number;
+    isDown?: boolean;
   }
 
   // Build hex grid using the lattice's actual pointy-top hex positioning.
@@ -181,6 +182,55 @@
       isSelf: p.dx === 0 && p.dy === 0,
       neighborIndex: p.ni,
       enabled: p.ni >= 0 && neighborEnabled[p.ni],
+      left: p.left - minX,
+      top: p.top - minY,
+    }));
+
+    return { cells, cellW, cellH, width: maxX - minX, height: maxY - minY };
+  }
+
+  // Build triangle grid using direct tessellation layout.
+  // All cells in the same row share the same vertical band; clip-paths create interlocking triangles.
+  // Column spacing = halfW, row spacing = triH, bounding box = 2*halfW × triH.
+  function buildTriPositions(offsets: number[][], shapeIndex: number): { cells: PositionedCell[]; cellW: number; cellH: number; width: number; height: number } {
+    const gRadius = gridRadiusFromOffsets(offsets);
+    const triSize = Math.max(10, Math.min(18, Math.floor(70 / (2 * gRadius + 1))));
+    const halfW = triSize * SQRT3 / 2;
+    const triH = triSize * 1.5;
+    const cellW = Math.round(halfW * 2);
+    const cellH = Math.round(triH);
+
+    // Collect self + neighbors only
+    const allCoords: { dx: number; dy: number; ni: number }[] = [{ dx: 0, dy: 0, ni: -1 }];
+    for (let i = 0; i < offsets.length; i++) {
+      allCoords.push({ dx: offsets[i][0], dy: offsets[i][1], ni: i });
+    }
+
+    const positioned = allCoords.map(({ dx, dy, ni }) => {
+      const isDown = (((shapeIndex + dx + dy) % 2) + 2) % 2 === 1;
+      // Tessellation: col = dx, row = -dy (negate so +dy = visually up)
+      // All cells in same row share vertical band, clip-path does the shaping
+      const left = dx * halfW - halfW;
+      const top = -dy * triH;
+      return { dx, dy, ni, isDown, left, top };
+    });
+
+    // Normalize to (0,0) origin
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of positioned) {
+      minX = Math.min(minX, p.left);
+      minY = Math.min(minY, p.top);
+      maxX = Math.max(maxX, p.left + cellW);
+      maxY = Math.max(maxY, p.top + cellH);
+    }
+
+    const cells: PositionedCell[] = positioned.map((p) => ({
+      x: p.dx,
+      y: p.dy,
+      isSelf: p.dx === 0 && p.dy === 0,
+      neighborIndex: p.ni,
+      enabled: p.ni >= 0,
+      isDown: p.isDown,
       left: p.left - minX,
       top: p.top - minY,
     }));
@@ -467,36 +517,56 @@
       {#if isMultiShape && shapeNeighborInfos.length > 0}
         <!-- Per-shape neighborhood grids -->
         {#each shapeNeighborInfos as info, si}
-          {@const gRadius = gridRadiusFromOffsets(info.offsets.map(([dx, dy]) => [dx, dy]))}
-          {@const cs = cellSizeForRadius(gRadius)}
-          {@const cols = 2 * gRadius + 1}
-          {@const clip = cellClipPath(info.geometry)}
-          {@const grid = buildGrid(
-            info.offsets.map(([dx, dy]) => [dx, dy]),
-            gRadius,
-            neighborhoodConfig?.shapeAt
-          )}
+          {@const isTri = info.geometry === 'triprism'}
           <div class="shape-neighborhood">
             <div class="shape-label">{info.label}</div>
             <div class="neighbor-count">{info.count} neighbors</div>
-            <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
-              {#each grid as row}
-                {#each row as cell}
+            {#if isTri}
+              {@const triData = buildTriPositions(info.offsets.map(([dx, dy]) => [dx, dy]), si)}
+              <div class="hex-container" style="width: {triData.width}px; height: {triData.height}px;">
+                {#each triData.cells as cell}
+                  {@const triClip = cell.isDown ? 'polygon(0% 0%, 100% 0%, 50% 100%)' : 'polygon(50% 0%, 100% 100%, 0% 100%)'}
                   {#if cell.isSelf}
-                    <div class="n-cell n-self" style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}">
+                    <div class="n-cell n-self hex-abs" style="width: {triData.cellW}px; height: {triData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {triClip};">
                       <span class="self-dot"></span>
                     </div>
-                  {:else if cell.neighborIndex >= 0}
-                    <div
-                      class="n-cell n-neighbor n-on"
-                      style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
-                    ></div>
                   {:else}
-                    <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
+                    <div
+                      class="n-cell n-neighbor n-on hex-abs"
+                      style="width: {triData.cellW}px; height: {triData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {triClip};"
+                    ></div>
                   {/if}
                 {/each}
-              {/each}
-            </div>
+              </div>
+            {:else}
+              {@const gRadius = gridRadiusFromOffsets(info.offsets.map(([dx, dy]) => [dx, dy]))}
+              {@const cs = cellSizeForRadius(gRadius)}
+              {@const cols = 2 * gRadius + 1}
+              {@const clip = cellClipPath(info.geometry)}
+              {@const grid = buildGrid(
+                info.offsets.map(([dx, dy]) => [dx, dy]),
+                gRadius,
+                neighborhoodConfig?.shapeAt
+              )}
+              <div class="neighbor-grid" style="--cell-size: {cs}px; --grid-cols: {cols};">
+                {#each grid as row}
+                  {#each row as cell}
+                    {#if cell.isSelf}
+                      <div class="n-cell n-self" style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}">
+                        <span class="self-dot"></span>
+                      </div>
+                    {:else if cell.neighborIndex >= 0}
+                      <div
+                        class="n-cell n-neighbor n-on"
+                        style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
+                      ></div>
+                    {:else}
+                      <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
+                    {/if}
+                  {/each}
+                {/each}
+              </div>
+            {/if}
           </div>
         {/each}
       {:else}
