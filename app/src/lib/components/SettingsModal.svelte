@@ -98,115 +98,110 @@
       <div class="nails"><div class="nail"></div><div class="nail"></div></div>
       <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
 
-      <div class="modal-header">
-        <div class="modal-title-row">
-          <svg class="title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <span class="modal-title">Settings</span>
-        </div>
-        <button class="close-btn" onclick={() => { open = false; }} aria-label="Close">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Avatar display + change button -->
-      <div class="avatar-section">
-        <div class="avatar-display">
-          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={56} />
-        </div>
-        <div class="avatar-info">
-          <p class="avatar-current-name">{userProfile?.displayName ?? 'No name set'}</p>
-          <button class="btn-change-avatar" onclick={goToChangeAvatar}>
-            Change Avatar
-          </button>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Email (read-only) -->
-      <div class="field">
-        <label class="field-label">Email</label>
-        <p class="field-readonly">{userProfile?.email ?? ''}</p>
-      </div>
-
-      <!-- Display name -->
-      <div class="field">
-        <label class="field-label" for="settings-name">Display Name</label>
-        <input
-          id="settings-name"
-          type="text"
-          bind:value={displayName}
-          maxlength={30}
-          class="field-input"
-        />
-      </div>
-
-      {#if errorMsg}
-        <p class="msg-error">{errorMsg}</p>
-      {/if}
-
-      {#if saveMsg}
-        <p class="msg-success">{saveMsg}</p>
-      {/if}
-
-      <button
-        class="btn-save"
-        class:disabled={!canSave || saving}
-        disabled={!canSave || saving}
-        onclick={save}
-      >
-        {saving ? 'Saving...' : 'Save'}
+      <!-- Close button (top-right) -->
+      <button class="close-btn" onclick={() => { open = false; }} aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
       </button>
 
-      <div class="divider"></div>
-
-      <SignOutButton redirectUrl="/intro">
-        <button class="btn-outline">Log Out</button>
-      </SignOutButton>
-
-      <!-- Danger zone -->
-      <div class="divider"></div>
-
-      {#if !showDeleteConfirm}
-        <button class="btn-danger-outline" onclick={() => { showDeleteConfirm = true; }}>
-          Delete Account
-        </button>
-      {:else}
-        <div class="danger-zone">
-          <p class="danger-text">This action is permanent. All your data will be deleted.</p>
-          <p class="danger-prompt">Type <strong>DELETE</strong> to confirm:</p>
-          <input
-            type="text"
-            bind:value={deleteInput}
-            placeholder="DELETE"
-            class="field-input danger-input"
-          />
-          <div class="danger-actions">
-            <button
-              class="btn-outline"
-              onclick={() => { showDeleteConfirm = false; deleteInput = ''; }}
-            >
-              Cancel
-            </button>
-            <button
-              class="btn-danger"
-              class:disabled={deleteInput !== 'DELETE' || deleting}
-              disabled={deleteInput !== 'DELETE' || deleting}
-              onclick={deleteAccount}
-            >
-              {deleting ? 'Deleting...' : 'Delete Account'}
-            </button>
+      <!-- Profile identity hero -->
+      <div class="profile-hero">
+        <button class="avatar-frame" onclick={goToChangeAvatar} aria-label="Change avatar">
+          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={56} />
+          <div class="avatar-edit-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            </svg>
           </div>
+        </button>
+        <p class="profile-name">{userProfile?.displayName ?? 'No name set'}</p>
+        <p class="profile-email">{userProfile?.email ?? ''}</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Account fields -->
+      <div class="section">
+        <span class="section-label">
+          <svg class="section-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profile
+        </span>
+
+        <div class="field">
+          <label class="field-label" for="settings-name">Display Name</label>
+          <input
+            id="settings-name"
+            type="text"
+            bind:value={displayName}
+            maxlength={30}
+            class="field-input"
+          />
         </div>
-      {/if}
+
+        {#if errorMsg}
+          <p class="msg-error">{errorMsg}</p>
+        {/if}
+
+        {#if saveMsg}
+          <p class="msg-success">{saveMsg}</p>
+        {/if}
+
+        <button
+          class="btn-save"
+          class:disabled={!canSave || saving}
+          disabled={!canSave || saving}
+          onclick={save}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Footer actions -->
+      <div class="footer-actions">
+        <SignOutButton redirectUrl="/intro">
+          <button class="btn-footer">Log Out</button>
+        </SignOutButton>
+
+        {#if !showDeleteConfirm}
+          <button class="btn-footer btn-footer-danger" onclick={() => { showDeleteConfirm = true; }}>
+            Delete Account
+          </button>
+        {:else}
+          <div class="danger-zone">
+            <p class="danger-text">This is permanent. All data will be deleted.</p>
+            <p class="danger-prompt">Type <strong>DELETE</strong> to confirm:</p>
+            <input
+              type="text"
+              bind:value={deleteInput}
+              placeholder="DELETE"
+              class="field-input danger-input"
+            />
+            <div class="danger-actions">
+              <button
+                class="btn-footer"
+                onclick={() => { showDeleteConfirm = false; deleteInput = ''; }}
+              >
+                Cancel
+              </button>
+              <button
+                class="btn-danger"
+                class:disabled={deleteInput !== 'DELETE' || deleting}
+                disabled={deleteInput !== 'DELETE' || deleting}
+                onclick={deleteAccount}
+              >
+                {deleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 {/if}
@@ -226,11 +221,11 @@
   .modal-panel {
     position: relative;
     width: 100%;
-    max-width: 420px;
+    max-width: 380px;
     max-height: 90vh;
     overflow-y: auto;
     margin: 0 16px;
-    padding: 28px 24px;
+    padding: 24px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -275,34 +270,11 @@
     box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
   }
 
-  /* Header */
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .title-icon {
-    color: #facc15;
-    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.4));
-  }
-
-  .modal-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #facc15;
-  }
-
+  /* Close */
   .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -314,6 +286,7 @@
     color: #78716c;
     cursor: pointer;
     transition: color 0.15s, background 0.15s;
+    z-index: 1;
   }
 
   .close-btn:hover {
@@ -321,81 +294,100 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
+  /* Profile hero */
+  .profile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0 4px;
+  }
+
+  .avatar-frame {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background: #0c0a09;
+    border: 2px solid #292524;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .avatar-frame:hover {
+    border-color: #facc15;
+  }
+
+  .avatar-edit-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: #facc15;
+    border-radius: 50%;
+    color: #1c1917;
+    box-shadow: 0 0 0 2px #1c1917;
+  }
+
+  .profile-name {
+    margin-top: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5f5f4;
+  }
+
+  .profile-email {
+    margin-top: 2px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    color: #57534e;
+  }
+
   /* Divider */
   .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-    margin: 18px 0;
+    margin: 16px 0;
   }
 
-  /* Avatar section */
-  .avatar-section {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .avatar-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 68px;
-    height: 68px;
-    background: #0c0a09;
-    border: 1px solid #292524;
-    border-radius: 8px;
-    flex-shrink: 0;
-  }
-
-  .avatar-info {
+  /* Section */
+  .section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    min-width: 0;
   }
 
-  .avatar-current-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #d6d3d1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .btn-change-avatar {
-    align-self: flex-start;
-    padding: 6px 12px;
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #facc15;
-    background: rgba(250, 204, 21, 0.1);
-    border: 1px solid rgba(250, 204, 21, 0.25);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    margin-bottom: 14px;
   }
 
-  .btn-change-avatar:hover {
-    background: rgba(250, 204, 21, 0.18);
-    border-color: #facc15;
+  .section-icon {
+    color: #facc15;
+    filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.3));
   }
 
   /* Fields */
   .field {
-    margin-top: 14px;
-  }
-
-  .field:first-of-type {
-    margin-top: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .field-label {
-    display: block;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
@@ -403,16 +395,6 @@
     text-transform: uppercase;
     color: #78716c;
     margin-bottom: 6px;
-  }
-
-  .field-readonly {
-    padding: 8px 12px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    color: #57534e;
-    background: #0c0a09;
-    border: 1px solid #292524;
-    border-radius: 6px;
   }
 
   .field-input {
@@ -439,7 +421,7 @@
 
   /* Messages */
   .msg-error {
-    margin-top: 14px;
+    margin-top: 10px;
     text-align: center;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -447,17 +429,15 @@
   }
 
   .msg-success {
-    margin-top: 14px;
+    margin-top: 10px;
     text-align: center;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     color: #facc15;
   }
 
-  /* Buttons */
   .btn-save {
-    width: 100%;
-    margin-top: 18px;
+    margin-top: 14px;
     padding: 10px 16px;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -483,50 +463,47 @@
     cursor: not-allowed;
   }
 
-  .btn-outline {
+  /* Footer actions */
+  .footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-footer {
     width: 100%;
-    padding: 10px 16px;
+    padding: 8px 16px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #a8a29e;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #44403c;
+    color: #78716c;
+    background: none;
+    border: 1px solid #292524;
     border-radius: 6px;
     cursor: pointer;
-    transition: color 0.15s, background 0.15s;
+    transition: color 0.15s, border-color 0.15s;
   }
 
-  .btn-outline:hover {
-    color: #f5f5f4;
-    background: rgba(255, 255, 255, 0.1);
+  .btn-footer:hover {
+    color: #d6d3d1;
+    border-color: #44403c;
   }
 
-  /* Danger */
-  .btn-danger-outline {
-    width: 100%;
-    padding: 10px 16px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  .btn-footer-danger {
+    color: #78716c;
+    border-color: #292524;
+  }
+
+  .btn-footer-danger:hover {
     color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s;
+    border-color: rgba(239, 68, 68, 0.3);
   }
 
-  .btn-danger-outline:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
+  /* Danger zone */
   .danger-zone {
-    padding: 16px;
+    padding: 14px;
     background: rgba(239, 68, 68, 0.05);
     border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: 6px;
@@ -534,14 +511,14 @@
 
   .danger-text {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     color: #ef4444;
   }
 
   .danger-prompt {
-    margin-top: 8px;
+    margin-top: 6px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     color: #a8a29e;
   }
 
@@ -562,18 +539,18 @@
   .danger-actions {
     display: flex;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
-  .danger-actions .btn-outline {
+  .danger-actions .btn-footer {
     flex: 1;
   }
 
   .btn-danger {
     flex: 1;
-    padding: 10px 16px;
+    padding: 8px 16px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
