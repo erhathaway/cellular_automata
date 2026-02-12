@@ -77,13 +77,17 @@
     <div class="loading">Loading stats...</div>
   {:else if stats}
     <!-- Total Claims -->
-    <div class="total-card">
+    <div class="panel">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
       <div class="section-label">Total Claims</div>
       <div class="total-value">{stats.totalClaims.toLocaleString()}</div>
     </div>
 
     <!-- Level Distribution -->
-    <div class="chart-card">
+    <div class="panel">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
       <div class="section-label">Level Distribution</div>
       <div class="hbar-list">
         {#each levelData as d (d.key)}
@@ -102,7 +106,9 @@
     </div>
 
     <!-- Lattice Distribution -->
-    <div class="chart-card">
+    <div class="panel">
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
       <div class="section-label">Lattice Distribution</div>
       <div class="hbar-list">
         {#each latticeData as d (d.type)}
@@ -122,7 +128,9 @@
 
     <!-- Leaderboard -->
     {#if stats.leaderboard.length > 0}
-      <div class="chart-card leaderboard-card">
+      <div class="panel leaderboard-card">
+        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
         <div class="section-label">Leaderboard</div>
         <div class="leaderboard-scroll">
           <table class="leaderboard">
@@ -168,7 +176,7 @@
   .stats-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     height: 100%;
     padding: 18px 14px;
     overflow-y: auto;
@@ -182,23 +190,57 @@
     text-align: center;
   }
 
+  /* ── Panel (white-mode doc-panel) ── */
+  .panel {
+    position: relative;
+    background-color: #fafaf9;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 10px,
+        rgba(214, 211, 209, 0.18) 10px,
+        rgba(214, 211, 209, 0.18) 11px
+      );
+    border: 2px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 20px 16px;
+  }
+
+  /* Nails */
+  .nails {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .nails-bottom {
+    top: auto;
+    bottom: 8px;
+  }
+
+  .nail {
+    width: 5px;
+    height: 5px;
+    background: #d6d3d1;
+    border-radius: 50%;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+  }
+
   .section-label {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #78716c;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
-  /* Total Claims Card */
-  .total-card {
-    border: 1px solid #e7e5e4;
-    border-radius: 6px;
-    background: #fafaf9;
-    padding: 12px;
-  }
-
+  /* Total Claims */
   .total-value {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 28px;
@@ -207,19 +249,11 @@
     color: #1c1917;
   }
 
-  /* Chart cards */
-  .chart-card {
-    border: 1px solid #e7e5e4;
-    border-radius: 6px;
-    background: #fafaf9;
-    padding: 12px;
-  }
-
   /* Horizontal bar chart */
   .hbar-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
   }
 
   .hbar-row {
@@ -240,14 +274,14 @@
     flex: 1;
     height: 14px;
     border-radius: 3px;
-    background: #f5f5f4;
-    border: 1px solid #e7e5e4;
+    background: rgba(245, 245, 244, 0.8);
+    border: 1px solid #d6d3d1;
     overflow: hidden;
   }
 
   .hbar-fill {
     height: 100%;
-    background: #1c1917;
+    background: #44403c;
     border-radius: 2px;
     transition: width 0.4s ease;
   }
@@ -297,7 +331,7 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 4px 4px 6px;
-    border-bottom: 1px solid #e7e5e4;
+    border-bottom: 1px solid #d6d3d1;
   }
 
   .th-rank { width: 24px; }
@@ -306,7 +340,7 @@
 
   .leaderboard td {
     padding: 5px 4px;
-    border-bottom: 1px solid #f5f5f4;
+    border-bottom: 1px solid #e7e5e4;
     color: #44403c;
     vertical-align: middle;
   }
