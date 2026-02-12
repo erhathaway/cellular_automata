@@ -1,4 +1,4 @@
-import { Scene, WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, OrthographicCamera, Vector3 } from 'three';
 import type { Camera, Material, BufferGeometry, Mesh, Object3D } from 'three';
 import render from './render';
 
@@ -171,13 +171,25 @@ export default class BaseClass {
   private _handleWindowResize() {
     this.handleWindowResize();
     this.updateRenderer();
-    if (this.camera && 'aspect' in this.camera) {
-      const pc = this.camera as PerspectiveCamera;
-      pc.aspect = this.containerWidth / this.containerHeight;
-      // Reposition camera so content fills the view at new size
-      const z = this.containerHeight / (2 * Math.tan((pc.fov / 2) * Math.PI / 180));
-      pc.position.z = z;
-      pc.far = Math.max(1000, z * 3);
+    if (this.camera) {
+      const width = this.containerWidth;
+      const height = this.containerHeight;
+      const safeHeight = height || 1;
+
+      if ('isOrthographicCamera' in this.camera && (this.camera as any).isOrthographicCamera) {
+        const oc = this.camera as OrthographicCamera;
+        oc.left = -width / 2;
+        oc.right = width / 2;
+        oc.top = height / 2;
+        oc.bottom = -height / 2;
+      } else if ('aspect' in this.camera) {
+        const pc = this.camera as PerspectiveCamera;
+        pc.aspect = width / safeHeight;
+        // Reposition camera so content fills the view at new size
+        const z = safeHeight / (2 * Math.tan((pc.fov / 2) * Math.PI / 180));
+        pc.position.z = z;
+        pc.far = Math.max(1000, z * 3);
+      }
     }
     this.updateCamera();
   }

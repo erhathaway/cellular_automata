@@ -190,8 +190,19 @@ export default class BaseClass {
     this.handleWindowResize();
     this.updateRenderer();
     if (this.camera) {
-      // TODO figure out why camera is null sometimes
-      this.camera.aspect = this.containerWidth / this.containerHeight;
+      const width = this.containerWidth;
+      const height = this.containerHeight;
+      const safeHeight = height || 1;
+
+      if (this.camera.isOrthographicCamera) {
+        this.camera.left = width / -2;
+        this.camera.right = width / 2;
+        this.camera.top = height / 2;
+        this.camera.bottom = height / -2;
+      } else {
+        // TODO figure out why camera is null sometimes
+        this.camera.aspect = width / safeHeight;
+      }
     }
     this.updateCamera();
   }
@@ -340,6 +351,7 @@ export default class BaseClass {
   quit = () => {
     if (this.debug) console.log('running quit viewer code')
     this.turnSimulationOff();
+    window.removeEventListener('resize', this._handleWindowResize);
 
     this.cancelRender();
     this.meshes.forEach(m => this.cleanUpRefsByMesh(m, true));
