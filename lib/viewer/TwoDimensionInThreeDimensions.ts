@@ -119,20 +119,24 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     const { h, s, l } = this.states[1];
     const sPercent = Math.floor(s * 100);
     const lPercent = Math.floor(l * 100);
+    const last = count - 1;
 
     for (let i = 0; i < count; i++) {
       const group = this.meshes[i] as Group;
-      // oldest = index 0, newest = index count-1
-      const t = count > 1 ? i / (count - 1) : 1;
-      const opacity = 0.05 + t * 0.95;
-      // Shift hue: oldest → +270° from base, newest → base hue
-      const hue = (h - (1 - t) * 190 + 360) % 360;
-      // Shift lightness: oldest → brighter (95%), newest → original
-      const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
-      // Shift saturation: oldest → full (100%), newest → original
-      const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
-      if (group.children.length > 0) {
-        const mat = (group.children[0] as Mesh).material as MeshLambertMaterial;
+      if (group.children.length === 0) continue;
+      const mat = (group.children[0] as Mesh).material as MeshLambertMaterial;
+
+      if (i === last) {
+        // Active generation: solid black
+        mat.opacity = 1;
+        mat.color.set(new Color(0x000000));
+      } else {
+        // Trail: user color with gradient
+        const t = count > 1 ? i / (count - 1) : 1;
+        const opacity = 0.05 + t * 0.95;
+        const hue = (h - (1 - t) * 190 + 360) % 360;
+        const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
+        const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
         mat.opacity = opacity;
         mat.color.set(new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`));
       }
@@ -207,19 +211,24 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
     // Stack generations along Y, oldest at bottom, newest at top
     for (let gi = 0; gi < count; gi++) {
       const population = populations[gi];
-      const t = count > 1 ? gi / (count - 1) : 1;
+      const isNewest = gi === count - 1;
 
-      // Same gradient as updateTrailAppearance
-      const opacity = 0.05 + t * 0.95;
-      const hue = (baseH - (1 - t) * 190 + 360) % 360;
-      const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
-      const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
-
-      const mat = new MeshLambertMaterial({
-        color: new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`),
-        transparent: true,
-        opacity,
-      });
+      let mat: MeshLambertMaterial;
+      if (isNewest) {
+        // Active generation: solid black
+        mat = new MeshLambertMaterial({ color: new Color(0x000000), transparent: true, opacity: 1 });
+      } else {
+        const t = count > 1 ? gi / (count - 1) : 1;
+        const opacity = 0.05 + t * 0.95;
+        const hue = (baseH - (1 - t) * 190 + 360) % 360;
+        const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
+        const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
+        mat = new MeshLambertMaterial({
+          color: new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`),
+          transparent: true,
+          opacity,
+        });
+      }
       materialsToDispose.push(mat);
 
       const group = new Group();

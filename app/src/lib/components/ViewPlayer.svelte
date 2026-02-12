@@ -329,9 +329,14 @@
       const colorable = viewer.meshes.slice(-40);
       const { h, s } = viewer.states[1];
       const computedS = Math.floor(s * 100);
+      const last = colorable.length - 1;
       colorable.forEach((m: any, i: number) => {
-        const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
-        m.material.color.set(color);
+        if (i === last) {
+          m.material.color.set(new Color(0x000000));
+        } else {
+          const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
+          m.material.color.set(color);
+        }
         m.position.z = 1 / (i + 1);
       });
     }
