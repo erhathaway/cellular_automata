@@ -38,12 +38,16 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   }
 
   initCamera() {
-    const w = this.containerWidth;
-    const h = this.containerHeight;
+    this._setupOrthoCamera();
+  }
+
+  private _setupOrthoCamera() {
+    const w = this.containerWidth || 1;
+    const h = this.containerHeight || 1;
     this.camera = new OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 0.1, 100);
     this.camera.position.set(0, 0, 10);
     this.camera.lookAt(0, 0, 0);
-    this.updateCamera();
+    (this.camera as OrthographicCamera).updateProjectionMatrix();
   }
 
   handleWindowResize() {
@@ -54,6 +58,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     cam.right = w / 2;
     cam.top = h / 2;
     cam.bottom = -h / 2;
+    cam.updateProjectionMatrix();
     this.updateCellShape();
   }
 
@@ -266,7 +271,12 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     this.currentGenerationCount = 0;
   }
 
-  initialize() {}
+  initialize() {
+    // Re-setup camera here (container is guaranteed to have final dimensions)
+    this._setupOrthoCamera();
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(this.containerWidth, this.containerHeight);
+  }
 
   animateUpdateFn() {
     this.removeGeneration();

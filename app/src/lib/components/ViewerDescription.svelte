@@ -2,9 +2,8 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { api } from '$lib/api';
-  import { timeAgo } from '$lib/utils/timeAgo';
-  import PixelAvatar from './PixelAvatar.svelte';
   import { getLattice, defaultLattice } from '$lib-core';
+  import MinerBadge from './MinerBadge.svelte';
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
@@ -196,44 +195,9 @@
 </script>
 
 <div class="mx-auto flex max-w-4xl gap-8 px-6 py-10">
-  <!-- Left column: Creator -->
-  <div class="flex w-40 shrink-0 flex-col items-center pt-1 text-center">
-    <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">Mined by</p>
-    {#if discoveryInfo?.found && !automataStore.isMining}
-      <PixelAvatar
-        avatarId={discoveryInfo.discoveredByAvatarId ?? null}
-        size={48}
-        fallbackInitials={discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
-      />
-      <p class="mt-2 text-sm font-medium text-neutral-900">{discoveryInfo.discoveredBy}</p>
-      <div class="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-xs text-neutral-500">
-        {#if discoveryInfo.discoveredAt}
-          <span>{timeAgo(discoveryInfo.discoveredAt)}</span>
-        {/if}
-        {#if discoveryInfo.totalLikes}
-          <span>{discoveryInfo.totalLikes} {discoveryInfo.totalLikes === 1 ? 'like' : 'likes'}</span>
-        {/if}
-        {#if discoveryInfo.totalBookmarks}
-          <span>{discoveryInfo.totalBookmarks} in chests</span>
-        {/if}
-      </div>
-    {:else if discoveryInfo === null || automataStore.isMining}
-      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
-        <svg class="search-sweep h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
-      </div>
-      <p class="mt-2 text-xs text-neutral-400">Searching...</p>
-    {:else if !discoveryInfo.found}
-      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-300">
-        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M20 21a8 8 0 1 0-16 0" />
-        </svg>
-      </div>
-      <p class="mt-2 text-xs text-neutral-400">Undiscovered</p>
-    {/if}
+  <!-- Left column: Miner badge -->
+  <div class="flex w-40 shrink-0 flex-col items-center pt-1">
+    <MinerBadge />
   </div>
 
   <!-- Center column: Title + Description -->
@@ -327,17 +291,6 @@
 
   :global(.action-pop) {
     animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .search-sweep {
-    animation: sweep 1.5s ease-in-out infinite;
-    transform-origin: center;
-  }
-
-  @keyframes sweep {
-    0% { transform: translateX(-3px) rotate(-5deg); }
-    50% { transform: translateX(3px) rotate(5deg); }
-    100% { transform: translateX(-3px) rotate(-5deg); }
   }
 
   .copied-label {
