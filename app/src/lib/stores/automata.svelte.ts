@@ -581,6 +581,10 @@ class AutomataStore {
     const dvKey = `${dim}-${viewer}`;
     if (lat !== defaultLattice(dim)) {
       this._latticeHistory.set(dvKey, lat);
+    } else {
+      // Clear any non-default lattice from a previous localStorage hydration,
+      // so hydrateActive uses the correct (default) lattice key for lookups.
+      this._latticeHistory.delete(dvKey);
     }
     const key = historyKey(dim, viewer, lat);
     if (settings.populationShape) {
