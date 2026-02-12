@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { timeAgo } from '$lib/utils/timeAgo';
@@ -17,6 +18,11 @@
   let lookupTimer: ReturnType<typeof setTimeout> | undefined;
   let lastConfigKey = '';
 
+  // Save state
+  let saving = $state(false);
+  let saved = $state(false);
+  let saveError = $state('');
+
   $effect(() => {
     const rule = automataStore.rule;
     const dim = automataStore.dimension;
@@ -31,6 +37,8 @@
     if (configKey !== lastConfigKey) {
       lastConfigKey = configKey;
       discoveryInfo = null;
+      saved = false;
+      saveError = '';
     }
 
     clearTimeout(lookupTimer);
@@ -55,6 +63,80 @@
       }
     }, 500);
   });
+
+  function encodeSnapshot(snapshot: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < snapshot.length; i++) binary += String.fromCharCode(snapshot[i]);
+    return btoa(binary);
+  }
+
+  async function claim() {
+    if (saving || saved) return;
+    saving = true;
+    saveError = '';
+    try {
+      const data = automataStore.exportForSave();
+      const thumbnail = automataStore.getCanvasDataURL?.() ?? undefined;
+
+      // 1. Save generation run
+      const res = await fetch('/api/generation-runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, thumbnail })
+      });
+      let generationRunId: string | undefined;
+      if (res.status === 409) {
+        const body = await res.json();
+        generationRunId = body.existingId;
+      } else if (!res.ok) {
+        let msg = `Server error (${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body.message ?? msg;
+        } catch {
+          msg = (await res.text()) || msg;
+        }
+        throw new Error(msg);
+      } else {
+        const body = await res.json();
+        generationRunId = body.id;
+      }
+
+      // 2. Save cell population
+      const popSnapshot = automataStore.getCurrentPopulationSnapshot?.();
+      const popData = popSnapshot ? encodeSnapshot(popSnapshot) : undefined;
+      const popRes = await fetch('/api/cell-populations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          generationRunId,
+          populationData: popData,
+          stepCount: data.generationIndex ?? 1,
+          thumbnail
+        })
+      });
+      if (!popRes.ok && popRes.status !== 409) {
+        console.warn('Cell population save failed:', popRes.status);
+      }
+
+      saved = true;
+      automataStore.claimAnimationCounter++;
+      const seedSnapshot = automataStore.getSeedSnapshot?.();
+      if (seedSnapshot) {
+        automataStore.savedSeed = seedSnapshot;
+        automataStore.useSavedSeed = true;
+      }
+    } catch (e: any) {
+      saveError = e.message ?? 'Failed to save';
+    } finally {
+      saving = false;
+    }
+  }
+
+  let isUnclaimed = $derived(
+    discoveryInfo !== null && !discoveryInfo.found && !automataStore.isMining
+  );
 </script>
 
 <div class="claim">
@@ -106,19 +188,81 @@
       <div class="info">
         <span class="label">Surveying...</span>
       </div>
-    {:else if !discoveryInfo.found}
-      <div class="gem">
-        <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 3h12l4 6-10 13L2 9Z" />
-          <path d="M11 3 8 9l4 13 4-13-3-6" />
-          <path d="M2 9h20" />
+    {:else if isUnclaimed && saved}
+      <div class="icon-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5" />
         </svg>
-        <div class="gem-glow"></div>
       </div>
       <div class="info">
-        <span class="label">Unclaimed territory</span>
-        <span class="date">Stake your claim!</span>
+        <span class="label" style="color: #22c55e;">Claimed!</span>
+        <span class="date">Territory secured</span>
       </div>
+    {:else if isUnclaimed}
+      <SignedIn>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="unclaimed-action" onclick={claim}>
+          {#if saving}
+            <div class="icon-placeholder">
+              <svg class="spin" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            </div>
+            <div class="info">
+              <span class="label" style="color: #facc15;">Staking claim...</span>
+            </div>
+          {:else if saveError}
+            <div class="gem">
+              <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 3h12l4 6-10 13L2 9Z" />
+                <path d="M11 3 8 9l4 13 4-13-3-6" />
+                <path d="M2 9h20" />
+              </svg>
+              <div class="gem-glow"></div>
+            </div>
+            <div class="info">
+              <span class="label" style="color: #ef4444;">Failed — tap to retry</span>
+              <span class="date" style="color: #ef4444;">{saveError}</span>
+            </div>
+          {:else}
+            <div class="gem">
+              <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 3h12l4 6-10 13L2 9Z" />
+                <path d="M11 3 8 9l4 13 4-13-3-6" />
+                <path d="M2 9h20" />
+              </svg>
+              <div class="gem-glow"></div>
+            </div>
+            <div class="info">
+              <span class="label">Unclaimed territory</span>
+              <span class="date claim-cta">Stake your claim!</span>
+            </div>
+          {/if}
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/'} asChild>
+          {#snippet children({ signIn })}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="unclaimed-action" onclick={signIn}>
+              <div class="gem">
+                <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3h12l4 6-10 13L2 9Z" />
+                  <path d="M11 3 8 9l4 13 4-13-3-6" />
+                  <path d="M2 9h20" />
+                </svg>
+                <div class="gem-glow"></div>
+              </div>
+              <div class="info">
+                <span class="label">Unclaimed territory</span>
+                <span class="date claim-cta">Sign in to claim</span>
+              </div>
+            </div>
+          {/snippet}
+        </SignInButton>
+      </SignedOut>
     {/if}
   </div>
 </div>
@@ -290,5 +434,30 @@
   @keyframes gem-pulse {
     0%, 100% { opacity: 0.4; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .unclaimed-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .unclaimed-action:hover .claim-cta {
+    color: #facc15;
+  }
+
+  .claim-cta {
+    transition: color 0.15s ease;
+  }
+
+  .spin {
+    animation: spinner 0.8s linear infinite;
+  }
+
+  @keyframes spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 </style>

@@ -53,8 +53,9 @@
     const rect = chestEl.getBoundingClientRect();
     const targetX = rect.left + rect.width / 2;
     const targetY = rect.top + rect.height / 2;
-    const startX = window.innerWidth / 2;
-    const startY = window.innerHeight * 0.75;
+    const origin = automataStore.claimGemOrigin;
+    const startX = origin?.x ?? window.innerWidth / 2;
+    const startY = origin?.y ?? window.innerHeight * 0.75;
 
     gemStyle = `--start-x: ${startX}px; --start-y: ${startY}px; --end-x: ${targetX}px; --end-y: ${targetY}px;`;
     showGemFly = true;

@@ -24,6 +24,12 @@
     lastRule = current;
   });
 
+  function encodeSnapshot(snapshot: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < snapshot.length; i++) binary += String.fromCharCode(snapshot[i]);
+    return btoa(binary);
+  }
+
   async function claim() {
     if (saving || saved) return;
     saving = true;
@@ -31,18 +37,18 @@
     try {
       const data = automataStore.exportForSave();
       const thumbnail = automataStore.getCanvasDataURL?.() ?? undefined;
+
+      // 1. Save generation run
       const res = await fetch('/api/generation-runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, thumbnail })
       });
+      let generationRunId: string | undefined;
       if (res.status === 409) {
-        // Already exists — treat as successfully claimed
-        saved = true;
-        isUndiscovered = false;
-        return;
-      }
-      if (!res.ok) {
+        const body = await res.json();
+        generationRunId = body.existingId;
+      } else if (!res.ok) {
         let msg = `Server error (${res.status})`;
         try {
           const body = await res.json();
@@ -51,7 +57,30 @@
           msg = (await res.text()) || msg;
         }
         throw new Error(msg);
+      } else {
+        const body = await res.json();
+        generationRunId = body.id;
       }
+
+      // 2. Save cell population
+      const popSnapshot = automataStore.getCurrentPopulationSnapshot?.();
+      const popData = popSnapshot ? encodeSnapshot(popSnapshot) : undefined;
+      const popRes = await fetch('/api/cell-populations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          generationRunId,
+          populationData: popData,
+          stepCount: data.generationIndex ?? 1,
+          thumbnail
+        })
+      });
+      // 409 is fine — population already saved
+      if (!popRes.ok && popRes.status !== 409) {
+        console.warn('Cell population save failed:', popRes.status);
+      }
+
       saved = true;
       automataStore.claimAnimationCounter++;
       const seedSnapshot = automataStore.getSeedSnapshot?.();

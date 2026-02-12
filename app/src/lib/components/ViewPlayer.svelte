@@ -164,6 +164,12 @@
       if (!pop) return null;
       return automataManager._snapshotPopulation(pop);
     };
+    automataStore.getCurrentPopulationSnapshot = () => {
+      if (!automataManager) return null;
+      const pop = automataManager.getPopulationAtIndex(automataStore.generationIndex);
+      if (!pop) return null;
+      return automataManager._snapshotPopulation(pop);
+    };
 
     if (viewer) {
       // Set cell state colors
@@ -231,6 +237,7 @@
     automataStore.getCanvasDataURL = null;
     automataStore.captureThumbnail = null;
     automataStore.getSeedSnapshot = null;
+    automataStore.getCurrentPopulationSnapshot = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;

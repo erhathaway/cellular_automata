@@ -119,6 +119,7 @@ class AutomataStore {
   // Mining animation state
   isMining = $state(false);
   claimAnimationCounter = $state(0);
+  claimGemOrigin: { x: number; y: number } | null = $state(null);
 
   // Stability detection
   stableDetected = $state(false);
@@ -138,6 +139,7 @@ class AutomataStore {
   getCanvasDataURL: (() => string | null) | null = null;
   captureThumbnail: (() => string | null) | null = null;
   getSeedSnapshot: (() => Uint8Array | null) | null = null;
+  getCurrentPopulationSnapshot: (() => Uint8Array | null) | null = null;
 
   // Indexed history for shape, cellStates, rule, radius, and lattice
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
