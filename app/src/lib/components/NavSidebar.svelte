@@ -112,7 +112,7 @@
 
   <!-- History -->
   <div class="nav-group mt-sep">
-    <button class="nav-item" class:active={historyOpen} onclick={() => onhistoryclick?.()} aria-label="History">
+    <button class="nav-item" class:active={historyOpen} onclick={(e) => { e.stopPropagation(); onhistoryclick?.(); }} aria-label="History">
       <div class="icon-frame" class:active={historyOpen}>
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="9" />
