@@ -181,7 +181,8 @@
   }
 
   .header-text {
-    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -209,8 +210,9 @@
   }
 
   .label {
+    font-family: 'Space Mono', monospace;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: rgba(255, 255, 255, 0.45);
@@ -218,6 +220,7 @@
   }
 
   .name {
+    font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 15px;
     font-weight: 600;
     color: #fafaf9;
@@ -229,7 +232,8 @@
   }
 
   .date {
-    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
     color: #a8a29e;
     line-height: 1.2;
   }

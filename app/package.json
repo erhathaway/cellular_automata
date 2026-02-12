@@ -66,6 +66,8 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"@fontsource-variable/space-grotesk": "^5.2.10",
+		"@fontsource/space-mono": "^5.2.9",
 		"@libsql/client": "^0.17.0",
 		"drizzle-orm": "^0.45.1",
 		"svelte-clerk": "^0.20.5",

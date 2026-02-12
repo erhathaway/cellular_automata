@@ -340,10 +340,11 @@
   }
 
   .title {
-    font-size: 22px;
+    font-family: 'Space Grotesk Variable', sans-serif;
+    font-size: 24px;
     font-weight: 700;
     color: #1c1917;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -361,8 +362,9 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 12px;
-    font-weight: 500;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
     color: #78716c;
   }
 
@@ -387,8 +389,10 @@
   }
 
   .description {
+    font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 14px;
-    line-height: 1.7;
+    font-weight: 400;
+    line-height: 1.75;
     color: #57534e;
   }
 
@@ -494,8 +498,9 @@
   }
 
   .action-label {
-    font-size: 10px;
-    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 400;
     color: #a8a29e;
     min-height: 14px;
   }

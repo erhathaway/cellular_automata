@@ -167,7 +167,8 @@
   }
 
   .label {
-    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
