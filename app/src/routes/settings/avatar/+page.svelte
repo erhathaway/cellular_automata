@@ -1,34 +1,41 @@
 <script lang="ts">
-	import { AVATARS } from '$lib/avatars';
-	import PixelAvatar from '$lib/components/PixelAvatar.svelte';
+	import type { MinerConfig } from '$lib/miner/types';
+	import MinerEditor from '$lib/components/miner/MinerEditor.svelte';
 	import { api } from '$lib/api';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null };
+	type UserProfile = {
+		displayName: string | null;
+		avatarId: string | null;
+		email: string | null;
+		minerConfig: string | null;
+	};
 
-	let currentAvatarId = $derived(($page.data.userProfile as UserProfile | null)?.avatarId ?? '');
-	let selectedAvatarId = $state('');
 	let saving = $state(false);
 	let errorMsg = $state('');
 
-	// Initialize selection from current profile
-	$effect(() => {
-		if (currentAvatarId && !selectedAvatarId) {
-			selectedAvatarId = currentAvatarId;
+	let existingConfig = $derived.by(() => {
+		const profile = $page.data.userProfile as UserProfile | null;
+		if (profile?.minerConfig) {
+			try {
+				return JSON.parse(profile.minerConfig) as MinerConfig;
+			} catch {
+				return null;
+			}
 		}
+		return null;
 	});
 
-	let hasChanged = $derived(selectedAvatarId !== '' && selectedAvatarId !== currentAvatarId);
-	let previewAvatarId = $derived(selectedAvatarId || currentAvatarId);
-	let previewAvatar = $derived(AVATARS.find(a => a.id === previewAvatarId));
-
-	async function save() {
-		if (!hasChanged || saving) return;
+	async function handleSave(config: MinerConfig) {
+		if (saving) return;
 		saving = true;
 		errorMsg = '';
 		try {
-			await api('PATCH', '/api/user/profile', { avatarId: selectedAvatarId });
+			await api('PATCH', '/api/user/profile', {
+				avatarId: '__miner__',
+				minerConfig: JSON.stringify(config)
+			});
 			await invalidateAll();
 			goto('/');
 		} catch (err: any) {
@@ -37,7 +44,7 @@
 		}
 	}
 
-	function goBack() {
+	function handleCancel() {
 		goto('/');
 	}
 </script>
@@ -51,66 +58,41 @@
 
 			<!-- Header -->
 			<div class="panel-header">
-				<button class="back-btn" onclick={goBack} aria-label="Go back">
+				<button class="back-btn" onclick={handleCancel} aria-label="Go back">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
 					</svg>
 				</button>
 				<div class="title-row">
 					<svg class="title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-						<circle cx="12" cy="7" r="4" />
+						<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
 					</svg>
-					<span class="panel-title">Choose Avatar</span>
+					<span class="panel-title">Miner Editor</span>
 				</div>
 			</div>
 
 			<div class="divider"></div>
-
-			<!-- Current selection preview -->
-			<div class="preview-section">
-				<div class="preview-frame">
-					<PixelAvatar avatarId={previewAvatarId || null} size={72} />
-				</div>
-				{#if previewAvatar}
-					<span class="preview-name">{previewAvatar.name}</span>
-				{/if}
-			</div>
-
-			<div class="divider"></div>
-
-			<!-- Avatar grid -->
-			<div class="avatar-grid">
-				{#each AVATARS as avatar}
-					<button
-						class="avatar-btn"
-						class:selected={selectedAvatarId === avatar.id}
-						class:current={currentAvatarId === avatar.id && selectedAvatarId !== avatar.id}
-						onclick={() => { selectedAvatarId = avatar.id; }}
-					>
-						<PixelAvatar avatarId={avatar.id} size={36} />
-						<span class="avatar-name">{avatar.name}</span>
-					</button>
-				{/each}
-			</div>
 
 			{#if errorMsg}
 				<p class="msg-error">{errorMsg}</p>
 			{/if}
 
-			<!-- Actions -->
-			<div class="actions">
-				<button class="btn-outline" onclick={goBack}>Cancel</button>
-				<button
-					class="btn-save"
-					class:disabled={!hasChanged || saving}
-					disabled={!hasChanged || saving}
-					onclick={save}
-				>
-					{saving ? 'Saving...' : 'Save'}
-				</button>
-			</div>
+			<MinerEditor
+				initialConfig={existingConfig}
+				onsave={handleSave}
+				oncancel={handleCancel}
+			/>
+
+			{#if saving}
+				<div class="saving-overlay">
+					<span class="saving-text">Saving...</span>
+				</div>
+			{/if}
 		</div>
+
+		<a href="/settings/avatar-classic" class="classic-link">
+			Use classic avatar picker
+		</a>
 	</div>
 </div>
 
@@ -119,15 +101,16 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 100%;
+		min-height: 100%;
 		width: 100%;
 		background: #000;
+		padding: 24px 0;
 	}
 
 	.avatar-inner {
 		width: 100%;
 		max-width: 520px;
-		padding: 24px;
+		padding: 0 24px;
 	}
 
 	.avatar-panel {
@@ -223,149 +206,50 @@
 		margin: 18px 0;
 	}
 
-	/* Preview */
-	.preview-section {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.preview-frame {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 88px;
-		height: 88px;
-		background: #0c0a09;
-		border: 2px solid #292524;
-		border-radius: 10px;
-	}
-
-	.preview-name {
-		font-family: 'Space Mono', monospace;
-		font-size: 11px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: #a8a29e;
-	}
-
-	/* Avatar grid */
-	.avatar-grid {
-		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		gap: 8px;
-	}
-
-	@media (max-width: 480px) {
-		.avatar-grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
-	.avatar-btn {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 4px;
-		padding: 10px 4px;
-		background: none;
-		border: 1px solid transparent;
-		border-radius: 6px;
-		cursor: pointer;
-		transition: background 0.15s, border-color 0.15s;
-	}
-
-	.avatar-btn:hover {
-		background: rgba(255, 255, 255, 0.05);
-		border-color: #292524;
-	}
-
-	.avatar-btn.selected {
-		background: rgba(250, 204, 21, 0.1);
-		border-color: #facc15;
-		box-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
-	}
-
-	.avatar-btn.current {
-		border-color: #44403c;
-		border-style: dashed;
-	}
-
-	.avatar-name {
-		font-family: 'Space Mono', monospace;
-		font-size: 8px;
-		letter-spacing: 0.04em;
-		color: #57534e;
-		line-height: 1;
-	}
-
-	.avatar-btn.selected .avatar-name {
-		color: #facc15;
-	}
-
 	/* Error */
 	.msg-error {
-		margin-top: 14px;
+		margin-bottom: 14px;
 		text-align: center;
 		font-family: 'Space Mono', monospace;
 		font-size: 11px;
 		color: #ef4444;
 	}
 
-	/* Actions */
-	.actions {
+	/* Saving overlay */
+	.saving-overlay {
+		position: absolute;
+		inset: 0;
 		display: flex;
-		gap: 10px;
-		margin-top: 20px;
+		align-items: center;
+		justify-content: center;
+		background: rgba(28, 25, 23, 0.8);
+		border-radius: 8px;
+		z-index: 10;
 	}
 
-	.btn-outline {
-		flex: 1;
-		padding: 10px 16px;
+	.saving-text {
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
+		color: #facc15;
+	}
+
+	/* Classic link */
+	.classic-link {
+		display: block;
+		text-align: center;
+		margin-top: 16px;
+		font-family: 'Space Mono', monospace;
+		font-size: 10px;
+		letter-spacing: 0.06em;
+		color: #57534e;
+		text-decoration: none;
+		transition: color 0.15s;
+	}
+
+	.classic-link:hover {
 		color: #a8a29e;
-		background: rgba(255, 255, 255, 0.05);
-		border: 1px solid #44403c;
-		border-radius: 6px;
-		cursor: pointer;
-		transition: color 0.15s, background 0.15s;
-	}
-
-	.btn-outline:hover {
-		color: #f5f5f4;
-		background: rgba(255, 255, 255, 0.1);
-	}
-
-	.btn-save {
-		flex: 1;
-		padding: 10px 16px;
-		font-family: 'Space Mono', monospace;
-		font-size: 11px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: #1c1917;
-		background: #facc15;
-		border: none;
-		border-radius: 6px;
-		cursor: pointer;
-		transition: background 0.15s, box-shadow 0.15s;
-	}
-
-	.btn-save:hover:not(.disabled) {
-		background: #fde047;
-		box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
-	}
-
-	.btn-save.disabled {
-		background: #44403c;
-		color: #78716c;
-		cursor: not-allowed;
 	}
 </style>

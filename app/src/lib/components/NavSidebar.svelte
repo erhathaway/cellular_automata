@@ -4,7 +4,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import PixelAvatar from './PixelAvatar.svelte';
 
-  type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
+  type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 
   let {
     userProfile = null,
@@ -156,7 +156,7 @@
         onclick={() => onsettingsclick?.()}
         aria-label="Settings"
       >
-        <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={36} fallbackInitials="?" />
+        <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={36} fallbackInitials="?" />
       </button>
     </SignedIn>
     <SignedOut>

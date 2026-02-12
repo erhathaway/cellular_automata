@@ -9,6 +9,7 @@ export const user = sqliteTable('user', {
 	imageUrl: text('image_url'),
 	displayName: text('display_name'),
 	avatarId: text('avatar_id'),
+	minerConfig: text('miner_config'),
 	role: text('role', { enum: ['admin', 'editor', 'user'] })
 		.notNull()
 		.default('user'),

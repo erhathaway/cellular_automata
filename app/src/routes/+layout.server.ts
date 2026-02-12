@@ -14,6 +14,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			.select({
 				displayName: user.displayName,
 				avatarId: user.avatarId,
+				minerConfig: user.minerConfig,
 				email: user.email
 			})
 			.from(user)

@@ -1,19 +1,37 @@
 <script lang="ts">
   import { getAvatarById } from '$lib/avatars';
+  import type { MinerConfig } from '$lib/miner/types';
+  import { renderMinerToDataURL } from '$lib/miner/renderer';
 
   let {
     avatarId = null,
     size = 32,
     fallbackInitials = '?',
-    centered = false
+    centered = false,
+    minerConfig = null
   }: {
     avatarId?: string | null;
     size?: number;
     fallbackInitials?: string;
     centered?: boolean;
+    minerConfig?: string | MinerConfig | null;
   } = $props();
 
-  let avatar = $derived(avatarId ? getAvatarById(avatarId) : undefined);
+  let avatar = $derived(avatarId && avatarId !== '__miner__' ? getAvatarById(avatarId) : undefined);
+
+  let isMiner = $derived(avatarId === '__miner__' && minerConfig != null);
+
+  let minerDataUrl = $derived.by(() => {
+    if (!isMiner || !minerConfig) return '';
+    try {
+      const config: MinerConfig = typeof minerConfig === 'string' ? JSON.parse(minerConfig) : minerConfig;
+      // Scale factor: size / 24 (canvas height), minimum 2
+      const scale = Math.max(2, Math.round(size / 24));
+      return renderMinerToDataURL(config, scale);
+    } catch {
+      return '';
+    }
+  });
 
   let viewBox = $derived.by(() => {
     if (!avatar || !centered) return '0 0 8 8';
@@ -41,7 +59,16 @@
   });
 </script>
 
-{#if avatar}
+{#if isMiner && minerDataUrl}
+  <img
+    src={minerDataUrl}
+    alt="Miner avatar"
+    width={size}
+    height={size * 1.5}
+    class="shrink-0"
+    style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto;"
+  />
+{:else if avatar}
   <svg
     width={size}
     height={size}

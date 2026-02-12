@@ -15,6 +15,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		.select({
 			displayName: user.displayName,
 			avatarId: user.avatarId,
+			minerConfig: user.minerConfig,
 			email: user.email
 		})
 		.from(user)
@@ -42,10 +43,23 @@ export const PATCH: RequestHandler = async ({ locals, request }) => {
 	}
 
 	if (body.avatarId !== undefined) {
-		if (!validAvatarIds.has(body.avatarId)) {
+		if (body.avatarId !== '__miner__' && !validAvatarIds.has(body.avatarId)) {
 			return error(400, 'Invalid avatar');
 		}
 		updates.avatarId = body.avatarId;
+	}
+
+	if (body.minerConfig !== undefined) {
+		// Validate it's a parseable JSON string
+		try {
+			const parsed = JSON.parse(body.minerConfig);
+			if (typeof parsed !== 'object' || parsed === null || typeof parsed.skinTone !== 'number') {
+				return error(400, 'Invalid miner config');
+			}
+		} catch {
+			return error(400, 'Invalid miner config JSON');
+		}
+		updates.minerConfig = body.minerConfig;
 	}
 
 	if (Object.keys(updates).length === 0) {
@@ -58,6 +72,7 @@ export const PATCH: RequestHandler = async ({ locals, request }) => {
 		.select({
 			displayName: user.displayName,
 			avatarId: user.avatarId,
+			minerConfig: user.minerConfig,
 			email: user.email
 		})
 		.from(user)

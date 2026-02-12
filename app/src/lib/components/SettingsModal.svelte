@@ -4,7 +4,7 @@
   import { api } from '$lib/api';
   import { goto } from '$app/navigation';
 
-  type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
+  type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 
   let {
     open = $bindable(false),
@@ -109,7 +109,7 @@
       <!-- Profile identity hero -->
       <div class="profile-hero">
         <button class="avatar-frame" onclick={goToChangeAvatar} aria-label="Change avatar">
-          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={64} centered />
+          <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={64} centered />
           <div class="avatar-edit-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />

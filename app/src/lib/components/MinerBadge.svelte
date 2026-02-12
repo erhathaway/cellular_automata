@@ -29,7 +29,7 @@
   let avatarEntering = $state(false);
   let gemEl = $state<HTMLElement>();
 
-  let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null } | null);
+  let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
 
   $effect(() => {
     const rule = automataStore.rule;
@@ -193,6 +193,7 @@
       <div class="avatar-enter" class:avatar-entering={avatarEntering}>
         <PixelAvatar
           avatarId={userProfile?.avatarId ?? null}
+          minerConfig={userProfile?.minerConfig ?? null}
           size={40}
           fallbackInitials={userProfile?.displayName?.[0]?.toUpperCase() ?? '?'}
         />

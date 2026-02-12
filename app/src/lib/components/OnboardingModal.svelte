@@ -3,7 +3,7 @@
   import PixelAvatar from './PixelAvatar.svelte';
   import { api } from '$lib/api';
 
-  type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
+  type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 
   let {
     userProfile,
