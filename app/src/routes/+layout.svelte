@@ -92,7 +92,7 @@
 			style="width: {NAV_WIDTH}px; background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};"
 			onclick={() => { if (historyOpen) { historyOpen = false; animateResize(); } }}
 		>
-			<NavSidebar {userProfile} {historyOpen} dark={darkNav} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
+			<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
 		</div>
 
 		<!-- Main content -->

@@ -12,12 +12,14 @@
     onhistoryclick,
     historyOpen = false,
     dark = false,
+    black = false,
   }: {
     userProfile?: UserProfile;
     onsettingsclick?: () => void;
     onhistoryclick?: () => void;
     historyOpen?: boolean;
     dark?: boolean;
+    black?: boolean;
   } = $props();
 
   const topItems = [
@@ -73,7 +75,7 @@
   }
 </script>
 
-<nav class="nav-rail" class:dark>
+<nav class="nav-rail" class:dark class:black>
   <!-- Top items -->
   <div class="nav-group">
     {#each topItems as item}
@@ -374,6 +376,33 @@
 
   .dark .nav-label.active {
     color: #facc15;
+  }
+
+  /* Black mode (docs) — dimmer inactive icons */
+  .black .icon-frame:not(.active) {
+    background: #1a1a1a;
+  }
+
+  .black .icon-frame:not(.active) :global(svg) {
+    color: #a8a29e;
+    stroke: #a8a29e;
+  }
+
+  .black .nav-item:hover .icon-frame:not(.active) {
+    background: #292524;
+  }
+
+  .black .nav-item:hover .icon-frame:not(.active) :global(svg) {
+    color: #d6d3d1;
+    stroke: #d6d3d1;
+  }
+
+  .black .nav-label:not(.active) {
+    color: #44403c;
+  }
+
+  .black .nav-item:hover .nav-label:not(.active) {
+    color: #78716c;
   }
 
   .gem-fly {
