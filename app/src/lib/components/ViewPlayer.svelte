@@ -362,6 +362,10 @@
   $effect(() => {
     const shape = automataStore.populationShape;
     if (!automataManager) return;
+    // Only push same-dimensionality changes — dimension switches trigger full reinit
+    const curKeys = Object.keys(automataManager.populationShape).sort().join();
+    const newKeys = Object.keys(shape).sort().join();
+    if (curKeys !== newKeys) return;
     automataManager.populationShape = { ...shape };
   });
 

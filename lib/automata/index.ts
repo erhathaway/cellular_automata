@@ -634,7 +634,9 @@ export default class AutomataManager {
 
   run(): Population {
     if (this.populationShapeChanged) {
-      this.resizeCurrentPopulation();
+      if (this._currentPopulation) {
+        this.resizeCurrentPopulation();
+      }
       this.populationShapeChanged = false;
     }
 

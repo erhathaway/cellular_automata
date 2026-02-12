@@ -8,31 +8,58 @@
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import AchievementGrid from '$lib/components/achievements/AchievementGrid.svelte';
+  import AchievementIcon from '$lib/components/achievements/AchievementIcon.svelte';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
   import { achievementsStore } from '$lib/stores/achievements.svelte';
+  import { timeAgo } from '$lib/utils/timeAgo';
 
   const PAGE_SIZE = 20;
 
-  let activeTab: 'saves' | 'achievements' = $state('saves');
+  type ChestTab = 'all' | 'claimed' | 'liked' | 'bookmarked' | 'achievements';
+
+  const TABS: { id: ChestTab; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'claimed', label: 'Claimed' },
+    { id: 'liked', label: 'Liked' },
+    { id: 'bookmarked', label: 'Bookmarked' },
+    { id: 'achievements', label: 'Achievements' },
+  ];
+
+  let activeTab: ChestTab = $state('all');
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
 
   // Read initial tab from URL query param
   onMount(() => {
-    const tabParam = $page.url.searchParams.get('tab');
-    if (tabParam === 'achievements') {
-      activeTab = 'achievements';
+    const tabParam = $page.url.searchParams.get('tab') as ChestTab | null;
+    if (tabParam && TABS.some(t => t.id === tabParam)) {
+      activeTab = tabParam;
     }
-    fetchMySaves();
+    if (activeTab !== 'achievements') {
+      fetchItems(activeTab);
+    }
+    // Fetch achievements for the summary row + badge
+    achievementsStore.fetch();
   });
 
-  async function fetchMySaves() {
+  function switchTab(tab: ChestTab) {
+    if (tab === activeTab) return;
+    activeTab = tab;
+    if (tab !== 'achievements') {
+      fetchItems(tab);
+    }
+  }
+
+  async function fetchItems(filter: string) {
     loading = true;
     items = [];
     hasMore = false;
     try {
-      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/my-saves?limit=${PAGE_SIZE}&offset=0`);
+      const result = await api<{ items: any[]; hasMore: boolean }>(
+        'GET',
+        `/api/my-chest?filter=${filter}&limit=${PAGE_SIZE}&offset=0`
+      );
       items = result.items;
       hasMore = result.hasMore;
     } catch {
@@ -46,7 +73,10 @@
     if (loading || !hasMore) return;
     loading = true;
     try {
-      const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/my-saves?limit=${PAGE_SIZE}&offset=${items.length}`);
+      const result = await api<{ items: any[]; hasMore: boolean }>(
+        'GET',
+        `/api/my-chest?filter=${activeTab}&limit=${PAGE_SIZE}&offset=${items.length}`
+      );
       items = [...items, ...result.items];
       hasMore = result.hasMore;
     } catch {
@@ -63,8 +93,9 @@
     const shape = typeof item.populationShape === 'string' ? JSON.parse(item.populationShape) : item.populationShape;
     const cellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
     const neighborhoodRadius = item.neighborhoodRadius ?? 1;
+    const lattice = item.latticeType ?? undefined;
 
-    const settings = { populationShape: shape, rule: rule!, cellStates, neighborhoodRadius };
+    const settings = { populationShape: shape, rule: rule!, cellStates, neighborhoodRadius, lattice };
     if (rule) {
       automataStore.hydrateCombo(dim, viewer, settings);
     }
@@ -88,6 +119,10 @@
     const params = buildURLParams(dim, viewer, settings);
     goto(`/?${params.toString()}`);
   }
+
+  let earnedAchievements = $derived(
+    achievementsStore.achievements.filter(a => a.earned)
+  );
 </script>
 
 <div class="chest-bg">
@@ -105,36 +140,66 @@
     <SignedIn>
       <!-- Tab bar -->
       <div class="tab-bar">
-        <button
-          class="tab"
-          class:active={activeTab === 'saves'}
-          onclick={() => { activeTab = 'saves'; }}
-        >
-          Saves
-        </button>
-        <button
-          class="tab"
-          class:active={activeTab === 'achievements'}
-          onclick={() => { activeTab = 'achievements'; }}
-        >
-          Achievements
-          {#if achievementsStore.unseenCount > 0}
-            <span class="badge">{achievementsStore.unseenCount}</span>
-          {/if}
-        </button>
+        {#each TABS as tab}
+          <button
+            class="tab"
+            class:active={activeTab === tab.id}
+            onclick={() => switchTab(tab.id)}
+          >
+            {tab.label}
+            {#if tab.id === 'achievements' && achievementsStore.unseenCount > 0}
+              <span class="badge">{achievementsStore.unseenCount}</span>
+            {/if}
+          </button>
+        {/each}
       </div>
 
       <!-- Tab content -->
-      {#if activeTab === 'saves'}
+      {#if activeTab === 'achievements'}
+        <AchievementGrid />
+      {:else}
+        <!-- Achievements summary row (only on "all" tab) -->
+        {#if activeTab === 'all' && earnedAchievements.length > 0}
+          <div class="achievements-row">
+            <div class="achievements-row-header">
+              <span class="achievements-row-title">Achievements</span>
+              <button class="achievements-row-link" onclick={() => switchTab('achievements')}>
+                View all &rarr;
+              </button>
+            </div>
+            <div class="achievements-row-icons">
+              {#each earnedAchievements as a (a.def.id)}
+                <div class="earned-chip" title={a.def.name}>
+                  <AchievementIcon icon={a.def.icon} size={44} />
+                  <div class="earned-chip-text">
+                    <span class="earned-chip-name">{a.def.name}</span>
+                    {#if a.earnedAt}
+                      <span class="earned-chip-date">{timeAgo(a.earnedAt)}</span>
+                    {/if}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
         {#if items.length === 0 && !loading}
           <div class="flex h-40 items-center justify-center">
-            <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">No saves yet. Use the save button on the viewer to save a configuration.</p>
+            <p class="empty-text">
+              {#if activeTab === 'all'}
+                No items yet. Start mining to fill your chest.
+              {:else if activeTab === 'claimed'}
+                No claims yet. Use the save button on the viewer to claim a configuration.
+              {:else if activeTab === 'liked'}
+                No likes yet. Browse the gallery and like what you enjoy.
+              {:else}
+                No bookmarks yet. Use the chest button on cards to bookmark.
+              {/if}
+            </p>
           </div>
         {:else}
           <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
         {/if}
-      {:else}
-        <AchievementGrid />
       {/if}
     </SignedIn>
   </div>
@@ -151,6 +216,12 @@
     gap: 0;
     margin-bottom: 24px;
     border-bottom: 1px solid #292524;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .tab {
@@ -163,11 +234,12 @@
     color: #78716c;
     background: none;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 16px;
     cursor: pointer;
     transition: color 0.2s ease;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
+    white-space: nowrap;
   }
 
   .tab:hover {
@@ -192,5 +264,93 @@
     background: #facc15;
     border-radius: 8px;
     margin-left: 6px;
+  }
+
+  .empty-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #a8a29e;
+    letter-spacing: 0.04em;
+  }
+
+  /* Achievements summary row */
+  .achievements-row {
+    margin-bottom: 28px;
+    padding: 22px 24px;
+    background: #1a1a1a;
+    border: 1px solid #292524;
+    border-radius: 10px;
+  }
+
+  .achievements-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .achievements-row-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a8a29e;
+  }
+
+  .achievements-row-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #facc15;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .achievements-row-link:hover {
+    color: #fde047;
+  }
+
+  .achievements-row-icons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .earned-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px 10px 12px;
+    background: #292524;
+    border: 1px solid #44403c;
+    border-radius: 8px;
+  }
+
+  .earned-chip-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .earned-chip-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #facc15;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .earned-chip-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #d6d3d1;
+    white-space: nowrap;
   }
 </style>
