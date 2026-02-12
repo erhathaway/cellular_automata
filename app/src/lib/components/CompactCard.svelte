@@ -1,6 +1,9 @@
 <script lang="ts">
   import { api } from '$lib/api';
   import { timeAgo } from '$lib/utils/timeAgo';
+  import { radiusToLevel } from '$lib/levels';
+  import { getLattice, defaultLattice } from '$lib-core';
+  import type { LatticeType } from '$lib-core';
   import PixelAvatar from './PixelAvatar.svelte';
 
   let {
@@ -35,6 +38,22 @@
   function displayTitle() {
     if (item.title) return item.title;
     return `${item.ruleDefinition} (${item.dimension}D)`;
+  }
+
+  function levelLabel(): string {
+    return radiusToLevel(item.neighborhoodRadius ?? 1);
+  }
+
+  function latticeLabel(): string | null {
+    const lat = item.latticeType as LatticeType | undefined | null;
+    if (!lat) return null;
+    const dim = (item.dimension ?? 2) as 2 | 3;
+    if (lat === defaultLattice(dim)) return null;
+    try {
+      return getLattice(lat).label;
+    } catch {
+      return null;
+    }
   }
 
   async function toggleLike(e: MouseEvent) {
@@ -158,8 +177,18 @@
     </div>
     <div class="chip-info">
       <p class="rule-text">
-        {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
+        {displayTitle()}
       </p>
+      <div class="pills-row">
+        <span class="pill level-{levelLabel()}">{levelLabel()}</span>
+        <span class="pill dim">{item.dimension}D</span>
+        {#if latticeLabel()}
+          <span class="pill lattice">{latticeLabel()}</span>
+        {/if}
+        {#if (item.neighborhoodRadius ?? 1) > 1}
+          <span class="pill radius">r={item.neighborhoodRadius}</span>
+        {/if}
+      </div>
       <div class="owner-meta">
         <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
         {#if item.createdAt}
@@ -572,5 +601,61 @@
     font-size: 9px;
     color: #111111;
     flex-shrink: 0;
+  }
+
+  /* ── Pills row ── */
+  .pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 1px;
+  }
+
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    padding: 1px 5px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .pill.level-easy {
+    color: #16a34a;
+    background: rgba(22, 163, 74, 0.1);
+    border: 1px solid rgba(22, 163, 74, 0.2);
+  }
+
+  .pill.level-medium {
+    color: #ca8a04;
+    background: rgba(202, 138, 4, 0.1);
+    border: 1px solid rgba(202, 138, 4, 0.2);
+  }
+
+  .pill.level-hard {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+  }
+
+  .pill.dim {
+    color: #57534e;
+    background: rgba(87, 83, 78, 0.08);
+    border: 1px solid rgba(87, 83, 78, 0.15);
+  }
+
+  .pill.lattice {
+    color: #0891b2;
+    background: rgba(8, 145, 178, 0.08);
+    border: 1px solid rgba(8, 145, 178, 0.18);
+  }
+
+  .pill.radius {
+    color: #78716c;
+    background: rgba(120, 113, 108, 0.08);
+    border: 1px solid rgba(120, 113, 108, 0.15);
   }
 </style>

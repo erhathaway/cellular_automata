@@ -64,6 +64,8 @@
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
 
+    // Signal that URL/localStorage state has been applied — ViewPlayer waits for this
+    automataStore.hydrated = true;
     initialized = true;
 
     // Capture thumbnail every 2s to keep latest history entry up to date

@@ -225,6 +225,20 @@
 
   onMount(() => {
     mounted = true;
+    // If store is already hydrated (PersistenceManager ran first), init immediately.
+    // Otherwise the $effect below will catch it once hydration completes.
+    if (automataStore.hydrated) {
+      initViewer(true);
+      automataStore.play();
+    }
+  });
+
+  // Wait for persistence hydration before initializing the viewer.
+  // Svelte mounts children before siblings, so ViewPlayer.onMount can fire
+  // before PersistenceManager.onMount — this effect handles that case.
+  $effect(() => {
+    const hydrated = automataStore.hydrated;
+    if (!mounted || !hydrated || viewer) return;
     initViewer(true);
     automataStore.play();
   });

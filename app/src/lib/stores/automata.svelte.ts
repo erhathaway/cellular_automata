@@ -138,6 +138,9 @@ class AutomataStore {
   // Per-shape rules for multi-shape lattices (null = single-shape)
   shapeRules: { survive: number[]; born: number[] }[] | null = $state(null);
 
+  // Persistence hydration flag — true once PersistenceManager has applied URL/localStorage state
+  hydrated = $state(false);
+
   // Seed population state
   savedSeed: Uint8Array | null = $state(null);
   useSavedSeed: boolean = $state(true);
