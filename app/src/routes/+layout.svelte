@@ -66,6 +66,7 @@
 		automataStore.hydrateActive(entry.dimension, entry.viewer);
 		automataStore.savedSeed = null;
 		automataStore.useSavedSeed = true;
+		automataStore.resetMiningToRandom();
 		automataStore.reset();
 		viewerUiStore.openAnalysis();
 

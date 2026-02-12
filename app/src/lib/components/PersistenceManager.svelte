@@ -41,8 +41,7 @@
     // Restore user preferences (only when NOT loading from a new/shared URL)
     if (isNewUrl) {
       // Reset mining preferences so they don't interfere with the loaded automata
-      automataStore.setMiningDifficulty('random');
-      automataStore.setMiningLattice('random');
+      automataStore.resetMiningToRandom();
     } else if (stored) {
       // Mining button preferences
       if (stored.miningDifficulty) automataStore.setMiningDifficulty(stored.miningDifficulty);

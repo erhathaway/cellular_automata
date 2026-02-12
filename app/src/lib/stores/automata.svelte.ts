@@ -543,6 +543,11 @@ class AutomataStore {
     this.miningLattice = lattice;
   }
 
+  resetMiningToRandom() {
+    this.miningDifficulty = 'random';
+    this.miningLattice = 'random';
+  }
+
   setStable(kind: 'exact' | 'quasi', period: number) {
     this.stableDetected = true;
     this.stableKind = kind;
