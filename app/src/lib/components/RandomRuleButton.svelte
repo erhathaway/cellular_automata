@@ -1,5 +1,6 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
@@ -59,6 +60,7 @@
 
   function handleClick() {
     clearTimeout(miningTimer);
+    viewerUiStore.openAnalysis();
     automataStore.isMining = true;
     miningKey++;
     automataStore.randomizeRule();
