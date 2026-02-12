@@ -67,7 +67,7 @@
     miningTimer = setTimeout(() => {
       automataStore.isMining = false;
       hasCompletedMine = true;
-    }, 5000);
+    }, 3000);
   }
 </script>
 
@@ -390,6 +390,6 @@
     height: 100%;
     background: #facc15;
     border-radius: 2px;
-    animation: fill 5s linear forwards;
+    animation: fill 3s linear forwards;
   }
 </style>
