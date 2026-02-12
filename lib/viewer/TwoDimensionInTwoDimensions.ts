@@ -282,8 +282,8 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   animateUpdateFn() {
     this.removeGeneration();
     const colorable = this.meshes.slice(-40);
-    const { h, s } = this.states[1];
-    const computedS = Math.floor(s * 100);
+    const { h } = this.states[1];
+    const trailHue = (h + 180) % 360;
     const last = colorable.length - 1;
     colorable.forEach((m: any, i: number) => {
       const mat = m.material;
@@ -291,15 +291,16 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
       if (i === last) {
         mat.color.set(new Color(0x000000));
       } else {
-        const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
-        mat.color.set(color);
+        // t=1 at second-youngest (just after black), t=0 at oldest
+        const t = last > 1 ? i / (last - 1) : 0;
+        const lightness = 80 - t * 30;
+        mat.color.set(new Color(`hsl(${trailHue}, 100%, ${lightness}%)`));
       }
-      // Keep trail ordered with older generations in front of newer ones...
-      // ...but force the newest (current living) generation to the very front.
+      // z controls draw order; newest on top
       if (i === last) {
         m.position.z = 2;
       } else {
-        m.position.z = (last - i) / (last || 1);
+        m.position.z = i / (last || 1);
       }
     });
     this.addGeneration();
