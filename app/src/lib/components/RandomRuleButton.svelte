@@ -62,49 +62,162 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div class="mine-btn {mining ? 'mining' : ''}" onclick={handleClick}>
-  <!-- Corner nails -->
-  <div class="nails">
-    <div class="nail"></div>
-    <div class="nail"></div>
-  </div>
-  <div class="nails nails-bottom">
-    <div class="nail"></div>
-    <div class="nail"></div>
-  </div>
-
-  <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
-    <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
-    <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
-    <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
-  </svg>
-
-  <span class="label" class:label-hidden={mining}>Mine for automata</span>
-
-  {#if mining && cells.length}
-    <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
-      {#each cells as row}
-        {#each row as cell}
-          <div class="ca-cell" class:alive={cell}></div>
-        {/each}
-      {/each}
+<div class="mine-root">
+  <!-- Pipes connecting button to frame -->
+  <div class="pipe pipe-left" class:pipe-active={mining}>
+    <div class="pipe-outer">
+      <div class="pipe-inner"></div>
     </div>
-  {/if}
+    <div class="pipe-flange pipe-flange-top"></div>
+    <div class="pipe-flange pipe-flange-bottom"></div>
+  </div>
+  <div class="pipe pipe-right" class:pipe-active={mining}>
+    <div class="pipe-outer">
+      <div class="pipe-inner"></div>
+    </div>
+    <div class="pipe-flange pipe-flange-top"></div>
+    <div class="pipe-flange pipe-flange-bottom"></div>
+  </div>
 
-  {#if mining}
-    {#key miningKey}
-      <div class="progress-track">
-        <div class="progress-fill"></div>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <div class="mine-btn {mining ? 'mining' : ''}" onclick={handleClick}>
+    <!-- Corner nails -->
+    <div class="nails">
+      <div class="nail"></div>
+      <div class="nail"></div>
+    </div>
+    <div class="nails nails-bottom">
+      <div class="nail"></div>
+      <div class="nail"></div>
+    </div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
+      <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
+      <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
+      <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
+    </svg>
+
+    <span class="label" class:label-hidden={mining}>Mine for automata</span>
+
+    {#if mining && cells.length}
+      <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
+        {#each cells as row}
+          {#each row as cell}
+            <div class="ca-cell" class:alive={cell}></div>
+          {/each}
+        {/each}
       </div>
-    {/key}
-  {/if}
+    {/if}
+
+    {#if mining}
+      {#key miningKey}
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+      {/key}
+    {/if}
+  </div>
 </div>
 
 <style>
+  .mine-root {
+    position: relative;
+  }
+
+  /* === Pipes === */
+  .pipe {
+    position: absolute;
+    bottom: 50%;
+    width: 14px;
+    height: 32px;
+    z-index: -1;
+  }
+
+  .pipe-left {
+    left: 20px;
+  }
+
+  .pipe-right {
+    right: 20px;
+  }
+
+  .pipe-outer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      #1c1917 0%,
+      #292524 20%,
+      #44403c 50%,
+      #292524 80%,
+      #1c1917 100%
+    );
+    border-radius: 3px;
+    border: 1px solid #57534e;
+    overflow: hidden;
+  }
+
+  .pipe-inner {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transform: translateX(-50%);
+    background: rgba(250, 204, 21, 0.1);
+    transition: all 0.3s;
+  }
+
+  .pipe-active .pipe-inner {
+    background: rgba(250, 204, 21, 0.6);
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.5), 0 0 16px rgba(250, 204, 21, 0.2);
+    animation: pipe-flow 0.6s linear infinite;
+  }
+
+  /* Flanges — metal rings at top and bottom of each pipe */
+  .pipe-flange {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 6px;
+    background: linear-gradient(
+      180deg,
+      #57534e 0%,
+      #78716c 40%,
+      #57534e 100%
+    );
+    border-radius: 2px;
+    border: 1px solid #44403c;
+  }
+
+  .pipe-flange-top {
+    top: -2px;
+  }
+
+  .pipe-flange-bottom {
+    bottom: -2px;
+  }
+
+  .pipe-active .pipe-flange {
+    border-color: rgba(250, 204, 21, 0.3);
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.15);
+  }
+
+  @keyframes pipe-flow {
+    0% {
+      background: rgba(250, 204, 21, 0.4);
+    }
+    50% {
+      background: rgba(250, 204, 21, 0.8);
+    }
+    100% {
+      background: rgba(250, 204, 21, 0.4);
+    }
+  }
+
   .mine-btn {
     position: relative;
     display: flex;
