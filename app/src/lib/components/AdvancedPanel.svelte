@@ -133,7 +133,43 @@
   // The geometry for the current single-shape lattice
   let singleGeometry = $derived(latticeConfig?.geometry ?? (dim === 1 ? 'box' : 'box'));
 
-  // Build a 2D grid layer from offsets (generic)
+  // Whether to use hex staggered layout
+  let isHexLayout = $derived(singleGeometry === 'hexprism');
+
+  // Positioned cell for absolute-positioned hex grids
+  interface PositionedCell extends GridCell {
+    left: number;
+    top: number;
+  }
+
+  // Build hex grid with absolute positions (staggered odd rows)
+  function buildHexPositions(offsets: number[][], gRadius: number, cs: number, gap: number): { cells: PositionedCell[]; width: number; height: number } {
+    const cells: PositionedCell[] = [];
+    const rowH = cs * 0.75 + gap;
+    const colW = cs + gap;
+
+    for (let dy = gRadius; dy >= -gRadius; dy--) {
+      for (let dx = -gRadius; dx <= gRadius; dx++) {
+        const isSelf = dx === 0 && dy === 0;
+        const ni = offsets.findIndex((o) => o[0] === dx && o[1] === dy);
+        // Odd rows (in offset coords) are staggered right by half a cell
+        const stagger = (((dy % 2) + 2) % 2) === 1 ? colW * 0.5 : 0;
+        const left = (dx + gRadius) * colW + stagger;
+        const top = (gRadius - dy) * rowH;
+        cells.push({
+          x: dx, y: dy, isSelf, neighborIndex: ni,
+          enabled: ni >= 0 && neighborEnabled[ni],
+          left, top,
+        });
+      }
+    }
+
+    const width = (2 * gRadius + 1) * colW + colW * 0.5;
+    const height = (2 * gRadius) * rowH + cs;
+    return { cells, width, height };
+  }
+
+  // Build a 2D grid layer from offsets (regular rectangular)
   function buildGrid(offsets: number[][], gRadius: number, shapeAtFn?: (x: number, y: number) => number): GridCell[][] {
     const rows: GridCell[][] = [];
     for (let y = gRadius; y >= -gRadius; y--) {
@@ -502,6 +538,28 @@
               </div>
             {/each}
           </div>
+        {:else if isHexLayout}
+          {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
+          {@const cs = cellSizeForRadius(gRadius)}
+          {@const hexData = buildHexPositions(singleOffsets, gRadius, cs, 2)}
+          {@const clip = cellClipPath('hexprism')}
+          <div class="hex-container" style="width: {hexData.width}px; height: {hexData.height}px;">
+            {#each hexData.cells as cell}
+              {#if cell.isSelf}
+                <div class="n-cell n-self hex-abs" style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px; clip-path: {clip};">
+                  <span class="self-dot"></span>
+                </div>
+              {:else if cell.neighborIndex >= 0}
+                <div
+                  class="n-cell n-neighbor hex-abs {cell.enabled ? 'n-on' : 'n-off'}"
+                  style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px; clip-path: {clip};"
+                  onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
+                ></div>
+              {:else}
+                <div class="n-cell n-empty hex-abs" style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px;"></div>
+              {/if}
+            {/each}
+          </div>
         {:else}
           {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
           {@const cs = cellSizeForRadius(gRadius)}
@@ -850,6 +908,14 @@
     color: #78716c;
     width: 100%;
     margin-top: 4px;
+  }
+
+  .hex-container {
+    position: relative;
+  }
+
+  .hex-abs {
+    position: absolute;
   }
 
   .neighbor-grid {
