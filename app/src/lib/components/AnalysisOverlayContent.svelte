@@ -1,10 +1,6 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
 
-  let totalCells = $state(0);
-  let livingCells = $state(0);
-  let deadCells = $state(0);
-  let bins = $state<number[]>([]);
   let trail = $derived(getTrailSize(automataStore.dimension, automataStore.viewer));
 
   function getTrailSize(dim: number, view: number): number {
@@ -31,36 +27,28 @@
     return out;
   }
 
-  function recompute() {
+  function computeAnalysis() {
     const getAt = automataStore.getPopulationAtIndex;
     const currentIndex = automataStore.generationIndex;
     const currentTrail = getTrailSize(automataStore.dimension, automataStore.viewer);
 
     if (!getAt || currentIndex < 0) {
-      totalCells = 0;
-      livingCells = 0;
-      deadCells = 0;
-      bins = [];
-      return;
+      return { totalCells: 0, livingCells: 0, deadCells: 0, bins: [] as number[] };
     }
 
     const currentPopulation = getAt(currentIndex);
     if (!currentPopulation) {
-      totalCells = 0;
-      livingCells = 0;
-      deadCells = 0;
-      bins = [];
-      return;
+      return { totalCells: 0, livingCells: 0, deadCells: 0, bins: [] as number[] };
     }
 
     const current = flattenPopulation(currentPopulation);
-    totalCells = current.length;
+    const totalCells = current.length;
 
-    livingCells = 0;
+    let livingCells = 0;
     for (let i = 0; i < current.length; i++) {
       livingCells += current[i];
     }
-    deadCells = totalCells - livingCells;
+    const deadCells = totalCells - livingCells;
 
     const availableBack = Math.min(currentTrail, currentIndex);
     const past: number[][] = [];
@@ -87,23 +75,28 @@
       }
     }
 
-    bins = histogram;
+    return { totalCells, livingCells, deadCells, bins: histogram };
   }
+
+  let analysis = $derived.by(() => {
+    automataStore.generationIndex;
+    automataStore.dimension;
+    automataStore.viewer;
+    automataStore.resetCounter;
+    automataStore.historyCapacity;
+    automataStore.getPopulationAtIndex;
+    return computeAnalysis();
+  });
+
+  let totalCells = $derived(analysis.totalCells);
+  let livingCells = $derived(analysis.livingCells);
+  let deadCells = $derived(analysis.deadCells);
+  let bins = $derived(analysis.bins);
 
   let maxBin = $derived.by(() => {
     if (bins.length === 0) return 1;
     const max = Math.max(...bins);
     return max > 0 ? max : 1;
-  });
-
-  $effect(() => {
-    const _generationIndex = automataStore.generationIndex;
-    const _dimension = automataStore.dimension;
-    const _viewer = automataStore.viewer;
-    const _resetCounter = automataStore.resetCounter;
-    const _historyCapacity = automataStore.historyCapacity;
-    const _getAt = automataStore.getPopulationAtIndex;
-    recompute();
   });
 </script>
 
