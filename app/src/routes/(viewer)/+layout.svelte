@@ -110,18 +110,6 @@
         <div class="analysis-overlay">
           <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
           <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>
-          <div class="analysis-header">
-            <span class="analysis-title">
-              Instrumentation
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="2,18 5,14 8,16 11,8 14,12 17,6 20,10 22,4" />
-                <line x1="2" y1="22" x2="22" y2="22" />
-              </svg>
-            </span>
-            <button type="button" class="analysis-close" onclick={closeAnalysis} aria-label="Close analysis drawer">
-              ✕
-            </button>
-          </div>
           <AnalysisOverlayContent />
         </div>
       {/if}

@@ -225,13 +225,6 @@
     <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
     <div class="section-title">Harmonics</div>
     <div class="section-subtitle">Period Spectrum</div>
-    {#if topPeaks.length > 0}
-      <div class="peaks">
-        {#each topPeaks as p, i (i)}
-          <span>Peak {i + 1}: ~{p.period.toFixed(1)} turns</span>
-        {/each}
-      </div>
-    {/if}
     {#if spectrum.amplitudes.length > 0}
       <div class="hist-scroll">
         <div class="spectrum" style={`--count:${spectrum.amplitudes.length};`}>
@@ -248,6 +241,13 @@
     {:else}
       <div class="empty">Need more samples to resolve harmonics...</div>
     {/if}
+    {#if topPeaks.length > 0}
+      <div class="peaks">
+        {#each topPeaks as p, i (i)}
+          <span>Peak {i + 1}: ~{p.period.toFixed(1)} turns</span>
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -256,7 +256,7 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
-    height: calc(100% - 62px);
+    height: 100%;
     padding: 12px 12px 24px;
     overflow-y: auto;
   }
@@ -440,6 +440,7 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #78716c;
+    margin-top: -4px;
   }
 
   .hist-scroll {
@@ -453,7 +454,7 @@
     grid-template-columns: repeat(var(--count), minmax(9px, 9px));
     gap: 4px;
     align-items: end;
-    min-height: 210px;
+    min-height: 0;
     min-width: fit-content;
   }
 
@@ -462,7 +463,6 @@
     grid-template-columns: repeat(var(--count), minmax(9px, 9px));
     gap: 4px;
     align-items: end;
-    min-height: 150px;
     min-width: fit-content;
   }
 
@@ -475,7 +475,7 @@
 
   .bar-track {
     width: 9px;
-    height: 182px;
+    height: 90px;
     border-radius: 2px;
     background: rgba(120, 113, 108, 0.2);
     border: 1px solid rgba(120, 113, 108, 0.35);
