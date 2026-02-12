@@ -354,9 +354,9 @@ class AutomataStore {
 
     // Randomize radius from selected mining difficulty band
     const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
-      easy: [1, 2],
-      medium: [3, 4, 5],
-      hard: [6, 7, 8, 9, 10],
+      easy: [1],
+      medium: [2, 3],
+      hard: [4, 5, 6],
     };
     const radiusPool = radiusByDifficulty[this.miningDifficulty];
     const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];

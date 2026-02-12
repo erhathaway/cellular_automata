@@ -12,9 +12,9 @@
     range: string;
     note: string;
   }> = [
-    { key: 'easy', label: 'Easy', range: 'r: 1-2', note: 'Calmer patterns' },
-    { key: 'medium', label: 'Medium', range: 'r: 3-5', note: 'Balanced chaos' },
-    { key: 'hard', label: 'Hard', range: 'r: 6-8+', note: 'High volatility' },
+    { key: 'easy', label: 'Easy', range: 'r: 1', note: 'Calmer patterns' },
+    { key: 'medium', label: 'Medium', range: 'r: 2-3', note: 'Balanced chaos' },
+    { key: 'hard', label: 'Hard', range: 'r: 4-6', note: 'High volatility' },
   ];
 
   const current = $derived.by(
