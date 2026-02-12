@@ -322,12 +322,7 @@
   }
 
   .mine-btn.mining {
-    transform: translateY(3px);
     border-color: #facc15;
-    box-shadow:
-      0 1px 0 #57534e,
-      0 0 20px rgba(250, 204, 21, 0.3),
-      inset 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .pickaxe {
