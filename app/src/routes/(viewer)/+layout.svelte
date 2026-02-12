@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
   import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
@@ -96,6 +97,7 @@
               ✕
             </button>
           </div>
+          <AnalysisOverlayContent />
         </div>
       {/if}
     </div>
