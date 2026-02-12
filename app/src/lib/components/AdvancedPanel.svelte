@@ -229,7 +229,7 @@
       y: p.dy,
       isSelf: p.dx === 0 && p.dy === 0,
       neighborIndex: p.ni,
-      enabled: p.ni >= 0,
+      enabled: p.ni >= 0 && neighborEnabled[p.ni],
       isDown: p.isDown,
       left: p.left - minX,
       top: p.top - minY,
@@ -247,7 +247,7 @@
         const isSelf = x === 0 && y === 0;
         const ni = offsets.findIndex((o) => o[0] === x && o[1] === y);
         const shapeIndex = shapeAtFn ? shapeAtFn(x, y) : undefined;
-        row.push({ x, y, isSelf, neighborIndex: ni, enabled: ni >= 0, shapeIndex });
+        row.push({ x, y, isSelf, neighborIndex: ni, enabled: ni >= 0 && neighborEnabled[ni], shapeIndex });
       }
       rows.push(row);
     }
@@ -675,7 +675,7 @@
                   </div>
                 {:else if cell.neighborIndex >= 0}
                   <div
-                    class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
+                    class="n-cell n-neighbor {neighborEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                     style="width: {cs}px; height: {cs}px;"
                     onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                   ></div>
@@ -702,7 +702,7 @@
                       </div>
                     {:else if cell.neighborIndex >= 0}
                       <div
-                        class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
+                        class="n-cell n-neighbor {neighborEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                         style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
                         onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                       ></div>
@@ -726,7 +726,7 @@
                 </div>
               {:else}
                 <div
-                  class="n-cell n-neighbor hex-abs {cell.enabled ? 'n-on' : 'n-off'}"
+                  class="n-cell n-neighbor hex-abs {neighborEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                   style="width: {hexData.cellW}px; height: {hexData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {hexClip};"
                   onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                 ></div>
@@ -747,7 +747,7 @@
                   </div>
                 {:else if cell.neighborIndex >= 0}
                   <div
-                    class="n-cell n-neighbor {cell.enabled ? 'n-on' : 'n-off'}"
+                    class="n-cell n-neighbor {neighborEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                     style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
                     onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                   ></div>
@@ -1037,18 +1037,12 @@
   }
 
   .section-body {
-    display: contents;
-  }
-
-  .section-disabled {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    opacity: 0.3;
-    pointer-events: none;
-    filter: grayscale(0.8);
   }
 
+  .section-disabled,
   .field-disabled {
     opacity: 0.3;
     pointer-events: none;

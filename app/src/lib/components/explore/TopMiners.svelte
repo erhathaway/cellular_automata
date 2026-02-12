@@ -1,5 +1,6 @@
 <script lang="ts">
   import PixelAvatar from '$lib/components/PixelAvatar.svelte';
+  import RankBadge from './RankBadge.svelte';
   import { LEVELS, aggregateByLevel } from '$lib/levels';
   import { LATTICE_REGISTRY } from '$lib-core';
 
@@ -34,15 +35,6 @@
     return (LATTICE_REGISTRY as Record<string, { label: string }>)[type]?.label ?? type;
   }
 
-  const trophyColors = [
-    { cup: '#facc15', cupDark: '#ca8a04', shine: '#fef9c3', base: '#b45309', baseDark: '#92400e', glow: 'rgba(250, 204, 21, 0.4)' },
-    { cup: '#d6d3d1', cupDark: '#78716c', shine: '#fafaf9', base: '#57534e', baseDark: '#44403c', glow: 'rgba(168, 162, 158, 0.3)' },
-    { cup: '#d4a06a', cupDark: '#8b5e3c', shine: '#e8bc88', base: '#704828', baseDark: '#5c3a1e', glow: 'rgba(180, 120, 60, 0.3)' },
-  ];
-
-  const medalColors = [
-    { fill: '#57534e', border: '#78716c', text: '#a8a29e', ribbon: '#44403c' },
-  ];
 </script>
 
 <div class="top-miners-row">
@@ -57,57 +49,10 @@
         <div class="nails"><div class="nail"></div><div class="nail"></div></div>
         <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
 
-        <!-- Rank badge: trophy for top 3, medal for rest -->
-        {#if i < 3}
-          {@const c = trophyColors[i]}
-          <div class="rank-icon" style="filter: drop-shadow(0 0 6px {c.glow});">
-            <svg width="54" height="60" viewBox="0 0 36 40" fill="none">
-              <!-- Handles -->
-              <path d="M5 8 C5 8 1 8 1 13 C1 18 5 18 5 18" stroke="{c.cup}" stroke-width="2" fill="none"/>
-              <path d="M31 8 C31 8 35 8 35 13 C35 18 31 18 31 18" stroke="{c.cup}" stroke-width="2" fill="none"/>
-              <!-- Cup body -->
-              <path d="M7 6 L7 20 C7 26 12 30 18 30 C24 30 29 26 29 20 L29 6 Z" fill="url(#cup{i})" stroke="{c.cupDark}" stroke-width="1"/>
-              <!-- Shine -->
-              <ellipse cx="14" cy="14" rx="3" ry="6" fill="{c.shine}" opacity="0.25"/>
-              <!-- Stem -->
-              <rect x="16" y="29" width="4" height="5" rx="1" fill="{c.cupDark}"/>
-              <!-- Base -->
-              <rect x="11" y="33" width="14" height="4" rx="2" fill="url(#base{i})" stroke="{c.baseDark}" stroke-width="0.5"/>
-              <!-- Number -->
-              <text x="18" y="21" text-anchor="middle" font-family="'Space Mono', monospace" font-size="16" font-weight="700" fill="#1c1917" stroke="#1c1917" stroke-width="0.5">{i + 1}</text>
-              <defs>
-                <linearGradient id="cup{i}" x1="7" y1="6" x2="29" y2="30" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="{c.shine}" stop-opacity="0.6"/>
-                  <stop offset="40%" stop-color="{c.cup}"/>
-                  <stop offset="100%" stop-color="{c.cupDark}"/>
-                </linearGradient>
-                <linearGradient id="base{i}" x1="11" y1="33" x2="11" y2="37" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="{c.base}"/>
-                  <stop offset="100%" stop-color="{c.baseDark}"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        {:else}
-          <div class="rank-icon">
-            <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
-              <!-- Ribbon -->
-              <path d="M8 0 L4 14 L14 10 L24 14 L20 0 Z" fill="#44403c"/>
-              <path d="M8 0 L4 14 L14 10" fill="#57534e"/>
-              <!-- Medal circle -->
-              <circle cx="14" cy="20" r="11" fill="url(#medal{i})" stroke="#57534e" stroke-width="1.5"/>
-              <circle cx="14" cy="20" r="8" fill="none" stroke="#44403c" stroke-width="0.75"/>
-              <!-- Number -->
-              <text x="14" y="24" text-anchor="middle" font-family="'Space Mono', monospace" font-size="11" font-weight="700" fill="#a8a29e">{i + 1}</text>
-              <defs>
-                <radialGradient id="medal{i}" cx="0.4" cy="0.35" r="0.6">
-                  <stop offset="0%" stop-color="#57534e"/>
-                  <stop offset="100%" stop-color="#292524"/>
-                </radialGradient>
-              </defs>
-            </svg>
-          </div>
-        {/if}
+        <!-- Rank badge -->
+        <div class="rank-icon">
+          <RankBadge rank={i + 1} />
+        </div>
 
         <!-- Avatar -->
         <div class="avatar-area">

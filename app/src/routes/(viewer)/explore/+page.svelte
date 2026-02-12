@@ -8,6 +8,7 @@
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
   import TopMiners from '$lib/components/explore/TopMiners.svelte';
+  import TopClaims from '$lib/components/explore/TopClaims.svelte';
 
   const PAGE_SIZE = 20;
   const SESSION_KEY = 'explore-filters';
@@ -159,6 +160,8 @@
     {#if topMiners.length > 0}
       <TopMiners miners={topMiners} onminerclick={handleMinerClick} />
     {/if}
+
+    <TopClaims onload={handleLoad} />
 
     <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
   </div>
