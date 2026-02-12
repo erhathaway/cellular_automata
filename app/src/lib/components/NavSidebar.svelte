@@ -244,11 +244,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 84px;
-    height: 84px;
+    width: 76px;
+    height: 76px;
     border-radius: 12px;
     background: #e7e5e4;
-    border: 2px solid #d6d3d1;
+    border: 1.5px solid #d6d3d1;
     color: #57534e;
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
   }
