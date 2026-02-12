@@ -323,7 +323,7 @@
     gap: 32px;
     max-width: 56rem;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 96px 24px 40px;
   }
 
   .badge-col {
@@ -343,7 +343,7 @@
     font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 24px;
     font-weight: 700;
-    color: #fde047;
+    color: #a8a29e;
     letter-spacing: -0.02em;
     white-space: nowrap;
     overflow: hidden;
