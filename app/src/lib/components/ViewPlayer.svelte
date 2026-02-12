@@ -21,6 +21,7 @@
   let trackedLattice: string | undefined;
   let mounted = false;
   let pendingInit: ReturnType<typeof setTimeout> | null = null;
+  let viewerDefaultUpdateRateMs: number | undefined;
 
   // Defer initViewer to a new browser task so click handlers complete quickly.
   // Immediately tears down the old viewer and updates tracked values to prevent
@@ -41,6 +42,7 @@
 
   function retrieveNextGeneration() {
     const pop = automataManager!.run();
+    automataStore.observePopulationForIntervention(pop);
     automataStore.updateGenerationInfo(
       automataManager!.currentGenerationIndex,
       automataManager!.totalGenerations,
@@ -180,6 +182,7 @@
 
       // Create Three.js scene
       viewer.createScene();
+      viewerDefaultUpdateRateMs = viewer.updateRateInMS;
 
       // Create genesis population
       automataManager!.populationShape = shape;
@@ -281,6 +284,19 @@
     } else {
       viewer.turnSimulationOff();
     }
+  });
+
+  // Watch for intervention update-rate overrides
+  $effect(() => {
+    const interventionRate = automataStore.interventionUpdateRateMs;
+    if (!viewer) return;
+
+    if (interventionRate !== null) {
+      viewer.updateRateInMS = interventionRate;
+      return;
+    }
+
+    viewer.updateRateInMS = viewerDefaultUpdateRateMs;
   });
 
   // Watch for cell state color changes

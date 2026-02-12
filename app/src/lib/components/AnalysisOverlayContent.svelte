@@ -144,6 +144,15 @@
 </script>
 
 <div class="analysis-body">
+  {#if automataStore.interventionTaken}
+    <div class="warning-row">
+      <div class="intervention-card">
+        <div class="iw-k">{automataStore.interventionTitle}</div>
+        <div class="iw-v">{automataStore.interventionReason}</div>
+      </div>
+    </div>
+  {/if}
+
   <div class="counts">
     <div class="count-card">
       <div class="k">Total Cells</div>
@@ -221,6 +230,38 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .warning-row {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .intervention-card {
+    width: 100%;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 10px;
+    background: rgba(245, 158, 11, 0.12);
+    box-shadow:
+      0 0 0 1px rgba(250, 204, 21, 0.18) inset,
+      0 0 12px rgba(245, 158, 11, 0.24);
+  }
+
+  .iw-k {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fef3c7;
+  }
+
+  .iw-v {
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #fde68a;
   }
 
   .count-card {

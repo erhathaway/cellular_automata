@@ -127,6 +127,12 @@ class AutomataStore {
   stablePeriod = $state(0);
   stableKind: 'exact' | 'quasi' | 'none' = $state('none');
 
+  // Emergence intervention state
+  interventionTaken = $state(false);
+  interventionTitle = $state('');
+  interventionReason = $state('');
+  interventionUpdateRateMs: number | null = $state(null);
+
   // Per-shape rules for multi-shape lattices (null = single-shape)
   shapeRules: { survive: number[]; born: number[] }[] | null = $state(null);
 
@@ -149,6 +155,8 @@ class AutomataStore {
   private _radiusHistory: Map<string, number> = new Map();
   private _latticeHistory: Map<string, LatticeType> = new Map();
   private _shapeRulesHistory: Map<string, { survive: number[]; born: number[] }[]> = new Map();
+  private _recentLivingCounts: number[] = [];
+  private _recentDeadCounts: number[] = [];
 
   constructor() {
     // Save initial state
@@ -318,6 +326,7 @@ class AutomataStore {
     this.stableDetected = false;
     this.stablePeriod = 0;
     this.stableKind = 'none';
+    this.clearIntervention();
   }
 
   randomizeRule() {
@@ -416,6 +425,81 @@ class AutomataStore {
     this.stableDetected = false;
     this.stablePeriod = 0;
     this.stableKind = 'none';
+  }
+
+  clearIntervention() {
+    this.interventionTaken = false;
+    this.interventionTitle = '';
+    this.interventionReason = '';
+    this.interventionUpdateRateMs = null;
+    this._recentLivingCounts = [];
+    this._recentDeadCounts = [];
+  }
+
+  observePopulationForIntervention(population: any) {
+    // Flatten arbitrary dimension population into living/dead counts.
+    const stack: any[] = [population];
+    let living = 0;
+    let total = 0;
+    while (stack.length > 0) {
+      const node = stack.pop();
+      if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) stack.push(node[i]);
+      } else {
+        total++;
+        if (node === 1) living++;
+      }
+    }
+    const dead = total - living;
+
+    const WINDOW = 30;
+    this._recentLivingCounts.push(living);
+    this._recentDeadCounts.push(dead);
+    if (this._recentLivingCounts.length > WINDOW) this._recentLivingCounts.shift();
+    if (this._recentDeadCounts.length > WINDOW) this._recentDeadCounts.shift();
+
+    if (this.interventionTaken) return;
+    if (this._recentLivingCounts.length < 15) return;
+
+    const recentLiving = this._recentLivingCounts.slice(-20);
+    const recentDead = this._recentDeadCounts.slice(-20);
+    const livingSet = Array.from(new Set(recentLiving)).sort((a, b) => a - b);
+    const deadSet = Array.from(new Set(recentDead)).sort((a, b) => a - b);
+
+    const findRepeatingPeriod = (values: number[], maxPeriod = 10, minRepeats = 3): number | null => {
+      const n = values.length;
+      for (let period = 1; period <= maxPeriod; period++) {
+        const span = period * minRepeats;
+        if (n < span) continue;
+        const start = n - span;
+        let matches = true;
+        for (let i = start + period; i < n; i++) {
+          if (values[i] !== values[i - period]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) return period;
+      }
+      return null;
+    };
+
+    // Detect repeated oscillation over a narrow (<=5 value) band for both living and dead counts.
+    const inFiveValueBand =
+      livingSet.length >= 2 &&
+      deadSet.length >= 2 &&
+      livingSet.length <= 5 &&
+      deadSet.length <= 5;
+    const livingPeriod = findRepeatingPeriod(recentLiving);
+    const deadPeriod = findRepeatingPeriod(recentDead);
+    const explosivePattern = inFiveValueBand && livingPeriod !== null && deadPeriod !== null;
+    if (!explosivePattern) return;
+
+    this.interventionTaken = true;
+    this.interventionTitle = 'Emergence intervention taken';
+    this.interventionReason =
+      `Explosive automata detected: living/dead counts are cycling in a repeating <=5-value band (periods ${livingPeriod}/${deadPeriod}). Slowing simulation to 0.33 FPS.`;
+    this.interventionUpdateRateMs = 3000;
   }
 
   updateGenerationInfo(index: number, total: number, capacity?: number) {
