@@ -2,7 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { user } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, ne } from 'drizzle-orm';
 import { AVATARS } from '$lib/avatars';
 
 const validAvatarIds = new Set(AVATARS.map((a) => a.id));
@@ -38,6 +38,15 @@ export const PATCH: RequestHandler = async ({ locals, request }) => {
 		const name = String(body.displayName).trim();
 		if (name.length < 1 || name.length > 30) {
 			return error(400, 'Display name must be 1-30 characters');
+		}
+		// Check uniqueness (exclude current user)
+		const existing = await db
+			.select({ id: user.id })
+			.from(user)
+			.where(and(eq(user.displayName, name), ne(user.id, auth.userId)))
+			.get();
+		if (existing) {
+			return error(409, 'Display name is already taken');
 		}
 		updates.displayName = name;
 	}

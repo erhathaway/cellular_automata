@@ -726,7 +726,7 @@ class AutomataStore {
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
     this._setFullNeighbors(defaultNeighbors(dim, this.neighborhoodRadius, lat));
     this.populationShape = this._shapeHistory.get(key)
-      ? { ...this._shapeHistory.get(key)! }
+      ? { ...defaultShape(dim, viewer), ...this._shapeHistory.get(key)! }
       : defaultShape(dim, viewer);
     this.rule = this._ruleHistory.get(key)
       ? { ...this._ruleHistory.get(key)! }
@@ -848,7 +848,7 @@ class AutomataStore {
 
     const savedShape = this._shapeHistory.get(key);
     this.populationShape = savedShape
-      ? { ...savedShape }
+      ? { ...defaultShape(this.dimension, this.viewer), ...savedShape }
       : defaultShape(this.dimension, this.viewer);
 
     const savedStates = this._cellStatesHistory.get(key);

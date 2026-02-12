@@ -20,6 +20,10 @@
   let saving = $state(false);
   let saveMsg = $state('');
   let errorMsg = $state('');
+  let nameAvailable = $state<boolean | null>(null); // null = not checked yet
+  let nameChecking = $state(false);
+  let nameCheckTimer = $state<ReturnType<typeof setTimeout> | null>(null);
+  let suggestingName = $state(false);
 
   // Delete account state
   let showDeleteConfirm = $state(false);
@@ -32,12 +36,55 @@
       displayName = userProfile.displayName ?? '';
       saveMsg = '';
       errorMsg = '';
+      nameAvailable = null;
       showDeleteConfirm = false;
       deleteInput = '';
     }
   });
 
-  let canSave = $derived(displayName.trim().length >= 1);
+  let canSave = $derived(displayName.trim().length >= 1 && nameAvailable !== false);
+
+  async function checkNameAvailability(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === userProfile?.displayName) {
+      nameAvailable = null;
+      nameChecking = false;
+      return;
+    }
+    nameChecking = true;
+    try {
+      const res = await api<{ available: boolean }>('GET', `/api/user/check-name?name=${encodeURIComponent(trimmed)}`);
+      // Only update if the name hasn't changed since we started
+      if (displayName.trim() === trimmed) {
+        nameAvailable = res.available;
+        nameChecking = false;
+      }
+    } catch {
+      nameChecking = false;
+    }
+  }
+
+  function handleNameInput() {
+    nameAvailable = null;
+    if (nameCheckTimer) clearTimeout(nameCheckTimer);
+    nameCheckTimer = setTimeout(() => {
+      checkNameAvailability(displayName);
+    }, 400);
+  }
+
+  async function suggestName() {
+    if (suggestingName) return;
+    suggestingName = true;
+    try {
+      const res = await api<{ name: string }>('GET', '/api/user/suggest-name');
+      displayName = res.name;
+      nameAvailable = true; // Server already verified it's available
+    } catch (err: any) {
+      errorMsg = err.message || 'Failed to suggest name';
+    } finally {
+      suggestingName = false;
+    }
+  }
 
   async function save() {
     if (!canSave || saving) return;
@@ -52,7 +99,13 @@
       saveMsg = 'Saved!';
       setTimeout(() => { saveMsg = ''; }, 2000);
     } catch (err: any) {
-      errorMsg = err.message || 'Something went wrong';
+      const msg = err.message || 'Something went wrong';
+      if (msg.includes('409') || msg.toLowerCase().includes('taken')) {
+        nameAvailable = false;
+        errorMsg = 'Display name is already taken';
+      } else {
+        errorMsg = msg;
+      }
     } finally {
       saving = false;
     }
@@ -134,13 +187,52 @@
 
         <div class="field">
           <label class="field-label" for="settings-name">Display Name</label>
-          <input
-            id="settings-name"
-            type="text"
-            bind:value={displayName}
-            maxlength={30}
-            class="field-input"
-          />
+          <div class="name-input-row">
+            <div class="name-input-wrap" class:name-taken={nameAvailable === false} class:name-ok={nameAvailable === true}>
+              <input
+                id="settings-name"
+                type="text"
+                bind:value={displayName}
+                oninput={handleNameInput}
+                maxlength={30}
+                class="field-input name-field"
+              />
+              {#if nameChecking}
+                <span class="name-status checking" title="Checking...">...</span>
+              {:else if nameAvailable === true}
+                <span class="name-status available" title="Available">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                </span>
+              {:else if nameAvailable === false}
+                <span class="name-status taken" title="Already taken">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </span>
+              {/if}
+            </div>
+            <button
+              class="dice-btn"
+              onclick={suggestName}
+              disabled={suggestingName}
+              title="Generate random name"
+              aria-label="Generate random name"
+            >
+              {#if suggestingName}
+                <svg class="dice-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+              {:else}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                  <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+                  <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+                  <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+                  <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                </svg>
+              {/if}
+            </button>
+          </div>
+          {#if nameAvailable === false}
+            <p class="name-taken-msg">This name is already taken</p>
+          {/if}
         </div>
 
         {#if errorMsg}
@@ -421,6 +513,111 @@
 
   .field-input::placeholder {
     color: #44403c;
+  }
+
+  /* Name input row */
+  .name-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .name-input-wrap {
+    position: relative;
+    flex: 1;
+  }
+
+  .name-field {
+    padding-right: 36px !important;
+  }
+
+  .name-input-wrap.name-taken .name-field {
+    border-color: #ef4444;
+  }
+
+  .name-input-wrap.name-taken .name-field:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+  }
+
+  .name-input-wrap.name-ok .name-field {
+    border-color: #22c55e;
+  }
+
+  .name-input-wrap.name-ok .name-field:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+  }
+
+  .name-status {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .name-status.checking {
+    color: #78716c;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .name-status.available {
+    color: #22c55e;
+  }
+
+  .name-status.taken {
+    color: #ef4444;
+  }
+
+  .name-taken-msg {
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #ef4444;
+  }
+
+  .dice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    padding: 0;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    color: #facc15;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .dice-btn:hover:not(:disabled) {
+    background: rgba(250, 204, 21, 0.2);
+    border-color: #facc15;
+  }
+
+  .dice-btn:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .dice-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @keyframes dice-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .dice-spin {
+    animation: dice-spin 0.6s linear infinite;
   }
 
   /* Messages */
