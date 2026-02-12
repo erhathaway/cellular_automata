@@ -240,6 +240,7 @@
   .mine-panel {
     position: relative;
     overflow: visible;
+    z-index: 1;
     padding: 14px 14px 18px;
     background-color: #1c1917;
     background-image:
@@ -281,6 +282,7 @@
 
   .mine-btn {
     position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -311,23 +313,21 @@
   }
 
   .mine-btn:active {
-    transform: translateY(5px);
+    transform: translateY(3px);
+    border-color: #facc15;
     box-shadow:
-      0 1px 0 #0c0a09,
-      0 2px 4px rgba(0,0,0,0.4),
-      inset 0 2px 4px rgba(0,0,0,0.4);
+      0 1px 0 #57534e,
+      0 0 12px rgba(250, 204, 21, 0.2),
+      inset 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .mine-btn.mining {
+    transform: translateY(3px);
     border-color: #facc15;
-    border-top-color: #fde047;
-    border-bottom-color: #44403c;
-    transform: translateY(5px);
     box-shadow:
-      0 1px 0 #0c0a09,
-      0 2px 4px rgba(0,0,0,0.4),
-      0 0 20px rgba(250, 204, 21, 0.25),
-      inset 0 2px 4px rgba(0,0,0,0.4);
+      0 1px 0 #57534e,
+      0 0 20px rgba(250, 204, 21, 0.3),
+      inset 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .pickaxe {
