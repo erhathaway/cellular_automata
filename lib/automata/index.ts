@@ -28,6 +28,12 @@ export default class AutomataManager {
   private _stateReducer: any;
   private _ruleApplicator: OneDimensionRuleApplicator | LifeLikeRuleApplicator;
 
+  // Fast-path fields
+  private _neighborOffsets2D: [number, number][] = [];
+  private _neighborOffsets3D: [number, number, number][] = [];
+  private _bornLookup: Uint8Array = new Uint8Array(0);
+  private _surviveLookup: Uint8Array = new Uint8Array(0);
+
   constructor() {
     this._ruleApplicator = new LifeLikeRuleApplicator();
     this.useLifeLikeGenerator();
@@ -39,9 +45,65 @@ export default class AutomataManager {
     this._generationHistorySize = 20;
   }
 
+  // Parse a single coordinate part like "x+2", "y-1", "z" into its delta
+  private _parseDelta(part: string): number {
+    const plusIdx = part.indexOf('+');
+    if (plusIdx !== -1) return +part.slice(plusIdx + 1);
+    const minusIdx = part.indexOf('-');
+    if (minusIdx !== -1) return -parseInt(part.slice(minusIdx + 1), 10);
+    return 0;
+  }
+
+  // Parse neighbor strings into numeric offset arrays
+  private _parseNeighborOffsets(neighborStrings: string[]): void {
+    // Always clear both to prevent stale offsets (e.g. 1D neighbors after useLifeLikeGenerator)
+    this._neighborOffsets2D = [];
+    this._neighborOffsets3D = [];
+    if (neighborStrings.length === 0) return;
+    const dims = neighborStrings[0].split('|').length;
+    if (dims === 2) {
+      this._neighborOffsets2D = neighborStrings.map((s) => {
+        const parts = s.split('|');
+        return [this._parseDelta(parts[0]), this._parseDelta(parts[1])];
+      });
+    } else if (dims === 3) {
+      this._neighborOffsets3D = neighborStrings.map((s) => {
+        const parts = s.split('|');
+        return [this._parseDelta(parts[0]), this._parseDelta(parts[1]), this._parseDelta(parts[2])];
+      });
+    }
+  }
+
+  // Build lookup tables from born/survive arrays
+  private _buildRuleLookups(rule: LifeLikeRule, neighborCount: number): void {
+    const maxN = neighborCount;
+    this._bornLookup = new Uint8Array(maxN + 1);
+    this._surviveLookup = new Uint8Array(maxN + 1);
+    for (const n of rule.born) {
+      if (n <= maxN) this._bornLookup[n] = 1;
+    }
+    for (const n of rule.survive) {
+      if (n <= maxN) this._surviveLookup[n] = 1;
+    }
+  }
+
   set rule(rule: any) {
     this._rule = rule;
     this._ruleApplicator.rule = rule;
+
+    // Build fast-path lookup tables for life-like rules
+    if (rule && Array.isArray(rule.born) && Array.isArray(rule.survive)) {
+      const neighborCount =
+        this._generatorType === 'threeDimension'
+          ? this._neighborOffsets3D.length
+          : this._neighborOffsets2D.length;
+      if (neighborCount > 0) {
+        this._buildRuleLookups(rule, neighborCount);
+      }
+    } else {
+      this._bornLookup = new Uint8Array(0);
+      this._surviveLookup = new Uint8Array(0);
+    }
   }
 
   get rule(): any {
@@ -103,6 +165,18 @@ export default class AutomataManager {
         cell: neighborhoodMatrix[cellCoords.x][cellCoords.y][cellCoords.z],
       });
     }
+
+    // Parse offsets for fast path and rebuild rule lookups
+    this._parseNeighborOffsets(neighborStrings);
+    if (this._rule && Array.isArray(this._rule.born) && Array.isArray(this._rule.survive)) {
+      const neighborCount =
+        this._generatorType === 'threeDimension'
+          ? this._neighborOffsets3D.length
+          : this._neighborOffsets2D.length;
+      if (neighborCount > 0) {
+        this._buildRuleLookups(this._rule, neighborCount);
+      }
+    }
   }
 
   seedDensity = 0.5;
@@ -137,6 +211,11 @@ export default class AutomataManager {
     this._neighborStateExtractor = oneDimensionNeighborhoodStateExtractor;
     this._stateReducer = oneDimensionStateReducer;
     this._ruleApplicator = new OneDimensionRuleApplicator();
+    // Clear fast-path state
+    this._neighborOffsets2D = [];
+    this._neighborOffsets3D = [];
+    this._bornLookup = new Uint8Array(0);
+    this._surviveLookup = new Uint8Array(0);
   }
 
   useLifeLikeGenerator() {
@@ -144,6 +223,12 @@ export default class AutomataManager {
     this._neighborStateExtractor = twoDimensionNeighborhoodStateExtractor;
     this._stateReducer = lifeLikeStateReducer;
     this._ruleApplicator = new LifeLikeRuleApplicator();
+    // Default 8 Moore offsets for radius 1
+    this._neighborOffsets2D = [
+      [0, 1], [1, 1], [1, 0], [1, -1],
+      [0, -1], [-1, -1], [-1, 0], [-1, 1],
+    ];
+    this._neighborOffsets3D = [];
   }
 
   useThreeDimensionGenerator() {
@@ -152,6 +237,123 @@ export default class AutomataManager {
     this._stateReducer = lifeLikeStateReducer;
     this._ruleApplicator = new LifeLikeRuleApplicator();
     this._ruleApplicator.rule = { survive: [4, 5], born: [5] };
+    // Default 26 Moore offsets for radius 1
+    this._neighborOffsets2D = [];
+    this._neighborOffsets3D = [];
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          if (dx === 0 && dy === 0 && dz === 0) continue;
+          this._neighborOffsets3D.push([dx, dy, dz]);
+        }
+      }
+    }
+    // Build lookup tables for the default 3D rule
+    this._buildRuleLookups({ survive: [4, 5], born: [5] }, this._neighborOffsets3D.length);
+  }
+
+  // --- Fast-path generation methods ---
+
+  private _fastGenerate2D(): void {
+    const pop = this._currentPopulation as number[][];
+    const W = pop.length;
+    const H = pop[0].length;
+    const offsets = this._neighborOffsets2D;
+    const numOffsets = offsets.length;
+    const born = this._bornLookup;
+    const survive = this._surviveLookup;
+
+    const next: number[][] = new Array(W);
+    for (let x = 0; x < W; x++) {
+      const row = new Array(H);
+      const popX = pop[x];
+      for (let y = 0; y < H; y++) {
+        let liveCount = 0;
+        for (let n = 0; n < numOffsets; n++) {
+          const off = offsets[n];
+          liveCount += pop[((x + off[0]) % W + W) % W][((y + off[1]) % H + H) % H];
+        }
+        row[y] = popX[y] === 1 ? survive[liveCount] : born[liveCount];
+      }
+      next[x] = row;
+    }
+    this._currentPopulation = next;
+  }
+
+  private _fastGenerate3D(): void {
+    const pop = this._currentPopulation as number[][][];
+    const W = pop.length;
+    const H = pop[0].length;
+    const D = pop[0][0].length;
+    const offsets = this._neighborOffsets3D;
+    const numOffsets = offsets.length;
+    const born = this._bornLookup;
+    const survive = this._surviveLookup;
+
+    const next: number[][][] = new Array(W);
+    for (let x = 0; x < W; x++) {
+      const slice: number[][] = new Array(H);
+      const popX = pop[x];
+      for (let y = 0; y < H; y++) {
+        const row = new Array(D);
+        const popXY = popX[y];
+        for (let z = 0; z < D; z++) {
+          let liveCount = 0;
+          for (let n = 0; n < numOffsets; n++) {
+            const off = offsets[n];
+            liveCount += pop[((x + off[0]) % W + W) % W][((y + off[1]) % H + H) % H][((z + off[2]) % D + D) % D];
+          }
+          row[z] = popXY[z] === 1 ? survive[liveCount] : born[liveCount];
+        }
+        slice[y] = row;
+      }
+      next[x] = slice;
+    }
+    this._currentPopulation = next;
+  }
+
+  // --- Fast-path snapshot methods ---
+
+  private _snapshotPopulation2D(pop: number[][]): Uint8Array {
+    const W = pop.length;
+    const H = pop[0].length;
+    const totalCells = W * H;
+    const byteLen = Math.ceil(totalCells / 8);
+    const bytes = new Uint8Array(byteLen);
+    let i = 0;
+    for (let x = 0; x < W; x++) {
+      const row = pop[x];
+      for (let y = 0; y < H; y++) {
+        if (row[y] === 1) {
+          bytes[i >> 3] |= 1 << (7 - (i & 7));
+        }
+        i++;
+      }
+    }
+    return bytes;
+  }
+
+  private _snapshotPopulation3D(pop: number[][][]): Uint8Array {
+    const W = pop.length;
+    const H = pop[0].length;
+    const D = pop[0][0].length;
+    const totalCells = W * H * D;
+    const byteLen = Math.ceil(totalCells / 8);
+    const bytes = new Uint8Array(byteLen);
+    let i = 0;
+    for (let x = 0; x < W; x++) {
+      const slice = pop[x];
+      for (let y = 0; y < H; y++) {
+        const row = slice[y];
+        for (let z = 0; z < D; z++) {
+          if (row[z] === 1) {
+            bytes[i >> 3] |= 1 << (7 - (i & 7));
+          }
+          i++;
+        }
+      }
+    }
+    return bytes;
   }
 
   private _computeStateOffCoords = (coords: any, currentPopulation: Population): number => {
@@ -184,6 +386,12 @@ export default class AutomataManager {
 
   // Bitpack an array of 0/1 values into a Uint8Array (8 cells per byte)
   _snapshotPopulation(pop: Population): Uint8Array {
+    if (this._generatorType === 'twoDimension' && this._neighborOffsets2D.length > 0) {
+      return this._snapshotPopulation2D(pop as number[][]);
+    }
+    if (this._generatorType === 'threeDimension' && this._neighborOffsets3D.length > 0) {
+      return this._snapshotPopulation3D(pop as number[][][]);
+    }
     const flat = this._flattenPopulation(pop);
     const byteLen = Math.ceil(flat.length / 8);
     const bytes = new Uint8Array(byteLen);
@@ -244,6 +452,14 @@ export default class AutomataManager {
   }
 
   generateNextPopulationFromCurrent() {
+    if (this._generatorType === 'twoDimension' && this._bornLookup.length > 0) {
+      this._fastGenerate2D();
+      return;
+    }
+    if (this._generatorType === 'threeDimension' && this._bornLookup.length > 0) {
+      this._fastGenerate3D();
+      return;
+    }
     this._currentPopulation = PopulationManager.generateNextPopulationFromCurrent(
       this._currentPopulation!,
       this._currentPopulation!,
