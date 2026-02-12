@@ -4,7 +4,7 @@
 		{ title: 'Dimensions', slug: 'dimension' },
 		{ title: 'Generations', slug: 'generations' },
 		{ title: 'Viewer', slug: 'viewer' },
-		{ title: 'Neighbors', slug: 'neighbors' },
+		{ title: 'Neighbors & Lattices', slug: 'neighbors' },
 		{ title: 'State', slug: 'state' },
 	];
 
