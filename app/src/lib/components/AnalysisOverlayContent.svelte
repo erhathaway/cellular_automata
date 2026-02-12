@@ -91,6 +91,7 @@
   let totalCells = $derived(analysis.totalCells);
   let livingCells = $derived(analysis.livingCells);
   let deadCells = $derived(analysis.deadCells);
+  let livingPct = $derived(totalCells > 0 ? (livingCells / totalCells) * 100 : 0);
   let bins = $derived(analysis.bins);
 
   let maxBin = $derived.by(() => {
@@ -147,6 +148,8 @@
   {#if automataStore.allAutomataDied}
     <div class="warning-row">
       <div class="extinction-card">
+        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
         <div class="iw-k">All automata died</div>
         <div class="iw-v">No living cells for 5 consecutive generations.</div>
       </div>
@@ -154,6 +157,8 @@
   {:else if automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1}
     <div class="warning-row">
       <div class="frozen-card">
+        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
         <div class="iw-k">Frozen automata detected</div>
         <div class="iw-v">No cells are being born or dying</div>
       </div>
@@ -161,29 +166,42 @@
   {:else if automataStore.interventionTaken}
     <div class="warning-row">
       <div class="intervention-card">
+        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
         <div class="iw-k">{automataStore.interventionTitle}</div>
         <div class="iw-v">{automataStore.interventionReason}</div>
       </div>
     </div>
   {/if}
 
-  <div class="counts">
-    <div class="count-card">
-      <div class="k">Total Cells</div>
-      <div class="v">{totalCells.toLocaleString()}</div>
+  <div class="count-card">
+    <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+    <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+    <div class="count-header">
+      <div class="section-title">Population</div>
+      <div class="count-total">{totalCells.toLocaleString()} cells</div>
     </div>
-    <div class="count-card">
-      <div class="k">Living</div>
-      <div class="v">{livingCells.toLocaleString()}</div>
+    <div class="life-bar">
+      <div class="life-bar-living" style={`width:${livingPct}%`}></div>
+      <div class="life-bar-dead" style={`width:${100 - livingPct}%`}></div>
     </div>
-    <div class="count-card">
-      <div class="k">Dead</div>
-      <div class="v">{deadCells.toLocaleString()}</div>
+    <div class="life-labels">
+      <div class="life-label living">
+        <span class="life-label-k">Living</span>
+        <span class="life-label-v">{livingCells.toLocaleString()}</span>
+      </div>
+      <div class="life-label dead">
+        <span class="life-label-k">Dead</span>
+        <span class="life-label-v">{deadCells.toLocaleString()}</span>
+      </div>
     </div>
   </div>
 
   <div class="hist-wrap">
-    <div class="hist-title">Turns Since Death Histogram (trail {trail})</div>
+    <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+    <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+    <div class="section-title">Decay Rate</div>
+    <div class="section-subtitle">Turns Since Death Histogram (trail {trail})</div>
     {#if bins.length > 0}
       <div class="hist-scroll">
         <div class="histogram" style={`--count:${bins.length};`}>
@@ -203,7 +221,10 @@
   </div>
 
   <div class="spectral-wrap">
-    <div class="hist-title">Period Spectrum (Harmonics)</div>
+    <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+    <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+    <div class="section-title">Harmonics</div>
+    <div class="section-subtitle">Period Spectrum</div>
     {#if topPeaks.length > 0}
       <div class="peaks">
         {#each topPeaks as p, i (i)}
@@ -236,14 +257,8 @@
     flex-direction: column;
     gap: 14px;
     height: calc(100% - 62px);
-    padding: 12px;
+    padding: 12px 12px 24px;
     overflow-y: auto;
-  }
-
-  .counts {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
   }
 
   .warning-row {
@@ -252,6 +267,7 @@
   }
 
   .intervention-card {
+    position: relative;
     width: 100%;
     border: 1px solid #f59e0b;
     border-radius: 6px;
@@ -263,6 +279,7 @@
   }
 
   .extinction-card {
+    position: relative;
     width: 100%;
     border: 1px solid #ef4444;
     border-radius: 6px;
@@ -274,6 +291,7 @@
   }
 
   .frozen-card {
+    position: relative;
     width: 100%;
     border: 1px solid #60a5fa;
     border-radius: 6px;
@@ -301,31 +319,88 @@
   }
 
   .count-card {
+    position: relative;
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(250, 204, 21, 0.04);
     padding: 10px;
   }
 
-  .k {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #fde68a;
+  .count-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
   }
 
-  .v {
-    margin-top: 4px;
+  .count-total {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #a8a29e;
+  }
+
+  .life-bar {
+    display: flex;
+    height: 14px;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid #44403c;
+  }
+
+  .life-bar-living {
+    background: linear-gradient(180deg, #fef08a 0%, #facc15 100%);
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.3);
+    transition: width 0.3s ease;
+    min-width: 1px;
+  }
+
+  .life-bar-dead {
+    background: #292524;
+    transition: width 0.3s ease;
+    min-width: 1px;
+  }
+
+  .life-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .life-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .life-label.dead {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .life-label-k {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #78716c;
+  }
+
+  .life-label-v {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 24px;
+    font-size: 18px;
     line-height: 1;
     font-weight: 700;
     color: #fef08a;
   }
 
+  .life-label.dead .life-label-v {
+    color: #78716c;
+  }
+
   .hist-wrap {
-    min-height: 0;
+    position: relative;
+    flex-shrink: 0;
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.35);
@@ -336,6 +411,8 @@
   }
 
   .spectral-wrap {
+    position: relative;
+    flex-shrink: 0;
     border: 1px solid #44403c;
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.35);
@@ -345,12 +422,21 @@
     gap: 8px;
   }
 
-  .hist-title {
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fde68a;
+  }
+
+  .section-subtitle {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #fde68a;
+    color: #78716c;
   }
 
   .hist-scroll {
@@ -428,5 +514,30 @@
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: #fcd34d;
+  }
+
+  /* Nails */
+  .nails {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .nails-bottom {
+    top: auto;
+    bottom: 6px;
+  }
+
+  .nail {
+    width: 4px;
+    height: 4px;
+    background: #a8a29e;
+    border-radius: 50%;
+    opacity: 0.45;
   }
 </style>
