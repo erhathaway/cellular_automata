@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
@@ -91,6 +92,7 @@
     }
     automataStore.useSavedSeed = true;
     automataStore.reset();
+    viewerUiStore.openAnalysis();
     const params = buildURLParams(dim, viewer, settings);
     goto(`/?${params.toString()}`);
   }

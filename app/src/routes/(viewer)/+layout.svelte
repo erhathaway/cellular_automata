@@ -48,6 +48,14 @@
   });
 
   $effect(() => {
+    const playing = automataStore.isPlaying;
+    const analysisOpen = viewerUiStore.analysisOpen;
+    if (playing && !analysisOpen) {
+      viewerUiStore.openAnalysis();
+    }
+  });
+
+  $effect(() => {
     if (viewerUiStore.analysisOpen && !rightOpen) {
       rightOpen = true;
       animateResize();

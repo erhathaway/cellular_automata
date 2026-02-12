@@ -8,6 +8,7 @@
 	import { ClerkProvider, SignedIn } from 'svelte-clerk';
 	import { goto } from '$app/navigation';
 	import { automataStore } from '$lib/stores/automata.svelte';
+	import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 	import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
 	import type { HistoryEntry } from '$lib/stores/history.svelte';
 
@@ -62,6 +63,7 @@
 		automataStore.savedSeed = null;
 		automataStore.useSavedSeed = true;
 		automataStore.reset();
+		viewerUiStore.openAnalysis();
 
 		const params = buildURLParams(entry.dimension, entry.viewer, settings);
 		goto(`/?${params.toString()}`);

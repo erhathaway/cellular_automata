@@ -132,6 +132,7 @@ class AutomataStore {
   interventionTitle = $state('');
   interventionReason = $state('');
   interventionUpdateRateMs: number | null = $state(null);
+  allAutomataDied = $state(false);
 
   // Per-shape rules for multi-shape lattices (null = single-shape)
   shapeRules: { survive: number[]; born: number[] }[] | null = $state(null);
@@ -157,6 +158,7 @@ class AutomataStore {
   private _shapeRulesHistory: Map<string, { survive: number[]; born: number[] }[]> = new Map();
   private _recentLivingCounts: number[] = [];
   private _recentDeadCounts: number[] = [];
+  private _noLivingStreak = 0;
 
   constructor() {
     // Save initial state
@@ -432,8 +434,10 @@ class AutomataStore {
     this.interventionTitle = '';
     this.interventionReason = '';
     this.interventionUpdateRateMs = null;
+    this.allAutomataDied = false;
     this._recentLivingCounts = [];
     this._recentDeadCounts = [];
+    this._noLivingStreak = 0;
   }
 
   observePopulationForIntervention(population: any) {
@@ -452,6 +456,16 @@ class AutomataStore {
     }
     const dead = total - living;
 
+    if (living === 0) {
+      this._noLivingStreak += 1;
+      if (this._noLivingStreak >= 5) {
+        this.allAutomataDied = true;
+      }
+    } else {
+      this._noLivingStreak = 0;
+      this.allAutomataDied = false;
+    }
+
     const WINDOW = 30;
     this._recentLivingCounts.push(living);
     this._recentDeadCounts.push(dead);
@@ -465,6 +479,11 @@ class AutomataStore {
     const recentDead = this._recentDeadCounts.slice(-20);
     const livingSet = Array.from(new Set(recentLiving)).sort((a, b) => a - b);
     const deadSet = Array.from(new Set(recentDead)).sort((a, b) => a - b);
+    const hasLivingChange = livingSet.length > 1;
+    const hasDeadChange = deadSet.length > 1;
+
+    // Never intervene for flat traces (no population fluctuation).
+    if (!hasLivingChange || !hasDeadChange) return;
 
     const findRepeatingPeriod = (values: number[], maxPeriod = 10, minRepeats = 3): number | null => {
       const n = values.length;
@@ -486,8 +505,8 @@ class AutomataStore {
 
     // Detect repeated oscillation over a narrow (<=5 value) band for both living and dead counts.
     const inFiveValueBand =
-      livingSet.length >= 2 &&
-      deadSet.length >= 2 &&
+      hasLivingChange &&
+      hasDeadChange &&
       livingSet.length <= 5 &&
       deadSet.length <= 5;
     const livingPeriod = findRepeatingPeriod(recentLiving);
@@ -496,7 +515,7 @@ class AutomataStore {
     if (!explosivePattern) return;
 
     this.interventionTaken = true;
-    this.interventionTitle = 'Emergence intervention taken';
+    this.interventionTitle = 'Emergency intervention taken';
     this.interventionReason =
       `Explosive automata detected: living/dead counts are cycling in a repeating <=5-value band (periods ${livingPeriod}/${deadPeriod}). Slowing simulation to 0.33 FPS.`;
     this.interventionUpdateRateMs = 3000;

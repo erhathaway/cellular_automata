@@ -144,7 +144,14 @@
 </script>
 
 <div class="analysis-body">
-  {#if automataStore.interventionTaken}
+  {#if automataStore.allAutomataDied}
+    <div class="warning-row">
+      <div class="extinction-card">
+        <div class="iw-k">All automata died</div>
+        <div class="iw-v">No living cells for 5 consecutive generations.</div>
+      </div>
+    </div>
+  {:else if automataStore.interventionTaken}
     <div class="warning-row">
       <div class="intervention-card">
         <div class="iw-k">{automataStore.interventionTitle}</div>
@@ -246,6 +253,17 @@
     box-shadow:
       0 0 0 1px rgba(250, 204, 21, 0.18) inset,
       0 0 12px rgba(245, 158, 11, 0.24);
+  }
+
+  .extinction-card {
+    width: 100%;
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    padding: 10px;
+    background: rgba(239, 68, 68, 0.16);
+    box-shadow:
+      0 0 0 1px rgba(248, 113, 113, 0.2) inset,
+      0 0 12px rgba(239, 68, 68, 0.28);
   }
 
   .iw-k {
