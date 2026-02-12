@@ -146,15 +146,17 @@
       {/if}
     </div>
 
-    <div class="chip-stack">
-      <div class="owner-avatar-label">
-        <span class="owner-claim-badge">CLAIM</span>
-        <div class="owner-content">
-          <div class="owner-avatar-wrap">
-            <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} />
-          </div>
+  </div>
+
+  <div class="chip-stack">
+    <div class="owner-avatar-label">
+      <div class="owner-content">
+        <div class="owner-avatar-wrap">
+          <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} />
         </div>
       </div>
+    </div>
+    <div class="chip-info">
       <p class="rule-text">
         {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
       </p>
@@ -208,7 +210,7 @@
     position: relative;
     border-radius: 6px;
     overflow: visible;
-    margin-bottom: 24px;
+    margin-bottom: 6px;
   }
 
   /* ── Corner brackets: thick black L-shapes ── */
@@ -443,40 +445,28 @@
   }
 
   .chip-stack {
-    position: absolute;
-    left: 8px;
-    bottom: 0;
-    transform: translateY(28%);
-    z-index: 6;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding-left: 2px;
+  }
+
+  .chip-info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
-    pointer-events: none;
+    gap: 4px;
+    min-width: 0;
+    margin-top: -11px;
+    margin-left: -4px;
   }
 
   .owner-avatar-label {
     position: relative;
     width: 56px;
     height: 56px;
-  }
-
-  .owner-claim-badge {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 0.05em;
-    color: #facc15;
-    text-transform: uppercase;
-    line-height: 1;
-    padding: 2px 5px;
-    border: 1px solid #44403c;
-    border-radius: 4px;
-    background: rgba(28, 25, 23, 0.9);
-    z-index: 2;
   }
 
   .owner-content {
@@ -490,6 +480,7 @@
     justify-content: center;
     width: 56px;
     height: 56px;
+    margin-top: 3px;
   }
 
   .owner-meta {
@@ -500,12 +491,12 @@
     min-width: 0;
     margin-top: -1px;
     padding: 0 2px;
-    max-width: 72%;
+    max-width: 100%;
   }
 
   .username-inline {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
     color: #111111;
     margin: 0;
@@ -561,7 +552,7 @@
     box-shadow: 0 2px 0 rgba(28, 25, 23, 0.88), 0 0 0 1px rgba(250, 204, 21, 0.12);
     display: inline-block;
     width: fit-content;
-    max-width: 72%;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
