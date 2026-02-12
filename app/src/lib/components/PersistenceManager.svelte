@@ -8,6 +8,7 @@
     saveToLocalStorage,
     serializeRule,
     updateURL,
+    urlFingerprint,
   } from '$lib/stores/persistence';
   import { historyStore } from '$lib/stores/history.svelte';
 
@@ -20,6 +21,11 @@
   onMount(() => {
     const urlParsed = parseURLParams(new URLSearchParams(window.location.search));
     const stored = loadFromLocalStorage();
+
+    // Detect whether the URL is a new/shared link vs our own from last session.
+    // Compare URL params (ignoring g= generation) to what we last saved.
+    const currentFingerprint = urlFingerprint(window.location.search);
+    const isNewUrl = urlParsed != null && currentFingerprint !== (stored?.lastUrlFingerprint ?? '');
 
     // Hydrate all combos from localStorage
     if (stored?.combos) {
@@ -40,8 +46,8 @@
       automataStore.setMiningLattice(stored.miningLattice);
     }
 
-    // Restore advanced lock state (only when NOT loading from a shared URL)
-    if (!urlParsed && stored?.advancedLocks) {
+    // Restore advanced lock state (only when NOT loading from a new/shared URL)
+    if (!isNewUrl && stored?.advancedLocks) {
       const locks = stored.advancedLocks;
       if (locks.advancedMode) automataStore.setAdvancedMode(true);
       if (locks.lockCell) automataStore.setLockCell(true);
@@ -76,6 +82,17 @@
       automataStore.hydrateActive(stored.activeDimension, stored.activeViewer);
     }
     // else: keep defaults (2-2)
+
+    // Restore neighbor enabled state AFTER hydration (hydrateActive resets them)
+    if (!isNewUrl && stored?.advancedLocks) {
+      const locks = stored.advancedLocks;
+      if (locks.neighborEnabled && locks.neighborEnabled.length === automataStore.neighborEnabled.length) {
+        automataStore.neighborEnabled = [...locks.neighborEnabled];
+      }
+      if (locks.shapeNeighborEnabled && locks.shapeNeighborEnabled.length === automataStore.shapeNeighborEnabled.length) {
+        automataStore.shapeNeighborEnabled = locks.shapeNeighborEnabled.map(a => [...a]);
+      }
+    }
 
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
@@ -145,6 +162,8 @@
     const _lockShapeSurvive = automataStore.lockShapeSurvive;
     const _lockNeighborhood = automataStore.lockNeighborhood;
     const _lockColors = automataStore.lockColors;
+    const _neighborEnabled = automataStore.neighborEnabled;
+    const _shapeNeighborEnabled = automataStore.shapeNeighborEnabled;
 
     clearTimeout(configDebounceTimer);
     configDebounceTimer = setTimeout(() => {
@@ -161,6 +180,8 @@
         lockShapeSurvive: [...automataStore.lockShapeSurvive],
         lockNeighborhood: automataStore.lockNeighborhood,
         lockColors: automataStore.lockColors,
+        neighborEnabled: [...automataStore.neighborEnabled],
+        shapeNeighborEnabled: automataStore.shapeNeighborEnabled.map(a => [...a]),
       };
       saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice, advancedLocks);
       doURLUpdate();

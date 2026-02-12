@@ -8,13 +8,15 @@
     size = 32,
     fallbackInitials = '?',
     centered = false,
-    minerConfig = null
+    minerConfig = null,
+    cropUpper = false
   }: {
     avatarId?: string | null;
     size?: number;
     fallbackInitials?: string;
     centered?: boolean;
     minerConfig?: string | MinerConfig | null;
+    cropUpper?: boolean;
   } = $props();
 
   let avatar = $derived(avatarId && avatarId !== '__miner__' ? getAvatarById(avatarId) : undefined);
@@ -25,8 +27,8 @@
     if (!isMiner || !minerConfig) return '';
     try {
       const config: MinerConfig = typeof minerConfig === 'string' ? JSON.parse(minerConfig) : minerConfig;
-      // Scale factor: size / 72 (canvas height), minimum 1
-      const scale = Math.max(1, Math.round(size / 72));
+      // Scale factor: size / 48 (canvas width), minimum 1
+      const scale = Math.max(1, Math.ceil(size / 48));
       return renderMinerToDataURL(config, scale);
     } catch {
       return '';
@@ -59,7 +61,15 @@
   });
 </script>
 
-{#if isMiner && minerDataUrl}
+{#if isMiner && minerDataUrl && cropUpper}
+  <div class="shrink-0" style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%;">
+    <img
+      src={minerDataUrl}
+      alt="Miner avatar"
+      style="image-rendering: pixelated; width: {size}px; height: auto; display: block;"
+    />
+  </div>
+{:else if isMiner && minerDataUrl}
   <img
     src={minerDataUrl}
     alt="Miner avatar"

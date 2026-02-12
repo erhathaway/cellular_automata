@@ -234,6 +234,8 @@ export interface PersistedAdvancedLocks {
   lockShapeSurvive?: boolean[];
   lockNeighborhood?: boolean;
   lockColors?: boolean;
+  neighborEnabled?: boolean[];
+  shapeNeighborEnabled?: boolean[][];
 }
 
 export interface PersistedData {
@@ -243,6 +245,15 @@ export interface PersistedData {
   miningDifficulty?: MiningDifficulty;
   miningLattice?: LatticeType | 'random';
   advancedLocks?: PersistedAdvancedLocks;
+  lastUrlFingerprint?: string;
+}
+
+/** URL params string without the generation param — used to detect shared URLs */
+export function urlFingerprint(search: string): string {
+  const params = new URLSearchParams(search);
+  params.delete('g');
+  params.sort();
+  return params.toString();
 }
 
 export function saveToLocalStorage(
@@ -252,9 +263,10 @@ export function saveToLocalStorage(
   miningDifficulty?: MiningDifficulty,
   miningLattice?: LatticeType | 'random',
   advancedLocks?: PersistedAdvancedLocks,
+  lastUrlFingerprint?: string,
 ): void {
   try {
-    const data: PersistedData = { combos, activeDimension, activeViewer, miningDifficulty, miningLattice, advancedLocks };
+    const data: PersistedData = { combos, activeDimension, activeViewer, miningDifficulty, miningLattice, advancedLocks, lastUrlFingerprint };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
     // quota exceeded or unavailable — silently fail

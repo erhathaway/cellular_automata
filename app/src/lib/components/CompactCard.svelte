@@ -171,7 +171,7 @@
     <div class="owner-avatar-label">
       <div class="owner-content">
         <div class="owner-avatar-wrap">
-          <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} />
+          <PixelAvatar avatarId={item.userAvatarId} size={96} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} cropUpper />
         </div>
       </div>
     </div>
@@ -498,8 +498,8 @@
 
   .owner-avatar-label {
     position: relative;
-    width: 56px;
-    height: 56px;
+    width: 96px;
+    height: 96px;
   }
 
   .owner-content {
@@ -511,8 +511,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 96px;
+    height: 96px;
     margin-top: 3px;
   }
 
