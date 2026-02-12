@@ -29,7 +29,7 @@
 		config = { ...config, skinTone: index };
 	}
 
-	const THUMB_SCALE = 5;
+	const THUMB_SCALE = 2;
 
 	function thumbAction(canvas: HTMLCanvasElement, params: { sprite: PartSprite; skinTone: number }) {
 		function paint(p: { sprite: PartSprite; skinTone: number }) {
@@ -53,7 +53,7 @@
 	<!-- Left: preview column -->
 	<div class="left-col">
 		<div class="preview-frame">
-			<MinerPreview {config} scale={8} />
+			<MinerPreview {config} scale={3} />
 		</div>
 
 		<div class="skin-row">

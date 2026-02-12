@@ -153,7 +153,7 @@ export function renderPartThumbnail(
 }
 
 /** Render miner to an offscreen canvas and return a data URL (for static display) */
-export function renderMinerToDataURL(config: MinerConfig, scale: number = 4): string {
+export function renderMinerToDataURL(config: MinerConfig, scale: number = 2): string {
 	const canvas = document.createElement('canvas');
 	canvas.width = CANVAS_W * scale;
 	canvas.height = CANVAS_H * scale;

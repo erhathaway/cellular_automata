@@ -341,7 +341,7 @@
     gap: 32px;
     max-width: 56rem;
     margin: 0 auto;
-    padding: 96px 24px 40px;
+    padding: 40px 24px 40px;
   }
 
   .badge-col {

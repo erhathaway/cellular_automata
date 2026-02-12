@@ -10,7 +10,7 @@
 
 	let {
 		config,
-		scale = 8
+		scale = 3
 	}: {
 		config: MinerConfig;
 		scale?: number;

@@ -82,6 +82,8 @@
       {@const active = isActive($page.url.pathname, item.href)}
       <a href={item.href} class="nav-item" class:active>
         <div class="icon-frame" class:active>
+          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
           {#if item.icon === 'pickaxe'}
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
@@ -118,6 +120,8 @@
   <div class="nav-group mt-sep">
     <button class="nav-item" class:active={historyOpen} onclick={(e) => { e.stopPropagation(); onhistoryclick?.(); }} aria-label="History">
       <div class="icon-frame" class:active={historyOpen}>
+          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="9" />
           <polyline points="12,7 12,12 15.5,14" />
@@ -136,6 +140,8 @@
       {@const active = isActive($page.url.pathname, item.href)}
       <a href={item.href} class="nav-item" class:active>
         <div class="icon-frame" class:active>
+          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
           {#if item.icon === 'book-open'}
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
@@ -162,6 +168,8 @@
     <SignedOut>
       <a href="/sign-in" class="nav-item">
         <div class="icon-frame">
+          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
             <circle cx="12" cy="7" r="4" />
@@ -232,6 +240,7 @@
 
   /* Icon frame — dark rounded container */
   .icon-frame {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,9 +248,34 @@
     height: 84px;
     border-radius: 18px;
     background: #e7e5e4;
-    border: 2px solid transparent;
+    border: 2px solid #d6d3d1;
     color: #57534e;
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  }
+
+  /* Nails */
+  .nails {
+    position: absolute;
+    top: 7px;
+    left: 9px;
+    right: 9px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .nails-bottom {
+    top: auto;
+    bottom: 7px;
+  }
+
+  .nail {
+    width: 4px;
+    height: 4px;
+    background: #a8a29e;
+    border-radius: 50%;
+    opacity: 0.45;
   }
 
   .icon-frame :global(svg) {
@@ -343,6 +377,7 @@
 
   .dark .icon-frame {
     background: #292524;
+    border-color: #44403c;
     color: #a8a29e;
   }
 

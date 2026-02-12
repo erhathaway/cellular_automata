@@ -339,8 +339,7 @@
   .advanced-panel {
     position: relative;
     margin: 0 1rem;
-    padding: 16px 20px;
-    padding-top: 56px;
+    padding: 20px 20px 16px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(

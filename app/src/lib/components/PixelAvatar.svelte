@@ -25,8 +25,8 @@
     if (!isMiner || !minerConfig) return '';
     try {
       const config: MinerConfig = typeof minerConfig === 'string' ? JSON.parse(minerConfig) : minerConfig;
-      // Scale factor: size / 24 (canvas height), minimum 2
-      const scale = Math.max(2, Math.round(size / 24));
+      // Scale factor: size / 72 (canvas height), minimum 1
+      const scale = Math.max(1, Math.round(size / 72));
       return renderMinerToDataURL(config, scale);
     } catch {
       return '';

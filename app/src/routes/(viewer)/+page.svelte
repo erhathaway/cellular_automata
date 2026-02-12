@@ -39,34 +39,6 @@
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
-        <!-- Advanced button below mine button -->
-        <div class="advanced-toggle">
-          <div class="adv-pipe"></div>
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => advancedOpen = !advancedOpen}>
-            <div class="nails">
-              <div class="nail"></div>
-              <div class="nail"></div>
-            </div>
-            <div class="nails nails-bottom">
-              <div class="nail"></div>
-              <div class="nail"></div>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="21" x2="4" y2="14" />
-              <line x1="4" y1="10" x2="4" y2="3" />
-              <line x1="12" y1="21" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12" y2="3" />
-              <line x1="20" y1="21" x2="20" y2="16" />
-              <line x1="20" y1="12" x2="20" y2="3" />
-              <line x1="1" y1="14" x2="7" y2="14" />
-              <line x1="9" y1="8" x2="15" y2="8" />
-              <line x1="17" y1="16" x2="23" y2="16" />
-            </svg>
-            <span class="adv-label">Advanced</span>
-          </div>
-        </div>
       </div>
       <div class="controls-right pointer-events-auto">
         <div class="pipe-backdrop-right"></div>
@@ -76,13 +48,48 @@
   </div>
 </div>
 
-{#if advancedOpen}
-  <div class="advanced-panel-slot">
-    <AdvancedPanel onclose={() => advancedOpen = false} />
-  </div>
-{/if}
-
 <section class="relative z-10 bg-black">
+  <!-- Advanced toggle button + panel -->
+  <div class="advanced-toggle">
+    <div class="adv-pipe">
+      <div class="adv-pipe-outer">
+        <div class="adv-pipe-inner"></div>
+      </div>
+      <div class="adv-pipe-flange adv-pipe-flange-top"></div>
+      <div class="adv-pipe-flange adv-pipe-flange-bottom"></div>
+    </div>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => advancedOpen = !advancedOpen}>
+      <div class="nails">
+        <div class="nail"></div>
+        <div class="nail"></div>
+      </div>
+      <div class="nails nails-bottom">
+        <div class="nail"></div>
+        <div class="nail"></div>
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="21" x2="4" y2="14" />
+        <line x1="4" y1="10" x2="4" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12" y2="3" />
+        <line x1="20" y1="21" x2="20" y2="16" />
+        <line x1="20" y1="12" x2="20" y2="3" />
+        <line x1="1" y1="14" x2="7" y2="14" />
+        <line x1="9" y1="8" x2="15" y2="8" />
+        <line x1="17" y1="16" x2="23" y2="16" />
+      </svg>
+      <span class="adv-label">Advanced</span>
+    </div>
+  </div>
+
+  {#if advancedOpen}
+    <div class="advanced-panel-slot">
+      <AdvancedPanel onclose={() => advancedOpen = false} />
+    </div>
+  {/if}
+
   <ViewerDescription />
   <ViewerComments />
 </section>
@@ -305,25 +312,70 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: -2px;
+    padding: 0 1rem;
   }
 
   .adv-pipe {
+    position: relative;
     width: 14px;
-    height: 18px;
+    height: 80px;
+  }
+
+  .adv-pipe-outer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      #1c1917 0%,
+      #292524 20%,
+      #44403c 50%,
+      #292524 80%,
+      #1c1917 100%
+    );
     border-radius: 3px;
-    border: 2px solid #0e7490;
-    background:
-      linear-gradient(
-        180deg,
-        #0c4a6e 0%,
-        #22d3ee 50%,
-        #0c4a6e 100%
-      );
-    box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.75),
-      inset 0 0 6px rgba(103, 232, 249, 0.95);
-    animation: connector-pulse 1.1s ease-in-out infinite;
+    border: 1px solid #57534e;
+    overflow: hidden;
+  }
+
+  .adv-pipe-inner {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transform: translateX(-50%);
+    background: rgba(34, 211, 238, 0.15);
+    box-shadow: 0 0 6px rgba(34, 211, 238, 0.3);
+    animation: adv-pipe-glow 1.1s ease-in-out infinite;
+  }
+
+  @keyframes adv-pipe-glow {
+    0%   { background: rgba(34, 211, 238, 0.15); }
+    50%  { background: rgba(34, 211, 238, 0.5); }
+    100% { background: rgba(34, 211, 238, 0.15); }
+  }
+
+  .adv-pipe-flange {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 6px;
+    background: linear-gradient(
+      180deg,
+      #57534e 0%,
+      #78716c 40%,
+      #57534e 100%
+    );
+    border-radius: 2px;
+    border: 1px solid #44403c;
+  }
+
+  .adv-pipe-flange-top {
+    top: -2px;
+  }
+
+  .adv-pipe-flange-bottom {
+    bottom: -2px;
   }
 
   .adv-btn {
@@ -396,8 +448,7 @@
 
   .advanced-panel-slot {
     position: relative;
-    z-index: 10;
-    margin-top: 28px;
+    margin-top: 16px;
   }
 
   @keyframes connector-pulse {
