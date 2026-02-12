@@ -91,8 +91,8 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div class="mine-btn {mining ? 'mining' : ''}" onclick={handleClick}>
-    <!-- Corner nails -->
+  <div class="mine-panel">
+    <!-- Panel nails -->
     <div class="nails">
       <div class="nail"></div>
       <div class="nail"></div>
@@ -102,39 +102,42 @@
       <div class="nail"></div>
     </div>
 
-    <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
-      <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
-      <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
-      <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
-    </svg>
+    <!-- Raised button -->
+    <div class="mine-btn {mining ? 'mining' : ''}" onclick={handleClick}>
+      <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
+        <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
+        <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
+        <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
+      </svg>
 
-    <div class="label-wrap" class:label-hidden={mining}>
-      {#if hasCompletedMine}
-        <span class="label label-found">{noLivingAutomata ? 'No living automata found' : 'Automata found!'}</span>
-        <span class="sub-label">Click again to find new ones</span>
-      {:else}
-        <span class="label">Mine for automata</span>
+      <div class="label-wrap" class:label-hidden={mining}>
+        {#if hasCompletedMine}
+          <span class="label label-found">{noLivingAutomata ? 'No living automata found' : 'Automata found!'}</span>
+          <span class="sub-label">Click again to find new ones</span>
+        {:else}
+          <span class="label">Mine for automata</span>
+        {/if}
+      </div>
+
+      {#if mining && cells.length}
+        <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
+          {#each cells as row, rowIndex (rowIndex)}
+            {#each row as cell, cellIndex (cellIndex)}
+              <div class="ca-cell" class:alive={cell}></div>
+            {/each}
+          {/each}
+        </div>
+      {/if}
+
+      {#if mining}
+        {#key miningKey}
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+        {/key}
       {/if}
     </div>
-
-    {#if mining && cells.length}
-      <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
-        {#each cells as row, rowIndex (rowIndex)}
-          {#each row as cell, cellIndex (cellIndex)}
-            <div class="ca-cell" class:alive={cell}></div>
-          {/each}
-        {/each}
-      </div>
-    {/if}
-
-    {#if mining}
-      {#key miningKey}
-        <div class="progress-track">
-          <div class="progress-fill"></div>
-        </div>
-      {/key}
-    {/if}
   </div>
 </div>
 
@@ -234,13 +237,10 @@
     }
   }
 
-  .mine-btn {
+  .mine-panel {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    padding: 20px 38px;
+    overflow: visible;
+    padding: 14px 14px 18px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -251,42 +251,83 @@
         rgba(68, 64, 60, 0.12) 9px
       );
     border: 2px solid #44403c;
-    border-radius: 6px;
-    color: #facc15;
-    transition: border-color 0.15s, background-color 0.15s;
+    border-radius: 8px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .mine-btn:hover {
-    border-color: #facc15;
-    background-color: #292524;
-  }
-
-  .mine-btn.mining {
-    border-color: #facc15;
   }
 
   .nails {
     position: absolute;
-    top: 5px;
-    left: 8px;
-    right: 8px;
+    top: 6px;
+    left: 10px;
+    right: 10px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
+    z-index: 1;
   }
 
   .nails-bottom {
     top: auto;
-    bottom: 5px;
+    bottom: 6px;
   }
 
   .nail {
-    width: 5px;
-    height: 5px;
-    background: #78716c;
+    width: 4px;
+    height: 4px;
+    background: #a8a29e;
     border-radius: 50%;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
+    opacity: 0.45;
+  }
+
+  .mine-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    padding: 18px 32px;
+    background: linear-gradient(180deg, #44403c 0%, #292524 40%, #1c1917 100%);
+    border: 1.5px solid #57534e;
+    border-top-color: #78716c;
+    border-bottom-color: #44403c;
+    border-radius: 6px;
+    color: #facc15;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow:
+      0 4px 0 #0c0a09,
+      0 6px 12px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .mine-btn:hover {
+    border-color: #facc15;
+    border-top-color: #fde047;
+    background: linear-gradient(180deg, #57534e 0%, #44403c 40%, #292524 100%);
+    box-shadow:
+      0 4px 0 #0c0a09,
+      0 6px 12px rgba(0,0,0,0.5),
+      0 0 20px rgba(250, 204, 21, 0.15),
+      inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+
+  .mine-btn:active {
+    transform: translateY(5px);
+    box-shadow:
+      0 1px 0 #0c0a09,
+      0 2px 4px rgba(0,0,0,0.4),
+      inset 0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  .mine-btn.mining {
+    border-color: #facc15;
+    border-top-color: #fde047;
+    border-bottom-color: #44403c;
+    transform: translateY(5px);
+    box-shadow:
+      0 1px 0 #0c0a09,
+      0 2px 4px rgba(0,0,0,0.4),
+      0 0 20px rgba(250, 204, 21, 0.25),
+      inset 0 2px 4px rgba(0,0,0,0.4);
   }
 
   .pickaxe {
