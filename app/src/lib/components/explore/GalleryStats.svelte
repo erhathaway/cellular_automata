@@ -150,9 +150,10 @@
                   <td class="td-user">
                     <PixelAvatar
                       avatarId={entry.avatarId}
-                      size={22}
+                      size={66}
                       fallbackInitials={(entry.displayName ?? '?')[0]}
                       minerConfig={entry.minerConfig}
+                      cropUpper
                     />
                     <span class="user-name">{entry.displayName ?? 'Anonymous'}</span>
                   </td>

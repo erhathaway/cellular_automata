@@ -162,7 +162,7 @@
         onclick={() => onsettingsclick?.()}
         aria-label="Settings"
       >
-        <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={36} fallbackInitials="?" />
+        <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={72} fallbackInitials="?" cropUpper />
       </button>
     </SignedIn>
     <SignedOut>
