@@ -374,7 +374,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="toggle-row {!automataStore.lockCell ? 'field-disabled' : ''}">
+        <div class="toggle-row ">
           {#each [1, 2, 3] as d}
             <button
               class="toggle-btn {dim === d ? 'active' : ''}"
@@ -393,7 +393,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="toggle-row {!automataStore.lockViewer ? 'field-disabled' : ''}">
+        <div class="toggle-row ">
           {#each [2, 3] as v}
             {@const valid = (dim === 1 && v === 2) || (dim === 2) || (dim === 3 && v === 3)}
             <button
@@ -415,7 +415,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="toggle-row toggle-row-wrap {!automataStore.lockLattice ? 'field-disabled' : ''}">
+          <div class="toggle-row toggle-row-wrap ">
             {#each availableLattices as lat}
               <button
                 class="toggle-btn {lattice === lat.type ? 'active' : ''}"
@@ -465,7 +465,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="{!automataStore.lockRadius ? 'field-disabled' : ''}">
+        <div class="">
           <input
             type="number"
             class="num-input num-input-sm"
@@ -490,7 +490,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="{!automataStore.lockBorn ? 'field-disabled' : ''}">
+          <div class="">
             <input
               type="number"
               class="num-input num-input-sm"
@@ -519,7 +519,7 @@
                   <span class="toggle-track"><span class="toggle-knob"></span></span>
                 </button>
               </div>
-              <div class="rule-toggles {!shapeBornLocked ? 'field-disabled' : ''}">
+              <div class="rule-toggles ">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.born.includes(n) ? 'active' : ''}"
@@ -537,7 +537,7 @@
                   <span class="toggle-track"><span class="toggle-knob"></span></span>
                 </button>
               </div>
-              <div class="rule-toggles {!shapeSurviveLocked ? 'field-disabled' : ''}">
+              <div class="rule-toggles ">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.survive.includes(n) ? 'active' : ''}"
@@ -559,7 +559,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="rule-toggles {!automataStore.lockBorn ? 'field-disabled' : ''}">
+          <div class="rule-toggles ">
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.born.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
@@ -577,7 +577,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="rule-toggles {!automataStore.lockSurvive ? 'field-disabled' : ''}">
+          <div class="rule-toggles ">
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.survive.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
@@ -600,7 +600,7 @@
         </button>
       </div>
 
-      <div class="section-body {!automataStore.lockNeighborhood ? 'section-disabled' : ''}">
+      <div class="section-body">
       {#if isMultiShape && shapeNeighborInfos.length > 0}
         <!-- Per-shape neighborhood grids -->
         {#each shapeNeighborInfos as info, si}
@@ -778,7 +778,7 @@
         </button>
       </div>
 
-      <div class="section-body {!automataStore.lockColors ? 'section-disabled' : ''}">
+      <div class="section-body">
       {#each automataStore.cellStates as cs}
         <div class="color-row">
           <span class="color-label">{cs.number === 0 ? 'Dead' : 'Alive'}</span>
@@ -1040,18 +1040,6 @@
     display: contents;
   }
 
-  .section-disabled,
-  .field-disabled {
-    opacity: 0.3;
-    pointer-events: none;
-    filter: grayscale(0.8);
-  }
-
-  .section-disabled {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
 
   .field {
     display: flex;
