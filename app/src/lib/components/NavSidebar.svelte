@@ -236,13 +236,13 @@
     border-radius: 18px;
     background: #e7e5e4;
     border: 2px solid transparent;
-    color: #a8a29e;
+    color: #57534e;
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
   }
 
   .icon-frame :global(svg) {
-    color: #a8a29e;
-    stroke: #a8a29e;
+    color: #57534e;
+    stroke: #57534e;
     transition: color 0.2s ease, stroke 0.2s ease;
   }
 
