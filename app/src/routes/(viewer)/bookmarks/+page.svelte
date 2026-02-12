@@ -11,7 +11,10 @@
   import AchievementIcon from '$lib/components/achievements/AchievementIcon.svelte';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
   import { achievementsStore } from '$lib/stores/achievements.svelte';
+  import { ACHIEVEMENT_CATEGORIES } from '$lib/achievements/config';
   import { timeAgo } from '$lib/utils/timeAgo';
+
+  const categoryLabelMap = new Map(ACHIEVEMENT_CATEGORIES.map(c => [c.id, c.label]));
 
   const PAGE_SIZE = 20;
 
@@ -170,9 +173,11 @@
             <div class="achievements-row-icons">
               {#each earnedAchievements as a (a.def.id)}
                 <div class="earned-chip" title={a.def.name}>
+                  <span class="earned-chip-category">{categoryLabelMap.get(a.def.category) ?? a.def.category}</span>
                   <AchievementIcon icon={a.def.icon} size={44} />
                   <div class="earned-chip-text">
                     <span class="earned-chip-name">{a.def.name}</span>
+                    <span class="earned-chip-desc">{a.def.description}</span>
                     {#if a.earnedAt}
                       <span class="earned-chip-date">{timeAgo(a.earnedAt)}</span>
                     {/if}
@@ -317,15 +322,16 @@
   }
 
   .achievements-row-icons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 12px;
-    flex-wrap: wrap;
   }
 
   .earned-chip {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
     padding: 10px 16px 10px 12px;
     background: #292524;
     border: 1px solid #44403c;
@@ -338,6 +344,10 @@
     gap: 2px;
   }
 
+  .earned-chip-text .earned-chip-date {
+    margin-top: 6px;
+  }
+
   .earned-chip-name {
     font-family: 'Space Mono', monospace;
     font-size: 15px;
@@ -345,6 +355,26 @@
     color: #facc15;
     letter-spacing: 0.04em;
     white-space: nowrap;
+  }
+
+  .earned-chip-category {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a8a29e;
+  }
+
+  .earned-chip-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #a8a29e;
+    line-height: 1.4;
+    margin: 6px 0;
   }
 
   .earned-chip-date {

@@ -12,21 +12,42 @@
   const uid = Math.random().toString(36).slice(2, 8);
   const patternId = `ca-pattern-${uid}`;
   const strokeAttr = `url(#${patternId})`;
+
+  // Taste: pinks, magentas, warm violets
+  const tasteColors = ['#ff0080', '#ff3cac', '#c850c0', '#ff6eb4', '#e040fb', '#f48fb1', '#ce93d8', '#f06292', '#ab47bc'];
+  // Rank: golds, ambers, warm oranges
+  const rankColors = ['#fbbf24', '#f59e0b', '#fb923c', '#fcd34d', '#f97316', '#fde68a', '#fdba74', '#facc15', '#ea580c'];
+  // Work: greens, teals, emeralds
+  const workColors = ['#34d399', '#10b981', '#22d3ee', '#6ee7b7', '#059669', '#2dd4bf', '#a7f3d0', '#14b8a6', '#047857'];
+  // Operator: blues, cyans, electric purples
+  const operatorColors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#818cf8', '#22d3ee', '#a78bfa', '#38bdf8', '#6366f1', '#67e8f9'];
+  // Fallback: mixed rainbow
+  const fallbackColors = ['#ff0080', '#00ffcc', '#8b5cf6', '#fbbf24', '#22d3ee', '#f43f5e', '#34d399', '#c084fc', '#fb923c'];
+
+  function getColors(): string[] {
+    if (icon.startsWith('taste')) return tasteColors;
+    if (icon.startsWith('rank')) return rankColors;
+    if (icon.startsWith('work')) return workColors;
+    if (icon.startsWith('operator')) return operatorColors;
+    return fallbackColors;
+  }
+
+  const colors = getColors();
 </script>
 
 <!-- Hidden SVG for the psychedelic square-grid pattern -->
 <svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
   <defs>
     <pattern id={patternId} patternUnits="userSpaceOnUse" width="6" height="6">
-      <rect x="0" y="0" width="2" height="2" fill="#ff0080" />
-      <rect x="2" y="0" width="2" height="2" fill="#00ffcc" />
-      <rect x="4" y="0" width="2" height="2" fill="#8b5cf6" />
-      <rect x="0" y="2" width="2" height="2" fill="#fbbf24" />
-      <rect x="2" y="2" width="2" height="2" fill="#22d3ee" />
-      <rect x="4" y="2" width="2" height="2" fill="#f43f5e" />
-      <rect x="0" y="4" width="2" height="2" fill="#34d399" />
-      <rect x="2" y="4" width="2" height="2" fill="#c084fc" />
-      <rect x="4" y="4" width="2" height="2" fill="#fb923c" />
+      <rect x="0" y="0" width="2" height="2" fill={colors[0]} />
+      <rect x="2" y="0" width="2" height="2" fill={colors[1]} />
+      <rect x="4" y="0" width="2" height="2" fill={colors[2]} />
+      <rect x="0" y="2" width="2" height="2" fill={colors[3]} />
+      <rect x="2" y="2" width="2" height="2" fill={colors[4]} />
+      <rect x="4" y="2" width="2" height="2" fill={colors[5]} />
+      <rect x="0" y="4" width="2" height="2" fill={colors[6]} />
+      <rect x="2" y="4" width="2" height="2" fill={colors[7]} />
+      <rect x="4" y="4" width="2" height="2" fill={colors[8]} />
     </pattern>
   </defs>
 </svg>

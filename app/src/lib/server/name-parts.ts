@@ -68,7 +68,75 @@ export const prefixes = [
 	// Colors with flavor
 	'Crimson', 'Scarlet', 'Cobalt', 'Cerulean', 'Emerald', 'Jade',
 	'Amber', 'Violet', 'Indigo', 'Magenta', 'Chartreuse', 'Vermilion',
-	'Midnight', 'Shadow', 'Phantom', 'Ghost', 'Wraith', 'Specter'
+	'Midnight', 'Shadow', 'Phantom', 'Ghost', 'Wraith', 'Specter',
+
+	// Internet brain
+	'Sigma', 'Gyatt', 'Skibidi', 'Rizz', 'Bussin', 'Slay', 'Fanum',
+	'Oomf', 'Yeet', 'Yolo', 'Poggers', 'Malding', 'Tilted', 'Ratio',
+	'Copium', 'Hopium', 'Doomscroll', 'Clickbait', 'Buffering',
+	'Lagging', 'Rendered', 'Streamed', 'Cached', 'Overclocked',
+	'Throttled', 'Corrupted', 'Pirated', 'Bootleg', 'Knockoff',
+
+	// Medical / clinical (but funny)
+	'Terminal', 'Chronic', 'Acute', 'Swollen', 'Inflamed', 'Congested',
+	'Infected', 'Mutated', 'Irradiated', 'Radioactive', 'Biohazard',
+	'Quarantined', 'Sedated', 'Caffeinated', 'Medicated', 'Expired',
+	'Overdue', 'Recalled', 'Defective', 'Malfunctioning',
+
+	// Office / corporate
+	'Corporate', 'Synergy', 'Agile', 'Pivot', 'Disruptive', 'Scalable',
+	'Offshore', 'Outsourced', 'Downsized', 'Leveraged', 'Optimized',
+	'Monetized', 'Curated', 'Artisanal', 'Bespoke', 'Premium',
+	'Budget', 'Generic', 'Offbrand', 'Surplus', 'Clearance',
+
+	// Sleep deprived / existential
+	'Nocturnal', 'Insomnia', 'Jetlagged', 'Overtired', 'Comatose',
+	'Dissociated', 'Astral', 'Lucid', 'Semiconscious', 'Autopilot',
+	'Buffering', 'Loading', 'Pending', 'Idle', 'AFK',
+	'Disconnected', 'Rebooting', 'Brainrot', 'Rotted', 'Lobotomized',
+
+	// Crimes / suspicious activity
+	'Wanted', 'Escaped', 'Fugitive', 'Contraband', 'Illicit',
+	'Bootleg', 'Smuggled', 'Stolen', 'Counterfeit', 'Forged',
+	'Blackmarket', 'Underground', 'Covert', 'Classified', 'Redacted',
+	'Censored', 'Banned', 'Exiled', 'Banished', 'Deported',
+
+	// Household disasters
+	'Microwaved', 'Laundered', 'Tumbledry', 'Bleached', 'Stained',
+	'Wrinkled', 'Tangled', 'Knotted', 'Crumpled', 'Deflated',
+	'Punctured', 'Leaking', 'Overflowing', 'Clogged', 'Backed',
+
+	// Sounds
+	'Screeching', 'Honking', 'Gurgling', 'Wheezing', 'Sizzling',
+	'Crackling', 'Rumbling', 'Squelching', 'Clinking', 'Clanking',
+	'Buzzing', 'Humming', 'Droning', 'Shrieking', 'Wailing',
+
+	// Wrong temperature
+	'Lukewarm', 'Tepid', 'Scalding', 'Subzero', 'Overheated',
+	'Defrosted', 'Thawed', 'Simmering', 'Boiling', 'Steaming',
+	'Chilled', 'Refrigerated', 'Room Temp',
+
+	// Philosophical / pretentious
+	'Postmodern', 'Nihilist', 'Absurdist', 'Existential', 'Kafkaesque',
+	'Orwellian', 'Dystopian', 'Utopian', 'Paradoxical', 'Ironic',
+	'Satirical', 'Sardonic', 'Pedantic', 'Obtuse', 'Esoteric',
+	'Profound', 'Banal', 'Sublime', 'Grotesque', 'Baroque',
+
+	// Movement / speed
+	'Turbo', 'Zooming', 'Barreling', 'Careening', 'Tumbling',
+	'Wobbling', 'Staggering', 'Lurching', 'Flailing', 'Flopping',
+	'Skidding', 'Sliding', 'Ricocheting', 'Plummeting', 'Ascending',
+	'Orbiting', 'Drifting', 'Stranded', 'Marooned', 'Beached',
+
+	// Suspiciously specific
+	'Partially', 'Mostly', 'Allegedly', 'Technically', 'Probably',
+	'Formerly', 'Almost', 'Barely', 'Slightly', 'Mildly',
+	'Vaguely', 'Somewhat', 'Arguably', 'Nominally', 'Provisionally',
+
+	// Power states
+	'Overcharged', 'Supercharged', 'Uncharged', 'Depleted', 'Drained',
+	'Siphoned', 'Vampiric', 'Parasitic', 'Symbiotic', 'Necrotic',
+	'Toxic', 'Venomous', 'Caustic', 'Corrosive', 'Volatile'
 ];
 
 export const nouns = [
@@ -144,7 +212,82 @@ export const nouns = [
 	'Wizard', 'Warlock', 'Sorcerer', 'Alchemist', 'Artificer', 'Tinkerer',
 	'Scribe', 'Scholar', 'Hermit', 'Nomad', 'Wanderer', 'Pilgrim',
 	'Jester', 'Bard', 'Herald', 'Squire', 'Knight', 'Paladin',
-	'Ranger', 'Druid', 'Shaman', 'Oracle', 'Prophet', 'Mystic'
+	'Ranger', 'Druid', 'Shaman', 'Oracle', 'Prophet', 'Mystic',
+
+	// Furniture / domestic
+	'Ottoman', 'Beanbag', 'Futon', 'Recliner', 'Hammock', 'Doorknob',
+	'Lampshade', 'Curtain', 'Rug', 'Mattress', 'Pillow', 'Blanket',
+	'Roomba', 'Thermostat', 'Sprinkler', 'Mailbox', 'Doorbell',
+	'Coatrack', 'Shoetree', 'Tupperware', 'Crockpot', 'Airfryer',
+
+	// Body parts (funny ones)
+	'Kneecap', 'Elbow', 'Spleen', 'Pancreas', 'Appendix', 'Tonsil',
+	'Uvula', 'Fibula', 'Sternum', 'Clavicle', 'Nostril', 'Earlobe',
+	'Tendon', 'Ligament', 'Cartilage', 'Vertebra', 'Pelvis',
+
+	// Vehicles / transport
+	'Forklift', 'Zamboni', 'Segway', 'Unicycle', 'Kayak', 'Canoe',
+	'Dinghy', 'Tugboat', 'Gondola', 'Catapult', 'Trebuchet', 'Ballista',
+	'Zeppelin', 'Blimp', 'Monorail', 'Railcar', 'Sidecar', 'Hovercraft',
+
+	// Containers / vessels
+	'Thermos', 'Canteen', 'Chalice', 'Goblet', 'Flagon', 'Tankard',
+	'Amphora', 'Urn', 'Vat', 'Cistern', 'Barrel', 'Keg',
+	'Silo', 'Bunker', 'Vault', 'Lockbox', 'Dumpster', 'Hamper',
+
+	// Clothing items
+	'Croc', 'Sandal', 'Slipper', 'Galosh', 'Mitten', 'Poncho',
+	'Sombrero', 'Fedora', 'Beanie', 'Suspender', 'Fanny', 'Snuggie',
+	'Onesie', 'Romper', 'Bib', 'Cummerbund', 'Monocle', 'Cravat',
+
+	// Sounds / onomatopoeia as things
+	'Splat', 'Clonk', 'Bonk', 'Thud', 'Sploot', 'Bloop',
+	'Blorp', 'Zonk', 'Plonk', 'Thwack', 'Clunk', 'Donk',
+	'Cronch', 'Sploosh', 'Whomp', 'Skronk', 'Boing', 'Kazoo',
+
+	// Cursed food
+	'Aspic', 'Haggis', 'Lutefisk', 'Liverwurst', 'Headcheese',
+	'Spam', 'Sardine', 'Anchovy', 'Brisket', 'Jerky', 'Gravy',
+	'Gruel', 'Porridge', 'Hardtack', 'Biltong', 'Offal', 'Tripe',
+	'Gizzard', 'Giblet', 'Chutney', 'Relish', 'Piccalilli',
+
+	// Office supplies
+	'Stapler', 'Binder', 'Clipboard', 'Pushpin', 'Sharpie',
+	'Postit', 'Rolodex', 'Cubicle', 'Swivel', 'Lanyard',
+	'Fax', 'Toner', 'Inbox', 'Outbox', 'Spreadsheet',
+
+	// Weird science
+	'Isotope', 'Electron', 'Proton', 'Quark', 'Boson', 'Fermion',
+	'Hadron', 'Neutrino', 'Positron', 'Tachyon', 'Muon', 'Gluon',
+	'Photon', 'Reagent', 'Catalyst', 'Solvent', 'Beaker', 'Pipette',
+	'Centrifuge', 'Autoclave', 'Spectrometer',
+
+	// Mythology / folklore
+	'Gargoyle', 'Griffin', 'Sphinx', 'Cerberus', 'Cyclops', 'Pegasus',
+	'Phoenix', 'Leviathan', 'Behemoth', 'Djinn', 'Nymph', 'Satyr',
+	'Centaur', 'Valkyrie', 'Berserker', 'Einherjar', 'Fenrir',
+
+	// Internet things
+	'Captcha', 'Firewall', 'Cookie', 'Payload', 'Botnet', 'Malware',
+	'Spyware', 'Ransomware', 'Phishing', 'Troll', 'Lurker', 'Normie',
+	'Chad', 'Karen', 'Boomer', 'Doomer', 'Bloomer', 'Coomer',
+	'Wojak', 'Pepe', 'Doge', 'Stonks', 'Hodl', 'Copypasta',
+
+	// Plumbing / infrastructure
+	'Gasket', 'Flange', 'Valve', 'Spigot', 'Nozzle', 'Turbine',
+	'Piston', 'Crankshaft', 'Flywheel', 'Sprocket', 'Ratchet',
+	'Widget', 'Gizmo', 'Doohickey', 'Thingamajig', 'Whatchamacallit',
+	'Contraption', 'Apparatus', 'Gimbal', 'Actuator',
+
+	// Disasters / events
+	'Sinkhole', 'Avalanche', 'Mudslide', 'Whirlpool', 'Maelstrom',
+	'Stampede', 'Debacle', 'Fiasco', 'Catastrophe', 'Trainwreck',
+	'Dumpsterfire', 'Meltdown', 'Implosion', 'Clusterfunk',
+
+	// Ancient / medieval
+	'Trebuchet', 'Portcullis', 'Drawbridge', 'Rampart', 'Parapet',
+	'Battlement', 'Catacomb', 'Oubliette', 'Dungeon', 'Labyrinth',
+	'Monolith', 'Obelisk', 'Ziggurat', 'Colosseum', 'Aqueduct'
 ];
 
 export const suffixes = [
@@ -163,6 +306,20 @@ export const suffixes = [
 	// Fun
 	'IRL', 'NPC', 'MVP', 'OP', 'GG', 'AFK',
 	'LOL', 'BBQ', 'CEO', 'PhD',
+
+	// Eras / versions
+	'Classic', 'Remaster', 'Redux', 'Remix', 'Deluxe',
+	'Legacy', 'Vintage', 'Retro', 'Neo', 'Proto',
+	'MkII', 'MkIII', 'V2', 'V3', 'Final',
+
+	// Unhinged suffixes
+	'Enjoyer', 'Haver', 'Liker', 'Knower', 'Feeler',
+	'Core', 'Pilled', 'Maxxed', 'Mode', 'Era',
+	'Moment', 'Arc', 'Saga', 'Lore', 'Canon',
+
+	// Legal
+	'Esq', 'LLC', 'Inc', 'Corp', 'Ltd',
+	'TM', 'Reg', 'Pat',
 
 	// Empty (no suffix) — weighted by repetition
 	'', '', '', '', '', '', '', '', '', '',
