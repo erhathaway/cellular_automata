@@ -12,6 +12,9 @@ export interface HistoryEntry {
   populationShape: Record<string, number>;
   cellStates: CellStateEntry[];
   thumbnail?: string;
+  liked?: boolean;
+  bookmarked?: boolean;
+  claimed?: boolean;
 }
 
 const MAX_ENTRIES = 100;
@@ -106,6 +109,29 @@ class HistoryStore {
     if (this.entries.length !== before) {
       this.persist();
     }
+  }
+
+  /** Update liked/bookmarked/claimed flags on all entries matching the given config */
+  updateFlags(
+    ruleDefinition: string,
+    dimension: number,
+    neighborhoodRadius: number,
+    flags: { liked?: boolean; bookmarked?: boolean; claimed?: boolean }
+  ) {
+    this.load();
+    let changed = false;
+    for (const entry of this.entries) {
+      if (
+        entry.ruleDefinition === ruleDefinition &&
+        entry.dimension === dimension &&
+        entry.neighborhoodRadius === neighborhoodRadius
+      ) {
+        if (flags.liked !== undefined) { entry.liked = flags.liked; changed = true; }
+        if (flags.bookmarked !== undefined) { entry.bookmarked = flags.bookmarked; changed = true; }
+        if (flags.claimed !== undefined) { entry.claimed = flags.claimed; changed = true; }
+      }
+    }
+    if (changed) this.persist();
   }
 
   clearHistory() {

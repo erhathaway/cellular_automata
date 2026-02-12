@@ -3,6 +3,7 @@
   import { serializeRule } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import { getLattice, defaultLattice } from '$lib-core';
+  import { historyStore } from '$lib/stores/history.svelte';
   import MinerBadge from './MinerBadge.svelte';
 
   let title = $derived.by(() => {
@@ -91,6 +92,17 @@
       : { cellPopulationId: discoveryInfo.entityId };
   }
 
+  function syncHistoryFlags(overrides?: { liked?: boolean; bookmarked?: boolean; claimed?: boolean }) {
+    const rd = serializeRule(automataStore.rule);
+    const dim = automataStore.dimension;
+    const nr = automataStore.neighborhoodRadius;
+    historyStore.updateFlags(rd, dim, nr, {
+      liked: overrides?.liked ?? liked,
+      bookmarked: overrides?.bookmarked ?? bookmarked,
+      ...(overrides?.claimed !== undefined ? { claimed: overrides.claimed } : {}),
+    });
+  }
+
   async function toggleLike() {
     const body = entityBody();
     if (!body) return;
@@ -101,12 +113,14 @@
       setTimeout(() => { likeAnimating = false; }, 500);
       try {
         await api('POST', '/api/likes', body);
+        syncHistoryFlags();
       } catch {
         liked = false;
       }
     } else {
       try {
         await api('DELETE', '/api/likes', body);
+        syncHistoryFlags();
       } catch {
         liked = true;
       }
@@ -123,12 +137,14 @@
       setTimeout(() => { bookmarkAnimating = false; }, 500);
       try {
         await api('POST', '/api/bookmarks', body);
+        syncHistoryFlags();
       } catch {
         bookmarked = false;
       }
     } else {
       try {
         await api('DELETE', '/api/bookmarks', body);
+        syncHistoryFlags();
       } catch {
         bookmarked = true;
       }
@@ -172,6 +188,8 @@
           discoveryInfo = data;
           liked = data.isLikedByMe ?? false;
           bookmarked = data.isBookmarkedByMe ?? false;
+          // Sync initial like/bookmark state + claimed status to history
+          syncHistoryFlags({ claimed: data.found ? true : undefined });
         } else {
           discoveryInfo = null;
         }

@@ -3,6 +3,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { defaultLattice } from '$lib-core';
+  import { historyStore } from '$lib/stores/history.svelte';
 
   let saving = $state(false);
   let saved = $state(false);
@@ -52,6 +53,11 @@
 
       saved = true;
       automataStore.claimAnimationCounter++;
+      // Mark matching history entries as claimed
+      const rd = serializeRule(automataStore.rule);
+      const dim = automataStore.dimension;
+      const nr = automataStore.neighborhoodRadius;
+      historyStore.updateFlags(rd, dim, nr, { claimed: true });
       const seedSnapshot = automataStore.getSeedSnapshot?.();
       if (seedSnapshot) {
         automataStore.savedSeed = seedSnapshot;
