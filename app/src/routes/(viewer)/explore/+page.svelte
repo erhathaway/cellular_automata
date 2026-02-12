@@ -8,16 +8,25 @@
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
 
   const PAGE_SIZE = 20;
+  const SESSION_KEY = 'explore-filters';
 
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
 
-  let filters = $state({
-    type: 'all',
-    dimension: '',
-    sort: 'newest'
-  });
+  function loadFilters(): { type: string; dimension: string; sort: string } {
+    const defaults = { type: 'all', dimension: '', sort: 'newest' };
+    try {
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return { ...defaults, ...parsed };
+      }
+    } catch {}
+    return defaults;
+  }
+
+  let filters = $state(loadFilters());
 
   function buildParams(offset: number) {
     const params = new URLSearchParams();
@@ -62,6 +71,7 @@
 
   function handleFilterChange(newFilters: { type: string; dimension: string; sort: string }) {
     filters = newFilters;
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(newFilters)); } catch {}
     fetchItems();
   }
 
@@ -104,20 +114,29 @@
 </script>
 
 <div class="bg-white">
-  <div class="mx-auto max-w-7xl px-6 py-8">
-    <div class="mb-6 flex items-center justify-between">
-      <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1c1917; margin: 0;">Gallery</h1>
-    </div>
-
-    <div class="mb-6">
-      <ExploreFilters
-        type={filters.type}
-        dimension={filters.dimension}
-        sort={filters.sort}
-        onchange={handleFilterChange}
-      />
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="sticky-filters sticky top-0 z-20 pb-4 pt-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1c1917; margin: 0;">Gallery</h1>
+        <ExploreFilters
+          type={filters.type}
+          dimension={filters.dimension}
+          sort={filters.sort}
+          onchange={handleFilterChange}
+        />
+      </div>
     </div>
 
     <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
   </div>
 </div>
+
+<style>
+  .sticky-filters {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    mask-image: linear-gradient(to bottom, black calc(100% - 8px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 8px), transparent);
+  }
+</style>

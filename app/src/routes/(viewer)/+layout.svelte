@@ -4,6 +4,7 @@
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
+  import { page } from '$app/stores';
 
   let { children } = $props();
 
@@ -39,8 +40,8 @@
   $effect(() => {
     const mining = automataStore.isMining;
 
-    // Auto-open analysis when a new mine run starts.
-    if (mining && !prevMining) {
+    // Auto-open analysis when a new mine run starts (mine page only).
+    if (mining && !prevMining && $page.url.pathname === '/') {
       viewerUiStore.openAnalysis();
     }
 
@@ -50,7 +51,7 @@
   $effect(() => {
     const playing = automataStore.isPlaying;
     const analysisOpen = viewerUiStore.analysisOpen;
-    if (playing && !analysisOpen) {
+    if (playing && !analysisOpen && $page.url.pathname === '/') {
       viewerUiStore.openAnalysis();
     }
   });
@@ -91,11 +92,11 @@
     class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
     style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
     style:background="white"
-    style:border-left="1px solid #d6d3d1"
+    style:border-left="1px solid #e7e5e4"
   >
     <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
       <RightDrawerContent />
-      {#if viewerUiStore.analysisOpen}
+      {#if viewerUiStore.analysisOpen && $page.url.pathname === '/'}
         <div class="analysis-overlay">
           <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
           <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>
