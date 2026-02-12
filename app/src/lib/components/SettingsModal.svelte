@@ -100,7 +100,7 @@
 
       <!-- Close button (top-right) -->
       <button class="close-btn" onclick={() => { open = false; }} aria-label="Close">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 6 6 18" />
           <path d="m6 6 12 12" />
         </svg>
@@ -109,9 +109,9 @@
       <!-- Profile identity hero -->
       <div class="profile-hero">
         <button class="avatar-frame" onclick={goToChangeAvatar} aria-label="Change avatar">
-          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={56} />
+          <PixelAvatar avatarId={userProfile?.avatarId ?? null} size={64} />
           <div class="avatar-edit-badge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
             </svg>
           </div>
@@ -125,7 +125,7 @@
       <!-- Account fields -->
       <div class="section">
         <span class="section-label">
-          <svg class="section-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="section-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
@@ -221,11 +221,11 @@
   .modal-panel {
     position: relative;
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
     max-height: 90vh;
     overflow-y: auto;
     margin: 0 16px;
-    padding: 24px;
+    padding: 28px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -273,13 +273,13 @@
   /* Close */
   .close-btn {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 18px;
+    right: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: none;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
@@ -307,11 +307,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
+    width: 84px;
+    height: 84px;
     background: #0c0a09;
     border: 2px solid #292524;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: border-color 0.15s;
   }
@@ -322,13 +322,13 @@
 
   .avatar-edit-badge {
     position: absolute;
-    bottom: -4px;
-    right: -4px;
+    bottom: -5px;
+    right: -5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     background: #facc15;
     border-radius: 50%;
     color: #1c1917;
@@ -336,17 +336,17 @@
   }
 
   .profile-name {
-    margin-top: 10px;
+    margin-top: 12px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 600;
     color: #f5f5f4;
   }
 
   .profile-email {
-    margin-top: 2px;
+    margin-top: 3px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     color: #57534e;
   }
 
@@ -354,7 +354,7 @@
   .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-    margin: 16px 0;
+    margin: 20px 0;
   }
 
   /* Section */
@@ -366,14 +366,14 @@
   .section-label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #facc15;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
   .section-icon {
@@ -389,19 +389,19 @@
 
   .field-label {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #78716c;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .field-input {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
+    font-size: 15px;
     color: #d6d3d1;
     background: #0c0a09;
     border: 1px solid #292524;
@@ -421,26 +421,26 @@
 
   /* Messages */
   .msg-error {
-    margin-top: 10px;
+    margin-top: 12px;
     text-align: center;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: #ef4444;
   }
 
   .msg-success {
-    margin-top: 10px;
+    margin-top: 12px;
     text-align: center;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     color: #facc15;
   }
 
   .btn-save {
-    margin-top: 14px;
-    padding: 10px 16px;
+    margin-top: 16px;
+    padding: 12px 16px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -467,14 +467,14 @@
   .footer-actions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
 
   .btn-footer {
     width: 100%;
-    padding: 8px 16px;
+    padding: 10px 16px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -503,7 +503,7 @@
 
   /* Danger zone */
   .danger-zone {
-    padding: 14px;
+    padding: 16px;
     background: rgba(239, 68, 68, 0.05);
     border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: 6px;
@@ -511,14 +511,14 @@
 
   .danger-text {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     color: #ef4444;
   }
 
   .danger-prompt {
-    margin-top: 6px;
+    margin-top: 8px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     color: #a8a29e;
   }
 
@@ -538,8 +538,8 @@
 
   .danger-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 12px;
   }
 
   .danger-actions .btn-footer {
@@ -548,9 +548,9 @@
 
   .btn-danger {
     flex: 1;
-    padding: 8px 16px;
+    padding: 10px 16px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
