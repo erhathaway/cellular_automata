@@ -65,6 +65,7 @@
         <div class="nail"></div>
         <div class="nail"></div>
       </div>
+      <span class="adv-pretitle">Mode</span>
       <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="4" y1="21" x2="4" y2="14" />
         <line x1="4" y1="10" x2="4" y2="3" />
@@ -77,6 +78,7 @@
         <line x1="17" y1="16" x2="23" y2="16" />
       </svg>
       <span class="adv-label">Advanced</span>
+      <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
     </div>
   </div>
 
@@ -378,9 +380,9 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 12px;
     cursor: pointer;
-    padding: 8px 12px;
+    padding: 18px 22px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -405,9 +407,9 @@
 
   .adv-btn .nails {
     position: absolute;
-    top: 4px;
-    left: 6px;
-    right: 6px;
+    top: 5px;
+    left: 8px;
+    right: 8px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
@@ -415,7 +417,7 @@
 
   .adv-btn .nails-bottom {
     top: auto;
-    bottom: 4px;
+    bottom: 5px;
   }
 
   .adv-btn .nail {
@@ -427,19 +429,49 @@
   }
 
   .adv-icon {
-    width: 18px;
-    height: 18px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 5px rgba(103, 232, 249, 0.5));
+    filter: drop-shadow(0 0 7px rgba(103, 232, 249, 0.6));
+  }
+
+  .adv-pretitle {
+    position: absolute;
+    top: 8px;
+    left: 74px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    pointer-events: none;
   }
 
   .adv-label {
     font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.06em;
+    font-size: 13px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #cffafe;
     white-space: nowrap;
+  }
+
+  .adv-status {
+    position: absolute;
+    bottom: 6px;
+    left: 74px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    pointer-events: none;
+  }
+
+  .adv-status.adv-off {
+    color: #78590a;
   }
 
   .advanced-panel-slot {

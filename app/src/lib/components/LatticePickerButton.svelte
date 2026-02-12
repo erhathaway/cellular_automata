@@ -151,9 +151,36 @@
   }
 
   .lattice-btn.is-disabled {
-    opacity: 0.35;
     cursor: not-allowed;
     pointer-events: auto;
+    border-color: #292524;
+    color: #44403c;
+  }
+
+  .lattice-btn.is-disabled .grid-icon {
+    filter: none;
+  }
+
+  .lattice-btn.is-disabled .grid-line {
+    stroke: #292524;
+  }
+
+  .lattice-btn.is-disabled .grid-dot {
+    fill: #44403c;
+    stroke: #292524;
+  }
+
+  .lattice-btn.is-disabled .label {
+    color: #44403c;
+  }
+
+  .lattice-btn.is-disabled .pretitle {
+    color: #78590a;
+  }
+
+  .lattice-btn.is-disabled .nail {
+    background: #44403c;
+    box-shadow: none;
   }
 
   .grid-icon {

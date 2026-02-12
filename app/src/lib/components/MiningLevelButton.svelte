@@ -148,9 +148,54 @@
   }
 
   .level-btn.is-disabled {
-    opacity: 0.35;
     cursor: not-allowed;
     pointer-events: auto;
+    border-color: #292524;
+    color: #44403c;
+  }
+
+  .level-btn.is-disabled .dial {
+    filter: none;
+  }
+
+  .level-btn.is-disabled .dial-rim {
+    stroke: #44403c;
+  }
+
+  .level-btn.is-disabled .dial-face {
+    stroke: #292524;
+  }
+
+  .level-btn.is-disabled .dial-tick {
+    stroke: #44403c;
+    opacity: 0.5;
+  }
+
+  .level-btn.is-disabled .dial-hub {
+    fill: #44403c;
+    stroke: #292524;
+  }
+
+  .level-btn.is-disabled .dial-needle {
+    stroke: #57534e;
+  }
+
+  .level-btn.is-disabled .dial-tip {
+    fill: #57534e;
+    stroke: #44403c;
+  }
+
+  .level-btn.is-disabled .label {
+    color: #44403c;
+  }
+
+  .level-btn.is-disabled .pretitle {
+    color: #78590a;
+  }
+
+  .level-btn.is-disabled .nail {
+    background: #44403c;
+    box-shadow: none;
   }
 
   .dial {
