@@ -113,7 +113,7 @@
   });
 </script>
 
-<div class="bg-white">
+<div class="gallery-bg">
   <div class="mx-auto max-w-7xl px-6">
     <div class="sticky-filters sticky top-0 z-20 pb-4 pt-8">
       <div class="flex flex-wrap items-center gap-4">
@@ -132,6 +132,15 @@
 </div>
 
 <style>
+  .gallery-bg {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.9) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 20% 60%, rgba(245, 245, 244, 0.7) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(245, 245, 244, 0.6) 0%, transparent 50%),
+      #f0efed;
+    background-attachment: fixed;
+  }
+
   .sticky-filters {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);

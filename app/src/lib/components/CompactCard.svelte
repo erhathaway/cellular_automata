@@ -202,7 +202,7 @@
   }
 
   .card:hover {
-    background-color: #fafaf9;
+    background-color: transparent;
   }
 
   /* Containment frame — gallery picture frame */
