@@ -97,11 +97,15 @@
 <div class="card" onclick={() => onclick?.(item)}>
   <!-- Containment field — just the image -->
   <div class="containment-frame">
-    <!-- Corner brackets -->
+    <!-- Corner brackets: black outer + white inner -->
     <span class="corner tl"></span>
     <span class="corner tr"></span>
     <span class="corner bl"></span>
     <span class="corner br"></span>
+    <span class="corner-inner tl"></span>
+    <span class="corner-inner tr"></span>
+    <span class="corner-inner bl"></span>
+    <span class="corner-inner br"></span>
 
     <!-- Electric edges between corners -->
     <span class="edge top"></span>
@@ -238,6 +242,47 @@
     border-bottom-right-radius: 4px;
   }
 
+  /* ── White inner corner brackets ── */
+  .corner-inner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .corner-inner.tl {
+    top: 3px;
+    left: 3px;
+    border-top: 3px solid #ffffff;
+    border-left: 3px solid #ffffff;
+    border-top-left-radius: 2px;
+  }
+
+  .corner-inner.tr {
+    top: 3px;
+    right: 3px;
+    border-top: 3px solid #ffffff;
+    border-right: 3px solid #ffffff;
+    border-top-right-radius: 2px;
+  }
+
+  .corner-inner.bl {
+    bottom: 3px;
+    left: 3px;
+    border-bottom: 3px solid #ffffff;
+    border-left: 3px solid #ffffff;
+    border-bottom-left-radius: 2px;
+  }
+
+  .corner-inner.br {
+    bottom: 3px;
+    right: 3px;
+    border-bottom: 3px solid #ffffff;
+    border-right: 3px solid #ffffff;
+    border-bottom-right-radius: 2px;
+  }
+
   /* ── Electric edges between corners ── */
   .edge {
     position: absolute;
@@ -308,7 +353,6 @@
     background: #f5f5f4;
     border-radius: 4px;
     overflow: hidden;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
   }
 
   .thumb-img {
