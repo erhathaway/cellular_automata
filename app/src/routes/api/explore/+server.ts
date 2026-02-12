@@ -12,6 +12,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const tagFilter = url.searchParams.get('tag');
 	const level = url.searchParams.get('level');
 	const lattice = url.searchParams.get('lattice');
+	const userId_filter = url.searchParams.get('userId');
 	const cursor = url.searchParams.get('cursor');
 	const offset = Math.max(parseInt(url.searchParams.get('offset') ?? '0'), 0);
 	const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '20'), 50);
@@ -28,6 +29,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	// Fetch generation runs
 	if (type === 'all' || type === 'generation_run') {
 		const runConditions = [];
+		if (userId_filter) runConditions.push(eq(generationRun.userId, userId_filter));
 		if (dimension) runConditions.push(eq(generationRun.dimension, parseInt(dimension)));
 		if (levelRadii) runConditions.push(inArray(generationRun.neighborhoodRadius, [...levelRadii]));
 		if (lattice) runConditions.push(eq(generationRun.latticeType, lattice));
@@ -70,6 +72,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	// Fetch cell populations
 	if (type === 'all' || type === 'cell_population') {
 		const popConditions = [];
+		if (userId_filter) popConditions.push(eq(cellPopulation.userId, userId_filter));
 		if (dimension) popConditions.push(eq(cellPopulation.dimension, parseInt(dimension)));
 		if (levelRadii) popConditions.push(inArray(cellPopulation.neighborhoodRadius, [...levelRadii]));
 		if (lattice) popConditions.push(eq(cellPopulation.latticeType, lattice));

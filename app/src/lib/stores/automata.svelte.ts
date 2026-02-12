@@ -151,6 +151,8 @@ class AutomataStore {
   lockRadius = $state(false);
   lockBorn = $state(false);
   lockSurvive = $state(false);
+  lockShapeBorn: boolean[] = $state([]);
+  lockShapeSurvive: boolean[] = $state([]);
   lockNeighborhood = $state(false);
   lockColors = $state(false);
 
@@ -259,8 +261,13 @@ class AutomataStore {
         survive: [...s.defaultRule.survive],
         born: [...s.defaultRule.born],
       }));
+      // Resize per-shape lock arrays to match shape count
+      this.lockShapeBorn = config.shapes.map(() => false);
+      this.lockShapeSurvive = config.shapes.map(() => false);
     } else {
       this.shapeRules = null;
+      this.lockShapeBorn = [];
+      this.lockShapeSurvive = [];
     }
 
     // Save to lattice history
@@ -426,16 +433,21 @@ class AutomataStore {
     }
 
     // Phase 3: Born / Survive
-    if (!skipBorn || !skipSurvive) {
-      if (this.dimension === 1 && this.neighborhoodRadius === 1) {
-        // Wolfram — single rule number covers both born+survive
-        if (!skipBorn && !skipSurvive) {
-          this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
-        }
-      } else {
-        const latticeConfig = getLattice(this.lattice);
+    if (this.dimension === 1 && this.neighborhoodRadius === 1) {
+      // Wolfram — single rule number covers both born+survive
+      if (!skipBorn && !skipSurvive) {
+        this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
+      }
+    } else {
+      const latticeConfig = getLattice(this.lattice);
 
-        if (latticeConfig.shapes && this.shapeRules) {
+      if (latticeConfig.shapes && this.shapeRules) {
+        // Multi-shape: per-shape lock arrays
+        const anyShapeUnlocked = latticeConfig.shapes.some((_, si) =>
+          !(this.advancedMode && this.lockShapeBorn[si]) ||
+          !(this.advancedMode && this.lockShapeSurvive[si])
+        );
+        if (anyShapeUnlocked) {
           const newShapeRules = latticeConfig.shapes.map((shape, si) => {
             const maxN = shape.neighborCount;
             const pick = () => {
@@ -446,9 +458,11 @@ class AutomataStore {
               return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxN + 1))];
             };
             const existing = this.shapeRules![si];
+            const shapeBornLocked = this.advancedMode && this.lockShapeBorn[si];
+            const shapeSurviveLocked = this.advancedMode && this.lockShapeSurvive[si];
             return {
-              survive: skipSurvive ? [...existing.survive] : pick(),
-              born: skipBorn ? [...existing.born] : pick(),
+              survive: shapeSurviveLocked ? [...existing.survive] : pick(),
+              born: shapeBornLocked ? [...existing.born] : pick(),
             };
           });
           this.shapeRules = newShapeRules;
@@ -456,20 +470,21 @@ class AutomataStore {
           const key = historyKey(this.dimension, this.viewer, this.lattice);
           this._shapeRulesHistory.set(key, newShapeRules.map(r => ({ ...r })));
           this._ruleHistory.set(key, { ...this.rule });
-        } else {
-          const maxNeighbors = this.neighbors.length;
-          const pick = () => {
-            const arr: number[] = [];
-            for (let i = 0; i <= maxNeighbors; i++) {
-              if (Math.random() < 0.25) arr.push(i);
-            }
-            return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
-          };
-          const currentRule = this.rule.type === 'conway' ? this.rule : { born: [], survive: [] };
-          const born = skipBorn ? [...currentRule.born] : pick();
-          const survive = skipSurvive ? [...currentRule.survive] : pick();
-          this.setRule({ type: 'conway', survive, born });
         }
+      } else if (!skipBorn || !skipSurvive) {
+        // Single-shape: use global lockBorn/lockSurvive
+        const maxNeighbors = this.neighbors.length;
+        const pick = () => {
+          const arr: number[] = [];
+          for (let i = 0; i <= maxNeighbors; i++) {
+            if (Math.random() < 0.25) arr.push(i);
+          }
+          return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
+        };
+        const currentRule = this.rule.type === 'conway' ? this.rule : { born: [], survive: [] };
+        const born = skipBorn ? [...currentRule.born] : pick();
+        const survive = skipSurvive ? [...currentRule.survive] : pick();
+        this.setRule({ type: 'conway', survive, born });
       }
     }
 
@@ -493,6 +508,12 @@ class AutomataStore {
   setLockRadius(v: boolean) { this.lockRadius = v; }
   setLockBorn(v: boolean) { this.lockBorn = v; }
   setLockSurvive(v: boolean) { this.lockSurvive = v; }
+  setLockShapeBorn(i: number, v: boolean) {
+    this.lockShapeBorn = this.lockShapeBorn.map((cur, idx) => idx === i ? v : cur);
+  }
+  setLockShapeSurvive(i: number, v: boolean) {
+    this.lockShapeSurvive = this.lockShapeSurvive.map((cur, idx) => idx === i ? v : cur);
+  }
   setLockNeighborhood(v: boolean) { this.lockNeighborhood = v; }
   setLockColors(v: boolean) { this.lockColors = v; }
 

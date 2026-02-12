@@ -27,8 +27,8 @@
   let loading = $state(true);
   let hasMore = $state(false);
 
-  function loadFilters(): { type: string; dimension: string; sort: string; level: string; lattice: string } {
-    const defaults = { type: 'all', dimension: '', sort: 'newest', level: '', lattice: '' };
+  function loadFilters(): { type: string; dimension: string; sort: string; level: string; lattice: string; minerId: string; minerName: string } {
+    const defaults = { type: 'all', dimension: '', sort: 'newest', level: '', lattice: '', minerId: '', minerName: '' };
     try {
       const stored = sessionStorage.getItem(SESSION_KEY);
       if (stored) {
@@ -47,6 +47,7 @@
     if (filters.dimension) params.set('dimension', filters.dimension);
     if (filters.level) params.set('level', filters.level);
     if (filters.lattice) params.set('lattice', filters.lattice);
+    if (filters.minerId) params.set('userId', filters.minerId);
     params.set('sort', filters.sort);
     params.set('limit', String(PAGE_SIZE));
     params.set('offset', String(offset));
@@ -84,9 +85,15 @@
     }
   }
 
-  function handleFilterChange(newFilters: { type: string; dimension: string; sort: string; level: string; lattice: string }) {
+  function handleFilterChange(newFilters: { type: string; dimension: string; sort: string; level: string; lattice: string; minerId: string; minerName: string }) {
     filters = newFilters;
     try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(newFilters)); } catch {}
+    fetchItems();
+  }
+
+  function handleMinerClick(entry: LeaderboardEntry) {
+    filters = { ...filters, minerId: entry.userId, minerName: entry.displayName ?? 'Anonymous' };
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(filters)); } catch {}
     fetchItems();
   }
 
@@ -123,15 +130,11 @@
   }
 
   onMount(async () => {
+    fetchItems();
     try {
       const stats = await api<{ leaderboard: LeaderboardEntry[] }>('GET', '/api/explore/stats');
       topMiners = stats.leaderboard;
     } catch {}
-  });
-
-  // Initial fetch
-  $effect(() => {
-    fetchItems();
   });
 </script>
 
@@ -146,13 +149,15 @@
           sort={filters.sort}
           level={filters.level}
           lattice={filters.lattice}
+          minerId={filters.minerId}
+          minerName={filters.minerName}
           onchange={handleFilterChange}
         />
       </div>
     </div>
 
     {#if topMiners.length > 0}
-      <TopMiners miners={topMiners} />
+      <TopMiners miners={topMiners} onminerclick={handleMinerClick} />
     {/if}
 
     <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />

@@ -506,20 +506,20 @@
         {#each latticeConfig.shapes as shape, si}
           {@const sr = shapeRules[si]}
           {@const maxN = shapeNeighborInfos[si]?.count ?? shape.neighborCount}
+          {@const shapeBornLocked = automataStore.lockShapeBorn[si] ?? false}
+          {@const shapeSurviveLocked = automataStore.lockShapeSurvive[si] ?? false}
           <div class="shape-rule-group">
             <div class="shape-label">{shape.label}</div>
             <div class="field">
               <div class="field-label-row">
                 <span class="field-label">Born</span>
-                {#if si === 0}
-                  <button class="field-toggle {automataStore.lockBorn ? 'toggle-on' : ''}"
-                    onclick={() => automataStore.setLockBorn(!automataStore.lockBorn)}
-                    aria-label="Lock born">
-                    <span class="toggle-track"><span class="toggle-knob"></span></span>
-                  </button>
-                {/if}
+                <button class="field-toggle {shapeBornLocked ? 'toggle-on' : ''}"
+                  onclick={() => automataStore.setLockShapeBorn(si, !shapeBornLocked)}
+                  aria-label="Lock {shape.label} born">
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </button>
               </div>
-              <div class="rule-toggles {!automataStore.lockBorn ? 'field-disabled' : ''}">
+              <div class="rule-toggles {!shapeBornLocked ? 'field-disabled' : ''}">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.born.includes(n) ? 'active' : ''}"
@@ -531,15 +531,13 @@
             <div class="field">
               <div class="field-label-row">
                 <span class="field-label">Survive</span>
-                {#if si === 0}
-                  <button class="field-toggle {automataStore.lockSurvive ? 'toggle-on' : ''}"
-                    onclick={() => automataStore.setLockSurvive(!automataStore.lockSurvive)}
-                    aria-label="Lock survive">
-                    <span class="toggle-track"><span class="toggle-knob"></span></span>
-                  </button>
-                {/if}
+                <button class="field-toggle {shapeSurviveLocked ? 'toggle-on' : ''}"
+                  onclick={() => automataStore.setLockShapeSurvive(si, !shapeSurviveLocked)}
+                  aria-label="Lock {shape.label} survive">
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </button>
               </div>
-              <div class="rule-toggles {!automataStore.lockSurvive ? 'field-disabled' : ''}">
+              <div class="rule-toggles {!shapeSurviveLocked ? 'field-disabled' : ''}">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.survive.includes(n) ? 'active' : ''}"

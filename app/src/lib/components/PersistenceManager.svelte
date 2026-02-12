@@ -50,6 +50,8 @@
       if (locks.lockRadius) automataStore.setLockRadius(true);
       if (locks.lockBorn) automataStore.setLockBorn(true);
       if (locks.lockSurvive) automataStore.setLockSurvive(true);
+      if (locks.lockShapeBorn) automataStore.lockShapeBorn = [...locks.lockShapeBorn];
+      if (locks.lockShapeSurvive) automataStore.lockShapeSurvive = [...locks.lockShapeSurvive];
       if (locks.lockNeighborhood) automataStore.setLockNeighborhood(true);
       if (locks.lockColors) automataStore.setLockColors(true);
     }
@@ -139,6 +141,8 @@
     const _lockRadius = automataStore.lockRadius;
     const _lockBorn = automataStore.lockBorn;
     const _lockSurvive = automataStore.lockSurvive;
+    const _lockShapeBorn = automataStore.lockShapeBorn;
+    const _lockShapeSurvive = automataStore.lockShapeSurvive;
     const _lockNeighborhood = automataStore.lockNeighborhood;
     const _lockColors = automataStore.lockColors;
 
@@ -153,6 +157,8 @@
         lockRadius: automataStore.lockRadius,
         lockBorn: automataStore.lockBorn,
         lockSurvive: automataStore.lockSurvive,
+        lockShapeBorn: [...automataStore.lockShapeBorn],
+        lockShapeSurvive: [...automataStore.lockShapeSurvive],
         lockNeighborhood: automataStore.lockNeighborhood,
         lockColors: automataStore.lockColors,
       };

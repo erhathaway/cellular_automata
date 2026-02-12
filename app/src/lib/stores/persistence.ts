@@ -230,6 +230,8 @@ export interface PersistedAdvancedLocks {
   lockRadius?: boolean;
   lockBorn?: boolean;
   lockSurvive?: boolean;
+  lockShapeBorn?: boolean[];
+  lockShapeSurvive?: boolean[];
   lockNeighborhood?: boolean;
   lockColors?: boolean;
 }

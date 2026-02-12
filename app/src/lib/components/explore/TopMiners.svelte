@@ -13,7 +13,7 @@
     byLattice: Record<string, number>;
   };
 
-  let { miners = [] }: { miners: LeaderboardEntry[] } = $props();
+  let { miners = [], onminerclick }: { miners: LeaderboardEntry[]; onminerclick?: (entry: LeaderboardEntry) => void } = $props();
 
   function levelBreakdown(entry: LeaderboardEntry): { key: string; label: string; count: number; pct: number }[] {
     const agg = aggregateByLevel(entry.byRadius);
@@ -51,7 +51,9 @@
   </div>
   <div class="miners-scroll">
     {#each miners.slice(0, 10) as entry, i (entry.userId)}
-      <div class="miner-card" class:first={i === 0} class:second={i === 1} class:third={i === 2}>
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div class="miner-card" class:first={i === 0} class:second={i === 1} class:third={i === 2} onclick={() => onminerclick?.(entry)}>
         <div class="nails"><div class="nail"></div><div class="nail"></div></div>
         <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
 
@@ -214,6 +216,12 @@
     align-items: center;
     gap: 8px;
     overflow: visible;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .miner-card:hover {
+    border-color: #facc15;
   }
 
   .miner-card.first {
