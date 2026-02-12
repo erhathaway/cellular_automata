@@ -19,6 +19,28 @@
   let trackedViewer: number | undefined;
   let trackedResetCounter: number | undefined;
   let mounted = false;
+  let pendingInit: ReturnType<typeof setTimeout> | null = null;
+
+  // Defer initViewer to a new browser task so click handlers complete quickly.
+  // Immediately tears down the old viewer and updates tracked values to prevent
+  // double-firing, then schedules the heavy init work.
+  function scheduleInit(shouldRun = false) {
+    // Tear down immediately so stale viewer doesn't keep rendering
+    if (viewer) {
+      try { viewer.quit(); } catch (_e) {}
+      viewer = undefined;
+    }
+    // Update tracked values now to prevent effects from re-firing
+    trackedDimension = automataStore.dimension;
+    trackedViewer = automataStore.viewer;
+    trackedResetCounter = automataStore.resetCounter;
+    // Debounce: if multiple effects trigger in the same flush, only one init runs
+    if (pendingInit !== null) clearTimeout(pendingInit);
+    pendingInit = setTimeout(() => {
+      pendingInit = null;
+      initViewer(shouldRun);
+    }, 0);
+  }
 
   function retrieveNextGeneration() {
     const pop = automataManager!.run();
@@ -194,6 +216,10 @@
 
   onDestroy(() => {
     mounted = false;
+    if (pendingInit !== null) {
+      clearTimeout(pendingInit);
+      pendingInit = null;
+    }
     automataStore.getPopulationAtIndex = null;
     automataStore.renderPreviewFrame = null;
     automataStore.getCanvasDataURL = null;
@@ -211,7 +237,7 @@
     const view = automataStore.viewer;
     if (!mounted) return;
     if (trackedDimension !== undefined && (dim !== trackedDimension || view !== trackedViewer)) {
-      initViewer(true);
+      scheduleInit(true);
     }
   });
 
@@ -220,7 +246,7 @@
     const rc = automataStore.resetCounter;
     if (!mounted) return;
     if (trackedResetCounter !== undefined && rc !== trackedResetCounter) {
-      initViewer(true);
+      scheduleInit(true);
     }
   });
 
