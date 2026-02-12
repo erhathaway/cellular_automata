@@ -30,14 +30,14 @@
     <div class="controls-row">
       <div class="controls-left pointer-events-auto">
         <div class="pipe-backdrop"></div>
-        <MiningLevelButton />
+        <MiningLevelButton disabled={advancedOpen} />
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
       </div>
       <div class="controls-right pointer-events-auto">
         <div class="pipe-backdrop-right"></div>
-        <LatticePickerButton />
+        <LatticePickerButton disabled={advancedOpen} />
       </div>
     </div>
   </div>

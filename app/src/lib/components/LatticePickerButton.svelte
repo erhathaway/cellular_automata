@@ -4,6 +4,8 @@
   import { LATTICE_REGISTRY } from '$lib-core';
   import type { LatticeType } from '$lib-core';
 
+  let { disabled = false }: { disabled?: boolean } = $props();
+
   let open = $state(false);
   let rootEl = $state<HTMLDivElement>();
 
@@ -27,6 +29,7 @@
   );
 
   function toggle() {
+    if (disabled) return;
     open = !open;
   }
 
@@ -54,7 +57,7 @@
 <div class="lattice-root" bind:this={rootEl}>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="lattice-btn {open ? 'open' : ''}" onclick={toggle}>
+  <div class="lattice-btn {open ? 'open' : ''} {disabled ? 'is-disabled' : ''}" onclick={toggle}>
     <div class="nails">
       <div class="nail"></div>
       <div class="nail"></div>
@@ -140,10 +143,16 @@
     min-height: 48px;
   }
 
-  .lattice-btn:hover,
+  .lattice-btn:hover:not(.is-disabled),
   .lattice-btn.open {
     border-color: #67e8f9;
     background-color: #292524;
+  }
+
+  .lattice-btn.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: auto;
   }
 
   .grid-icon {

@@ -341,7 +341,17 @@
 
   <!-- Header -->
   <div class="panel-header">
-    <span class="panel-title">ADVANCED MODE</span>
+    <div class="header-left">
+      <span class="panel-title">ADVANCED MODE</span>
+      <div class="adv-status-pill" onclick={onclose}>
+        <span class="status-dot"></span>
+        <span class="status-label">ON</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="status-x" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </div>
+    </div>
     <button class="close-btn" onclick={onclose} aria-label="Close advanced panel">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"></polyline>
@@ -761,12 +771,71 @@
     margin-bottom: 16px;
   }
 
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .panel-title {
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.12em;
     color: #a5f3fc;
     text-transform: uppercase;
+  }
+
+  .adv-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid #065f46;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.1);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .adv-status-pill:hover {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .adv-status-pill:hover .status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+  }
+
+  .adv-status-pill:hover .status-label {
+    color: #fca5a5;
+  }
+
+  .adv-status-pill:hover .status-x {
+    opacity: 1;
+    color: #fca5a5;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+    transition: all 0.15s;
+  }
+
+  .status-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: #6ee7b7;
+    transition: color 0.15s;
+  }
+
+  .status-x {
+    opacity: 0.4;
+    transition: all 0.15s;
   }
 
   .close-btn {

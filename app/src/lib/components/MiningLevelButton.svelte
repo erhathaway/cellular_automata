@@ -3,6 +3,8 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import type { MiningDifficulty } from '$lib/stores/automata.svelte';
 
+  let { disabled = false }: { disabled?: boolean } = $props();
+
   let open = $state(false);
   let rootEl = $state<HTMLDivElement>();
 
@@ -22,6 +24,7 @@
   );
 
   function toggle() {
+    if (disabled) return;
     open = !open;
   }
 
@@ -49,7 +52,7 @@
 <div class="level-root" bind:this={rootEl}>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="level-btn {open ? 'open' : ''}" onclick={toggle}>
+  <div class="level-btn {open ? 'open' : ''} {disabled ? 'is-disabled' : ''}" onclick={toggle}>
     <div class="nails">
       <div class="nail"></div>
       <div class="nail"></div>
@@ -136,10 +139,16 @@
     min-height: 48px;
   }
 
-  .level-btn:hover,
+  .level-btn:hover:not(.is-disabled),
   .level-btn.open {
     border-color: #67e8f9;
     background-color: #292524;
+  }
+
+  .level-btn.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: auto;
   }
 
   .dial {
