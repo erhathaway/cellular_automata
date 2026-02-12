@@ -29,8 +29,11 @@ function entriesMatch(a: HistoryEntry, b: HistoryEntry): boolean {
 
 class HistoryStore {
   entries: HistoryEntry[] = $state([]);
+  private loaded = false;
 
-  constructor() {
+  private load() {
+    if (this.loaded) return;
+    this.loaded = true;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -53,6 +56,7 @@ class HistoryStore {
   }
 
   addEntry(entry: HistoryEntry) {
+    this.load();
     // Deduplicate: skip if identical to most recent
     if (this.entries.length > 0 && entriesMatch(this.entries[0], entry)) {
       return;
@@ -72,12 +76,14 @@ class HistoryStore {
   }
 
   removeEntry(id: string) {
+    this.load();
     this.entries = this.entries.filter((e) => e.id !== id);
     this.persist();
   }
 
   clearHistory() {
     this.entries = [];
+    this.loaded = true;
     this.persist();
   }
 }

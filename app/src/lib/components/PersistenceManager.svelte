@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { afterNavigate } from '$app/navigation';
   import { automataStore, VALID_COMBOS } from '$lib/stores/automata.svelte';
   import {
@@ -56,16 +56,13 @@
     }, 2000);
 
     // Persist history on page unload so latest thumbnail is saved
+    const flushHistory = () => historyStore.flush();
     window.addEventListener('beforeunload', flushHistory);
-  });
 
-  function flushHistory() {
-    historyStore.flush();
-  }
-
-  onDestroy(() => {
-    clearInterval(thumbnailInterval);
-    window.removeEventListener('beforeunload', flushHistory);
+    return () => {
+      clearInterval(thumbnailInterval);
+      window.removeEventListener('beforeunload', flushHistory);
+    };
   });
 
   afterNavigate(({ to }) => {
