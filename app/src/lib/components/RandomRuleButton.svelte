@@ -118,8 +118,8 @@
 
     {#if mining && cells.length}
       <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
-        {#each cells as row}
-          {#each row as cell}
+        {#each cells as row, rowIndex (rowIndex)}
+          {#each row as cell, cellIndex (cellIndex)}
             <div class="ca-cell" class:alive={cell}></div>
           {/each}
         {/each}
