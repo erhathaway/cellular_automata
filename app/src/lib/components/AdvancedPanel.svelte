@@ -142,31 +142,50 @@
     top: number;
   }
 
-  // Build hex grid with absolute positions (staggered odd rows)
-  function buildHexPositions(offsets: number[][], gRadius: number, cs: number, gap: number): { cells: PositionedCell[]; width: number; height: number } {
-    const cells: PositionedCell[] = [];
-    const rowH = cs * 0.75 + gap;
-    const colW = cs + gap;
+  // Build hex grid using the lattice's actual pointy-top hex positioning.
+  // Odd-r offset coords: odd rows stagger right, row spacing = 1.5*r, col spacing = sqrt(3)*r
+  const SQRT3 = Math.sqrt(3);
 
-    for (let dy = gRadius; dy >= -gRadius; dy--) {
-      for (let dx = -gRadius; dx <= gRadius; dx++) {
-        const isSelf = dx === 0 && dy === 0;
-        const ni = offsets.findIndex((o) => o[0] === dx && o[1] === dy);
-        // Odd rows (in offset coords) are staggered right by half a cell
-        const stagger = (((dy % 2) + 2) % 2) === 1 ? colW * 0.5 : 0;
-        const left = (dx + gRadius) * colW + stagger;
-        const top = (gRadius - dy) * rowH;
-        cells.push({
-          x: dx, y: dy, isSelf, neighborIndex: ni,
-          enabled: ni >= 0 && neighborEnabled[ni],
-          left, top,
-        });
-      }
+  function buildHexPositions(offsets: number[][], gRadius: number): { cells: PositionedCell[]; cellW: number; cellH: number; width: number; height: number } {
+    // Scale hex "radius" based on grid radius so larger neighborhoods shrink
+    const hexR = Math.max(8, Math.min(16, Math.floor(60 / (2 * gRadius + 1))));
+    const cellW = Math.round(SQRT3 * hexR);
+    const cellH = 2 * hexR;
+
+    // Collect self + neighbors
+    const allCoords: { dx: number; dy: number; ni: number }[] = [{ dx: 0, dy: 0, ni: -1 }];
+    for (let i = 0; i < offsets.length; i++) {
+      allCoords.push({ dx: offsets[i][0], dy: offsets[i][1], ni: i });
     }
 
-    const width = (2 * gRadius + 1) * colW + colW * 0.5;
-    const height = (2 * gRadius) * rowH + cs;
-    return { cells, width, height };
+    // Compute center pixel for each cell using pointy-top odd-r formula
+    const positioned = allCoords.map(({ dx, dy, ni }) => {
+      const parity = (((dy % 2) + 2) % 2);
+      const cx = SQRT3 * hexR * (dx + parity * 0.5);
+      const cy = -1.5 * hexR * dy; // negate so +y goes up
+      return { dx, dy, ni, left: cx - cellW / 2, top: cy - cellH / 2 };
+    });
+
+    // Normalize to (0,0) origin
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of positioned) {
+      minX = Math.min(minX, p.left);
+      minY = Math.min(minY, p.top);
+      maxX = Math.max(maxX, p.left + cellW);
+      maxY = Math.max(maxY, p.top + cellH);
+    }
+
+    const cells: PositionedCell[] = positioned.map((p) => ({
+      x: p.dx,
+      y: p.dy,
+      isSelf: p.dx === 0 && p.dy === 0,
+      neighborIndex: p.ni,
+      enabled: p.ni >= 0 && neighborEnabled[p.ni],
+      left: p.left - minX,
+      top: p.top - minY,
+    }));
+
+    return { cells, cellW, cellH, width: maxX - minX, height: maxY - minY };
   }
 
   // Build a 2D grid layer from offsets (regular rectangular)
@@ -540,23 +559,20 @@
           </div>
         {:else if isHexLayout}
           {@const gRadius = gridRadiusFromOffsets(singleOffsets)}
-          {@const cs = cellSizeForRadius(gRadius)}
-          {@const hexData = buildHexPositions(singleOffsets, gRadius, cs, 2)}
-          {@const clip = cellClipPath('hexprism')}
+          {@const hexData = buildHexPositions(singleOffsets, gRadius)}
+          {@const hexClip = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'}
           <div class="hex-container" style="width: {hexData.width}px; height: {hexData.height}px;">
             {#each hexData.cells as cell}
               {#if cell.isSelf}
-                <div class="n-cell n-self hex-abs" style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px; clip-path: {clip};">
+                <div class="n-cell n-self hex-abs" style="width: {hexData.cellW}px; height: {hexData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {hexClip};">
                   <span class="self-dot"></span>
                 </div>
-              {:else if cell.neighborIndex >= 0}
+              {:else}
                 <div
                   class="n-cell n-neighbor hex-abs {cell.enabled ? 'n-on' : 'n-off'}"
-                  style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px; clip-path: {clip};"
+                  style="width: {hexData.cellW}px; height: {hexData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {hexClip};"
                   onclick={() => automataStore.toggleNeighbor(cell.neighborIndex)}
                 ></div>
-              {:else}
-                <div class="n-cell n-empty hex-abs" style="width: {cs}px; height: {cs}px; left: {cell.left}px; top: {cell.top}px;"></div>
               {/if}
             {/each}
           </div>
