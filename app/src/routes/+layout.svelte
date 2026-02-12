@@ -23,7 +23,6 @@
 
 	const NAV_WIDTH = 120;
 	const HISTORY_WIDTH = 280;
-	let leftWidth = $derived(historyOpen ? NAV_WIDTH + HISTORY_WIDTH : NAV_WIDTH);
 
 	function toggleLeft() {
 		leftOpen = !leftOpen;
@@ -79,49 +78,31 @@
 
 <ClerkProvider {...data}>
 	<div class="flex h-screen w-screen overflow-hidden">
-		<!-- Left drawer -->
-		<aside
-			class="relative z-10 h-full shrink-0 transition-[width] duration-300 ease-out"
-			style:width="{leftOpen ? leftWidth : 0}px"
+		<!-- Nav rail -->
+		<div
+			class="relative z-10 h-full shrink-0"
+			style="width: {NAV_WIDTH}px; background: #f5f5f4; border-right: 1px solid #d6d3d1;"
 		>
-			<div class="flex h-full" style="width: {leftWidth}px;">
-				<div
-					class="h-full shrink-0 overflow-hidden"
-					style="width: {NAV_WIDTH}px; background: #f5f5f4; border-right: 1px solid #d6d3d1;"
-				>
-					<NavSidebar {userProfile} {historyOpen} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
-				</div>
-				{#if historyOpen}
-					<div
-						class="h-full shrink-0 overflow-hidden bg-white"
-						style="width: {HISTORY_WIDTH}px; border-right: 1px solid #e5e5e5;"
-					>
-						<HistoryPanel onload={handleHistoryLoad} />
-					</div>
-				{/if}
-			</div>
-		</aside>
+			<NavSidebar {userProfile} {historyOpen} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
+		</div>
 
 		<!-- Main content -->
 		<div class="relative h-full min-w-0 flex-1 overflow-hidden">
 			{@render children()}
-
-			<!-- Left toggle tab -->
-			<button
-				class="absolute left-0 top-4 z-30 flex h-12 w-6 cursor-pointer items-center justify-center border-none bg-white text-neutral-400 transition-colors hover:text-black"
-				style="border: 1px solid #e5e5e5; border-left: none; border-radius: 0 6px 6px 0;"
-				onclick={toggleLeft}
-				aria-label={leftOpen ? 'Close left panel' : 'Open left panel'}
-			>
-				<svg class="h-3.5 w-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-					{#if leftOpen}
-						<path d="M7.5 2L4.5 6L7.5 10" />
-					{:else}
-						<path d="M4.5 2L7.5 6L4.5 10" />
-					{/if}
-				</svg>
-			</button>
 		</div>
+
+		<!-- History overlay -->
+		{#if historyOpen}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<div class="history-backdrop" onclick={() => { historyOpen = false; animateResize(); }}></div>
+			<div
+				class="history-panel"
+				style="left: {NAV_WIDTH}px; width: {HISTORY_WIDTH}px;"
+			>
+				<HistoryPanel onload={handleHistoryLoad} />
+			</div>
+		{/if}
 	</div>
 
 	<SignedIn>
