@@ -23,6 +23,37 @@
   let pendingInit: ReturnType<typeof setTimeout> | null = null;
   let viewerDefaultUpdateRateMs: number | undefined;
 
+  // Generation view tracking (debounced)
+  let viewTrackTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function trackGenerationView() {
+    if (viewTrackTimer !== null) clearTimeout(viewTrackTimer);
+    viewTrackTimer = setTimeout(async () => {
+      viewTrackTimer = null;
+      try {
+        const rule = automataStore.rule;
+        let ruleDefinition: string;
+        if (rule.type === 'wolfram') {
+          ruleDefinition = `W${rule.rule}`;
+        } else {
+          ruleDefinition = `B${rule.born.join(',')}S${rule.survive.join(',')}`;
+        }
+        await fetch('/api/generation-views', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            latticeType: automataStore.lattice,
+            ruleDefinition,
+            dimension: automataStore.dimension,
+            neighborhoodRadius: automataStore.neighborhoodRadius,
+          }),
+        });
+      } catch {
+        // ignore — fire and forget
+      }
+    }, 2000);
+  }
+
   // Defer initViewer to a new browser task so click handlers complete quickly.
   // Immediately tears down the old viewer and updates tracked values to prevent
   // double-firing, then schedules the heavy init work.
@@ -215,6 +246,9 @@
       if (shouldRun || automataStore.isPlaying) {
         viewer.turnSimulationOn();
       }
+
+      // Track this config view (debounced, fire-and-forget)
+      trackGenerationView();
     }
 
     trackedDimension = dim;
@@ -248,6 +282,10 @@
     if (pendingInit !== null) {
       clearTimeout(pendingInit);
       pendingInit = null;
+    }
+    if (viewTrackTimer !== null) {
+      clearTimeout(viewTrackTimer);
+      viewTrackTimer = null;
     }
     automataStore.getPopulationAtIndex = null;
     automataStore.renderPreviewFrame = null;
