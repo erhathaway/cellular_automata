@@ -99,7 +99,7 @@
       {#if $page.url.pathname === '/explore'}
         <div class="gallery-stats-panel">
           <div class="gallery-stats-header">
-            <span class="gallery-stats-title">Gallery Stats</span>
+            <span class="gallery-stats-title">Mine Productivity</span>
           </div>
           <GalleryStats />
         </div>

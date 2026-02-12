@@ -263,16 +263,17 @@
   }
 
   .hbar-name {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: #44403c;
-    width: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1c1917;
+    width: 68px;
     flex-shrink: 0;
   }
 
   .hbar-track {
     flex: 1;
-    height: 14px;
+    height: 16px;
     border-radius: 3px;
     background: rgba(245, 245, 244, 0.8);
     border: 1px solid #d6d3d1;
@@ -287,8 +288,8 @@
   }
 
   .hbar-count {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
     font-weight: 700;
     color: #1c1917;
     width: 36px;
