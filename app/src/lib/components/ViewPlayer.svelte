@@ -25,11 +25,6 @@
   // Immediately tears down the old viewer and updates tracked values to prevent
   // double-firing, then schedules the heavy init work.
   function scheduleInit(shouldRun = false) {
-    // Tear down immediately so stale viewer doesn't keep rendering
-    if (viewer) {
-      try { viewer.quit(); } catch (_e) {}
-      viewer = undefined;
-    }
     // Update tracked values now to prevent effects from re-firing
     trackedDimension = automataStore.dimension;
     trackedViewer = automataStore.viewer;
