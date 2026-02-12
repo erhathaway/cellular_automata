@@ -353,10 +353,29 @@
 
   // Background color derived from cell state 0
   let bgColor = $derived(automataStore.hslString(automataStore.cellStates[0]?.color ?? { h: 360, s: 1, l: 1, a: 1 }));
+
+  // Click-to-toggle play/pause (ignore drags for OrbitControls)
+  let pointerDownPos: { x: number; y: number } | null = null;
+  function handlePointerDown(e: PointerEvent) {
+    pointerDownPos = { x: e.clientX, y: e.clientY };
+  }
+  function handlePointerUp(e: PointerEvent) {
+    if (!pointerDownPos) return;
+    const dx = e.clientX - pointerDownPos.x;
+    const dy = e.clientY - pointerDownPos.y;
+    pointerDownPos = null;
+    // Only toggle if it was a click, not a drag
+    if (dx * dx + dy * dy < 9) {
+      automataStore.togglePlay();
+    }
+  }
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   bind:this={containerEl}
   class="sticky top-0 z-0 h-full w-full overflow-hidden"
   style:background-color={bgColor}
+  onpointerdown={handlePointerDown}
+  onpointerup={handlePointerUp}
 ></div>
