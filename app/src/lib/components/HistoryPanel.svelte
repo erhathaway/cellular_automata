@@ -1,5 +1,8 @@
 <script lang="ts">
   import { historyStore, type HistoryEntry } from '$lib/stores/history.svelte';
+  import { radiusToLevel } from '$lib/levels';
+  import { getLattice, defaultLattice } from '$lib-core';
+  import type { LatticeType } from '$lib-core';
 
   let {
     onload,
@@ -11,7 +14,6 @@
     if (entry.ruleType === 'wolfram') {
       return `Rule ${entry.ruleDefinition.slice(1)}`;
     }
-    // Conway: "B3/S2,3"
     const match = entry.ruleDefinition.match(/^B([0-9,]*)S([0-9,]*)$/);
     if (match) {
       return `B${match[1]}/S${match[2]}`;
@@ -21,6 +23,22 @@
 
   function dimLabel(entry: HistoryEntry): string {
     return `${entry.dimension}D`;
+  }
+
+  function levelLabel(entry: HistoryEntry): string {
+    return radiusToLevel(entry.neighborhoodRadius);
+  }
+
+  function latticeLabel(entry: HistoryEntry): string | null {
+    const lat = entry.lattice as LatticeType | undefined;
+    if (!lat) return null;
+    const dim = entry.dimension as 2 | 3;
+    if (lat === defaultLattice(dim)) return null;
+    try {
+      return getLattice(lat).label;
+    } catch {
+      return null;
+    }
   }
 
   function timeAgo(timestamp: number): string {
@@ -78,7 +96,7 @@
                 <img src={entry.thumbnail} alt="" class="thumb-img" />
               {:else}
                 <div class="thumb-fallback">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -87,17 +105,55 @@
                 </div>
               {/if}
               <div class="thumb-scanlines"></div>
+
+              <!-- Status icons overlay -->
+              {#if entry.claimed || entry.liked || entry.bookmarked}
+                <div class="status-icons">
+                  {#if entry.claimed}
+                    <span class="status-icon claimed" title="Claimed">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 3h12l4 6-10 13L2 9Z" />
+                      </svg>
+                    </span>
+                  {/if}
+                  {#if entry.liked}
+                    <span class="status-icon liked" title="Liked">
+                      <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                      </svg>
+                    </span>
+                  {/if}
+                  {#if entry.bookmarked}
+                    <span class="status-icon bookmarked" title="In Chest">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+                        <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+                        <line x1="4" y1="13" x2="20" y2="13" />
+                      </svg>
+                    </span>
+                  {/if}
+                </div>
+              {/if}
             </div>
             <div class="entry-info">
               <div class="entry-top">
                 <span class="rule-chip">{ruleLabel(entry)}</span>
                 <span class="dim-chip">{dimLabel(entry)}</span>
               </div>
+
+              <!-- Pills row -->
+              <div class="pills-row">
+                <span class="pill level-{levelLabel(entry)}">{levelLabel(entry)}</span>
+                {#if latticeLabel(entry)}
+                  <span class="pill lattice">{latticeLabel(entry)}</span>
+                {/if}
+                {#if entry.neighborhoodRadius > 1}
+                  <span class="pill radius">r={entry.neighborhoodRadius}</span>
+                {/if}
+              </div>
+
               <div class="entry-meta">
                 {timeAgo(entry.timestamp)}
-                {#if entry.neighborhoodRadius > 1}
-                  &middot; r={entry.neighborhoodRadius}
-                {/if}
               </div>
             </div>
           </button>
@@ -295,6 +351,44 @@
     );
   }
 
+  /* ── Status icons (overlay on thumbnail) ── */
+  .status-icons {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 3px;
+    pointer-events: none;
+  }
+
+  .status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    backdrop-filter: blur(6px);
+  }
+
+  .status-icon.claimed {
+    background: rgba(250, 204, 21, 0.2);
+    color: #facc15;
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.3);
+  }
+
+  .status-icon.liked {
+    background: rgba(251, 113, 133, 0.2);
+    color: #fb7185;
+    box-shadow: 0 0 6px rgba(251, 113, 133, 0.3);
+  }
+
+  .status-icon.bookmarked {
+    background: rgba(234, 88, 12, 0.2);
+    color: #f97316;
+    box-shadow: 0 0 6px rgba(234, 88, 12, 0.3);
+  }
+
   /* ── Entry info ── */
   .entry-info {
     min-width: 0;
@@ -339,11 +433,61 @@
     line-height: 1.2;
   }
 
+  /* ── Pills row ── */
+  .pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    padding: 2px 6px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .pill.level-easy {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+
+  .pill.level-medium {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.12);
+    border: 1px solid rgba(250, 204, 21, 0.2);
+  }
+
+  .pill.level-hard {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+  }
+
+  .pill.lattice {
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.10);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+  }
+
+  .pill.radius {
+    color: #a8a29e;
+    background: rgba(168, 162, 158, 0.10);
+    border: 1px solid rgba(168, 162, 158, 0.15);
+  }
+
   .entry-meta {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: #57534e;
-    margin-top: 4px;
+    margin-top: 6px;
     letter-spacing: 0.02em;
   }
 
