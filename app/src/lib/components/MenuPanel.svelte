@@ -39,7 +39,7 @@
   let ruleDisplay = $derived.by(() => {
     const rule = automataStore.rule;
     if (rule.type === 'wolfram') return `Rule ${rule.rule}`;
-    return `S${rule.survive.join('')} B${rule.born.join('')}`;
+    return `S${rule.survive.join(',')} B${rule.born.join(',')}`;
   });
   let shapeDisplay = $derived.by(() => {
     const shape = automataStore.populationShape;

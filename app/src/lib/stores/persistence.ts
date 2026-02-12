@@ -22,7 +22,7 @@ export function base64ToUint8Array(b64: string): Uint8Array {
 
 export function serializeRule(rule: AutomataRule): string {
   if (rule.type === 'wolfram') return `W${rule.rule}`;
-  return `B${rule.born.join('')}S${rule.survive.join('')}`;
+  return `B${rule.born.join(',')}S${rule.survive.join(',')}`;
 }
 
 export function deserializeRule(s: string): AutomataRule | null {
@@ -31,10 +31,17 @@ export function deserializeRule(s: string): AutomataRule | null {
     if (isNaN(num) || num < 0 || num > 255) return null;
     return { type: 'wolfram', rule: num };
   }
-  const match = s.match(/^B(\d*)S(\d*)$/);
+  const match = s.match(/^B([0-9,]*)S([0-9,]*)$/);
   if (!match) return null;
-  const born = match[1] ? match[1].split('').map(Number) : [];
-  const survive = match[2] ? match[2].split('').map(Number) : [];
+  const parseNums = (str: string): number[] => {
+    if (!str) return [];
+    // Comma-separated (new format) vs individual digits (legacy)
+    return str.includes(',')
+      ? str.split(',').map(Number)
+      : str.split('').map(Number);
+  };
+  const born = parseNums(match[1]);
+  const survive = parseNums(match[2]);
   if (born.some(isNaN) || survive.some(isNaN)) return null;
   return { type: 'conway', born, survive };
 }

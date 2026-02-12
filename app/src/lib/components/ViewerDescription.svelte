@@ -20,11 +20,11 @@
     }
     const maxNums = 6;
     const bornStr = rule.born.length > maxNums
-      ? rule.born.slice(0, maxNums).join('') + '…'
-      : rule.born.join('');
+      ? rule.born.slice(0, maxNums).join(',') + '…'
+      : rule.born.join(',');
     const surviveStr = rule.survive.length > maxNums
-      ? rule.survive.slice(0, maxNums).join('') + '…'
-      : rule.survive.join('');
+      ? rule.survive.slice(0, maxNums).join(',') + '…'
+      : rule.survive.join(',');
     const nc = automataStore.neighbors.length;
     return `${name} (${nc}n) — B${bornStr}/S${surviveStr}`;
   });

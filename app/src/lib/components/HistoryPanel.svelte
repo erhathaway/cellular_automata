@@ -11,8 +11,8 @@
     if (entry.ruleType === 'wolfram') {
       return `Rule ${entry.ruleDefinition.slice(1)}`;
     }
-    // Conway: "B3/S23"
-    const match = entry.ruleDefinition.match(/^B(\d*)S(\d*)$/);
+    // Conway: "B3/S2,3"
+    const match = entry.ruleDefinition.match(/^B([0-9,]*)S([0-9,]*)$/);
     if (match) {
       return `B${match[1]}/S${match[2]}`;
     }

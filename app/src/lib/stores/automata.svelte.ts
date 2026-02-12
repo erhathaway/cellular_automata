@@ -378,7 +378,7 @@ class AutomataStore {
     if (rule.type === 'wolfram') {
       ruleDefinition = `W${rule.rule}`;
     } else {
-      ruleDefinition = `B${rule.born.join('')}S${rule.survive.join('')}`;
+      ruleDefinition = `B${rule.born.join(',')}S${rule.survive.join(',')}`;
     }
 
     let stability: 'evolving' | 'quasi_stable' | 'fixed' = 'evolving';
