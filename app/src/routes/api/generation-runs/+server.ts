@@ -58,30 +58,43 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		);
 	}
 
-	const run = await createGenerationRun({
-		userId: auth.userId,
-		dimension,
-		viewer,
-		ruleType,
-		ruleDefinition,
-		neighborhoodRadius: nr,
-		latticeType: lattice ?? null,
-		populationShape: typeof populationShape === 'string' ? populationShape : JSON.stringify(populationShape),
-		cellStates: typeof cellStates === 'string' ? cellStates : JSON.stringify(cellStates),
-		seedPopulation: seedPopulation ? Buffer.from(seedPopulation, 'base64') : undefined,
-		generationIndex,
-		title,
-		description,
-		thumbnail,
-		fingerprint
-	});
+	let run;
+	try {
+		run = await createGenerationRun({
+			userId: auth.userId,
+			dimension,
+			viewer,
+			ruleType,
+			ruleDefinition,
+			neighborhoodRadius: nr,
+			latticeType: lattice ?? null,
+			populationShape: typeof populationShape === 'string' ? populationShape : JSON.stringify(populationShape),
+			cellStates: typeof cellStates === 'string' ? cellStates : JSON.stringify(cellStates),
+			seedPopulation: seedPopulation ? Buffer.from(seedPopulation, 'base64') : undefined,
+			generationIndex,
+			title,
+			description,
+			thumbnail,
+			fingerprint
+		});
+	} catch (e: any) {
+		console.error('createGenerationRun failed:', e);
+		return error(500, e.message ?? 'Failed to create generation run');
+	}
 
-	const discoveryResult = await checkAndRecordDiscovery({
-		fingerprint,
-		entityType: 'generation_run',
-		generationRunId: run.id,
-		userId: auth.userId
-	});
+	let discoveryResult;
+	try {
+		discoveryResult = await checkAndRecordDiscovery({
+			fingerprint,
+			entityType: 'generation_run',
+			generationRunId: run.id,
+			userId: auth.userId
+		});
+	} catch (e: any) {
+		console.error('checkAndRecordDiscovery failed:', e);
+		// Non-fatal — the run was already created
+		discoveryResult = { isDiscoverer: false, discoveredByUserId: auth.userId };
+	}
 
 	return json({ ...run, discovery: discoveryResult }, { status: 201 });
 };

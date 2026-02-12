@@ -42,7 +42,7 @@
   );
 </script>
 
-<div class="entry">
+<div class="entry" class:reply={!isTopLevel}>
   <!-- Left: vote rail -->
   <div class="vote-rail">
     <button
@@ -66,15 +66,27 @@
   <div class="content">
     <!-- Avatar + meta row -->
     <div class="meta-row">
-      <div class="avatar-wrap">
-        {#if comment.userAvatarId}
-          <PixelAvatar avatarId={comment.userAvatarId} size={20} fallbackInitials={initials} />
-        {:else if comment.userImageUrl}
-          <img src={comment.userImageUrl} alt="" class="avatar-img" />
-        {:else}
-          <div class="avatar-fallback">{initials}</div>
-        {/if}
-      </div>
+      {#if isTopLevel}
+        <div class="avatar-wrap">
+          {#if comment.userAvatarId}
+            <PixelAvatar avatarId={comment.userAvatarId} size={20} fallbackInitials={initials} />
+          {:else if comment.userImageUrl}
+            <img src={comment.userImageUrl} alt="" class="avatar-img" />
+          {:else}
+            <div class="avatar-fallback">{initials}</div>
+          {/if}
+        </div>
+      {:else}
+        <div class="avatar-wrap avatar-sm">
+          {#if comment.userAvatarId}
+            <PixelAvatar avatarId={comment.userAvatarId} size={16} fallbackInitials={initials} />
+          {:else if comment.userImageUrl}
+            <img src={comment.userImageUrl} alt="" class="avatar-img-sm" />
+          {:else}
+            <div class="avatar-fallback-sm">{initials}</div>
+          {/if}
+        </div>
+      {/if}
       <span class="author">{comment.userName ?? 'Anonymous'}</span>
       <span class="dot">·</span>
       <span class="time">{timeAgo(comment.createdAt)}</span>
@@ -118,6 +130,47 @@
 
   .entry:first-child {
     border-top: none;
+  }
+
+  /* Reply variant — recessed feel */
+  .entry.reply {
+    padding: 6px 8px;
+    margin: 2px 0;
+    background: rgba(0,0,0,0.15);
+    border-radius: 4px;
+    border-top: none;
+  }
+
+  .entry.reply .body {
+    font-size: 12px;
+    color: #d6d3d1;
+  }
+
+  .entry.reply .author {
+    font-size: 11px;
+    color: #e7e5e4;
+  }
+
+  .entry.reply .time {
+    font-size: 9px;
+  }
+
+  .entry.reply .vote-rail {
+    width: 24px;
+  }
+
+  .entry.reply .vote-btn {
+    width: 16px;
+    height: 14px;
+  }
+
+  .entry.reply .vote-btn svg {
+    width: 8px;
+    height: 8px;
+  }
+
+  .entry.reply .vote-score {
+    font-size: 9px;
   }
 
   /* Vote rail */
@@ -167,7 +220,7 @@
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
-    color: #57534e;
+    color: #a8a29e;
     min-width: 16px;
     text-align: center;
     line-height: 1;
@@ -193,9 +246,19 @@
     flex-shrink: 0;
   }
 
+  .avatar-sm {
+    line-height: 0;
+  }
+
   .avatar-img {
     width: 20px;
     height: 20px;
+    border-radius: 50%;
+  }
+
+  .avatar-img-sm {
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
   }
 
@@ -213,11 +276,25 @@
     color: #78716c;
   }
 
+  .avatar-fallback-sm {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #292524;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    font-weight: 700;
+    color: #57534e;
+  }
+
   .author {
     font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 12px;
     font-weight: 600;
-    color: #d6d3d1;
+    color: #f5f5f4;
   }
 
   .dot {
@@ -228,14 +305,14 @@
   .time {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
-    color: #57534e;
+    color: #78716c;
   }
 
   .body {
     font-family: 'Space Grotesk Variable', sans-serif;
     font-size: 13px;
     line-height: 1.55;
-    color: #a8a29e;
+    color: #e7e5e4;
     white-space: pre-wrap;
     margin-top: 4px;
   }
@@ -256,7 +333,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #57534e;
+    color: #78716c;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -266,7 +343,7 @@
   }
 
   .action-btn:hover {
-    color: #d6d3d1;
+    color: #f5f5f4;
     background: rgba(255,255,255,0.06);
   }
 

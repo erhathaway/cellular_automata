@@ -314,8 +314,8 @@
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     font-weight: 700;
-    color: #78716c;
-    background: rgba(255,255,255,0.06);
+    color: #a8a29e;
+    background: rgba(255,255,255,0.08);
     padding: 1px 7px;
     border-radius: 10px;
   }
@@ -338,13 +338,13 @@
     border-radius: 3px;
     border: none;
     cursor: pointer;
-    color: #78716c;
+    color: #a8a29e;
     background: transparent;
     transition: all 0.15s;
   }
 
   .sort-btn:hover {
-    color: #d6d3d1;
+    color: #f5f5f4;
   }
 
   .sort-btn.active {
@@ -365,7 +365,13 @@
   .threads {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
+  }
+
+  .threads :global(.thread + .thread) {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 4px;
+    padding-top: 4px;
   }
 
   .empty-state {
@@ -379,12 +385,12 @@
   .empty-state span {
     font-family: 'Space Mono', monospace;
     font-size: 11px;
-    color: #57534e;
+    color: #a8a29e;
   }
 
   .empty-icon {
     width: 28px;
     height: 28px;
-    color: #44403c;
+    color: #78716c;
   }
 </style>

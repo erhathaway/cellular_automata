@@ -106,7 +106,7 @@
   }
 
   .input-field::placeholder {
-    color: #57534e;
+    color: #78716c;
     font-style: italic;
   }
 
@@ -127,13 +127,13 @@
     border-radius: 4px;
     border: 1px solid transparent;
     cursor: pointer;
-    color: #78716c;
+    color: #a8a29e;
     background: transparent;
     transition: all 0.15s;
   }
 
   .btn-cancel:hover {
-    color: #d6d3d1;
+    color: #f5f5f4;
     border-color: #44403c;
   }
 
@@ -181,13 +181,13 @@
     gap: 6px;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
-    color: #57534e;
+    color: #a8a29e;
     font-style: italic;
   }
 
   .lock-icon {
     width: 14px;
     height: 14px;
-    color: #44403c;
+    color: #78716c;
   }
 </style>

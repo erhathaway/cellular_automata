@@ -22,15 +22,27 @@ export async function checkAndRecordDiscovery(params: {
 		};
 	}
 
-	await db.insert(discovery).values({
-		fingerprint: params.fingerprint,
-		entityType: params.entityType,
-		generationRunId: params.generationRunId,
-		cellPopulationId: params.cellPopulationId,
-		discoveredByUserId: params.userId
-	});
-
-	return { isDiscoverer: true, discoveredByUserId: params.userId };
+	try {
+		await db.insert(discovery).values({
+			fingerprint: params.fingerprint,
+			entityType: params.entityType,
+			generationRunId: params.generationRunId,
+			cellPopulationId: params.cellPopulationId,
+			discoveredByUserId: params.userId
+		});
+		return { isDiscoverer: true, discoveredByUserId: params.userId };
+	} catch {
+		// Unique constraint race — re-check who won
+		const winner = await db
+			.select()
+			.from(discovery)
+			.where(eq(discovery.fingerprint, params.fingerprint))
+			.get();
+		return {
+			isDiscoverer: winner?.discoveredByUserId === params.userId,
+			discoveredByUserId: winner?.discoveredByUserId ?? params.userId
+		};
+	}
 }
 
 export async function getDiscoveryByFingerprint(fingerprint: string) {

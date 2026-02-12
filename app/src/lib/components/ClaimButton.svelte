@@ -2,6 +2,7 @@
   import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
+  import { defaultLattice } from '$lib-core';
 
   let saving = $state(false);
   let saved = $state(false);
@@ -35,9 +36,21 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, thumbnail })
       });
+      if (res.status === 409) {
+        // Already exists — treat as successfully claimed
+        saved = true;
+        isUndiscovered = false;
+        return;
+      }
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
+        let msg = `Server error (${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body.message ?? msg;
+        } catch {
+          msg = (await res.text()) || msg;
+        }
+        throw new Error(msg);
       }
       saved = true;
       automataStore.claimAnimationCounter++;
@@ -58,9 +71,11 @@
     const rule = automataStore.rule;
     const dim = automataStore.dimension;
     const nr = automataStore.neighborhoodRadius;
+    const lattice = automataStore.lattice;
 
     const ruleType = rule.type;
     const ruleDefinition = serializeRule(rule);
+    const nonDefaultLattice = lattice && lattice !== defaultLattice(dim) ? lattice : undefined;
 
     // Reset state
     isUndiscovered = null;
@@ -76,6 +91,7 @@
           rd: ruleDefinition,
           nr: String(nr)
         });
+        if (nonDefaultLattice) params.set('lt', nonDefaultLattice);
         const res = await fetch(`/api/discovery?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -165,10 +181,10 @@
         </svg>
         Claiming...
       {:else if saveError}
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10" /><line x1="15" x2="9" y1="9" y2="15" /><line x1="9" x2="15" y1="9" y2="15" />
         </svg>
-        Failed — tap to retry
+        <span class="truncate">{saveError} — tap to retry</span>
       {:else}
         <svg
           xmlns="http://www.w3.org/2000/svg"

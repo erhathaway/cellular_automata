@@ -13,7 +13,7 @@
 
 <div class="relative m-4" style="height: 75vh;">
   <CornerBlocks />
-  <section class="relative h-full overflow-hidden rounded-2xl">
+  <section class="relative h-full overflow-hidden rounded-2xl" style="border: 14px solid #000;">
     <ViewPlayer />
     <div class="pointer-events-none absolute inset-0 z-10 rounded-2xl" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.15), inset 0 0 2px rgba(0,0,0,0.1);"></div>
     <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 rounded-lg p-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
