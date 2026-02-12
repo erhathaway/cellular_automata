@@ -5,6 +5,7 @@
 	import HistoryPanel from '$lib/components/HistoryPanel.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import SettingsModal from '$lib/components/SettingsModal.svelte';
+	import AchievementNotification from '$lib/components/achievements/AchievementNotification.svelte';
 	import { ClerkProvider, SignedIn } from 'svelte-clerk';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -115,6 +116,7 @@
 	<SignedIn>
 		<OnboardingModal {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 		<SettingsModal bind:open={settingsOpen} {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
+		<AchievementNotification />
 	</SignedIn>
 </ClerkProvider>
 

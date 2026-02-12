@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { achievementsStore } from '$lib/stores/achievements.svelte';
   import PixelAvatar from './PixelAvatar.svelte';
 
   type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
@@ -107,6 +108,9 @@
               </svg>
               {#if showPlusOne}
                 <span class="plus-one">+1</span>
+              {/if}
+              {#if achievementsStore.unseenCount > 0}
+                <span class="achievement-badge">{achievementsStore.unseenCount}</span>
               {/if}
             </div>
           {/if}
@@ -533,5 +537,26 @@
       opacity: 0;
       transform: translateY(-28px) scale(0.8);
     }
+  }
+
+  .achievement-badge {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #000;
+    background: #facc15;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.4);
+    pointer-events: none;
+    z-index: 2;
   }
 </style>

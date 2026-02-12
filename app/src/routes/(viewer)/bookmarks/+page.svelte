@@ -1,18 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
+  import AchievementGrid from '$lib/components/achievements/AchievementGrid.svelte';
   import { SignedIn, SignedOut } from 'svelte-clerk/client';
+  import { achievementsStore } from '$lib/stores/achievements.svelte';
 
   const PAGE_SIZE = 20;
 
+  let activeTab: 'saves' | 'achievements' = $state('saves');
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
+
+  // Read initial tab from URL query param
+  onMount(() => {
+    const tabParam = $page.url.searchParams.get('tab');
+    if (tabParam === 'achievements') {
+      activeTab = 'achievements';
+    }
+    fetchMySaves();
+  });
 
   async function fetchMySaves() {
     loading = true;
@@ -75,8 +88,6 @@
     const params = buildURLParams(dim, viewer, settings);
     goto(`/?${params.toString()}`);
   }
-
-  onMount(fetchMySaves);
 </script>
 
 <div class="chest-bg">
@@ -92,12 +103,38 @@
     </SignedOut>
 
     <SignedIn>
-      {#if items.length === 0 && !loading}
-        <div class="flex h-40 items-center justify-center">
-          <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">No saves yet. Use the save button on the viewer to save a configuration.</p>
-        </div>
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button
+          class="tab"
+          class:active={activeTab === 'saves'}
+          onclick={() => { activeTab = 'saves'; }}
+        >
+          Saves
+        </button>
+        <button
+          class="tab"
+          class:active={activeTab === 'achievements'}
+          onclick={() => { activeTab = 'achievements'; }}
+        >
+          Achievements
+          {#if achievementsStore.unseenCount > 0}
+            <span class="badge">{achievementsStore.unseenCount}</span>
+          {/if}
+        </button>
+      </div>
+
+      <!-- Tab content -->
+      {#if activeTab === 'saves'}
+        {#if items.length === 0 && !loading}
+          <div class="flex h-40 items-center justify-center">
+            <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">No saves yet. Use the save button on the viewer to save a configuration.</p>
+          </div>
+        {:else}
+          <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
+        {/if}
       {:else}
-        <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
+        <AchievementGrid />
       {/if}
     </SignedIn>
   </div>
@@ -107,5 +144,53 @@
   .chest-bg {
     background: #000;
     min-height: 100%;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #292524;
+  }
+
+  .tab {
+    position: relative;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #78716c;
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover {
+    color: #a8a29e;
+  }
+
+  .tab.active {
+    color: #facc15;
+    border-bottom-color: #facc15;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #000;
+    background: #facc15;
+    border-radius: 8px;
+    margin-left: 6px;
   }
 </style>
