@@ -81,6 +81,32 @@ class HistoryStore {
     this.persist();
   }
 
+  removeCorrupted() {
+    this.load();
+    const before = this.entries.length;
+    this.entries = this.entries.filter((e) => {
+      if (e.ruleType !== 'conway') return true;
+      // Old format without commas that could have multi-digit corruption
+      const match = e.ruleDefinition.match(/^B([0-9,]*)S([0-9,]*)$/);
+      if (!match) return false;
+      // If no commas and any digit sequence could be multi-digit, can't verify — keep single-digit-only entries
+      const bornStr = match[1];
+      const surviveStr = match[2];
+      if (!bornStr.includes(',') && !surviveStr.includes(',')) {
+        // Legacy format — check for duplicates (impossible from generator)
+        const born = bornStr.split('').map(Number);
+        const survive = surviveStr.split('').map(Number);
+        if (new Set(born).size !== born.length || new Set(survive).size !== survive.length) {
+          return false;
+        }
+      }
+      return true;
+    });
+    if (this.entries.length !== before) {
+      this.persist();
+    }
+  }
+
   clearHistory() {
     this.entries = [];
     this.loaded = true;

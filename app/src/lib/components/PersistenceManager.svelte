@@ -33,6 +33,14 @@
     }
 
     // If URL has params, override that combo's settings
+    // Drop corrupted rules from old single-char serialization (duplicates are impossible)
+    if (urlParsed?.settings?.rule?.type === 'conway') {
+      const { born, survive } = urlParsed.settings.rule;
+      if (new Set(born).size !== born.length || new Set(survive).size !== survive.length) {
+        delete urlParsed.settings.rule;
+        delete urlParsed.settings.neighborhoodRadius;
+      }
+    }
     if (urlParsed) {
       automataStore.hydrateCombo(urlParsed.dimension, urlParsed.viewer, urlParsed.settings);
       automataStore.hydrateActive(urlParsed.dimension, urlParsed.viewer);
@@ -44,6 +52,9 @@
       automataStore.hydrateActive(stored.activeDimension, stored.activeViewer);
     }
     // else: keep defaults (2-2)
+
+    // Clear corrupted history entries from old serialization format
+    historyStore.removeCorrupted();
 
     initialized = true;
 

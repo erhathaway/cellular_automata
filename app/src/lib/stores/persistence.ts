@@ -4,7 +4,7 @@ import type {
   CellStateEntry,
   ComboSettings,
 } from './automata.svelte';
-import { VALID_COMBOS } from './automata.svelte';
+import { VALID_COMBOS, defaultRule } from './automata.svelte';
 import { replaceState } from '$app/navigation';
 
 const STORAGE_KEY = 'cellular-automata-settings';
@@ -192,13 +192,33 @@ export function saveToLocalStorage(
   }
 }
 
+function hasDuplicates(arr: number[]): boolean {
+  return new Set(arr).size !== arr.length;
+}
+
+function migrateCorruptedRules(data: PersistedData): PersistedData {
+  for (const key of Object.keys(data.combos)) {
+    const combo = data.combos[key];
+    if (combo.rule?.type === 'conway') {
+      if (hasDuplicates(combo.rule.born) || hasDuplicates(combo.rule.survive)) {
+        // Rule was corrupted by old single-char serialization of multi-digit values.
+        // Parse dimension from key (e.g. "2-2" → dim=2) and reset to default.
+        const dim = parseInt(key.split('-')[0], 10);
+        combo.rule = defaultRule(dim);
+        combo.neighborhoodRadius = 1;
+      }
+    }
+  }
+  return data;
+}
+
 export function loadFromLocalStorage(): PersistedData | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data || typeof data !== 'object' || !data.combos) return null;
-    return data as PersistedData;
+    return migrateCorruptedRules(data as PersistedData);
   } catch {
     return null;
   }
