@@ -374,7 +374,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="toggle-row ">
+        <div class="toggle-row" class:field-disabled={!automataStore.lockCell}>
           {#each [1, 2, 3] as d}
             <button
               class="toggle-btn {dim === d ? 'active' : ''}"
@@ -393,7 +393,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="toggle-row ">
+        <div class="toggle-row" class:field-disabled={!automataStore.lockViewer}>
           {#each [2, 3] as v}
             {@const valid = (dim === 1 && v === 2) || (dim === 2) || (dim === 3 && v === 3)}
             <button
@@ -415,7 +415,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="toggle-row toggle-row-wrap ">
+          <div class="toggle-row toggle-row-wrap" class:field-disabled={!automataStore.lockLattice}>
             {#each availableLattices as lat}
               <button
                 class="toggle-btn {lattice === lat.type ? 'active' : ''}"
@@ -465,7 +465,7 @@
             <span class="toggle-track"><span class="toggle-knob"></span></span>
           </button>
         </div>
-        <div class="">
+        <div class:field-disabled={!automataStore.lockRadius}>
           <input
             type="number"
             class="num-input num-input-sm"
@@ -490,7 +490,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="">
+          <div class:field-disabled={!automataStore.lockBorn}>
             <input
               type="number"
               class="num-input num-input-sm"
@@ -519,7 +519,7 @@
                   <span class="toggle-track"><span class="toggle-knob"></span></span>
                 </button>
               </div>
-              <div class="rule-toggles ">
+              <div class="rule-toggles" class:field-disabled={!shapeBornLocked}>
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.born.includes(n) ? 'active' : ''}"
@@ -537,7 +537,7 @@
                   <span class="toggle-track"><span class="toggle-knob"></span></span>
                 </button>
               </div>
-              <div class="rule-toggles ">
+              <div class="rule-toggles" class:field-disabled={!shapeSurviveLocked}>
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.survive.includes(n) ? 'active' : ''}"
@@ -559,7 +559,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="rule-toggles ">
+          <div class="rule-toggles" class:field-disabled={!automataStore.lockBorn}>
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.born.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
