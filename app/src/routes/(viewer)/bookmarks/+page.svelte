@@ -173,6 +173,22 @@
             <div class="achievements-row-icons">
               {#each earnedAchievements as a (a.def.id)}
                 <div class="earned-chip" title={a.def.name}>
+                  <!-- Outer corner brackets -->
+                  <span class="ec-corner ec-tl"></span>
+                  <span class="ec-corner ec-tr"></span>
+                  <span class="ec-corner ec-bl"></span>
+                  <span class="ec-corner ec-br"></span>
+                  <!-- Inner corner brackets -->
+                  <span class="ec-corner-inner ec-tl"></span>
+                  <span class="ec-corner-inner ec-tr"></span>
+                  <span class="ec-corner-inner ec-bl"></span>
+                  <span class="ec-corner-inner ec-br"></span>
+                  <!-- Electric edges -->
+                  <span class="ec-edge ec-edge-top"></span>
+                  <span class="ec-edge ec-edge-bottom"></span>
+                  <span class="ec-edge ec-edge-left"></span>
+                  <span class="ec-edge ec-edge-right"></span>
+
                   <span class="earned-chip-category">{categoryLabelMap.get(a.def.category) ?? a.def.category}</span>
                   <AchievementIcon icon={a.def.icon} size={44} />
                   <div class="earned-chip-text">
@@ -332,10 +348,81 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 10px 16px 10px 12px;
-    background: #292524;
+    padding: 16px 20px 16px 16px;
+    background: #1c1917;
     border: 1px solid #44403c;
-    border-radius: 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    overflow: visible;
+  }
+
+  /* Outer corner brackets — thick gold L-shapes */
+  .ec-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .ec-corner.ec-tl { top: -1px; left: -1px; border-top: 3px solid #facc15; border-left: 3px solid #facc15; border-top-left-radius: 4px; }
+  .ec-corner.ec-tr { top: -1px; right: -1px; border-top: 3px solid #facc15; border-right: 3px solid #facc15; border-top-right-radius: 4px; }
+  .ec-corner.ec-bl { bottom: -1px; left: -1px; border-bottom: 3px solid #facc15; border-left: 3px solid #facc15; border-bottom-left-radius: 4px; }
+  .ec-corner.ec-br { bottom: -1px; right: -1px; border-bottom: 3px solid #facc15; border-right: 3px solid #facc15; border-bottom-right-radius: 4px; }
+
+  /* Inner corner brackets — dark inset */
+  .ec-corner-inner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .ec-corner-inner.ec-tl { top: 2px; left: 2px; border-top: 2.5px solid #1c1917; border-left: 2.5px solid #1c1917; border-top-left-radius: 2px; }
+  .ec-corner-inner.ec-tr { top: 2px; right: 2px; border-top: 2.5px solid #1c1917; border-right: 2.5px solid #1c1917; border-top-right-radius: 2px; }
+  .ec-corner-inner.ec-bl { bottom: 2px; left: 2px; border-bottom: 2.5px solid #1c1917; border-left: 2.5px solid #1c1917; border-bottom-left-radius: 2px; }
+  .ec-corner-inner.ec-br { bottom: 2px; right: 2px; border-bottom: 2.5px solid #1c1917; border-right: 2.5px solid #1c1917; border-bottom-right-radius: 2px; }
+
+  /* Electric edges between corners */
+  .ec-edge {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.45;
+    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
+  }
+  .ec-edge-top, .ec-edge-bottom {
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, #facc15 0px, #facc15 3px, transparent 3px, transparent 7px);
+    background-size: 14px 2px;
+    animation: ec-electric-h 0.6s linear infinite;
+  }
+  .ec-edge-top { top: 0; }
+  .ec-edge-bottom { bottom: 0; }
+  .ec-edge-left, .ec-edge-right {
+    top: 14px;
+    bottom: 14px;
+    width: 2px;
+    background: repeating-linear-gradient(180deg, #facc15 0px, #facc15 3px, transparent 3px, transparent 7px);
+    background-size: 2px 14px;
+    animation: ec-electric-v 0.6s linear infinite;
+  }
+  .ec-edge-left { left: 0; }
+  .ec-edge-right { right: 0; }
+
+  .earned-chip:hover .ec-edge {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6));
+  }
+
+  @keyframes ec-electric-h {
+    0% { background-position: 0 0; }
+    100% { background-position: 14px 0; }
+  }
+  @keyframes ec-electric-v {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 14px; }
   }
 
   .earned-chip-text {
