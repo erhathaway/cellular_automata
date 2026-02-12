@@ -97,6 +97,7 @@
   let neighborEnabled = $derived(automataStore.neighborEnabled);
   let activeCount = $derived(neighborEnabled.filter(Boolean).length);
   let totalNeighborCount = $derived(automataStore.allNeighborsForRadius.length);
+  let shapeNeighborEnabled = $derived(automataStore.shapeNeighborEnabled);
 
   // --- Grid cell type ---
   interface GridCell {
@@ -605,9 +606,11 @@
         <!-- Per-shape neighborhood grids -->
         {#each shapeNeighborInfos as info, si}
           {@const isTri = info.geometry === 'triprism'}
+          {@const shapeEnabled = shapeNeighborEnabled[si] ?? []}
+          {@const shapeActiveCount = shapeEnabled.filter(Boolean).length}
           <div class="shape-neighborhood">
             <div class="shape-label">{info.label}</div>
-            <div class="neighbor-count">{info.count} neighbors</div>
+            <div class="neighbor-count">{shapeActiveCount} / {info.count} active</div>
             {#if isTri}
               {@const triData = buildTriPositions(info.offsets.map(([dx, dy]) => [dx, dy]), si)}
               <div class="hex-container" style="width: {triData.width}px; height: {triData.height}px;">
@@ -619,8 +622,9 @@
                     </div>
                   {:else}
                     <div
-                      class="n-cell n-neighbor n-on hex-abs"
+                      class="n-cell n-neighbor hex-abs {shapeEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                       style="width: {triData.cellW}px; height: {triData.cellH}px; left: {cell.left}px; top: {cell.top}px; clip-path: {triClip};"
+                      onclick={() => automataStore.toggleShapeNeighbor(si, cell.neighborIndex)}
                     ></div>
                   {/if}
                 {/each}
@@ -644,8 +648,9 @@
                       </div>
                     {:else if cell.neighborIndex >= 0}
                       <div
-                        class="n-cell n-neighbor n-on"
+                        class="n-cell n-neighbor {shapeEnabled[cell.neighborIndex] ? 'n-on' : 'n-off'}"
                         style="width: {cs}px; height: {cs}px; {clip ? `clip-path: ${clip};` : ''}"
+                        onclick={() => automataStore.toggleShapeNeighbor(si, cell.neighborIndex)}
                       ></div>
                     {:else}
                       <div class="n-cell n-empty" style="width: {cs}px; height: {cs}px;"></div>
@@ -656,6 +661,10 @@
             {/if}
           </div>
         {/each}
+        <div class="neighbor-actions">
+          <button class="small-btn" onclick={() => automataStore.setAllShapeNeighborsEnabled(true)}>All On</button>
+          <button class="small-btn" onclick={() => automataStore.setAllShapeNeighborsEnabled(false)}>All Off</button>
+        </div>
       {:else}
         <!-- Single-shape neighborhood -->
         <div class="neighbor-count">{activeCount} / {totalNeighborCount} active</div>
