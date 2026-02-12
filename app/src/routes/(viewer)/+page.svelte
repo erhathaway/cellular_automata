@@ -5,7 +5,6 @@
   import ViewControls from '$lib/components/ViewControls.svelte';
   import StableModal from '$lib/components/StableModal.svelte';
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
-  import ClaimButton from '$lib/components/ClaimButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
@@ -27,9 +26,6 @@
   <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex translate-y-1/2 justify-center">
     <div class="pointer-events-auto relative">
       <RandomRuleButton />
-      <div class="pointer-events-auto absolute left-full top-0 ml-3 whitespace-nowrap">
-        <ClaimButton />
-      </div>
     </div>
   </div>
 </div>

@@ -61,9 +61,14 @@
     showGemFly = true;
     setTimeout(() => {
       showGemFly = false;
+      // Chest landing shake
+      chestEl?.classList.add('chest-land');
       showPlusOne = true;
-      setTimeout(() => { showPlusOne = false; }, 800);
-    }, 600);
+      setTimeout(() => {
+        chestEl?.classList.remove('chest-land');
+        showPlusOne = false;
+      }, 1000);
+    }, 1400);
   }
 </script>
 
@@ -186,7 +191,8 @@
 
 {#if showGemFly}
   <div class="gem-fly" style={gemStyle}>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="#b45309" stroke="#78350f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="gem-fly-glow"></div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="gem-fly-icon" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));">
       <path d="M6 3h12l4 6-10 13L2 9Z" />
       <path d="M11 3 8 9l4 13 4-13-3-6" />
       <path d="M2 9h20" />
@@ -201,45 +207,92 @@
     pointer-events: none;
     left: var(--start-x);
     top: var(--start-y);
-    animation: fly-to-chest 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform: translate(-50%, -50%);
+    animation:
+      fly-x 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+      fly-y 1.4s cubic-bezier(0.6, 0, 0.4, 1) forwards;
   }
 
-  @keyframes fly-to-chest {
-    0% {
-      transform: translate(-50%, -50%) scale(1.5);
-      opacity: 1;
-    }
-    80% {
-      opacity: 1;
-    }
-    100% {
-      left: var(--end-x);
-      top: var(--end-y);
-      transform: translate(-50%, -50%) scale(0.5);
-      opacity: 0.6;
-    }
+  .gem-fly-icon {
+    width: 28px;
+    height: 28px;
+    animation:
+      gem-fly-spin 1.4s linear forwards,
+      gem-fly-scale 1.4s ease-in-out forwards;
+  }
+
+  .gem-fly-glow {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.5) 0%, transparent 70%);
+    animation: glow-fade 1.4s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes fly-x {
+    0% { left: var(--start-x); }
+    100% { left: var(--end-x); }
+  }
+
+  @keyframes fly-y {
+    0% { top: var(--start-y); }
+    40% { top: calc(var(--start-y) - 60px); }
+    100% { top: var(--end-y); }
+  }
+
+  @keyframes gem-fly-spin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(720deg); }
+  }
+
+  @keyframes gem-fly-scale {
+    0% { scale: 1; opacity: 1; }
+    15% { scale: 1.6; opacity: 1; }
+    70% { scale: 1.2; opacity: 1; }
+    100% { scale: 0.5; opacity: 0.8; }
+  }
+
+  @keyframes glow-fade {
+    0% { opacity: 1; scale: 1; }
+    30% { opacity: 0.8; scale: 1.5; }
+    100% { opacity: 0; scale: 0.5; }
+  }
+
+  :global(.chest-land) {
+    animation: chest-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes chest-bounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.25); }
+    60% { transform: scale(0.9); }
+    100% { transform: scale(1); }
   }
 
   .plus-one {
     position: absolute;
-    top: -4px;
-    right: -8px;
-    font-size: 12px;
+    top: -6px;
+    right: -10px;
+    font-size: 14px;
     font-weight: 700;
-    color: #78350f;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    animation: float-up 0.8s ease-out forwards;
+    color: #facc15;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.6), 0 1px 2px rgba(0,0,0,0.3);
+    animation: float-up 1s ease-out forwards;
     pointer-events: none;
   }
 
   @keyframes float-up {
     0% {
       opacity: 1;
-      transform: translateY(0) scale(1.2);
+      transform: translateY(0) scale(1.4);
+    }
+    60% {
+      opacity: 1;
     }
     100% {
       opacity: 0;
-      transform: translateY(-20px) scale(0.8);
+      transform: translateY(-28px) scale(0.8);
     }
   }
 </style>

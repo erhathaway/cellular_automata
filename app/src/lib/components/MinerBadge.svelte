@@ -1,5 +1,6 @@
 <script lang="ts">
   import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
+  import { page } from '$app/stores';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { timeAgo } from '$lib/utils/timeAgo';
@@ -23,6 +24,13 @@
   let saved = $state(false);
   let saveError = $state('');
 
+  // Animation state
+  let gemExiting = $state(false);
+  let avatarEntering = $state(false);
+  let gemEl = $state<HTMLElement>();
+
+  let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null } | null);
+
   $effect(() => {
     const rule = automataStore.rule;
     const dim = automataStore.dimension;
@@ -39,6 +47,8 @@
       discoveryInfo = null;
       saved = false;
       saveError = '';
+      gemExiting = false;
+      avatarEntering = false;
     }
 
     clearTimeout(lookupTimer);
@@ -72,6 +82,14 @@
 
   async function claim() {
     if (saving || saved) return;
+
+    // Capture gem position NOW while it's still in the DOM
+    let gemOrigin: { x: number; y: number } | null = null;
+    if (gemEl) {
+      const rect = gemEl.getBoundingClientRect();
+      gemOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    }
+
     saving = true;
     saveError = '';
     try {
@@ -120,8 +138,20 @@
         console.warn('Cell population save failed:', popRes.status);
       }
 
-      saved = true;
+      // 3. Hide gem and launch the flying gem from the captured position
+      if (gemOrigin) {
+        automataStore.claimGemOrigin = gemOrigin;
+      }
+      gemExiting = true;
+      // Immediately trigger the sidebar flying gem — it spawns at the badge gem's position
       automataStore.claimAnimationCounter++;
+
+      // After the full flight lands (~1.4s flight + buffer), show avatar
+      setTimeout(() => {
+        saved = true;
+        avatarEntering = true;
+      }, 1800);
+
       const seedSnapshot = automataStore.getSeedSnapshot?.();
       if (seedSnapshot) {
         automataStore.savedSeed = seedSnapshot;
@@ -189,10 +219,13 @@
         <span class="label">Surveying...</span>
       </div>
     {:else if isUnclaimed && saved}
-      <div class="icon-placeholder">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
+      <!-- Claimed: show avatar animating in -->
+      <div class="avatar-enter" class:avatar-entering={avatarEntering}>
+        <PixelAvatar
+          avatarId={userProfile?.avatarId ?? null}
+          size={40}
+          fallbackInitials={userProfile?.displayName?.[0]?.toUpperCase() ?? '?'}
+        />
       </div>
       <div class="info">
         <span class="label" style="color: #22c55e;">Claimed!</span>
@@ -213,7 +246,7 @@
               <span class="label" style="color: #facc15;">Staking claim...</span>
             </div>
           {:else if saveError}
-            <div class="gem">
+            <div class="gem" bind:this={gemEl}>
               <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
@@ -225,8 +258,16 @@
               <span class="label" style="color: #ef4444;">Failed — tap to retry</span>
               <span class="date" style="color: #ef4444;">{saveError}</span>
             </div>
+          {:else if gemExiting}
+            <!-- Gem hidden — it's now the flying gem in NavSidebar -->
+            <div class="gem gem-gone">
+              <div class="gem-flash"></div>
+            </div>
+            <div class="info">
+              <span class="label" style="color: #facc15;">Staking claim...</span>
+            </div>
           {:else}
-            <div class="gem">
+            <div class="gem" bind:this={gemEl}>
               <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
@@ -426,6 +467,20 @@
     pointer-events: none;
   }
 
+  .gem-gone .gem-icon,
+  .gem-gone .gem-glow {
+    display: none;
+  }
+
+  .gem-flash {
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.7) 0%, transparent 70%);
+    animation: flash-burst 0.4s ease-out forwards;
+    pointer-events: none;
+  }
+
   @keyframes gem-spin {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
@@ -434,6 +489,37 @@
   @keyframes gem-pulse {
     0%, 100% { opacity: 0.4; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  @keyframes flash-burst {
+    0% {
+      opacity: 1;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2);
+    }
+  }
+
+  .avatar-enter {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .avatar-entering {
+    animation: avatar-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes avatar-pop-in {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   .unclaimed-action {
