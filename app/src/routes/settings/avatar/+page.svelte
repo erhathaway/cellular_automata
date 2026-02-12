@@ -59,12 +59,12 @@
 			<!-- Header -->
 			<div class="panel-header">
 				<button class="back-btn" onclick={handleCancel} aria-label="Go back">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
 					</svg>
 				</button>
 				<div class="title-row">
-					<svg class="title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
 					</svg>
 					<span class="panel-title">Miner Editor</span>
@@ -125,16 +125,16 @@
 				rgba(68, 64, 60, 0.1) 11px
 			);
 		border: 2px solid #44403c;
-		border-radius: 8px;
-		padding: 28px 24px;
+		border-radius: 10px;
+		padding: 32px 28px;
 	}
 
 	/* Nails */
 	.nails {
 		position: absolute;
-		top: 8px;
-		left: 12px;
-		right: 12px;
+		top: 10px;
+		left: 14px;
+		right: 14px;
 		display: flex;
 		justify-content: space-between;
 		pointer-events: none;
@@ -142,12 +142,12 @@
 
 	.nails-bottom {
 		top: auto;
-		bottom: 8px;
+		bottom: 10px;
 	}
 
 	.nail {
-		width: 6px;
-		height: 6px;
+		width: 7px;
+		height: 7px;
 		background: #78716c;
 		border-radius: 50%;
 		box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
@@ -157,18 +157,18 @@
 	.panel-header {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: 14px;
 	}
 
 	.back-btn {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 28px;
-		height: 28px;
+		width: 34px;
+		height: 34px;
 		border: none;
 		background: rgba(255, 255, 255, 0.05);
-		border-radius: 4px;
+		border-radius: 6px;
 		color: #78716c;
 		cursor: pointer;
 		transition: color 0.15s, background 0.15s;
@@ -182,7 +182,7 @@
 	.title-row {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	.title-icon {
@@ -192,7 +192,7 @@
 
 	.panel-title {
 		font-family: 'Space Mono', monospace;
-		font-size: 13px;
+		font-size: 17px;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
@@ -203,15 +203,15 @@
 	.divider {
 		height: 1px;
 		background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-		margin: 18px 0;
+		margin: 20px 0;
 	}
 
 	/* Error */
 	.msg-error {
-		margin-bottom: 14px;
+		margin-bottom: 16px;
 		text-align: center;
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 14px;
 		color: #ef4444;
 	}
 
@@ -223,13 +223,13 @@
 		align-items: center;
 		justify-content: center;
 		background: rgba(28, 25, 23, 0.8);
-		border-radius: 8px;
+		border-radius: 10px;
 		z-index: 10;
 	}
 
 	.saving-text {
 		font-family: 'Space Mono', monospace;
-		font-size: 14px;
+		font-size: 18px;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
@@ -240,9 +240,9 @@
 	.classic-link {
 		display: block;
 		text-align: center;
-		margin-top: 16px;
+		margin-top: 20px;
 		font-family: 'Space Mono', monospace;
-		font-size: 10px;
+		font-size: 13px;
 		letter-spacing: 0.06em;
 		color: #57534e;
 		text-decoration: none;

@@ -29,7 +29,7 @@
 		config = { ...config, skinTone: index };
 	}
 
-	const THUMB_SCALE = 3;
+	const THUMB_SCALE = 4;
 
 	function thumbAction(canvas: HTMLCanvasElement, params: { sprite: PartSprite; skinTone: number }) {
 		function paint(p: { sprite: PartSprite; skinTone: number }) {
@@ -73,7 +73,7 @@
 		</div>
 
 		<button class="btn-random" onclick={handleRandom}>
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<rect width="12" height="12" x="2" y="10" rx="2" ry="2" />
 				<circle cx="8" cy="16" r="1" fill="currentColor" />
 				<circle cx="5" cy="13" r="1" fill="currentColor" />
@@ -119,7 +119,7 @@
 <style>
 	.editor {
 		display: flex;
-		gap: 24px;
+		gap: 28px;
 	}
 
 	/* ---- Left column ---- */
@@ -127,7 +127,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
+		gap: 18px;
 		flex-shrink: 0;
 	}
 
@@ -137,36 +137,36 @@
 		justify-content: center;
 		background: #0c0a09;
 		border: 2px solid #292524;
-		border-radius: 10px;
-		padding: 10px;
+		border-radius: 12px;
+		padding: 12px;
 	}
 
 	.skin-row {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 	}
 
 	.skin-label {
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: #57534e;
+		color: #78716c;
 	}
 
 	.skin-tones {
 		display: flex;
-		gap: 5px;
+		gap: 8px;
 	}
 
 	.skin-swatch {
-		width: 24px;
-		height: 24px;
+		width: 32px;
+		height: 32px;
 		border-radius: 50%;
-		border: 2px solid transparent;
+		border: 3px solid transparent;
 		cursor: pointer;
 		transition: border-color 0.15s, box-shadow 0.15s;
 	}
@@ -177,16 +177,16 @@
 
 	.skin-swatch.active {
 		border-color: #facc15;
-		box-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+		box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
 	}
 
 	.btn-random {
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		padding: 8px 16px;
+		gap: 8px;
+		padding: 10px 20px;
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -206,15 +206,15 @@
 
 	.actions {
 		display: flex;
-		gap: 8px;
+		gap: 10px;
 		width: 100%;
 	}
 
 	.btn-outline {
 		flex: 1;
-		padding: 10px 12px;
+		padding: 12px 14px;
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -233,9 +233,9 @@
 
 	.btn-save {
 		flex: 1;
-		padding: 10px 12px;
+		padding: 12px 14px;
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -257,49 +257,49 @@
 		flex: 1;
 		min-width: 0;
 		overflow-y: auto;
-		max-height: 520px;
+		max-height: 560px;
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
-		padding-right: 4px;
+		gap: 20px;
+		padding-right: 6px;
 		scrollbar-width: thin;
 		scrollbar-color: #44403c transparent;
 	}
 
-	.right-col::-webkit-scrollbar { width: 5px; }
+	.right-col::-webkit-scrollbar { width: 6px; }
 	.right-col::-webkit-scrollbar-track { background: transparent; }
 	.right-col::-webkit-scrollbar-thumb { background: #44403c; border-radius: 3px; }
 
 	.cat-row {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: 8px;
 	}
 
 	.cat-label {
 		font-family: 'Space Mono', monospace;
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		color: #78716c;
+		color: #a8a29e;
 	}
 
 	.cat-options {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: 8px;
 	}
 
 	.option-btn {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 4px;
-		padding: 6px 8px;
+		gap: 6px;
+		padding: 8px 10px;
 		background: none;
 		border: 1px solid transparent;
-		border-radius: 6px;
+		border-radius: 8px;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s;
 	}
@@ -312,20 +312,20 @@
 	.option-btn.selected {
 		background: rgba(250, 204, 21, 0.1);
 		border-color: #facc15;
-		box-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
+		box-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
 	}
 
 	.option-thumb {
 		display: block;
-		max-width: 48px;
-		max-height: 48px;
+		max-width: 64px;
+		max-height: 64px;
 	}
 
 	.option-name {
 		font-family: 'Space Mono', monospace;
-		font-size: 9px;
+		font-size: 12px;
 		letter-spacing: 0.04em;
-		color: #57534e;
+		color: #78716c;
 		line-height: 1;
 	}
 
