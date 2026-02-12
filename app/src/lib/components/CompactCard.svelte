@@ -147,21 +147,23 @@
     </div>
 
     <div class="chip-stack">
-      <div class="owner-chip">
+      <div class="owner-avatar-label">
         <span class="owner-claim-badge">CLAIM</span>
         <div class="owner-content">
-          <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} />
-          <div class="owner-info">
-            <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
-            {#if item.createdAt}
-              <span class="time-ago">{timeAgo(item.createdAt)}</span>
-            {/if}
+          <div class="owner-avatar-wrap">
+            <PixelAvatar avatarId={item.userAvatarId} size={56} fallbackInitials={(item.userName ?? 'A')[0]} />
           </div>
         </div>
       </div>
       <p class="rule-text">
         {displayTitle()}{#if (item.neighborhoodRadius ?? 1) > 1}{' '}· r={item.neighborhoodRadius} ({neighborCount(item.dimension, item.neighborhoodRadius)}n){/if}
       </p>
+      <div class="owner-meta">
+        <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
+        {#if item.createdAt}
+          <span class="time-ago">{timeAgo(item.createdAt)}</span>
+        {/if}
+      </div>
     </div>
   </div>
 
@@ -444,7 +446,7 @@
     position: absolute;
     left: 8px;
     bottom: 0;
-    transform: translateY(8%);
+    transform: translateY(28%);
     z-index: 6;
     display: flex;
     flex-direction: column;
@@ -453,33 +455,17 @@
     pointer-events: none;
   }
 
-  .owner-chip {
+  .owner-avatar-label {
     position: relative;
-    background: rgba(28, 25, 23, 0.36);
-    border: 1px solid rgba(250, 250, 249, 0.28);
-    border-radius: 6px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    min-width: 0;
-    width: 220px;
-    max-width: 72%;
-  }
-
-  .owner-chip::before {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border-radius: 5px;
-    background: radial-gradient(120% 140% at 32% 48%, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.28) 45%, rgba(0, 0, 0, 0) 100%);
-    pointer-events: none;
-    z-index: 0;
+    width: 56px;
+    height: 56px;
   }
 
   .owner-claim-badge {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: 'Space Mono', monospace;
     font-size: 8px;
     letter-spacing: 0.05em;
@@ -494,28 +480,34 @@
   }
 
   .owner-content {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 12px 8px 8px;
     position: relative;
     z-index: 1;
   }
 
-  .owner-info {
+  .owner-avatar-wrap {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+  }
+
+  .owner-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
     min-width: 0;
-    padding-top: 2px;
+    margin-top: -1px;
+    padding: 0 2px;
+    max-width: 72%;
   }
 
   .username-inline {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 10px;
-    color: #e7e5e4;
+    font-weight: 700;
+    color: #111111;
     margin: 0;
     line-height: 1.2;
     min-width: 0;
@@ -581,7 +573,7 @@
   .time-ago {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
-    color: #a8a29e;
+    color: #111111;
     flex-shrink: 0;
   }
 </style>
