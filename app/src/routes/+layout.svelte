@@ -14,6 +14,7 @@
 	let { children, data } = $props();
 
 	type UserProfile = { displayName: string | null; avatarId: string | null; email: string | null } | null;
+	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
 
 	let leftOpen = $state(true);

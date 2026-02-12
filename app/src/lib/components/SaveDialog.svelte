@@ -189,7 +189,7 @@
       <!-- Header -->
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold text-black">Save Configuration</h2>
-        <button class="text-neutral-400 hover:text-black" onclick={() => (open = false)}>
+        <button class="text-neutral-400 hover:text-black" onclick={() => (open = false)} aria-label="Close">
           <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -316,7 +316,7 @@
               {#each tags as t}
                 <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
                   {t}
-                  <button onclick={() => removeTag(t)} class="text-blue-400 hover:text-blue-700">
+                  <button onclick={() => removeTag(t)} class="text-blue-400 hover:text-blue-700" aria-label="Remove tag {t}">
                     <svg class="h-3 w-3" viewBox="0 0 12 12" fill="currentColor"><path d="M4 4l4 4m0-4l-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
                   </button>
                 </span>

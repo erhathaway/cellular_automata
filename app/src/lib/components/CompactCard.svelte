@@ -13,8 +13,11 @@
     interactive?: boolean;
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let isLiked = $state(item.isLikedByMe ?? false);
+  // svelte-ignore state_referenced_locally
   let isBookmarked = $state(item.isBookmarkedByMe ?? false);
+  // svelte-ignore state_referenced_locally
   let currentLikeCount = $state(item.likeCount ?? 0);
   let thumbError = $state(false);
 
