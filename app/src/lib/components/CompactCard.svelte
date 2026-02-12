@@ -209,32 +209,32 @@
   .corner.tl {
     top: -1px;
     left: -1px;
-    border-top: 3px solid #1c1917;
-    border-left: 3px solid #1c1917;
+    border-top: 4px solid #1c1917;
+    border-left: 4px solid #1c1917;
     border-top-left-radius: 4px;
   }
 
   .corner.tr {
     top: -1px;
     right: -1px;
-    border-top: 3px solid #1c1917;
-    border-right: 3px solid #1c1917;
+    border-top: 4px solid #1c1917;
+    border-right: 4px solid #1c1917;
     border-top-right-radius: 4px;
   }
 
   .corner.bl {
     bottom: -1px;
     left: -1px;
-    border-bottom: 3px solid #1c1917;
-    border-left: 3px solid #1c1917;
+    border-bottom: 4px solid #1c1917;
+    border-left: 4px solid #1c1917;
     border-bottom-left-radius: 4px;
   }
 
   .corner.br {
     bottom: -1px;
     right: -1px;
-    border-bottom: 3px solid #1c1917;
-    border-right: 3px solid #1c1917;
+    border-bottom: 4px solid #1c1917;
+    border-right: 4px solid #1c1917;
     border-bottom-right-radius: 4px;
   }
 
@@ -308,6 +308,7 @@
     background: #f5f5f4;
     border-radius: 4px;
     overflow: hidden;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
   }
 
   .thumb-img {

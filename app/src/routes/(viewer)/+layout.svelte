@@ -54,7 +54,7 @@
     class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
     style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
     style:background="white"
-    style:border-left="2px solid #292524"
+    style:border-left="1px solid #d6d3d1"
   >
     <div class="h-full" style:width="{RIGHT_WIDTH}px">
       <RightDrawerContent />
