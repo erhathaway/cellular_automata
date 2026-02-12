@@ -267,17 +267,10 @@ class AutomataStore {
       // Resize per-shape lock arrays to match shape count
       this.lockShapeBorn = config.shapes.map(() => false);
       this.lockShapeSurvive = config.shapes.map(() => false);
-      // Initialize per-shape neighbor enabled arrays
-      if (neighborhood.shapeNeighborCounts) {
-        this.shapeNeighborEnabled = neighborhood.shapeNeighborCounts.map(c =>
-          new Array(c).fill(true)
-        );
-      }
     } else {
       this.shapeRules = null;
       this.lockShapeBorn = [];
       this.lockShapeSurvive = [];
-      this.shapeNeighborEnabled = [];
     }
 
     // Save to lattice history
@@ -333,17 +326,6 @@ class AutomataStore {
     this.neighborhoodRadius = clamped;
     this._setFullNeighbors(defaultNeighbors(this.dimension, clamped, this.lattice));
     this._radiusHistory.set(historyKey(this.dimension, this.viewer, this.lattice), clamped);
-
-    // Re-initialize per-shape neighbor enabled for multi-shape lattices
-    const config = getLattice(this.lattice);
-    if (config.shapes) {
-      const neighborhood = generateNeighborhood(this.lattice, clamped);
-      if (neighborhood.shapeNeighborCounts) {
-        this.shapeNeighborEnabled = neighborhood.shapeNeighborCounts.map(c =>
-          new Array(c).fill(true)
-        );
-      }
-    }
 
     // 1D: Wolfram rules only work at radius 1, switch to life-like for larger
     if (this.dimension === 1 && this.rule.type === 'wolfram' && clamped > 1) {
@@ -820,6 +802,18 @@ class AutomataStore {
     this.allNeighborsForRadius = [...allNeighbors];
     this.neighborEnabled = allNeighbors.map(() => true);
     this.neighbors = [...allNeighbors];
+    // Initialize per-shape neighbor enabled for multi-shape lattices
+    const config = getLattice(this.lattice);
+    if (config.shapes) {
+      const neighborhood = generateNeighborhood(this.lattice, this.neighborhoodRadius);
+      if (neighborhood.shapeNeighborCounts) {
+        this.shapeNeighborEnabled = neighborhood.shapeNeighborCounts.map(c =>
+          new Array(c).fill(true)
+        );
+      }
+    } else {
+      this.shapeNeighborEnabled = [];
+    }
   }
 
   private _minRadiusForNeighborCount(dim: number, count: number): number {
