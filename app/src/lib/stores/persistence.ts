@@ -222,12 +222,25 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
 
 // --- localStorage ---
 
+export interface PersistedAdvancedLocks {
+  advancedMode?: boolean;
+  lockCell?: boolean;
+  lockViewer?: boolean;
+  lockLattice?: boolean;
+  lockRadius?: boolean;
+  lockBorn?: boolean;
+  lockSurvive?: boolean;
+  lockNeighborhood?: boolean;
+  lockColors?: boolean;
+}
+
 export interface PersistedData {
   combos: Record<string, ComboSettings>;
   activeDimension: number;
   activeViewer: number;
   miningDifficulty?: MiningDifficulty;
   miningLattice?: LatticeType | 'random';
+  advancedLocks?: PersistedAdvancedLocks;
 }
 
 export function saveToLocalStorage(
@@ -236,9 +249,10 @@ export function saveToLocalStorage(
   activeViewer: number,
   miningDifficulty?: MiningDifficulty,
   miningLattice?: LatticeType | 'random',
+  advancedLocks?: PersistedAdvancedLocks,
 ): void {
   try {
-    const data: PersistedData = { combos, activeDimension, activeViewer, miningDifficulty, miningLattice };
+    const data: PersistedData = { combos, activeDimension, activeViewer, miningDifficulty, miningLattice, advancedLocks };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
     // quota exceeded or unavailable — silently fail

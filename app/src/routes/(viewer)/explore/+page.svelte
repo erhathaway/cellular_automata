@@ -1,15 +1,28 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
+  import TopMiners from '$lib/components/explore/TopMiners.svelte';
 
   const PAGE_SIZE = 20;
   const SESSION_KEY = 'explore-filters';
 
+  type LeaderboardEntry = {
+    userId: string;
+    displayName: string | null;
+    avatarId: string | null;
+    minerConfig: string | null;
+    claimCount: number;
+    byRadius: Record<string, number>;
+    byLattice: Record<string, number>;
+  };
+
+  let topMiners: LeaderboardEntry[] = $state([]);
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
@@ -109,6 +122,13 @@
     goto(`/?${params.toString()}`);
   }
 
+  onMount(async () => {
+    try {
+      const stats = await api<{ leaderboard: LeaderboardEntry[] }>('GET', '/api/explore/stats');
+      topMiners = stats.leaderboard;
+    } catch {}
+  });
+
   // Initial fetch
   $effect(() => {
     fetchItems();
@@ -130,6 +150,10 @@
         />
       </div>
     </div>
+
+    {#if topMiners.length > 0}
+      <TopMiners miners={topMiners} />
+    {/if}
 
     <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
   </div>

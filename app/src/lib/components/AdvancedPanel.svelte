@@ -363,19 +363,18 @@
   <div class="panel-body">
     <!-- DIMENSIONS + LATTICE -->
     <div class="section">
-      <div class="section-header">
-        <div class="section-title">DIMENSIONS</div>
-        <button class="section-toggle {automataStore.lockDimensions ? 'toggle-on' : ''}"
-          onclick={() => automataStore.setLockDimensions(!automataStore.lockDimensions)}
-          aria-label="Lock dimensions">
-          <span class="toggle-track"><span class="toggle-knob"></span></span>
-        </button>
-      </div>
+      <div class="section-title">DIMENSIONS</div>
 
-      <div class="section-body {!automataStore.lockDimensions ? 'section-disabled' : ''}">
       <div class="field">
-        <span class="field-label">Cell</span>
-        <div class="toggle-row">
+        <div class="field-label-row">
+          <span class="field-label">Cell</span>
+          <button class="field-toggle {automataStore.lockCell ? 'toggle-on' : ''}"
+            onclick={() => automataStore.setLockCell(!automataStore.lockCell)}
+            aria-label="Lock cell dimension">
+            <span class="toggle-track"><span class="toggle-knob"></span></span>
+          </button>
+        </div>
+        <div class="toggle-row {!automataStore.lockCell ? 'field-disabled' : ''}">
           {#each [1, 2, 3] as d}
             <button
               class="toggle-btn {dim === d ? 'active' : ''}"
@@ -386,8 +385,15 @@
       </div>
 
       <div class="field">
-        <span class="field-label">Viewer</span>
-        <div class="toggle-row">
+        <div class="field-label-row">
+          <span class="field-label">Viewer</span>
+          <button class="field-toggle {automataStore.lockViewer ? 'toggle-on' : ''}"
+            onclick={() => automataStore.setLockViewer(!automataStore.lockViewer)}
+            aria-label="Lock viewer">
+            <span class="toggle-track"><span class="toggle-knob"></span></span>
+          </button>
+        </div>
+        <div class="toggle-row {!automataStore.lockViewer ? 'field-disabled' : ''}">
           {#each [2, 3] as v}
             {@const valid = (dim === 1 && v === 2) || (dim === 2) || (dim === 3 && v === 3)}
             <button
@@ -401,8 +407,15 @@
 
       {#if availableLattices.length > 0}
         <div class="field">
-          <span class="field-label">Lattice</span>
-          <div class="toggle-row toggle-row-wrap">
+          <div class="field-label-row">
+            <span class="field-label">Lattice</span>
+            <button class="field-toggle {automataStore.lockLattice ? 'toggle-on' : ''}"
+              onclick={() => automataStore.setLockLattice(!automataStore.lockLattice)}
+              aria-label="Lock lattice">
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </button>
+          </div>
+          <div class="toggle-row toggle-row-wrap {!automataStore.lockLattice ? 'field-disabled' : ''}">
             {#each availableLattices as lat}
               <button
                 class="toggle-btn {lattice === lat.type ? 'active' : ''}"
@@ -437,47 +450,56 @@
           {/each}
         </div>
       </div>
-      </div>
     </div>
 
     <!-- RULES -->
     <div class="section section-rules">
-      <div class="section-header">
-        <div class="section-title">RULES</div>
-        <button class="section-toggle {automataStore.lockRules ? 'toggle-on' : ''}"
-          onclick={() => automataStore.setLockRules(!automataStore.lockRules)}
-          aria-label="Lock rules">
-          <span class="toggle-track"><span class="toggle-knob"></span></span>
-        </button>
-      </div>
+      <div class="section-title">RULES</div>
 
-      <div class="section-body {!automataStore.lockRules ? 'section-disabled' : ''}">
       <div class="field">
-        <span class="field-label">Radius</span>
-        <input
-          type="number"
-          class="num-input num-input-sm"
-          value={radius}
-          min="1"
-          max="10"
-          onchange={(e) => {
-            const v = parseInt((e.target as HTMLInputElement).value);
-            if (!isNaN(v)) automataStore.setNeighborhoodRadius(v);
-          }}
-        />
+        <div class="field-label-row">
+          <span class="field-label">Radius</span>
+          <button class="field-toggle {automataStore.lockRadius ? 'toggle-on' : ''}"
+            onclick={() => automataStore.setLockRadius(!automataStore.lockRadius)}
+            aria-label="Lock radius">
+            <span class="toggle-track"><span class="toggle-knob"></span></span>
+          </button>
+        </div>
+        <div class="{!automataStore.lockRadius ? 'field-disabled' : ''}">
+          <input
+            type="number"
+            class="num-input num-input-sm"
+            value={radius}
+            min="1"
+            max="10"
+            onchange={(e) => {
+              const v = parseInt((e.target as HTMLInputElement).value);
+              if (!isNaN(v)) automataStore.setNeighborhoodRadius(v);
+            }}
+          />
+        </div>
       </div>
 
       {#if isWolfram}
         <div class="field">
-          <span class="field-label">Rule #</span>
-          <input
-            type="number"
-            class="num-input num-input-sm"
-            value={rule.type === 'wolfram' ? rule.rule : 0}
-            min="0"
-            max="255"
-            onchange={(e) => setWolframRule(parseInt((e.target as HTMLInputElement).value))}
-          />
+          <div class="field-label-row">
+            <span class="field-label">Rule #</span>
+            <button class="field-toggle {automataStore.lockBorn ? 'toggle-on' : ''}"
+              onclick={() => { automataStore.setLockBorn(!automataStore.lockBorn); automataStore.setLockSurvive(!automataStore.lockSurvive); }}
+              aria-label="Lock rule">
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </button>
+          </div>
+          <div class="{!automataStore.lockBorn ? 'field-disabled' : ''}">
+            <input
+              type="number"
+              class="num-input num-input-sm"
+              value={rule.type === 'wolfram' ? rule.rule : 0}
+              min="0"
+              max="255"
+              onchange={(e) => setWolframRule(parseInt((e.target as HTMLInputElement).value))}
+            />
+          </div>
         </div>
       {:else if isMultiShape && shapeRules && latticeConfig?.shapes}
         <!-- Per-shape Born/Survive -->
@@ -487,8 +509,17 @@
           <div class="shape-rule-group">
             <div class="shape-label">{shape.label}</div>
             <div class="field">
-              <span class="field-label">Born</span>
-              <div class="rule-toggles">
+              <div class="field-label-row">
+                <span class="field-label">Born</span>
+                {#if si === 0}
+                  <button class="field-toggle {automataStore.lockBorn ? 'toggle-on' : ''}"
+                    onclick={() => automataStore.setLockBorn(!automataStore.lockBorn)}
+                    aria-label="Lock born">
+                    <span class="toggle-track"><span class="toggle-knob"></span></span>
+                  </button>
+                {/if}
+              </div>
+              <div class="rule-toggles {!automataStore.lockBorn ? 'field-disabled' : ''}">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.born.includes(n) ? 'active' : ''}"
@@ -498,8 +529,17 @@
               </div>
             </div>
             <div class="field">
-              <span class="field-label">Survive</span>
-              <div class="rule-toggles">
+              <div class="field-label-row">
+                <span class="field-label">Survive</span>
+                {#if si === 0}
+                  <button class="field-toggle {automataStore.lockSurvive ? 'toggle-on' : ''}"
+                    onclick={() => automataStore.setLockSurvive(!automataStore.lockSurvive)}
+                    aria-label="Lock survive">
+                    <span class="toggle-track"><span class="toggle-knob"></span></span>
+                  </button>
+                {/if}
+              </div>
+              <div class="rule-toggles {!automataStore.lockSurvive ? 'field-disabled' : ''}">
                 {#each Array.from({ length: maxN + 1 }, (_, i) => i) as n}
                   <button
                     class="rule-btn {sr.survive.includes(n) ? 'active' : ''}"
@@ -513,8 +553,15 @@
       {:else}
         <!-- Single-shape Born/Survive -->
         <div class="field">
-          <span class="field-label">Born</span>
-          <div class="rule-toggles">
+          <div class="field-label-row">
+            <span class="field-label">Born</span>
+            <button class="field-toggle {automataStore.lockBorn ? 'toggle-on' : ''}"
+              onclick={() => automataStore.setLockBorn(!automataStore.lockBorn)}
+              aria-label="Lock born">
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </button>
+          </div>
+          <div class="rule-toggles {!automataStore.lockBorn ? 'field-disabled' : ''}">
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.born.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
@@ -524,8 +571,15 @@
           </div>
         </div>
         <div class="field">
-          <span class="field-label">Survive</span>
-          <div class="rule-toggles">
+          <div class="field-label-row">
+            <span class="field-label">Survive</span>
+            <button class="field-toggle {automataStore.lockSurvive ? 'toggle-on' : ''}"
+              onclick={() => automataStore.setLockSurvive(!automataStore.lockSurvive)}
+              aria-label="Lock survive">
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </button>
+          </div>
+          <div class="rule-toggles {!automataStore.lockSurvive ? 'field-disabled' : ''}">
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.survive.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
@@ -535,7 +589,6 @@
           </div>
         </div>
       {/if}
-      </div>
     </div>
 
     <!-- NEIGHBORHOOD -->
@@ -933,6 +986,13 @@
     margin-bottom: 2px;
   }
 
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-toggle,
   .section-toggle {
     display: flex;
     align-items: center;
@@ -946,9 +1006,9 @@
   .toggle-track {
     display: block;
     position: relative;
-    width: 32px;
-    height: 16px;
-    border-radius: 8px;
+    width: 28px;
+    height: 14px;
+    border-radius: 7px;
     background: #292524;
     border: 1px solid #44403c;
     transition: all 0.2s;
@@ -959,8 +1019,8 @@
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: #78716c;
     transition: all 0.2s;
@@ -973,7 +1033,7 @@
   }
 
   .toggle-on .toggle-knob {
-    left: 18px;
+    left: 16px;
     background: #67e8f9;
     box-shadow: 0 0 6px rgba(103, 232, 249, 0.6);
   }
@@ -982,13 +1042,17 @@
     display: contents;
   }
 
+  .section-disabled,
+  .field-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(0.8);
+  }
+
   .section-disabled {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    opacity: 0.3;
-    pointer-events: none;
-    filter: grayscale(0.8);
   }
 
   .field {

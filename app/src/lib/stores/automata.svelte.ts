@@ -363,14 +363,18 @@ class AutomataStore {
     this.savedSeed = null;
     this.useSavedSeed = true;
 
-    const skipDimensions = this.advancedMode && this.lockDimensions;
-    const skipRules = this.advancedMode && this.lockRules;
+    // Granular lock flags — locking lattice implicitly locks cell dimension too
+    const skipCell = this.advancedMode && (this.lockCell || this.lockLattice);
+    const skipLattice = this.advancedMode && this.lockLattice;
+    const skipRadius = this.advancedMode && this.lockRadius;
+    const skipBorn = this.advancedMode && this.lockBorn;
+    const skipSurvive = this.advancedMode && this.lockSurvive;
     const skipColors = this.advancedMode && this.lockColors;
 
     // Phase 1: Dimensions + Lattice
-    if (!skipDimensions) {
+    if (!skipCell && !skipLattice) {
+      // Both free — full randomization
       if (this.miningLattice !== 'random') {
-        // Force dimension to match the selected lattice
         const latticeDim = getLattice(this.miningLattice).dimension as 1 | 2 | 3;
         if (latticeDim !== this.dimension) {
           this.setDimension(latticeDim as 1 | 2 | 3);
@@ -379,15 +383,12 @@ class AutomataStore {
           this.setLattice(this.miningLattice);
         }
       } else {
-        // On 1D/2D-in-2D, randomly pick between the two; on 2D-in-3D or 3D, stay put
         if (this.viewer === 2 && this.dimension <= 2) {
           const newDim = Math.random() < 0.5 ? 1 : 2;
           if (newDim !== this.dimension) {
             this.setDimension(newDim as 1 | 2);
           }
         }
-
-        // Randomize lattice for 2D/3D dimensions
         if (this.dimension >= 2) {
           const available = latticesForDimension(this.dimension as 2 | 3);
           const randomLattice = available[Math.floor(Math.random() * available.length)];
@@ -396,11 +397,24 @@ class AutomataStore {
           }
         }
       }
+    } else if (skipCell && !skipLattice) {
+      // Dimension locked, randomize lattice within current dimension
+      if (this.miningLattice !== 'random') {
+        if (this.miningLattice !== this.lattice) {
+          this.setLattice(this.miningLattice);
+        }
+      } else if (this.dimension >= 2) {
+        const available = latticesForDimension(this.dimension as 2 | 3);
+        const randomLattice = available[Math.floor(Math.random() * available.length)];
+        if (randomLattice.type !== this.lattice) {
+          this.setLattice(randomLattice.type);
+        }
+      }
     }
+    // else: both locked, skip entirely
 
-    // Phase 2+3: Radius + Rules
-    if (!skipRules) {
-      // Randomize radius from selected mining difficulty band
+    // Phase 2: Radius
+    if (!skipRadius) {
       const radiusByDifficulty: Record<MiningDifficulty, number[]> = {
         easy: [1],
         medium: [2, 3],
@@ -409,16 +423,20 @@ class AutomataStore {
       const radiusPool = radiusByDifficulty[this.miningDifficulty];
       const newRadius = radiusPool[Math.floor(Math.random() * radiusPool.length)];
       this.setNeighborhoodRadius(newRadius);
+    }
 
+    // Phase 3: Born / Survive
+    if (!skipBorn || !skipSurvive) {
       if (this.dimension === 1 && this.neighborhoodRadius === 1) {
-        // Wolfram rule for 1D radius 1
-        this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
+        // Wolfram — single rule number covers both born+survive
+        if (!skipBorn && !skipSurvive) {
+          this.setRule({ type: 'wolfram', rule: Math.floor(Math.random() * 256) });
+        }
       } else {
         const latticeConfig = getLattice(this.lattice);
 
         if (latticeConfig.shapes && this.shapeRules) {
-          // Multi-shape: randomize each shape's rule independently
-          const newShapeRules = latticeConfig.shapes.map(shape => {
+          const newShapeRules = latticeConfig.shapes.map((shape, si) => {
             const maxN = shape.neighborCount;
             const pick = () => {
               const arr: number[] = [];
@@ -427,7 +445,11 @@ class AutomataStore {
               }
               return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxN + 1))];
             };
-            return { survive: pick(), born: pick() };
+            const existing = this.shapeRules![si];
+            return {
+              survive: skipSurvive ? [...existing.survive] : pick(),
+              born: skipBorn ? [...existing.born] : pick(),
+            };
           });
           this.shapeRules = newShapeRules;
           this.rule = { type: 'conway', survive: [...newShapeRules[0].survive], born: [...newShapeRules[0].born] };
@@ -443,8 +465,9 @@ class AutomataStore {
             }
             return arr.length > 0 ? arr : [Math.floor(Math.random() * (maxNeighbors + 1))];
           };
-          const born = pick();
-          const survive = pick();
+          const currentRule = this.rule.type === 'conway' ? this.rule : { born: [], survive: [] };
+          const born = skipBorn ? [...currentRule.born] : pick();
+          const survive = skipSurvive ? [...currentRule.survive] : pick();
           this.setRule({ type: 'conway', survive, born });
         }
       }

@@ -56,7 +56,8 @@ export const GET: RequestHandler = async () => {
 			.select({
 				id: user.id,
 				displayName: sql<string | null>`COALESCE(${user.displayName}, ${user.name})`.as('display_name'),
-				avatarId: user.avatarId
+				avatarId: user.avatarId,
+				minerConfig: user.minerConfig
 			})
 			.from(user)
 			.where(sql`${user.id} IN (${sql.join(topUserIds.map(id => sql`${id}`), sql`, `)})`)
@@ -71,6 +72,7 @@ export const GET: RequestHandler = async () => {
 			userId,
 			displayName: profile?.displayName ?? null,
 			avatarId: profile?.avatarId ?? null,
+			minerConfig: profile?.minerConfig ?? null,
 			claimCount: entry.claimCount,
 			byRadius: entry.byRadius,
 			byLattice: entry.byLattice

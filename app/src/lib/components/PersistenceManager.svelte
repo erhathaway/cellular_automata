@@ -40,6 +40,20 @@
       automataStore.setMiningLattice(stored.miningLattice);
     }
 
+    // Restore advanced lock state (only when NOT loading from a shared URL)
+    if (!urlParsed && stored?.advancedLocks) {
+      const locks = stored.advancedLocks;
+      if (locks.advancedMode) automataStore.setAdvancedMode(true);
+      if (locks.lockCell) automataStore.setLockCell(true);
+      if (locks.lockViewer) automataStore.setLockViewer(true);
+      if (locks.lockLattice) automataStore.setLockLattice(true);
+      if (locks.lockRadius) automataStore.setLockRadius(true);
+      if (locks.lockBorn) automataStore.setLockBorn(true);
+      if (locks.lockSurvive) automataStore.setLockSurvive(true);
+      if (locks.lockNeighborhood) automataStore.setLockNeighborhood(true);
+      if (locks.lockColors) automataStore.setLockColors(true);
+    }
+
     // If URL has params, override that combo's settings
     // Drop corrupted rules from old single-char serialization (duplicates are impossible)
     if (urlParsed?.settings?.rule?.type === 'conway') {
@@ -117,11 +131,32 @@
     const _lattice = automataStore.lattice;
     const _miningDifficulty = automataStore.miningDifficulty;
     const _miningLattice = automataStore.miningLattice;
+    // Track advanced lock state for persistence
+    const _advancedMode = automataStore.advancedMode;
+    const _lockCell = automataStore.lockCell;
+    const _lockViewer = automataStore.lockViewer;
+    const _lockLattice = automataStore.lockLattice;
+    const _lockRadius = automataStore.lockRadius;
+    const _lockBorn = automataStore.lockBorn;
+    const _lockSurvive = automataStore.lockSurvive;
+    const _lockNeighborhood = automataStore.lockNeighborhood;
+    const _lockColors = automataStore.lockColors;
 
     clearTimeout(configDebounceTimer);
     configDebounceTimer = setTimeout(() => {
       const allCombos = automataStore.getAllComboSettings();
-      saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice);
+      const advancedLocks = {
+        advancedMode: automataStore.advancedMode,
+        lockCell: automataStore.lockCell,
+        lockViewer: automataStore.lockViewer,
+        lockLattice: automataStore.lockLattice,
+        lockRadius: automataStore.lockRadius,
+        lockBorn: automataStore.lockBorn,
+        lockSurvive: automataStore.lockSurvive,
+        lockNeighborhood: automataStore.lockNeighborhood,
+        lockColors: automataStore.lockColors,
+      };
+      saveToLocalStorage(allCombos, dim, viewer, automataStore.miningDifficulty, automataStore.miningLattice, advancedLocks);
       doURLUpdate();
     }, 300);
   });

@@ -63,10 +63,8 @@
   <img
     src={minerDataUrl}
     alt="Miner avatar"
-    width={size}
-    height={size * 1.5}
     class="shrink-0"
-    style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto;"
+    style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto; display: block;"
   />
 {:else if avatar}
   <svg

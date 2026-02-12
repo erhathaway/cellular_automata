@@ -9,6 +9,7 @@
     userId: string;
     displayName: string | null;
     avatarId: string | null;
+    minerConfig: string | null;
     claimCount: number;
     byRadius: Record<string, number>;
     byLattice: Record<string, number>;
@@ -151,6 +152,7 @@
                       avatarId={entry.avatarId}
                       size={22}
                       fallbackInitials={(entry.displayName ?? '?')[0]}
+                      minerConfig={entry.minerConfig}
                     />
                     <span class="user-name">{entry.displayName ?? 'Anonymous'}</span>
                   </td>
