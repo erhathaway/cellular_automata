@@ -239,7 +239,7 @@
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .nav-item:hover .icon-frame {
+  .nav-item:hover .icon-frame:not(.active) {
     background: #e7e5e4;
     border-color: #d6d3d1;
   }
@@ -248,6 +248,34 @@
     background: #1c1917;
     border-color: #292524;
     box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
+    animation: frame-activate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes frame-activate {
+    0% {
+      transform: scale(1);
+      background: #f5f5f4;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    20% {
+      transform: scale(0.88);
+      background: #44403c;
+    }
+    50% {
+      transform: scale(1.06);
+      background: #1c1917;
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.4);
+    }
+    75% {
+      transform: scale(0.97);
+    }
+    100% {
+      transform: scale(1);
+      background: #1c1917;
+      border-color: #292524;
+      box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
+    }
   }
 
   .icon-frame.active :global(svg) {
