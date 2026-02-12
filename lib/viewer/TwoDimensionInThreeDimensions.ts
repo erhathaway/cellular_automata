@@ -7,13 +7,17 @@ import {
   OrthographicCamera,
   Color,
   BoxGeometry,
+  CylinderGeometry,
   Group,
   Scene,
   WebGLRenderer,
 } from 'three';
+import type { BufferGeometry } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import BaseClass from './base';
 import type { ViewerConstructorOptions } from './base';
+import { getLattice } from '../automata/lattice';
+import type { LatticeType } from '../automata/lattice';
 
 export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
   currentGenerationCount = 0;
@@ -52,6 +56,26 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   handleWindowResize() {}
 
+  private _createCellGeometry(diameter: number): BufferGeometry {
+    const lattice = getLattice(this._latticeType as LatticeType);
+    switch (lattice.geometry) {
+      case 'hexprism': {
+        const r = diameter / 2;
+        const geom = new CylinderGeometry(r, r, diameter, 6);
+        geom.rotateY(Math.PI / 6);
+        return geom;
+      }
+      case 'triprism': {
+        // Equilateral triangle extruded: use a 3-sided cylinder
+        const r = diameter / 2;
+        return new CylinderGeometry(r, r, diameter, 3);
+      }
+      case 'box':
+      default:
+        return new BoxGeometry(diameter, diameter, diameter);
+    }
+  }
+
   addGeneration() {
     const diameter = this.cellShape.x;
     const material = new MeshLambertMaterial({
@@ -59,7 +83,7 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       transparent: true,
       opacity: 1,
     });
-    const geometry = new BoxGeometry(diameter, diameter, diameter);
+    const geometry = this._createCellGeometry(diameter);
     const group = new Group();
 
     this.materials.push(material);
@@ -71,24 +95,45 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
       this.populationShape = { x: generationState.length };
     }
 
-    const xOffset = this.containerWidth / 2;
-    const yOffset = this.containerHeight / 2;
+    const lattice = getLattice(this._latticeType as LatticeType);
+    const pos2D = lattice.position2D;
+    const size = this.cellShape.x;
 
-    const startZ = this.currentGenerationCount * this.cellShape.z;
+    // Compute center offset using lattice positioning
+    const midCol = (this._populationShape.x - 1) / 2;
+    const midRow = ((this._populationShape.y || this._populationShape.x) - 1) / 2;
+    let cx = 0, cz = 0;
+    if (pos2D) {
+      const mid = pos2D(midCol, midRow, size);
+      cx = mid.x;
+      cz = mid.y;
+    } else {
+      cx = size * midCol;
+      cz = size * midRow;
+    }
+
+    const startY = this.currentGenerationCount * this.cellShape.z;
 
     generationState.forEach((column: number[], columnNumber: number) => {
-      const startX = this.cellShape.x * columnNumber - xOffset;
       column.forEach((cellState: number, cellNumber: number) => {
         if (cellState === 1) {
-          const startY = this.cellShape.y * cellNumber - yOffset;
+          let px: number, pz: number;
+          if (pos2D) {
+            const p = pos2D(columnNumber, cellNumber, size);
+            px = p.x - cx;
+            pz = p.y - cz;
+          } else {
+            px = size * columnNumber - cx;
+            pz = size * cellNumber - cz;
+          }
           const cube = new Mesh(geometry, material);
-          cube.position.set(startX, 0, startY);
+          cube.position.set(px, 0, pz);
           group.add(cube);
         }
       });
     });
 
-    group.position.y = startZ;
+    group.position.y = startY;
     this.scene.add(group);
     this.meshes.push(group);
     this.currentGenerationCount += 1;

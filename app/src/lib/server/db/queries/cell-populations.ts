@@ -10,6 +10,7 @@ export interface CreateCellPopulationInput {
 	ruleType: 'wolfram' | 'conway';
 	ruleDefinition: string;
 	neighborhoodRadius?: number;
+	latticeType?: string | null;
 	populationShape: string;
 	cellStates: string;
 	populationData?: Buffer;
@@ -34,6 +35,7 @@ export async function createCellPopulation(input: CreateCellPopulationInput) {
 			ruleType: input.ruleType,
 			ruleDefinition: input.ruleDefinition,
 			neighborhoodRadius: input.neighborhoodRadius ?? 1,
+			latticeType: input.latticeType ?? null,
 			populationShape: input.populationShape,
 			cellStates: input.cellStates,
 			populationData: input.populationData,

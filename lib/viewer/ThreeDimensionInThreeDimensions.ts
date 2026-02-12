@@ -7,13 +7,18 @@ import {
   OrthographicCamera,
   Color,
   BoxGeometry,
+  CylinderGeometry,
+  IcosahedronGeometry,
   Group,
   Scene,
   WebGLRenderer,
 } from 'three';
+import type { BufferGeometry } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import BaseClass from './base';
 import type { ViewerConstructorOptions } from './base';
+import { getLattice } from '../automata/lattice';
+import type { LatticeType } from '../automata/lattice';
 
 export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
   currentGenerationCount = 0;
@@ -50,33 +55,76 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
 
   handleWindowResize() {}
 
+  private _createCellGeometry(diameter: number): BufferGeometry {
+    const lattice = getLattice(this._latticeType as LatticeType);
+    switch (lattice.geometry) {
+      case 'sphere': {
+        const r = diameter / 2;
+        return new IcosahedronGeometry(r, 1);
+      }
+      case 'hexprism': {
+        const r = diameter / 2;
+        const geom = new CylinderGeometry(r, r, diameter, 6);
+        geom.rotateY(Math.PI / 6);
+        return geom;
+      }
+      case 'box':
+      default:
+        return new BoxGeometry(diameter, diameter, diameter);
+    }
+  }
+
   addGeneration() {
     const diameter = this.cellShape.x;
-    const geometry = new BoxGeometry(diameter, diameter, diameter);
+    const geometry = this._createCellGeometry(diameter);
     const group = new Group();
 
     this.geometries.push(geometry);
 
     const generationState = this.retrieveNextGeneration() as number[][][];
 
+    const lattice = getLattice(this._latticeType as LatticeType);
+    const pos3D = lattice.position3D;
+
     const shapeX = this._populationShape.x || generationState.length;
     const shapeY = this._populationShape.y || shapeX;
     const shapeZ = this._populationShape.z || shapeX;
 
-    const xOffset = (shapeX * diameter) / 2;
-    const yOffset = (shapeY * diameter) / 2;
-    const zOffset = (shapeZ * diameter) / 2;
+    // Compute center offset
+    let cx = 0, cy = 0, cz = 0;
+    if (pos3D) {
+      const midX = (shapeX - 1) / 2;
+      const midY = (shapeY - 1) / 2;
+      const midZ = (shapeZ - 1) / 2;
+      const mid = pos3D(midX, midY, midZ, diameter);
+      cx = mid.px;
+      cy = mid.py;
+      cz = mid.pz;
+    } else {
+      cx = (shapeX * diameter) / 2;
+      cy = (shapeY * diameter) / 2;
+      cz = (shapeZ * diameter) / 2;
+    }
 
     generationState.forEach((column: number[][], columnNumber: number) => {
       const nx = shapeX > 1 ? columnNumber / (shapeX - 1) : 0.5;
-      const startX = diameter * columnNumber - xOffset;
       column.forEach((row: number[], rowNumber: number) => {
         const ny = shapeY > 1 ? rowNumber / (shapeY - 1) : 0.5;
-        const startY = diameter * rowNumber - yOffset;
         row.forEach((cellState: number, cellNumber: number) => {
           if (cellState === 1) {
             const nz = shapeZ > 1 ? cellNumber / (shapeZ - 1) : 0.5;
-            const startZ = diameter * cellNumber - zOffset;
+
+            let px: number, py: number, pz: number;
+            if (pos3D) {
+              const p = pos3D(columnNumber, rowNumber, cellNumber, diameter);
+              px = p.px - cx;
+              py = p.pz - cz; // swap py/pz for Three.js Y-up
+              pz = p.py - cy;
+            } else {
+              px = diameter * columnNumber - cx;
+              py = diameter * cellNumber - cz;
+              pz = diameter * rowNumber - cy;
+            }
 
             // Map position to color: x → hue, y → saturation, z → lightness
             const hue = Math.floor(nx * 300);
@@ -90,7 +138,7 @@ export default class ThreeDimensionViewerInThreeDimensions extends BaseClass {
             this.materials.push(mat);
 
             const cube = new Mesh(geometry, mat);
-            cube.position.set(startX, startZ, startY);
+            cube.position.set(px, py, pz);
             group.add(cube);
           }
         });

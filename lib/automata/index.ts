@@ -12,6 +12,8 @@ import { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApp
 import type { LifeLikeRule } from './ruleApplicator';
 import PopulationManager from './populationManager';
 import type { PopulationShape, Population } from './populationSeed';
+import { getLattice } from './lattice';
+import type { LatticeType } from './lattice';
 
 type GeneratorType = 'oneDimension' | 'twoDimension' | 'threeDimension';
 
@@ -33,6 +35,11 @@ export default class AutomataManager {
   private _neighborOffsets3D: [number, number, number][] = [];
   private _bornLookup: Uint8Array = new Uint8Array(0);
   private _surviveLookup: Uint8Array = new Uint8Array(0);
+
+  // Lattice support
+  private _latticeType: LatticeType | undefined;
+  private _triOffsetsEven2D: [number, number][] = [];
+  private _triOffsetsOdd2D: [number, number][] = [];
 
   constructor() {
     this._ruleApplicator = new LifeLikeRuleApplicator();
@@ -252,7 +259,72 @@ export default class AutomataManager {
     this._buildRuleLookups({ survive: [4, 5], born: [5] }, this._neighborOffsets3D.length);
   }
 
+  get latticeType(): LatticeType | undefined {
+    return this._latticeType;
+  }
+
+  setLattice(latticeType: LatticeType) {
+    const config = getLattice(latticeType);
+    this._latticeType = latticeType;
+
+    if (config.dimension === 2) {
+      this._neighborOffsets2D = config.offsets as [number, number][];
+      this._neighborOffsets3D = [];
+      if (config.parityOffsets) {
+        this._triOffsetsEven2D = config.parityOffsets.even;
+        this._triOffsetsOdd2D = config.parityOffsets.odd;
+      } else {
+        this._triOffsetsEven2D = [];
+        this._triOffsetsOdd2D = [];
+      }
+    } else {
+      this._neighborOffsets2D = [];
+      this._neighborOffsets3D = config.offsets as [number, number, number][];
+      this._triOffsetsEven2D = [];
+      this._triOffsetsOdd2D = [];
+    }
+
+    // Set neighbor strings on the generic path too
+    this.neighbors = config.neighborStrings;
+
+    // Rebuild rule lookups with new neighbor count
+    if (this._rule && Array.isArray(this._rule.born) && Array.isArray(this._rule.survive)) {
+      this._buildRuleLookups(this._rule, config.neighborCount);
+    }
+  }
+
   // --- Fast-path generation methods ---
+
+  private _fastGenerateTri2D(): void {
+    const pop = this._currentPopulation as number[][];
+    const W = pop.length;
+    const H = pop[0].length;
+    const evenOff = this._triOffsetsEven2D;
+    const oddOff = this._triOffsetsOdd2D;
+    const numEven = evenOff.length;
+    const numOdd = oddOff.length;
+    const born = this._bornLookup;
+    const survive = this._surviveLookup;
+
+    const next: number[][] = new Array(W);
+    for (let x = 0; x < W; x++) {
+      const row = new Array(H);
+      const popX = pop[x];
+      for (let y = 0; y < H; y++) {
+        const isOdd = (x + y) % 2 !== 0;
+        const offsets = isOdd ? oddOff : evenOff;
+        const numOffsets = isOdd ? numOdd : numEven;
+        let liveCount = 0;
+        for (let n = 0; n < numOffsets; n++) {
+          const off = offsets[n];
+          liveCount += pop[((x + off[0]) % W + W) % W][((y + off[1]) % H + H) % H];
+        }
+        row[y] = popX[y] === 1 ? survive[liveCount] : born[liveCount];
+      }
+      next[x] = row;
+    }
+    this._currentPopulation = next;
+  }
 
   private _fastGenerate2D(): void {
     const pop = this._currentPopulation as number[][];
@@ -453,7 +525,11 @@ export default class AutomataManager {
 
   generateNextPopulationFromCurrent() {
     if (this._generatorType === 'twoDimension' && this._bornLookup.length > 0) {
-      this._fastGenerate2D();
+      if (this._latticeType === 'triangular') {
+        this._fastGenerateTri2D();
+      } else {
+        this._fastGenerate2D();
+      }
       return;
     }
     if (this._generatorType === 'threeDimension' && this._bornLookup.length > 0) {

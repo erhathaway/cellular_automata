@@ -22,6 +22,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		ruleType,
 		ruleDefinition,
 		neighborhoodRadius,
+		lattice,
 		populationShape,
 		cellStates,
 		populationData,
@@ -45,7 +46,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		ruleDefinition,
 		stability ?? 'evolving',
 		stablePeriod ?? null,
-		nr
+		nr,
+		lattice
 	);
 
 	// Check for existing record with same fingerprint (global dedup)
@@ -76,6 +78,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		ruleType,
 		ruleDefinition,
 		neighborhoodRadius: nr,
+		latticeType: lattice ?? null,
 		populationShape: typeof populationShape === 'string' ? populationShape : JSON.stringify(populationShape),
 		cellStates: typeof cellStates === 'string' ? cellStates : JSON.stringify(cellStates),
 		populationData: populationData ? Buffer.from(populationData, 'base64') : undefined,

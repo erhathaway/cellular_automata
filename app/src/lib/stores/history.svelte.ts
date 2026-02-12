@@ -8,6 +8,7 @@ export interface HistoryEntry {
   ruleType: 'wolfram' | 'conway';
   ruleDefinition: string;
   neighborhoodRadius: number;
+  lattice?: string;
   populationShape: Record<string, number>;
   cellStates: CellStateEntry[];
   thumbnail?: string;

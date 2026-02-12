@@ -6,6 +6,8 @@ import type {
 } from './automata.svelte';
 import { VALID_COMBOS, defaultRule } from './automata.svelte';
 import { replaceState } from '$app/navigation';
+import { isValidLattice, defaultLattice } from '$lib-core';
+import type { LatticeType } from '$lib-core';
 
 const STORAGE_KEY = 'cellular-automata-settings';
 
@@ -91,6 +93,10 @@ export function buildURLParams(
     params.set('nr', String(settings.neighborhoodRadius));
   }
 
+  if (settings.lattice) {
+    params.set('lt', settings.lattice);
+  }
+
   if (generation && generation > 0) {
     params.set('g', String(generation));
   }
@@ -158,6 +164,12 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
     if (!isNaN(nr) && nr >= 1 && nr <= 10) {
       settings.neighborhoodRadius = nr;
     }
+  }
+
+  // Parse lattice type
+  const ltStr = params.get('lt');
+  if (ltStr && isValidLattice(ltStr)) {
+    settings.lattice = ltStr;
   }
 
   // Parse generation

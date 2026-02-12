@@ -104,6 +104,7 @@
     const _rule = automataStore.rule;
     const _cellStates = automataStore.cellStates;
     const _radius = automataStore.neighborhoodRadius;
+    const _lattice = automataStore.lattice;
 
     clearTimeout(configDebounceTimer);
     configDebounceTimer = setTimeout(() => {
@@ -133,6 +134,7 @@
     const rule = automataStore.rule;
     const cellStates = automataStore.cellStates;
     const radius = automataStore.neighborhoodRadius;
+    const lattice = automataStore.lattice;
 
     clearTimeout(historyDebounceTimer);
     historyDebounceTimer = setTimeout(() => {
@@ -145,6 +147,7 @@
         ruleType: rule.type,
         ruleDefinition,
         neighborhoodRadius: radius,
+        lattice,
         populationShape: { ...shape },
         cellStates: cellStates.map((s) => ({ ...s })),
       });

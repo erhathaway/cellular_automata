@@ -17,6 +17,15 @@ export {
 export { OneDimension as OneDimensionRuleApplicator, LifeLike as LifeLikeRuleApplicator } from './automata/ruleApplicator';
 export type { LifeLikeRule } from './automata/ruleApplicator';
 
+export {
+  getLattice,
+  latticesForDimension,
+  defaultLattice,
+  isValidLattice,
+  LATTICE_REGISTRY,
+} from './automata/lattice';
+export type { LatticeType, LatticeDefinition } from './automata/lattice';
+
 export { default as BaseViewer } from './viewer/base/index';
 export type { HSLColor, CellState, ViewerConstructorOptions } from './viewer/base/index';
 export { default as OneDimensionInTwoDimensions } from './viewer/OneDimensionInTwoDimensions';

@@ -4,14 +4,19 @@
   import { api } from '$lib/api';
   import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from './PixelAvatar.svelte';
+  import { getLattice, defaultLattice } from '$lib-core';
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
     const rule = automataStore.rule;
     const r = automataStore.neighborhoodRadius;
+    const lat = automataStore.lattice;
 
     let name = `${dim}D`;
+    if (lat !== defaultLattice(dim)) {
+      name += ` ${getLattice(lat).label}`;
+    }
     if (r > 1) name += ` r=${r}`;
     if (view === 3) name += ` (3D view)`;
 
@@ -31,12 +36,19 @@
 
   let description = $derived.by(() => {
     const rule = automataStore.rule;
+    const lat = automataStore.lattice;
+    const dim = automataStore.dimension;
+    const isNonDefault = lat !== defaultLattice(dim);
+    const latticeLabel = isNonDefault ? getLattice(lat).label.toLowerCase() : '';
+    const gridName = isNonDefault ? `${latticeLabel} grid` : 'grid';
+
     if (rule.type === 'wolfram') {
       return `Elementary cellular automaton using Wolfram's Rule ${rule.rule}. Each cell's next state is determined by its current state and its two immediate neighbors, producing one of 256 possible rule sets.`;
     }
     const born = rule.born.join(', ');
     const survive = rule.survive.join(', ');
-    return `Life-like cellular automaton where a dead cell becomes alive with ${born} neighbors (birth) and a living cell survives with ${survive} neighbors (survival). All other cells die from loneliness or overcrowding.`;
+    const nc = automataStore.neighbors.length;
+    return `Life-like cellular automaton on a ${gridName} (${nc} neighbors) where a dead cell becomes alive with ${born} neighbors (birth) and a living cell survives with ${survive} neighbors (survival). All other cells die from loneliness or overcrowding.`;
   });
 
   let shapeText = $derived(
@@ -129,6 +141,7 @@
     const rule = automataStore.rule;
     const dim = automataStore.dimension;
     const nr = automataStore.neighborhoodRadius;
+    const lat = automataStore.lattice;
     const _claimed = automataStore.claimAnimationCounter;
 
     // Build query params
@@ -136,7 +149,7 @@
     const ruleDefinition = serializeRule(rule);
 
     // Reset state on actual config change
-    const configKey = `${dim}:${ruleType}:${ruleDefinition}:${nr}`;
+    const configKey = `${dim}:${ruleType}:${ruleDefinition}:${nr}:${lat}`;
     if (configKey !== lastConfigKey) {
       lastConfigKey = configKey;
       liked = false;
@@ -151,7 +164,8 @@
           d: String(dim),
           rt: ruleType,
           rd: ruleDefinition,
-          nr: String(nr)
+          nr: String(nr),
+          ...(lat !== defaultLattice(dim) ? { lt: lat } : {}),
         });
         const res = await fetch(`/api/discovery?${params}`);
         if (res.ok) {

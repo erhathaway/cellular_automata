@@ -253,8 +253,11 @@
 
         <!-- Auto info -->
         <div class="mb-4 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
-          <div class="flex gap-4">
+          <div class="flex flex-wrap gap-4">
             <span><strong>Dim:</strong> {storeData.dimension}D</span>
+            {#if storeData.lattice}
+              <span><strong>Lattice:</strong> {storeData.lattice}</span>
+            {/if}
             <span><strong>Rule:</strong> {storeData.ruleDefinition}</span>
             {#if storeData.neighborhoodRadius > 1}
               <span><strong>Radius:</strong> {storeData.neighborhoodRadius}</span>

@@ -10,12 +10,13 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const ruleType = url.searchParams.get('rt') ?? '';
 	const ruleDefinition = url.searchParams.get('rd') ?? '';
 	const neighborhoodRadius = parseInt(url.searchParams.get('nr') ?? '1');
+	const latticeType = url.searchParams.get('lt') ?? undefined;
 
 	if (!dimension || !ruleType || !ruleDefinition) {
 		return json({ found: false });
 	}
 
-	const fingerprint = generationRunFingerprint(dimension, ruleType, ruleDefinition, neighborhoodRadius);
+	const fingerprint = generationRunFingerprint(dimension, ruleType, ruleDefinition, neighborhoodRadius, latticeType);
 
 	// Check discovery table
 	const disc = await db

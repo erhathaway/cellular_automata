@@ -18,6 +18,7 @@
   let trackedDimension: number | undefined;
   let trackedViewer: number | undefined;
   let trackedResetCounter: number | undefined;
+  let trackedLattice: string | undefined;
   let mounted = false;
   let pendingInit: ReturnType<typeof setTimeout> | null = null;
 
@@ -29,6 +30,7 @@
     trackedDimension = automataStore.dimension;
     trackedViewer = automataStore.viewer;
     trackedResetCounter = automataStore.resetCounter;
+    trackedLattice = automataStore.lattice;
     // Debounce: if multiple effects trigger in the same flush, only one init runs
     if (pendingInit !== null) clearTimeout(pendingInit);
     pendingInit = setTimeout(() => {
@@ -87,6 +89,7 @@
       containerEl,
       populationShape: shape,
       retrieveNextGeneration,
+      latticeType: automataStore.lattice,
     };
 
     if (dim === 1 && view === 2) {
@@ -115,6 +118,11 @@
       automataManager.generationHistorySize = 1800;
       automataManager.seedDensity = 0.12;
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
+    }
+
+    // Apply lattice configuration
+    if (automataStore.lattice !== 'square' && automataStore.lattice !== 'cubic') {
+      automataManager.setLattice(automataStore.lattice);
     }
 
     // Apply custom neighborhood radius
@@ -201,6 +209,7 @@
     trackedDimension = dim;
     trackedViewer = view;
     trackedResetCounter = automataStore.resetCounter;
+    trackedLattice = automataStore.lattice;
   }
 
   onMount(() => {
@@ -232,6 +241,15 @@
     const view = automataStore.viewer;
     if (!mounted) return;
     if (trackedDimension !== undefined && (dim !== trackedDimension || view !== trackedViewer)) {
+      scheduleInit(true);
+    }
+  });
+
+  // Watch for lattice changes — reinitialize viewer
+  $effect(() => {
+    const lat = automataStore.lattice;
+    if (!mounted) return;
+    if (trackedLattice !== undefined && lat !== trackedLattice) {
       scheduleInit(true);
     }
   });

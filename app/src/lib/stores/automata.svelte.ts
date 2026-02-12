@@ -1,4 +1,5 @@
-import { generateMooreNeighbors1D, generateMooreNeighbors2D, generateMooreNeighbors3D } from '$lib-core';
+import { generateMooreNeighbors1D, generateMooreNeighbors2D, generateMooreNeighbors3D, getLattice, latticesForDimension, defaultLattice, isValidLattice } from '$lib-core';
+import type { LatticeType } from '$lib-core';
 
 // --- HSL Color type ---
 export interface HSLColor {
@@ -35,6 +36,7 @@ export interface ComboSettings {
   rule: AutomataRule;
   cellStates: CellStateEntry[];
   neighborhoodRadius?: number;
+  lattice?: LatticeType;
 }
 
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
@@ -62,13 +64,22 @@ export function defaultCellStates(dim: number, viewer: number): CellStateEntry[]
   return [{ number: 0, color: white }, { number: 1, color: blue }];
 }
 
-function defaultNeighbors(dim: number, radius: number = 1): string[] {
+function defaultNeighbors(dim: number, radius: number = 1, lattice?: LatticeType): string[] {
+  // If a non-default lattice is set, use its neighbor strings (radius is ignored for non-square/cubic)
+  if (lattice && lattice !== defaultLattice(dim)) {
+    const config = getLattice(lattice);
+    return config.neighborStrings;
+  }
   if (dim === 1) return generateMooreNeighbors1D(radius);
   if (dim === 3) return generateMooreNeighbors3D(radius);
   return generateMooreNeighbors2D(radius);
 }
 
-export function defaultRule(dim: number): AutomataRule {
+export function defaultRule(dim: number, lattice?: LatticeType): AutomataRule {
+  if (lattice && lattice !== defaultLattice(dim)) {
+    const config = getLattice(lattice);
+    return { type: 'conway', survive: config.defaultRule.survive, born: config.defaultRule.born };
+  }
   if (dim === 1) return { type: 'wolfram', rule: 110 };
   if (dim === 3) return { type: 'conway', survive: [4, 5], born: [5] };
   return { type: 'conway', survive: [2, 3], born: [3] };
@@ -81,7 +92,10 @@ function defaultViewer(dim: number): number {
 }
 
 // --- Indexed history helper ---
-function historyKey(dim: number, viewer: number): string {
+function historyKey(dim: number, viewer: number, lattice?: LatticeType): string {
+  if (lattice && lattice !== defaultLattice(dim)) {
+    return `${dim}-${viewer}-${lattice}`;
+  }
   return `${dim}-${viewer}`;
 }
 
@@ -90,6 +104,7 @@ class AutomataStore {
   // Core reactive state
   dimension = $state(2);
   viewer = $state(2);
+  lattice: LatticeType = $state('square');
   populationShape: Record<string, number> = $state({ x: 200, y: 200 });
   cellStates: CellStateEntry[] = $state([
     { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
@@ -128,11 +143,12 @@ class AutomataStore {
   captureThumbnail: (() => string | null) | null = null;
   getSeedSnapshot: (() => Uint8Array | null) | null = null;
 
-  // Indexed history for shape, cellStates, rule, and radius
+  // Indexed history for shape, cellStates, rule, radius, and lattice
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
   private _ruleHistory: Map<string, AutomataRule> = new Map();
   private _radiusHistory: Map<string, number> = new Map();
+  private _latticeHistory: Map<string, LatticeType> = new Map();
 
   constructor() {
     // Save initial state
@@ -166,6 +182,7 @@ class AutomataStore {
     this._saveToHistory();
 
     this.dimension = newDim;
+    this.lattice = defaultLattice(newDim);
 
     // Cascade: update viewer
     this.viewer = defaultViewer(newDim);
@@ -184,6 +201,29 @@ class AutomataStore {
 
     // Cascade: update shape + cellStates
     this._restoreOrDefault();
+  }
+
+  setLattice(newLattice: LatticeType) {
+    if (newLattice === this.lattice) return;
+
+    // Save current state to history
+    this._saveToHistory();
+
+    this.lattice = newLattice;
+
+    // Update neighbors and rule from lattice config
+    const config = getLattice(newLattice);
+    this.neighbors = config.neighborStrings;
+    this.neighborhoodRadius = 1;
+    this.rule = { type: 'conway', survive: config.defaultRule.survive, born: config.defaultRule.born };
+
+    // Save to lattice history
+    const key = historyKey(this.dimension, this.viewer, this.lattice);
+    this._latticeHistory.set(`${this.dimension}-${this.viewer}`, newLattice);
+    this._ruleHistory.set(key, { ...this.rule });
+    this._radiusHistory.set(key, 1);
+
+    this.reset();
   }
 
   setPopulationShapeDimension(key: string, value: number) {
@@ -210,8 +250,8 @@ class AutomataStore {
     const clamped = Math.max(1, Math.min(10, r));
     if (clamped === this.neighborhoodRadius) return;
     this.neighborhoodRadius = clamped;
-    this.neighbors = defaultNeighbors(this.dimension, clamped);
-    this._radiusHistory.set(historyKey(this.dimension, this.viewer), clamped);
+    this.neighbors = defaultNeighbors(this.dimension, clamped, this.lattice);
+    this._radiusHistory.set(historyKey(this.dimension, this.viewer, this.lattice), clamped);
 
     // 1D: Wolfram rules only work at radius 1, switch to life-like for larger
     if (this.dimension === 1 && this.rule.type === 'wolfram' && clamped > 1) {
@@ -255,8 +295,19 @@ class AutomataStore {
       }
     }
 
+    // Randomize lattice for 2D/3D dimensions
+    if (this.dimension >= 2) {
+      const available = latticesForDimension(this.dimension as 2 | 3);
+      const randomLattice = available[Math.floor(Math.random() * available.length)];
+      if (randomLattice.type !== this.lattice) {
+        this.setLattice(randomLattice.type);
+      }
+    }
+
     // Randomize radius (weighted toward lower values: 1-3 common, 4-5 rare)
-    const radiusWeights = [1, 1, 1, 2, 2, 3, 3, 4, 5];
+    // Only for square/cubic lattices; non-standard lattices keep radius 1
+    const isDefaultLattice = this.lattice === defaultLattice(this.dimension);
+    const radiusWeights = isDefaultLattice ? [1, 1, 1, 2, 2, 3, 3, 4, 5] : [1];
     const newRadius = radiusWeights[Math.floor(Math.random() * radiusWeights.length)];
     this.setNeighborhoodRadius(newRadius);
 
@@ -326,19 +377,27 @@ class AutomataStore {
     this._saveToHistory();
     const result: Record<string, ComboSettings> = {};
     for (const [dim, viewer] of VALID_COMBOS) {
-      const key = historyKey(dim, viewer);
-      result[key] = {
+      const dvKey = `${dim}-${viewer}`;
+      const lat = this._latticeHistory.get(dvKey) ?? defaultLattice(dim);
+      const key = historyKey(dim, viewer, lat);
+      result[dvKey] = {
         populationShape: this._shapeHistory.get(key) ?? defaultShape(dim, viewer),
-        rule: this._ruleHistory.get(key) ?? defaultRule(dim),
+        rule: this._ruleHistory.get(key) ?? defaultRule(dim, lat),
         cellStates: this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer),
         neighborhoodRadius: this._radiusHistory.get(key) ?? 1,
+        lattice: lat !== defaultLattice(dim) ? lat : undefined,
       };
     }
     return result;
   }
 
   hydrateCombo(dim: number, viewer: number, settings: Partial<ComboSettings>) {
-    const key = historyKey(dim, viewer);
+    const lat = settings.lattice ?? defaultLattice(dim);
+    const dvKey = `${dim}-${viewer}`;
+    if (lat !== defaultLattice(dim)) {
+      this._latticeHistory.set(dvKey, lat);
+    }
+    const key = historyKey(dim, viewer, lat);
     if (settings.populationShape) {
       this._shapeHistory.set(key, { ...settings.populationShape });
     }
@@ -354,17 +413,20 @@ class AutomataStore {
   }
 
   hydrateActive(dim: number, viewer: number) {
-    const key = historyKey(dim, viewer);
+    const dvKey = `${dim}-${viewer}`;
+    const lat = this._latticeHistory.get(dvKey) ?? defaultLattice(dim);
+    const key = historyKey(dim, viewer, lat);
     this.dimension = dim;
     this.viewer = viewer;
+    this.lattice = lat;
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
-    this.neighbors = defaultNeighbors(dim, this.neighborhoodRadius);
+    this.neighbors = defaultNeighbors(dim, this.neighborhoodRadius, lat);
     this.populationShape = this._shapeHistory.get(key)
       ? { ...this._shapeHistory.get(key)! }
       : defaultShape(dim, viewer);
     this.rule = this._ruleHistory.get(key)
       ? { ...this._ruleHistory.get(key)! }
-      : defaultRule(dim);
+      : defaultRule(dim, lat);
     this.cellStates = this._cellStatesHistory.get(key)
       ? this._cellStatesHistory.get(key)!.map((s) => ({ ...s }))
       : defaultCellStates(dim, viewer);
@@ -393,6 +455,7 @@ class AutomataStore {
     return {
       dimension: this.dimension,
       viewer: this.viewer,
+      lattice: this.lattice !== defaultLattice(this.dimension) ? this.lattice : undefined,
       ruleType,
       ruleDefinition,
       populationShape: JSON.stringify(this.populationShape),
@@ -407,7 +470,7 @@ class AutomataStore {
 
   // --- Internal helpers ---
   private _saveToHistory() {
-    const key = historyKey(this.dimension, this.viewer);
+    const key = historyKey(this.dimension, this.viewer, this.lattice);
     this._shapeHistory.set(key, { ...this.populationShape });
     this._cellStatesHistory.set(
       key,
@@ -415,6 +478,7 @@ class AutomataStore {
     );
     this._ruleHistory.set(key, { ...this.rule });
     this._radiusHistory.set(key, this.neighborhoodRadius);
+    this._latticeHistory.set(`${this.dimension}-${this.viewer}`, this.lattice);
   }
 
   private _minRadiusForNeighborCount(dim: number, count: number): number {
@@ -429,7 +493,13 @@ class AutomataStore {
   }
 
   private _restoreOrDefault() {
-    const key = historyKey(this.dimension, this.viewer);
+    // Restore lattice from history if available
+    const dvKey = `${this.dimension}-${this.viewer}`;
+    const savedLattice = this._latticeHistory.get(dvKey);
+    if (savedLattice) {
+      this.lattice = savedLattice;
+    }
+    const key = historyKey(this.dimension, this.viewer, this.lattice);
 
     const savedShape = this._shapeHistory.get(key);
     this.populationShape = savedShape
@@ -444,11 +514,11 @@ class AutomataStore {
     const savedRule = this._ruleHistory.get(key);
     this.rule = savedRule
       ? { ...savedRule }
-      : defaultRule(this.dimension);
+      : defaultRule(this.dimension, this.lattice);
 
     // Restore radius
     this.neighborhoodRadius = this._radiusHistory.get(key) ?? 1;
-    this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius);
+    this.neighbors = defaultNeighbors(this.dimension, this.neighborhoodRadius, this.lattice);
   }
 }
 

@@ -7,6 +7,8 @@ import {
 } from 'three';
 import BaseClass from './base';
 import type { ViewerConstructorOptions } from './base';
+import { getLattice } from '../automata/lattice';
+import type { LatticeType } from '../automata/lattice';
 
 export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   currentGenerationCount = 0;
@@ -36,16 +38,33 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
       this.populationShape = { x: generationState.length };
     }
 
-    const xOffset = this.containerWidth / 2;
-    const yOffset = this.containerHeight / 2;
+    const lattice = getLattice(this._latticeType as LatticeType);
+    const pos2D = lattice.position2D;
+    const size = this.cellShape.x;
+
+    // Compute center offset
+    const midCol = (this._populationShape.x - 1) / 2;
+    const midRow = ((this._populationShape.y || this._populationShape.x) - 1) / 2;
+    let cx = 0, cy = 0;
+    if (pos2D) {
+      const mid = pos2D(midCol, midRow, size);
+      cx = mid.x;
+      cy = mid.y;
+    } else {
+      cx = size * midCol;
+      cy = size * midRow;
+    }
 
     const positions: number[] = [];
     generationState.forEach((column: number[], columnNumber: number) => {
-      const startX = this.cellShape.x * columnNumber - xOffset;
       column.forEach((cellState: number, cellNumber: number) => {
         if (cellState === 1) {
-          const startY = this.cellShape.y * cellNumber - yOffset;
-          positions.push(startX, startY, 0);
+          if (pos2D) {
+            const p = pos2D(columnNumber, cellNumber, size);
+            positions.push(p.x - cx, p.y - cy, 0);
+          } else {
+            positions.push(size * columnNumber - cx, size * cellNumber - cy, 0);
+          }
         }
       });
     });

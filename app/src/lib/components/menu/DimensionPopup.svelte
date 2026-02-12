@@ -1,9 +1,10 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
   import PopupButton from './PopupButton.svelte';
+  import LatticePopup from './LatticePopup.svelte';
 </script>
 
-<div style="height: 150px; width: 270px;" class="flex flex-col items-center justify-center">
+<div style="min-height: 150px; width: 270px;" class="flex flex-col items-center justify-center">
   <div
     class="text-center"
     style="height: 30px; color: gray; padding: 10px; letter-spacing: 3px; font-size: 12px;"
@@ -30,4 +31,5 @@
       3D
     </PopupButton>
   </div>
+  <LatticePopup />
 </div>

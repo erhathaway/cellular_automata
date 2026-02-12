@@ -34,6 +34,7 @@ export const generationRun = sqliteTable(
 		ruleType: text('rule_type', { enum: ['wolfram', 'conway'] }).notNull(),
 		ruleDefinition: text('rule_definition').notNull(),
 		neighborhoodRadius: integer('neighborhood_radius').notNull().default(1),
+		latticeType: text('lattice_type'),
 		populationShape: text('population_shape').notNull(), // JSON e.g. '{"x":200,"y":200}'
 		cellStates: text('cell_states').notNull(), // JSON array of {number, color}
 		seedPopulation: blob('seed_population', { mode: 'buffer' }),
@@ -77,6 +78,7 @@ export const cellPopulation = sqliteTable(
 		ruleType: text('rule_type', { enum: ['wolfram', 'conway'] }).notNull(),
 		ruleDefinition: text('rule_definition').notNull(),
 		neighborhoodRadius: integer('neighborhood_radius').notNull().default(1),
+		latticeType: text('lattice_type'),
 		populationShape: text('population_shape').notNull(),
 		cellStates: text('cell_states').notNull(),
 		populationData: blob('population_data', { mode: 'buffer' }),

@@ -9,6 +9,7 @@ export interface CreateGenerationRunInput {
 	ruleType: 'wolfram' | 'conway';
 	ruleDefinition: string;
 	neighborhoodRadius?: number;
+	latticeType?: string | null;
 	populationShape: string;
 	cellStates: string;
 	seedPopulation?: Buffer;
@@ -29,6 +30,7 @@ export async function createGenerationRun(input: CreateGenerationRunInput) {
 			ruleType: input.ruleType,
 			ruleDefinition: input.ruleDefinition,
 			neighborhoodRadius: input.neighborhoodRadius ?? 1,
+			latticeType: input.latticeType ?? null,
 			populationShape: input.populationShape,
 			cellStates: input.cellStates,
 			seedPopulation: input.seedPopulation,

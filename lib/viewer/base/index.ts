@@ -19,6 +19,7 @@ export interface ViewerConstructorOptions {
   type?: string;
   populationShape: any;
   retrieveNextGeneration: () => any;
+  latticeType?: string;
 }
 
 export default class BaseClass {
@@ -28,6 +29,7 @@ export default class BaseClass {
   containerEl: HTMLElement;
   type: string;
   retrieveNextGeneration: () => any;
+  _latticeType: string;
 
   _states: Record<number, HSLColor> = {
     0: { h: 360, s: 1, l: 1, a: 1 },
@@ -61,10 +63,11 @@ export default class BaseClass {
 
   private _resizeHandler: () => void;
 
-  constructor({ containerEl, type, populationShape, retrieveNextGeneration }: ViewerConstructorOptions) {
+  constructor({ containerEl, type, populationShape, retrieveNextGeneration, latticeType }: ViewerConstructorOptions) {
     this.containerEl = containerEl;
     this.type = type ?? '';
     this.retrieveNextGeneration = retrieveNextGeneration;
+    this._latticeType = latticeType ?? 'square';
 
     this.initScene();
     this.initRenderer();
