@@ -19,9 +19,6 @@
 
   let endEl = $state<HTMLElement>();
 
-  // Poll-based infinite scroll: check every 200ms if the end marker is near the viewport.
-  // This avoids all issues with scroll event listeners, IntersectionObserver roots, and
-  // nested scroll containers. The parent's loadMore() guards against double-fetches.
   onMount(() => {
     const id = setInterval(() => {
       if (!endEl || !onloadmore || loading || !hasMore) return;
@@ -35,8 +32,15 @@
 </script>
 
 {#if items.length === 0 && !loading}
-  <div class="flex h-40 items-center justify-center">
-    <p class="text-neutral-400">No items yet</p>
+  <div class="empty-state">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5" />
+      <line x1="12" y1="22" x2="12" y2="15.5" />
+      <polyline points="22 8.5 12 15.5 2 8.5" />
+      <polyline points="2 15.5 12 8.5 22 15.5" />
+      <line x1="12" y1="2" x2="12" y2="8.5" />
+    </svg>
+    <p class="empty-text">No items yet</p>
   </div>
 {:else}
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -54,11 +58,50 @@
   <div bind:this={endEl} class="h-1"></div>
 
   {#if hasMore && !loading}
-    <button
-      class="mx-auto mt-6 block rounded-lg bg-neutral-100 px-6 py-2 text-sm text-neutral-600 transition-colors hover:bg-neutral-200"
-      onclick={() => onloadmore?.()}
-    >
+    <button class="load-more" onclick={() => onloadmore?.()}>
       Load more
     </button>
   {/if}
 {/if}
+
+<style>
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 160px;
+    color: #d6d3d1;
+  }
+
+  .empty-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #a8a29e;
+    letter-spacing: 0.06em;
+    margin: 0;
+  }
+
+  .load-more {
+    display: block;
+    margin: 24px auto 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #44403c;
+    background: white;
+    border: 2px solid #292524;
+    border-radius: 8px;
+    padding: 8px 24px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .load-more:hover {
+    background: #1c1917;
+    color: #facc15;
+  }
+</style>

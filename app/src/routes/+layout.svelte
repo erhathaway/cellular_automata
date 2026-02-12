@@ -87,7 +87,7 @@
 			<div class="flex h-full" style="width: {leftWidth}px;">
 				<div
 					class="h-full shrink-0 overflow-hidden"
-					style="width: {NAV_WIDTH}px; background: white; border-right: 1px solid #e5e5e5;"
+					style="width: {NAV_WIDTH}px; background: #f5f5f4; border-right: 1px solid #d6d3d1;"
 				>
 					<NavSidebar {userProfile} {historyOpen} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
 				</div>

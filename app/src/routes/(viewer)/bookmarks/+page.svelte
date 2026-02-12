@@ -78,12 +78,12 @@
 
 <div class="bg-white">
   <div class="mx-auto max-w-7xl px-6 py-8">
-    <h1 class="mb-6 text-2xl font-bold text-black">My Chest</h1>
+    <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1c1917; margin: 0 0 24px;">My Chest</h1>
 
     <SignedOut>
       <div class="flex h-40 items-center justify-center">
-        <p class="text-neutral-400">
-          <a href="/sign-in" class="text-blue-600 hover:underline">Sign in</a> to save configurations
+        <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">
+          <a href="/sign-in" style="color: #facc15; text-decoration: underline; text-underline-offset: 2px;">Sign in</a> to save configurations
         </p>
       </div>
     </SignedOut>
@@ -91,7 +91,7 @@
     <SignedIn>
       {#if items.length === 0 && !loading}
         <div class="flex h-40 items-center justify-center">
-          <p class="text-neutral-400">No saves yet. Use the save button on the viewer to save a configuration.</p>
+          <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">No saves yet. Use the save button on the viewer to save a configuration.</p>
         </div>
       {:else}
         <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />

@@ -104,7 +104,7 @@
 <div class="bg-white">
   <div class="mx-auto max-w-7xl px-6 py-8">
     <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-black">Explore</h1>
+      <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1c1917; margin: 0;">Gallery</h1>
     </div>
 
     <div class="mb-6">

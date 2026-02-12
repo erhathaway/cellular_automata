@@ -214,12 +214,12 @@
     background: none;
     width: 100%;
     transition: background 0.2s ease;
-    color: #57534e;
+    color: #a8a29e;
   }
 
   .nav-item:hover {
-    background: #f5f5f4;
-    color: #1c1917;
+    background: #e7e5e4;
+    color: #57534e;
   }
 
   .nav-item.active {
@@ -234,14 +234,26 @@
     width: 84px;
     height: 84px;
     border-radius: 18px;
-    background: #f5f5f4;
+    background: #e7e5e4;
     border: 2px solid transparent;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #a8a29e;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+  }
+
+  .icon-frame :global(svg) {
+    color: #a8a29e;
+    stroke: #a8a29e;
+    transition: color 0.2s ease, stroke 0.2s ease;
   }
 
   .nav-item:hover .icon-frame:not(.active) {
-    background: #e7e5e4;
-    border-color: #d6d3d1;
+    background: #d6d3d1;
+    border-color: #a8a29e;
+  }
+
+  .nav-item:hover .icon-frame:not(.active) :global(svg) {
+    color: #57534e;
+    stroke: #57534e;
   }
 
   .icon-frame.active {
@@ -294,7 +306,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #78716c;
+    color: #a8a29e;
     transition: color 0.2s ease;
   }
 
@@ -305,7 +317,7 @@
   .auth-section {
     margin-top: 8px;
     padding-top: 12px;
-    border-top: 1px solid #e7e5e4;
+    border-top: 1px solid #d6d3d1;
     display: flex;
     flex-direction: column;
     align-items: center;
