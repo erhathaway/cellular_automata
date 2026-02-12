@@ -194,27 +194,49 @@
 
 </script>
 
-<div class="mx-auto flex max-w-4xl gap-8 px-6 py-10">
+<div class="desc-root">
   <!-- Left column: Miner badge -->
-  <div class="flex w-40 shrink-0 flex-col items-center pt-1">
+  <div class="badge-col">
     <MinerBadge />
   </div>
 
   <!-- Center column: Title + Description -->
-  <div class="min-w-0 flex-1">
-    <h1 class="truncate text-2xl font-bold text-neutral-900" title={title}>{title}</h1>
+  <div class="content-col">
+    <h1 class="title" title={title}>{title}</h1>
 
-    <div class="mt-2 flex items-center gap-4 text-sm text-neutral-500">
-      <span>Generation {automataStore.totalGenerations.toLocaleString()}</span>
-      <span>·</span>
-      <span>Grid {shapeText}</span>
-      <span>·</span>
-      <span>{automataStore.neighbors.length} neighbors</span>
+    <div class="stats">
+      <div class="stat">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <span>Gen {automataStore.totalGenerations.toLocaleString()}</span>
+      </div>
+      <div class="stat-dot"></div>
+      <div class="stat">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M9 3v18" />
+        </svg>
+        <span>{shapeText}</span>
+      </div>
+      <div class="stat-dot"></div>
+      <div class="stat">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="3" />
+          <path d="M6.5 8a6.5 6.5 0 0 0 11 0" />
+          <circle cx="5" cy="14" r="2" />
+          <circle cx="19" cy="14" r="2" />
+          <circle cx="12" cy="19" r="2" />
+        </svg>
+        <span>{automataStore.neighbors.length} neighbors</span>
+      </div>
     </div>
 
-    <hr class="my-5 border-neutral-200" />
+    <div class="divider"></div>
 
-    <p class="leading-relaxed text-neutral-700">{description}</p>
+    <p class="description">{description}</p>
   </div>
 
   <!-- Right column: Action buttons -->
@@ -296,6 +318,80 @@
 </div>
 
 <style>
+  .desc-root {
+    display: flex;
+    gap: 32px;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  .badge-col {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .content-col {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1c1917;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #78716c;
+  }
+
+  .stat-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: #a8a29e;
+  }
+
+  .stat-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #d6d3d1;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, #d6d3d1 0%, transparent 100%);
+    margin: 16px 0;
+  }
+
+  .description {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #57534e;
+  }
+
   .action-buttons {
     display: flex;
     flex-shrink: 0;
