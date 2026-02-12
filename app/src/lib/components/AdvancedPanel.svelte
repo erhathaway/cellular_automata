@@ -577,7 +577,7 @@
               <span class="toggle-track"><span class="toggle-knob"></span></span>
             </button>
           </div>
-          <div class="rule-toggles ">
+          <div class="rule-toggles" class:field-disabled={!automataStore.lockSurvive}>
             {#each Array.from({ length: totalNeighborCount + 1 }, (_, i) => i) as n}
               <button
                 class="rule-btn {rule.type === 'conway' && rule.survive.includes(n) ? 'active' : ''} {n > activeCount ? 'dimmed' : ''}"
@@ -600,7 +600,7 @@
         </button>
       </div>
 
-      <div class="section-body">
+      <div class="section-body" class:section-disabled={!automataStore.lockNeighborhood}>
       {#if isMultiShape && shapeNeighborInfos.length > 0}
         <!-- Per-shape neighborhood grids -->
         {#each shapeNeighborInfos as info, si}
@@ -778,7 +778,7 @@
         </button>
       </div>
 
-      <div class="section-body">
+      <div class="section-body" class:section-disabled={!automataStore.lockColors}>
       {#each automataStore.cellStates as cs}
         <div class="color-row">
           <span class="color-label">{cs.number === 0 ? 'Dead' : 'Alive'}</span>
@@ -1038,6 +1038,21 @@
 
   .section-body {
     display: contents;
+  }
+
+  .section-disabled {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(0.8);
+  }
+
+  .field-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(0.8);
   }
 
 
