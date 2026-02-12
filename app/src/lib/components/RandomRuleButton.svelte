@@ -4,6 +4,10 @@
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
   let miningKey = $state(0);
+  let hasCompletedMine = $state(false);
+  let noLivingAutomata = $derived(
+    hasCompletedMine && automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1
+  );
 
   // Mini 1D cellular automata that runs inside the button while mining
   const COLS = 18;
@@ -58,7 +62,10 @@
     automataStore.isMining = true;
     miningKey++;
     automataStore.randomizeRule();
-    miningTimer = setTimeout(() => { automataStore.isMining = false; }, 5000);
+    miningTimer = setTimeout(() => {
+      automataStore.isMining = false;
+      hasCompletedMine = true;
+    }, 5000);
   }
 </script>
 
@@ -100,7 +107,14 @@
       <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
     </svg>
 
-    <span class="label" class:label-hidden={mining}>Mine for automata</span>
+    <div class="label-wrap" class:label-hidden={mining}>
+      {#if hasCompletedMine}
+        <span class="label label-found">{noLivingAutomata ? 'No living automata found' : 'Automata found!'}</span>
+        <span class="sub-label">Click again to find new ones</span>
+      {:else}
+        <span class="label">Mine for automata</span>
+      {/if}
+    </div>
 
     {#if mining && cells.length}
       <div class="ca-grid" style="--cols: {COLS}; --rows: {ROWS};">
@@ -286,6 +300,28 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
+  }
+
+  .label-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1;
+    gap: 5px;
+  }
+
+  .label-found {
+    color: #fde047;
+  }
+
+  .sub-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #fef3c7;
+    white-space: nowrap;
+    opacity: 0.95;
   }
 
   .label-hidden {
