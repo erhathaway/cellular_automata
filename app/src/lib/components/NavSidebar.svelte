@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { SignedIn, SignedOut } from 'svelte-clerk/client';
+  import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { achievementsStore } from '$lib/stores/achievements.svelte';
   import PixelAvatar from './PixelAvatar.svelte';

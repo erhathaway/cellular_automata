@@ -16,6 +16,70 @@
 
 	let { children, data } = $props();
 
+	const clerkAppearance = {
+		variables: {
+			colorPrimary: '#facc15',
+			colorBackground: '#1c1917',
+			colorInputBackground: '#0c0a09',
+			colorInputText: '#d6d3d1',
+			colorText: '#f5f5f4',
+			colorTextSecondary: '#a8a29e',
+			colorNeutral: '#d6d3d1',
+			fontFamily: "'Space Grotesk', sans-serif",
+			fontFamilyButtons: "'Space Mono', monospace",
+			borderRadius: '6px',
+		},
+		elements: {
+			card: {
+				background: '#1c1917',
+				border: '2px solid #44403c',
+				boxShadow: '0 0 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(250, 204, 21, 0.06)',
+			},
+			formButtonPrimary: {
+				background: '#facc15',
+				color: '#0c0a09',
+				fontFamily: "'Space Mono', monospace",
+				textTransform: 'uppercase',
+				letterSpacing: '0.05em',
+				fontWeight: '700',
+				'&:hover': {
+					background: '#fbbf24',
+					boxShadow: '0 0 16px rgba(250, 204, 21, 0.3)',
+				},
+			},
+			formFieldInput: {
+				background: '#0c0a09',
+				borderColor: '#292524',
+				color: '#d6d3d1',
+				'&:focus': {
+					borderColor: '#facc15',
+					boxShadow: '0 0 0 2px rgba(250, 204, 21, 0.25)',
+				},
+			},
+			socialButtonsBlockButton: {
+				background: '#292524',
+				border: '1px solid #44403c',
+				color: '#d6d3d1',
+				'&:hover': {
+					background: '#44403c',
+				},
+			},
+			footerActionLink: {
+				color: '#facc15',
+				'&:hover': {
+					color: '#fbbf24',
+				},
+			},
+			headerTitle: {
+				fontFamily: "'Space Grotesk', sans-serif",
+				color: '#f5f5f4',
+			},
+			headerSubtitle: {
+				color: '#a8a29e',
+			},
+		},
+	};
+
 	type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
@@ -94,7 +158,7 @@
 	<title>Cellular Automata</title>
 </svelte:head>
 
-<ClerkProvider {...data}>
+<ClerkProvider {...data} appearance={clerkAppearance}>
 	<div class="flex h-screen w-screen overflow-hidden">
 		<!-- Nav rail -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
