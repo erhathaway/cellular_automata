@@ -5,6 +5,7 @@
   import { getLattice, defaultLattice } from '$lib-core';
   import type { LatticeType } from '$lib-core';
   import PixelAvatar from './PixelAvatar.svelte';
+  import LoadingIcon from './LoadingIcon.svelte';
 
   let {
     item,
@@ -137,12 +138,7 @@
         <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
       {:else}
         <div class="thumb-fallback">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
+          <LoadingIcon size={40} />
         </div>
       {/if}
 
