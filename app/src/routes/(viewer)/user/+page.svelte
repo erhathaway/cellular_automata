@@ -1,7 +1,9 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
-  import { SignOutButton } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk';
   import { api } from '$lib/api';
+
+  const clerk = useClerkContext().clerk;
   import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from '$lib/components/PixelAvatar.svelte';
   import UserStats from '$lib/components/UserStats.svelte';
@@ -106,11 +108,17 @@
     }
   }
 
+  async function logout() {
+    localStorage.clear();
+    await clerk?.signOut({ redirectUrl: '/' });
+  }
+
   async function deleteAccount() {
     if (deleteInput !== 'DELETE' || deleting) return;
     deleting = true;
     try {
       await api('DELETE', '/api/user/delete');
+      localStorage.clear();
       goto('/');
     } catch (err: any) {
       errorMsg = err.message || 'Failed to delete account';

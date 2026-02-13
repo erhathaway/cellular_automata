@@ -1,8 +1,10 @@
 <script lang="ts">
   import PixelAvatar from './PixelAvatar.svelte';
-  import { SignOutButton } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk';
   import { api } from '$lib/api';
   import { goto } from '$app/navigation';
+
+  const clerk = useClerkContext().clerk;
 
   type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 
@@ -111,11 +113,17 @@
     }
   }
 
+  async function logout() {
+    localStorage.clear();
+    await clerk?.signOut({ redirectUrl: '/' });
+  }
+
   async function deleteAccount() {
     if (deleteInput !== 'DELETE' || deleting) return;
     deleting = true;
     try {
       await api('DELETE', '/api/user/delete');
+      localStorage.clear();
       open = false;
       goto('/');
     } catch (err: any) {
@@ -257,9 +265,7 @@
 
       <!-- Footer actions -->
       <div class="footer-actions">
-        <SignOutButton redirectUrl="/">
-          <button class="btn-footer">Log Out</button>
-        </SignOutButton>
+        <button class="btn-footer" onclick={logout}>Log Out</button>
 
         {#if !showDeleteConfirm}
           <button class="btn-footer btn-footer-danger" onclick={() => { showDeleteConfirm = true; }}>
