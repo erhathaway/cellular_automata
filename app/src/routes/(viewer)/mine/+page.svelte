@@ -62,7 +62,7 @@
 
 <svelte:window bind:innerWidth={innerWidth} />
 <div class="mine-page-bg">
-<div class="relative" style="height: 75vh; margin: 0 1rem;">
+<div class="relative" style="height: clamp(300px, 55vw, 75vh); margin: 0 1rem;">
   <CornerBlocks />
   <!-- Electric containment edges over the black border -->
   <span class="edge top"></span>
@@ -191,6 +191,21 @@
 
   .inline-analysis :global(.count-card .life-label-v) {
     font-size: 14px;
+  }
+
+  .inline-analysis :global(.hist-wrap),
+  .inline-analysis :global(.spectral-wrap) {
+    max-height: 126px;
+    overflow: hidden;
+  }
+
+  .inline-analysis :global(.hist-wrap .hist-scroll),
+  .inline-analysis :global(.spectral-wrap .hist-scroll) {
+    max-height: 72px;
+  }
+
+  .inline-analysis :global(.peaks) {
+    display: none;
   }
 
   .mine-page-bg {
