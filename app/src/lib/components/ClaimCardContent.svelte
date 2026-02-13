@@ -42,7 +42,11 @@
     gemAreaEl?: HTMLElement | undefined;
   } = $props();
 
-  let avatarSize = $derived(compact ? 36 : (typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72));
+  let avatarSize = $derived(
+    compact
+      ? Math.round(Math.max(24, Math.min(42, (typeof window !== 'undefined' ? window.innerWidth : 900) * 0.05)))
+      : (typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72)
+  );
 </script>
 
 <div class="claim" class:compact>
@@ -517,15 +521,15 @@
     }
   }
 
-  /* Compact mode — narrower card for smaller viewports */
+  /* Compact mode — narrower card for <900px viewports */
   .compact {
-    width: clamp(90px, 13vw, 130px);
-    padding: 10px 8px 12px;
+    width: clamp(90px, 18vw, 160px);
+    padding: clamp(8px, 1.4vw, 14px) clamp(6px, 1vw, 12px) clamp(10px, 1.6vw, 16px);
   }
 
   .compact .header {
-    gap: 3px;
-    margin-bottom: 3px;
+    gap: clamp(2px, 0.4vw, 4px);
+    margin-bottom: clamp(2px, 0.4vw, 4px);
   }
 
   .compact .pickaxe {
@@ -533,74 +537,74 @@
   }
 
   .compact .header-text {
-    font-size: 8px;
+    font-size: clamp(7px, 1.2vw, 10px);
   }
 
   .compact .divider {
-    margin-bottom: 6px;
+    margin-bottom: clamp(4px, 0.8vw, 8px);
   }
 
   .compact .body {
-    gap: 6px;
+    gap: clamp(4px, 0.8vw, 8px);
   }
 
   .compact .label {
-    font-size: 7px;
+    font-size: clamp(6px, 1vw, 8px);
   }
 
   .compact .label-lg {
-    font-size: 8px;
+    font-size: clamp(7px, 1.1vw, 10px);
   }
 
   .compact .label-title {
-    font-size: 9px;
+    font-size: clamp(8px, 1.3vw, 12px);
   }
 
   .compact .name {
-    font-size: 9px;
-    max-width: 120px;
-    margin: 2px 0;
+    font-size: clamp(8px, 1.3vw, 12px);
+    max-width: clamp(70px, 15vw, 130px);
+    margin: clamp(1px, 0.3vw, 3px) 0;
   }
 
   .compact .date {
-    font-size: 7px;
+    font-size: clamp(6px, 1vw, 8px);
   }
 
   .compact .date-lg {
-    font-size: 8px;
+    font-size: clamp(7px, 1.1vw, 9px);
   }
 
   .compact .date-title {
-    font-size: 8px;
+    font-size: clamp(7px, 1.1vw, 10px);
   }
 
   .compact .icon-placeholder {
-    width: 36px;
-    height: 36px;
+    width: clamp(28px, 5vw, 48px);
+    height: clamp(28px, 5vw, 48px);
   }
 
   .compact .icon-svg {
-    width: 24px;
-    height: 24px;
+    width: clamp(20px, 3.5vw, 32px);
+    height: clamp(20px, 3.5vw, 32px);
   }
 
   .compact .gem {
-    width: 36px;
-    height: 36px;
+    width: clamp(28px, 5vw, 48px);
+    height: clamp(28px, 5vw, 48px);
   }
 
   .compact .gem-icon {
-    width: 22px;
-    height: 22px;
+    width: clamp(18px, 3vw, 28px);
+    height: clamp(18px, 3vw, 28px);
   }
 
   .compact .spinner-svg {
-    width: 14px;
-    height: 14px;
+    width: clamp(12px, 2vw, 18px);
+    height: clamp(12px, 2vw, 18px);
   }
 
   .compact .nail {
-    width: 4px;
-    height: 4px;
+    width: clamp(3px, 0.5vw, 5px);
+    height: clamp(3px, 0.5vw, 5px);
   }
 </style>
