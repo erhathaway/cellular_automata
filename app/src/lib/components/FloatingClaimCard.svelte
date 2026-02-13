@@ -4,11 +4,10 @@
   import { discoveryStore } from '$lib/stores/discovery.svelte';
   import { historyStore } from '$lib/stores/history.svelte';
   import ClaimCardContent from './ClaimCardContent.svelte';
+  import SteelPanel from './SteelPanel.svelte';
+  import Pipe from './Pipe.svelte';
 
-  // Gem element for claim position capture (only used when floating card is NOT visible)
-  let gemEl = $state<HTMLElement>();
-
-  // Animation state — mine gem flies IN from button
+  // Mine-gem fly animation state
   let gemAreaEl = $state<HTMLElement>();
   let showMineGemFly = $state(false);
   let mineGemStyle = $state('');
@@ -18,6 +17,7 @@
   let mineGemLandTimer: ReturnType<typeof setTimeout> | undefined;
   let mineGemGlowTimer: ReturnType<typeof setTimeout> | undefined;
   let gemRunId = 0;
+  let gemEl = $state<HTMLElement>();
 
   function resetGemState() {
     clearTimeout(mineGemLandTimer);
@@ -35,6 +35,7 @@
     }
   });
 
+  // Watch mine gem animation counter
   $effect(() => {
     const count = automataStore.mineGemAnimationCounter;
     if (mineGemInitialized && count > 0) {
@@ -44,8 +45,6 @@
   });
 
   function triggerMineGemAnimation() {
-    // Skip if floating card is handling the animation
-    if (automataStore.floatingClaimCardEl) return;
     if (!gemAreaEl || !automataStore.isViableAutomata || automataStore.isMining || historyStore.cursorIndex >= 0) return;
 
     resetGemState();
@@ -76,46 +75,75 @@
 
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
 
-  // Drive discovery store reactive lookup
-  $effect(() => {
-    discoveryStore.checkDiscovery();
-  });
+  // Visibility: show when unclaimed (and stay visible through claiming → claimed)
+  let visible = $state(false);
+  let wasUnclaimed = false;
 
-  // Set gemEl on discovery store when floating card is NOT visible (so claim captures from here)
   $effect(() => {
-    if (!automataStore.floatingClaimCardEl) {
-      discoveryStore.setGemEl(gemEl ?? null);
+    const unclaimed = discoveryStore.isUnclaimed;
+    const saving = discoveryStore.saving;
+    const saved = discoveryStore.saved;
+    const gemExit = discoveryStore.gemExiting;
+
+    if (unclaimed && !wasUnclaimed) {
+      // Newly unclaimed — show
+      visible = true;
+    } else if (!unclaimed && !saving && !saved && !gemExit && !gemArriving) {
+      // No longer unclaimed and not in claim flow — hide
+      visible = false;
+      wasUnclaimed = false;
     }
+    if (unclaimed) wasUnclaimed = true;
   });
 
-  // Derived: isUnclaimed with gemArriving guard (local to MinerBadge animation)
-  let isUnclaimed = $derived(
-    discoveryStore.isUnclaimed && !gemArriving
-  );
+  // Register/unregister gemAreaEl on automataStore
+  $effect(() => {
+    if (visible && gemAreaEl) {
+      automataStore.floatingClaimCardEl = gemAreaEl;
+    }
+    return () => {
+      if (automataStore.floatingClaimCardEl === gemAreaEl) {
+        automataStore.floatingClaimCardEl = null;
+      }
+    };
+  });
+
+  // Set gemEl on discovery store for claim position capture
+  $effect(() => {
+    discoveryStore.setGemEl(gemEl ?? null);
+  });
 
   function handleClaim() {
     discoveryStore.claim();
   }
 </script>
 
-<ClaimCardContent
-  discoveryInfo={discoveryStore.discoveryInfo}
-  isSurveying={discoveryStore.isSurveying}
-  notViable={discoveryStore.notViable}
-  {isUnclaimed}
-  saving={discoveryStore.saving}
-  saved={discoveryStore.saved}
-  saveError={discoveryStore.saveError}
-  gemExiting={discoveryStore.gemExiting}
-  avatarEntering={discoveryStore.avatarEntering}
-  {gemLanded}
-  {gemArriving}
-  isMining={automataStore.isMining}
-  {userProfile}
-  onclaim={handleClaim}
-  bind:gemEl
-  bind:gemAreaEl
-/>
+<div class="floating-claim-wrapper" class:visible>
+  <div class="pipes-right">
+    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
+    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
+  </div>
+  <SteelPanel variant="yellow">
+    <ClaimCardContent
+      discoveryInfo={discoveryStore.discoveryInfo}
+      isSurveying={discoveryStore.isSurveying}
+      notViable={discoveryStore.notViable}
+      isUnclaimed={discoveryStore.isUnclaimed}
+      saving={discoveryStore.saving}
+      saved={discoveryStore.saved}
+      saveError={discoveryStore.saveError}
+      gemExiting={discoveryStore.gemExiting}
+      avatarEntering={discoveryStore.avatarEntering}
+      {gemLanded}
+      {gemArriving}
+      isMining={automataStore.isMining}
+      {userProfile}
+      onclaim={handleClaim}
+      bind:gemEl
+      bind:gemAreaEl
+    />
+  </SteelPanel>
+</div>
 
 {#if showMineGemFly}
   <!-- Outer: horizontal movement (ease-in-out) -->
@@ -134,6 +162,27 @@
 {/if}
 
 <style>
+  .floating-claim-wrapper {
+    position: relative;
+    transform: translateX(calc(100% + 60px));
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .floating-claim-wrapper.visible {
+    transform: translateX(0);
+  }
+
+  .pipes-right {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2;
+  }
+
   .mine-gem-fly-bg {
     display: flex;
     align-items: center;
@@ -144,7 +193,7 @@
     background: #000;
   }
 
-  /* Flying gem from mine button into claim card — two-axis arc */
+  /* Flying gem from mine button into floating claim card — two-axis arc */
   .mine-gem-fly-x {
     position: fixed;
     z-index: 9999;
@@ -162,13 +211,11 @@
     filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8));
   }
 
-  /* Horizontal: smooth slide from button X to claim X */
   @keyframes mg-move-x {
     0% { left: var(--mg-start-x); }
     100% { left: var(--mg-end-x); }
   }
 
-  /* Vertical: rise up from behind button, peak, then fall into claim */
   @keyframes mg-move-y {
     0% {
       top: calc(var(--mg-start-y) + 20px);

@@ -152,6 +152,9 @@ class AutomataStore {
   mineGemAnimationCounter = $state(0);
   mineGemOrigin: { x: number; y: number } | null = $state(null);
 
+  // Floating claim card element — when set, MinerBadge skips its mine-gem animation
+  floatingClaimCardEl: HTMLElement | null = $state(null);
+
   // Stability detection
   stableDetected = $state(false);
   stablePeriod = $state(0);
@@ -200,7 +203,7 @@ class AutomataStore {
 
   // GIF Studio open state (global so any ActionButtons can trigger it)
   gifStudioOpen = $state(false);
-  // Optional config override for GIF studio (set when opening from a card)
+  // Config for GIF studio (always set when opening — from card or live viewer)
   gifTargetConfig: {
     dimension: number;
     viewer: number;
@@ -212,6 +215,7 @@ class AutomataStore {
     trailConfig: TrailConfig;
     shapeRules: { survive: number[]; born: number[] }[] | null;
     seedPopulation: string | null;
+    currentPopulation: string | null;
   } | null = $state(null);
 
   // Generation run ID — links to a specific claimed snapshot for reproducible URLs

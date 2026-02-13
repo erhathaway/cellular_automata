@@ -38,7 +38,14 @@
     onbookmarkchange?: (bookmarked: boolean) => void;
   } = $props();
 
-  function openGifStudio(e: MouseEvent) {
+  function toBase64(u: Uint8Array | null): string | null {
+    if (!u) return null;
+    let bin = '';
+    for (let i = 0; i < u.length; i++) bin += String.fromCharCode(u[i]);
+    return btoa(bin);
+  }
+
+  async function openGifStudio(e: MouseEvent) {
     e.stopPropagation();
     if (gifItem) {
       // Build config from card item data
@@ -71,6 +78,20 @@
         }
       }
 
+      // Fetch both seed and claim populations from the API
+      let seedPop: string | null = gifItem.seedPopulation ?? null;
+      let claimPop: string | null = null;
+      if (gifItem.id) {
+        try {
+          const res = await fetch(`/api/seed?id=${gifItem.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            seedPop = data.seedPopulation ?? seedPop;
+            claimPop = data.claimPopulation ?? null;
+          }
+        } catch {}
+      }
+
       automataStore.gifTargetConfig = {
         dimension: dim,
         viewer,
@@ -83,10 +104,26 @@
         cellStates,
         trailConfig,
         shapeRules,
-        seedPopulation: gifItem.seedPopulation ?? null,
+        seedPopulation: seedPop,
+        currentPopulation: claimPop,
       };
     } else {
-      automataStore.gifTargetConfig = null;
+      // Opening from the live viewer — snapshot both current + seed state
+      const currentSnap = automataStore.getCurrentPopulationSnapshot?.() ?? null;
+      const seedSnap = automataStore.getSeedSnapshot?.() ?? null;
+      automataStore.gifTargetConfig = {
+        dimension: automataStore.dimension,
+        viewer: automataStore.viewer,
+        rule: automataStore.rule,
+        lattice: automataStore.lattice,
+        neighborhoodRadius: automataStore.neighborhoodRadius,
+        populationShape: { ...automataStore.populationShape },
+        cellStates: automataStore.cellStates,
+        trailConfig: automataStore.trailConfig,
+        shapeRules: automataStore.shapeRules,
+        seedPopulation: toBase64(seedSnap),
+        currentPopulation: toBase64(currentSnap),
+      };
     }
     automataStore.gifStudioOpen = true;
   }

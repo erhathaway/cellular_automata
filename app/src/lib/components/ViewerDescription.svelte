@@ -1,8 +1,8 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { discoveryStore } from '$lib/stores/discovery.svelte';
   import { serializeRule } from '$lib/stores/persistence';
-  import { getLattice, defaultLattice } from '$lib-core';
-  import { historyStore } from '$lib/stores/history.svelte';
+  import { getLattice } from '$lib-core';
   import MinerBadge from './MinerBadge.svelte';
   import AutomataDetails from './AutomataDetails.svelte';
   import ActionButtons from './ActionButtons.svelte';
@@ -70,80 +70,8 @@
     return `${name} (${nc}n) — B${bornStr}/S${surviveStr}`;
   });
 
-  // Discovery lookup
-  interface DiscoveryInfo {
-    found: boolean;
-    discoveredBy?: string;
-    discoveredByImageUrl?: string | null;
-    discoveredByAvatarId?: string | null;
-    discoveredAt?: string;
-    saveCount?: number;
-    totalLikes?: number;
-    totalBookmarks?: number;
-    isLikedByMe?: boolean;
-    isBookmarkedByMe?: boolean;
-    entityId?: string | null;
-    entityType?: 'generation_run' | 'cell_population' | null;
-  }
-
-  let discoveryInfo: DiscoveryInfo | null = $state(null);
-  let lookupTimer: ReturnType<typeof setTimeout> | undefined;
-  let lastConfigKey = '';
-
-  function syncHistoryFlags(overrides?: { liked?: boolean; bookmarked?: boolean; claimed?: boolean }) {
-    const rd = serializeRule(automataStore.rule);
-    const dim = automataStore.dimension;
-    const nr = automataStore.neighborhoodRadius;
-    historyStore.updateFlags(rd, dim, nr, {
-      liked: overrides?.liked ?? discoveryInfo?.isLikedByMe ?? false,
-      bookmarked: overrides?.bookmarked ?? discoveryInfo?.isBookmarkedByMe ?? false,
-      ...(overrides?.claimed !== undefined ? { claimed: overrides.claimed } : {}),
-    });
-  }
-
-  // Reactively look up discovery info when config changes
-  $effect(() => {
-    const rule = automataStore.rule;
-    const dim = automataStore.dimension;
-    const nr = automataStore.neighborhoodRadius;
-    const lat = automataStore.lattice;
-    const _claimed = automataStore.claimAnimationCounter;
-
-    // Build query params
-    const ruleType = rule.type;
-    const ruleDefinition = serializeRule(rule);
-
-    // Reset state on actual config change
-    const configKey = `${dim}:${ruleType}:${ruleDefinition}:${nr}:${lat}`;
-    if (configKey !== lastConfigKey) {
-      lastConfigKey = configKey;
-      discoveryInfo = null;
-    }
-
-    clearTimeout(lookupTimer);
-    lookupTimer = setTimeout(async () => {
-      try {
-        const params = new URLSearchParams({
-          d: String(dim),
-          rt: ruleType,
-          rd: ruleDefinition,
-          nr: String(nr),
-          ...(lat !== defaultLattice(dim) ? { lt: lat } : {}),
-        });
-        const res = await fetch(`/api/discovery?${params}`);
-        if (res.ok) {
-          const data = await res.json();
-          discoveryInfo = data;
-          // Sync initial like/bookmark state + claimed status to history
-          syncHistoryFlags({ claimed: data.found ? true : undefined });
-        } else {
-          discoveryInfo = null;
-        }
-      } catch {
-        discoveryInfo = null;
-      }
-    }, 500);
-  });
+  // Use shared discovery store
+  let discoveryInfo = $derived(discoveryStore.discoveryInfo);
 
 </script>
 
@@ -196,7 +124,6 @@
       likeCount={discoveryInfo?.totalLikes ?? 0}
       bookmarkCount={discoveryInfo?.totalBookmarks ?? 0}
       copyUrl={typeof window !== 'undefined' ? window.location.href : ''}
-      ongifstudio={() => { gifStudioOpen = true; }}
     />
   </div>
 </div>

@@ -12,6 +12,7 @@
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
+  import FloatingClaimCard from '$lib/components/FloatingClaimCard.svelte';
   import SteelPanel from '$lib/components/SteelPanel.svelte';
   import Pipe from '$lib/components/Pipe.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
@@ -137,6 +138,10 @@
         <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
       </div>
     </SteelPanel>
+  </div>
+  <!-- Floating claim card (slides in when unclaimed) -->
+  <div class="floating-claim-slot pointer-events-auto">
+    <FloatingClaimCard />
   </div>
 </div>
 
@@ -365,6 +370,13 @@
   .advanced-panel-slot {
     position: relative;
     margin-top: 16px;
+  }
+
+  .floating-claim-slot {
+    position: absolute;
+    top: 120px;
+    right: 40px;
+    z-index: 50;
   }
 
 </style>
