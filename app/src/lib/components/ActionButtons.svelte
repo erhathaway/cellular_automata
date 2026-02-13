@@ -731,4 +731,11 @@
     }
 
   }
+
+  @media (max-width: 350px) {
+    .action-buttons,
+    .action-buttons.compact {
+      gap: 2px;
+    }
+  }
 </style>

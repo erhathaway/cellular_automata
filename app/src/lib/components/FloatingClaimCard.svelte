@@ -7,8 +7,13 @@
   import SteelPanel from './SteelPanel.svelte';
   import Pipe from './Pipe.svelte';
 
-  // Mine-gem fly animation state
+  // Stable outer element (no transform) for reliable position calculation
+  let slotEl = $state<HTMLElement>();
+  // Inner elements for ClaimCardContent binding
   let gemAreaEl = $state<HTMLElement>();
+  let gemEl = $state<HTMLElement>();
+
+  // Mine-gem fly animation state
   let showMineGemFly = $state(false);
   let mineGemStyle = $state('');
   let gemLanded = $state(false);
@@ -17,7 +22,6 @@
   let mineGemLandTimer: ReturnType<typeof setTimeout> | undefined;
   let mineGemGlowTimer: ReturnType<typeof setTimeout> | undefined;
   let gemRunId = 0;
-  let gemEl = $state<HTMLElement>();
 
   function resetGemState() {
     clearTimeout(mineGemLandTimer);
@@ -45,14 +49,19 @@
   });
 
   function triggerMineGemAnimation() {
-    if (!gemAreaEl || !automataStore.isViableAutomata || automataStore.isMining || historyStore.cursorIndex >= 0) return;
+    if (!slotEl || !automataStore.isViableAutomata || automataStore.isMining || historyStore.cursorIndex >= 0) return;
 
     resetGemState();
     const thisRun = gemRunId;
 
-    const rect = gemAreaEl.getBoundingClientRect();
-    const targetX = rect.left + rect.width / 2;
-    const targetY = rect.top + rect.height / 2;
+    // Use the stable slot element (no transform) to calculate target position.
+    // The card (280px) is the only child — target its center.
+    const slotRect = slotEl.getBoundingClientRect();
+    const cardWidth = 280; // ClaimCardContent fixed width
+    const cardHeight = slotRect.height || 200; // fallback if not yet measured
+    const targetX = slotRect.left + cardWidth / 2;
+    const targetY = slotRect.top + cardHeight / 2;
+
     const origin = automataStore.mineGemOrigin;
     const startX = origin?.x ?? window.innerWidth / 2;
     const startY = origin?.y ?? window.innerHeight * 0.5;
@@ -70,7 +79,7 @@
         if (gemRunId !== thisRun) return;
         gemLanded = false;
       }, 2000);
-    }, 2400);
+    }, 1800);
   }
 
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
@@ -81,13 +90,13 @@
     !automataStore.isMining && !discoveryStore.notViable
   );
 
-  // Register/unregister gemAreaEl on automataStore
+  // Register/unregister on automataStore so MinerBadge knows to skip its animation
   $effect(() => {
-    if (visible && gemAreaEl) {
-      automataStore.floatingClaimCardEl = gemAreaEl;
+    if (visible && slotEl) {
+      automataStore.floatingClaimCardEl = slotEl;
     }
     return () => {
-      if (automataStore.floatingClaimCardEl === gemAreaEl) {
+      if (automataStore.floatingClaimCardEl === slotEl) {
         automataStore.floatingClaimCardEl = null;
       }
     };
@@ -103,37 +112,37 @@
   }
 </script>
 
-<div class="floating-claim-wrapper" class:visible>
-  <div class="pipes-right">
-    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
-    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
+<div class="floating-claim-outer" bind:this={slotEl}>
+  <div class="floating-claim-wrapper" class:visible>
+    <div class="pipes-right">
+      <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
+      <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
+    </div>
+    <SteelPanel variant="yellow">
+      <ClaimCardContent
+        discoveryInfo={discoveryStore.discoveryInfo}
+        isSurveying={discoveryStore.isSurveying}
+        notViable={discoveryStore.notViable}
+        isUnclaimed={discoveryStore.isUnclaimed}
+        saving={discoveryStore.saving}
+        saved={discoveryStore.saved}
+        saveError={discoveryStore.saveError}
+        gemExiting={discoveryStore.gemExiting}
+        avatarEntering={discoveryStore.avatarEntering}
+        {gemLanded}
+        {gemArriving}
+        isMining={automataStore.isMining}
+        {userProfile}
+        onclaim={handleClaim}
+        bind:gemEl
+        bind:gemAreaEl
+      />
+    </SteelPanel>
   </div>
-  <SteelPanel variant="yellow">
-    <ClaimCardContent
-      discoveryInfo={discoveryStore.discoveryInfo}
-      isSurveying={discoveryStore.isSurveying}
-      notViable={discoveryStore.notViable}
-      isUnclaimed={discoveryStore.isUnclaimed}
-      saving={discoveryStore.saving}
-      saved={discoveryStore.saved}
-      saveError={discoveryStore.saveError}
-      gemExiting={discoveryStore.gemExiting}
-      avatarEntering={discoveryStore.avatarEntering}
-      {gemLanded}
-      {gemArriving}
-      isMining={automataStore.isMining}
-      {userProfile}
-      onclaim={handleClaim}
-      bind:gemEl
-      bind:gemAreaEl
-    />
-  </SteelPanel>
 </div>
 
 {#if showMineGemFly}
-  <!-- Outer: horizontal movement (ease-in-out) -->
   <div class="mine-gem-fly-x" style={mineGemStyle}>
-    <!-- Inner: vertical movement (up then gravity down) + scale -->
     <div class="mine-gem-fly-y">
       <div class="mine-gem-fly-bg">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -147,8 +156,12 @@
 {/if}
 
 <style>
-  .floating-claim-wrapper {
+  /* Stable outer — no transform, used for reliable position calculation */
+  .floating-claim-outer {
     position: relative;
+  }
+
+  .floating-claim-wrapper {
     transform: translateX(calc(100% + 60px));
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -178,14 +191,13 @@
     background: #000;
   }
 
-  /* Flying gem from mine button into floating claim card — two-axis arc */
   .mine-gem-fly-x {
     position: fixed;
     z-index: 9999;
     pointer-events: none;
     top: 0;
     left: var(--mg-start-x);
-    animation: mg-move-x 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: mg-move-x 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .mine-gem-fly-y {
