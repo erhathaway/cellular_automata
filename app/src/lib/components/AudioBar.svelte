@@ -148,7 +148,7 @@
 		position: fixed;
 		bottom: 0;
 		left: calc(120px + (100% - 120px) / 2);
-		transform: translateX(-50%);
+		transform: translateX(calc(-50% - 155px));
 		z-index: 9999;
 		display: flex;
 		align-items: center;
