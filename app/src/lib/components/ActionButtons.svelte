@@ -731,10 +731,4 @@
     }
 
   }
-
-  @media (max-width: 550px) {
-    .action-buttons {
-      gap: 4px;
-    }
-  }
 </style>
