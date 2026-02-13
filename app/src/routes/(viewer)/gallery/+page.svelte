@@ -150,7 +150,7 @@
 
     <TopClaims onload={handleLoad} />
 
-    <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
+    <ExploreGrid {items} {loading} {hasMore} dense={innerWidth < 550} onload={handleLoad} onloadmore={loadMore} />
   </div>
 </div>
 

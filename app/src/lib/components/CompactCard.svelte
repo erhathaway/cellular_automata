@@ -453,4 +453,14 @@
     height: 10px;
   }
 
+  @media (max-width: 700px) {
+    .hover-actions {
+      opacity: 1;
+    }
+
+    .hover-actions :global(.action-col) {
+      display: flex;
+    }
+  }
+
 </style>
