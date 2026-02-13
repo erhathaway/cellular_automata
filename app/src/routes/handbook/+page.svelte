@@ -42,7 +42,7 @@
 				<path d="M4 6h16M4 12h16M4 18h16" />
 			</svg>
 		</button>
-		<span class="mobile-title">Learning</span>
+		<span class="mobile-title">Miner's Handbook</span>
 	</div>
 
 	<!-- Centered inner wrapper -->
@@ -61,7 +61,7 @@
 						<path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
 						<path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
 					</svg>
-					<span class="sidebar-title">Learning</span>
+					<span class="sidebar-title">Miner's Handbook</span>
 				</div>
 
 				<div class="sidebar-divider"></div>

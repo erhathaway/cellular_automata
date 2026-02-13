@@ -147,20 +147,23 @@
     automataStore.hydrated = true;
     initialized = true;
 
-    // Capture thumbnail every 2s to keep latest history entry up to date
-    thumbnailInterval = setInterval(() => {
+    // Capture thumbnail for the active history entry (500ms if <20 entries, 5s otherwise)
+    const tickThumbnail = () => {
       const thumb = automataStore.captureThumbnail?.();
       if (thumb) {
-        historyStore.updateLatestThumbnail(thumb);
+        historyStore.updateActiveThumbnail(thumb);
       }
-    }, 2000);
+      const ms = historyStore.entries.length < 20 ? 500 : 5000;
+      thumbnailInterval = setTimeout(tickThumbnail, ms);
+    };
+    thumbnailInterval = setTimeout(tickThumbnail, 500);
 
     // Persist history on page unload so latest thumbnail is saved
     const flushHistory = () => historyStore.flush();
     window.addEventListener('beforeunload', flushHistory);
 
     return () => {
-      clearInterval(thumbnailInterval);
+      clearTimeout(thumbnailInterval);
       window.removeEventListener('beforeunload', flushHistory);
     };
   });

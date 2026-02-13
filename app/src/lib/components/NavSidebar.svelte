@@ -28,7 +28,7 @@
   ];
 
   const bottomItems = [
-    { href: '/learning', label: 'Learning', icon: 'book-open' },
+    { href: '/handbook', label: 'Handbook', icon: 'book-open' },
   ];
 
   function isActive(pathname: string, href: string): boolean {

@@ -201,12 +201,16 @@ class HistoryStore {
     this.persist();
   }
 
-  updateLatestThumbnail(thumbnail: string) {
+  updateActiveThumbnail(thumbnail: string) {
     if (this._entries.length === 0) return;
-    // Don't overwrite entry 0's thumbnail while navigating history
-    if (this.cursorIndex >= 0) return;
-    this._entries[0].thumbnail = thumbnail;
-    // No bump needed — thumbnail changes don't need to trigger UI re-renders
+    const idx = this.cursorIndex === -1 ? 0 : this.cursorIndex;
+    if (idx >= this._entries.length) return;
+    const hadThumbnail = !!this._entries[idx].thumbnail;
+    this._entries[idx].thumbnail = thumbnail;
+    // Bump reactivity when a thumbnail is first set so the UI shows it
+    if (!hadThumbnail) {
+      this.bump();
+    }
   }
 
   flush() {

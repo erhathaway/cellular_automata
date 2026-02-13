@@ -2,6 +2,7 @@
   import { onMount, onDestroy, tick } from 'svelte';
   import { Color } from 'three';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { historyStore } from '$lib/stores/history.svelte';
   import {
     AutomataManager,
     OneDimensionInTwoDimensions,
@@ -196,6 +197,10 @@
     };
     automataStore.captureThumbnail = () => {
       if (!viewer?.renderer?.domElement) return null;
+      // Force a fresh render so the buffer is current
+      if (viewer.renderer && viewer.scene && viewer.camera) {
+        viewer.renderer.render(viewer.scene, viewer.camera);
+      }
       const source = viewer.renderer.domElement;
       const canvas = document.createElement('canvas');
       canvas.width = 120;
@@ -206,6 +211,17 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      // Skip if the image is blank (all same color)
+      const sample = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const r0 = sample[0], g0 = sample[1], b0 = sample[2];
+      let allSame = true;
+      for (let i = 4; i < sample.length; i += 16) {
+        if (sample[i] !== r0 || sample[i + 1] !== g0 || sample[i + 2] !== b0) {
+          allSame = false;
+          break;
+        }
+      }
+      if (allSame) return null;
       return canvas.toDataURL('image/jpeg', 0.5);
     };
     automataStore.getSeedSnapshot = () => {
@@ -306,6 +322,14 @@
       if (shouldRun || automataStore.isPlaying) {
         viewer.turnSimulationOn();
       }
+
+      // Capture thumbnail shortly after first frames render
+      setTimeout(() => {
+        const thumb = automataStore.captureThumbnail?.();
+        if (thumb) {
+          historyStore.updateActiveThumbnail(thumb);
+        }
+      }, 100);
 
       // Track this config view (debounced, fire-and-forget)
       trackGenerationView();
