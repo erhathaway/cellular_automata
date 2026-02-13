@@ -332,16 +332,23 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
       this.cellShape = cellShape;
     } else {
       const cols = this._populationShape.x;
+      const rows = this._populationShape.y || this._populationShape.x;
       const lattice = getLattice(this._latticeType as LatticeType);
       const pos2D = lattice.position2D;
 
-      let diameter: number;
+      let diameterW: number;
+      let diameterH: number;
       if (pos2D) {
         const colSpacing = pos2D(1, 0, 1).x - pos2D(0, 0, 1).x;
-        diameter = +(this.containerWidth / (colSpacing * cols)).toFixed(2);
+        const rowSpacing = Math.abs(pos2D(0, 1, 1).y - pos2D(0, 0, 1).y) || 1;
+        diameterW = this.containerWidth / (colSpacing * cols);
+        diameterH = this.containerHeight / (rowSpacing * rows);
       } else {
-        diameter = +(this.containerWidth / cols).toFixed(2);
+        diameterW = this.containerWidth / cols;
+        diameterH = this.containerHeight / rows;
       }
+      // Use the larger diameter so the grid covers the entire viewport (cover behavior)
+      const diameter = +Math.max(diameterW, diameterH).toFixed(2);
       this.cellShape = { x: diameter, y: diameter };
     }
   }
