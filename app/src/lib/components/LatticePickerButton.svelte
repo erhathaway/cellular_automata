@@ -17,11 +17,13 @@
 
   const options: LatticeOption[] = [
     { key: 'random', label: 'Random', dim: '' },
-    ...Object.entries(LATTICE_REGISTRY).map(([key, def]) => ({
-      key: key as LatticeType,
-      label: def.label,
-      dim: `${def.dimension}D`,
-    })),
+    ...Object.entries(LATTICE_REGISTRY)
+      .filter(([, def]) => def.dimension === 2)
+      .map(([key, def]) => ({
+        key: key as LatticeType,
+        label: def.label,
+        dim: '',
+      })),
   ];
 
   const current = $derived.by(
@@ -109,10 +111,7 @@
           onclick={() => selectLattice(option.key)}
         >
           <div class="option-left">
-            <div class="option-label">{option.label}</div>
-            {#if option.key === 'random'}
-              <div class="option-note">Mine picks randomly</div>
-            {/if}
+            <div class="option-label" class:option-label-gold={option.key === 'random'}>{option.label}</div>
           </div>
           {#if option.dim}
             <div class="option-dim">{option.dim}</div>
@@ -300,11 +299,8 @@
     line-height: 1.1;
   }
 
-  .option-note {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: #93c5fd;
-    line-height: 1.1;
+  .option-label-gold {
+    color: #facc15;
   }
 
   .option-dim {

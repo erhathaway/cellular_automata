@@ -110,8 +110,7 @@
           onclick={() => selectDifficulty(option.key)}
         >
           <div class="option-left">
-            <div class="option-label">{option.label}</div>
-            <div class="option-note">{option.note}</div>
+            <div class="option-label" class:option-label-gold={option.key === 'random'}>{option.label}</div>
           </div>
           <div class="option-range">{option.range}</div>
         </div>
@@ -335,11 +334,8 @@
     line-height: 1.1;
   }
 
-  .option-note {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: #93c5fd;
-    line-height: 1.1;
+  .option-label-gold {
+    color: #facc15;
   }
 
   .option-range {
