@@ -75,11 +75,10 @@
 
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
 
-  // Visibility: show when we have a discovery result (unclaimed or claimed) and not surveying/not-viable
+  // Visibility: show whenever automata is viable and not actively mining
+  // (includes surveying state, so the mine-gem has a target to fly to)
   let visible = $derived(
-    discoveryStore.discoveryInfo !== null &&
-    !discoveryStore.isSurveying &&
-    !discoveryStore.notViable
+    !automataStore.isMining && !discoveryStore.notViable
   );
 
   // Register/unregister gemAreaEl on automataStore
@@ -192,7 +191,7 @@
   .mine-gem-fly-y {
     position: relative;
     top: var(--mg-start-y);
-    left: -14px;
+    left: -24px;
     animation: mg-move-y 2.4s cubic-bezier(0.1, 0, 0.3, 1) forwards;
     filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8));
   }
@@ -219,7 +218,7 @@
       transform: scale(1.6);
     }
     100% {
-      top: calc(var(--mg-end-y) - 14px);
+      top: calc(var(--mg-end-y) - 24px);
       opacity: 0.5;
       transform: scale(0.7);
     }

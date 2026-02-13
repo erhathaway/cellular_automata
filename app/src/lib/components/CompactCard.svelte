@@ -106,6 +106,7 @@
             likeCount={item.likeCount ?? 0}
             {copyUrl}
             compact
+            {dense}
             vertical
             showLabels={false}
             gifItem={item}

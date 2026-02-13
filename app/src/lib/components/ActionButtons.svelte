@@ -15,6 +15,7 @@
     bookmarkCount = 0,
     copyUrl = '',
     compact = false,
+    dense = false,
     showLabels = true,
     loading = false,
     vertical = false,
@@ -30,6 +31,7 @@
     bookmarkCount?: number;
     copyUrl?: string;
     compact?: boolean;
+    dense?: boolean;
     showLabels?: boolean;
     loading?: boolean;
     vertical?: boolean;
@@ -242,7 +244,7 @@
   }
 </script>
 
-<div class="action-buttons" class:compact class:vertical>
+<div class="action-buttons" class:compact class:dense class:vertical>
   {#if vertical}
     <!-- Vertical order: Bookmark, Like, Link -->
 
@@ -595,6 +597,43 @@
     height: 3px;
   }
 
+  /* Dense: even smaller for compressed grids */
+  .dense .action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border-width: 1.5px;
+  }
+
+  .dense .action-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dense .action-icon.spin {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dense .btn-nails {
+    top: 1px;
+    left: 2px;
+    right: 2px;
+  }
+
+  .dense .btn-nails-bottom {
+    bottom: 1px;
+  }
+
+  .dense .btn-nail {
+    width: 2px;
+    height: 2px;
+  }
+
+  .dense.action-buttons {
+    gap: 4px;
+  }
+
   .action-label {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
@@ -691,5 +730,11 @@
       height: 16px;
     }
 
+  }
+
+  @media (max-width: 550px) {
+    .action-buttons {
+      gap: 4px;
+    }
   }
 </style>
