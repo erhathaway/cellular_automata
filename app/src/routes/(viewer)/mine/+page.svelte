@@ -385,4 +385,15 @@
     position: relative;
   }
 
+  @media (max-width: 629px) {
+    .right-column {
+      top: 24px;
+      gap: 4px;
+    }
+
+    .advanced-toggle :global(.pipe.vertical) {
+      height: 24px !important;
+    }
+  }
+
 </style>
