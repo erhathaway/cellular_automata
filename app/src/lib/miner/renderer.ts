@@ -16,6 +16,29 @@ const HEAD_LAYERS: CategoryId[] = [
 	'headgear'
 ];
 
+/** Layers affected by body groove sway */
+const BODY_LAYERS: CategoryId[] = [
+	'bodyShape',
+	'upperClothes',
+	'lowerClothes',
+	'gloves',
+	'shoes'
+];
+
+/** Groove pattern — 8-beat funk cycle (offsets in pixels at sprite scale)
+ *  Each beat: [headX, headY, bodyX, bodyY]
+ */
+const GROOVE_BEATS: [number, number, number, number][] = [
+	[ 0, -2,  0,  0],  // 1 — head up
+	[ 1,  0,  1,  1],  // 2 — lean right, dip
+	[ 0, -3,  0,  0],  // 3 — head bounce
+	[-1,  0, -1,  1],  // 4 — lean left, dip
+	[ 0, -2,  0,  0],  // 5 — head up
+	[ 2,  1,  1,  1],  // 6 — lean right, dip harder
+	[ 0, -3,  0,  0],  // 7 — head bounce
+	[-2,  1, -1,  1],  // 8 — lean left, dip harder
+];
+
 /** Resolve a sprite palette char to a CSS color */
 function resolveColor(
 	ch: string,
@@ -41,15 +64,17 @@ export interface AnimState {
 	blinkDuration: number;
 	nextBlinkAt: number;
 	isBlinking: boolean;
+	grooving: boolean;
 }
 
-export function createAnimState(): AnimState {
+export function createAnimState(grooving = false): AnimState {
 	return {
 		tick: 0,
 		blinkTimer: 0,
 		blinkDuration: 1,
 		nextBlinkAt: Math.floor(10 + Math.random() * 10), // 2.5-5s at 4fps
-		isBlinking: false
+		isBlinking: false,
+		grooving
 	};
 }
 
@@ -67,7 +92,7 @@ export function advanceAnim(state: AnimState): AnimState {
 		nextBlinkAt = Math.floor(10 + Math.random() * 10);
 	}
 
-	return { tick, blinkTimer, blinkDuration: state.blinkDuration, nextBlinkAt, isBlinking };
+	return { tick, blinkTimer, blinkDuration: state.blinkDuration, nextBlinkAt, isBlinking, grooving: state.grooving };
 }
 
 /** Get the frame index for a category given animation state */
@@ -94,7 +119,10 @@ export function renderMiner(
 	ctx.clearRect(0, 0, w, h);
 
 	const tone = SKIN_TONES[config.skinTone] ?? SKIN_TONES[0];
-	const headBob = anim.tick % 8 < 4 ? 0 : -3; // bob up 3px every other 4-tick cycle (3x res)
+
+	// Groove or idle head bob
+	const beat = anim.grooving ? GROOVE_BEATS[anim.tick % GROOVE_BEATS.length] : null;
+	const idleHeadBob = anim.tick % 8 < 4 ? 0 : -3;
 
 	for (const catId of Z_ORDER) {
 		const partId = config[catId];
@@ -104,7 +132,27 @@ export function renderMiner(
 		const frameIdx = getFrame(catId, sprite, anim);
 		const frame = sprite.frames[Math.min(frameIdx, sprite.frames.length - 1)];
 
-		const yOffset = HEAD_LAYERS.includes(catId) ? headBob : 0;
+		let xOffset = 0;
+		let yOffset = 0;
+
+		if (beat) {
+			// Grooving — funk cycle
+			if (HEAD_LAYERS.includes(catId)) {
+				xOffset = beat[0];
+				yOffset = beat[1];
+			} else if (BODY_LAYERS.includes(catId)) {
+				xOffset = beat[2];
+				yOffset = beat[3];
+			} else if (catId === 'tool') {
+				xOffset = beat[2];
+				yOffset = beat[3];
+			}
+		} else {
+			// Idle — subtle head bob
+			if (HEAD_LAYERS.includes(catId)) {
+				yOffset = idleHeadBob;
+			}
+		}
 
 		for (let row = 0; row < frame.rows.length; row++) {
 			const rowStr = frame.rows[row];
@@ -113,10 +161,10 @@ export function renderMiner(
 				const color = resolveColor(ch, sprite.palette, tone.base, tone.shadow, tone.highlight);
 				if (!color) continue;
 
-				const px = (sprite.offsetX + col) * scale;
+				const px = (sprite.offsetX + col + xOffset) * scale;
 				const py = (sprite.offsetY + row + yOffset) * scale;
 
-				if (py < 0 || py >= h) continue;
+				if (py < 0 || py >= h || px < 0 || px >= w) continue;
 
 				ctx.fillStyle = color;
 				ctx.fillRect(px, py, scale, scale);

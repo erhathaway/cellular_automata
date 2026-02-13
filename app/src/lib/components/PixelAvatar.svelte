@@ -114,7 +114,7 @@
 
   $effect(() => {
     if (!animCanvas || !audioStore.playing || !isMiner || !cropUpper) return;
-    animState = createAnimState();
+    animState = createAnimState(true);
     lastFrameTime = 0;
     animDraw();
     animRafId = requestAnimationFrame(animLoop);
