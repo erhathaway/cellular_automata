@@ -246,6 +246,39 @@
           viewer.addGeneration();
         }
         automataStore.targetGeneration = 0;
+
+        // Remove excess meshes and apply trail coloring
+        const trailSize = automataStore.trailConfig.size;
+        while (viewer.meshes.length > trailSize) {
+          const mesh = viewer.meshes[0];
+          viewer.cleanUpRefsByMesh(mesh, true);
+        }
+        // Apply trail gradient to remaining meshes
+        if (dim === 2 && view === 2) {
+          const tc = automataStore.trailConfig;
+          const deadHSL = viewer._states[0] || { h: 0, s: 1, l: 1 };
+          const trailH = tc.color.h;
+          const trailS = tc.color.s * 100;
+          const trailL = tc.color.l * 100;
+          const deadH = deadHSL.h;
+          const deadS = deadHSL.s * 100;
+          const deadL = deadHSL.l * 100;
+          const last = viewer.meshes.length - 1;
+          viewer.meshes.forEach((m: any, i: number) => {
+            const mat = m.material;
+            if (!mat) return;
+            if (i === last) {
+              mat.color.set(new Color(0x000000));
+            } else {
+              const tRaw = last > 1 ? i / (last - 1) : 0;
+              const h = Math.floor(deadH + tRaw * (trailH - deadH));
+              const s = Math.floor(deadS + tRaw * (trailS - deadS));
+              const l = Math.floor(deadL + tRaw * (trailL - deadL));
+              mat.color.set(new Color(`hsl(${h}, ${s}%, ${l}%)`));
+            }
+            m.position.z = i === last ? 2 : i / (last || 1);
+          });
+        }
       }
 
       // Start simulation
@@ -482,8 +515,7 @@
         if (i === last) {
           m.position.z = 2;
         } else {
-          const trailCount = last - 1 || 1;
-          m.position.z = 1 - i / trailCount;
+          m.position.z = i / (last || 1);
         }
       });
     }

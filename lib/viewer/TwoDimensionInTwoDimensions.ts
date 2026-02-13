@@ -310,12 +310,11 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
         const l = Math.floor(deadL + t * (trailL - deadL));
         mat.color.set(new Color(`hsl(${h}, ${s}%, ${l}%)`));
       }
-      // z controls draw order; alive on top, oldest trail just below, youngest at bottom
+      // z controls draw order; alive on top, youngest trail just below, oldest at bottom
       if (i === last) {
         m.position.z = 2;
       } else {
-        const trailCount = last - 1 || 1;
-        m.position.z = 1 - i / trailCount;
+        m.position.z = i / (last || 1);
       }
     });
     this.addGeneration();
