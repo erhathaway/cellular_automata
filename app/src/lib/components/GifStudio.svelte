@@ -184,6 +184,7 @@
     if (engine && studioViewer) {
       markStart();
       await captureFramesAction();
+      hasInitialized = true;
     }
   }
 
@@ -201,6 +202,7 @@
     pendingCropRect = null;
     isPlaying = false;
     isCapturing = false;
+    hasInitialized = false;
     studioGeneration = 0;
     if (gifUrl) {
       URL.revokeObjectURL(gifUrl);
@@ -457,7 +459,31 @@
     }
   });
 
+  // Auto-recapture when settings change (debounced)
+  let recaptureTimer: ReturnType<typeof setTimeout> | undefined;
+  let hasInitialized = false;
+
+  $effect(() => {
+    // Track these values to trigger on change
+    const _start = startMode;
+    const _frames = frameCount;
+    const _fps = fps;
+
+    // Skip the initial run (initStudio handles that)
+    if (!hasInitialized) return;
+    if (!engine || !studioViewer) return;
+
+    clearTimeout(recaptureTimer);
+    recaptureTimer = setTimeout(async () => {
+      // Reload population if start mode changed
+      loadPopulation();
+      markStart();
+      await captureFramesAction();
+    }, 500);
+  });
+
   onDestroy(() => {
+    clearTimeout(recaptureTimer);
     destroyStudio();
   });
 </script>
