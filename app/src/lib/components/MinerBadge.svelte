@@ -249,13 +249,13 @@
       </div>
     {:else if discoveryInfo === null || automataStore.isMining || gemArriving}
       <div class="icon-placeholder">
-        <svg class="search-sweep" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="search-sweep" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
         </svg>
       </div>
       <div class="info">
-        <span class="label">Surveying...</span>
+        <span class="label surveying-text" style="font-size: 13px;"><span>Surveying</span><span class="ellipsis"></span></span>
       </div>
     {:else if notViable}
       <div class="icon-placeholder">
@@ -509,6 +509,28 @@
     0% { transform: translateX(-2px) rotate(-5deg); }
     50% { transform: translateX(2px) rotate(5deg); }
     100% { transform: translateX(-2px) rotate(-5deg); }
+  }
+
+  .surveying-text {
+    display: inline-flex;
+  }
+
+  .ellipsis {
+    display: inline-block;
+    width: 1.5em;
+    text-align: left;
+  }
+
+  .ellipsis::after {
+    content: '';
+    animation: ellipsis 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes ellipsis {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
   }
 
   .gem {
