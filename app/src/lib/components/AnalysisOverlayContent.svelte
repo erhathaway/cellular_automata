@@ -280,28 +280,31 @@
     color: #57534e;
   }
 
-  .intervention-card {
-    border: 1px solid #f59e0b;
-    background: rgba(245, 158, 11, 0.12);
-    box-shadow:
-      0 0 0 1px rgba(250, 204, 21, 0.18) inset,
-      0 0 12px rgba(245, 158, 11, 0.24);
-  }
-
-  .extinction-card {
-    border: 1px solid #ef4444;
-    background: rgba(239, 68, 68, 0.16);
-    box-shadow:
-      0 0 0 1px rgba(248, 113, 113, 0.2) inset,
-      0 0 12px rgba(239, 68, 68, 0.28);
-  }
-
+  .intervention-card,
+  .extinction-card,
   .frozen-card {
-    border: 1px solid #60a5fa;
-    background: rgba(59, 130, 246, 0.16);
+    border: 1px solid #facc15;
+    background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #eab308 100%);
     box-shadow:
-      0 0 0 1px rgba(96, 165, 250, 0.2) inset,
-      0 0 12px rgba(59, 130, 246, 0.24);
+      0 0 0 1px rgba(250, 204, 21, 0.3) inset,
+      0 0 16px rgba(250, 204, 21, 0.3);
+  }
+
+  .intervention-card .iw-k,
+  .extinction-card .iw-k,
+  .frozen-card .iw-k {
+    background: linear-gradient(90deg, #1c1917, #dc2626, #1c1917, #dc2626, #1c1917);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: rainbow-shift 4s linear infinite;
+  }
+
+  .intervention-card .iw-v,
+  .extinction-card .iw-v,
+  .frozen-card .iw-v {
+    color: #1c1917;
   }
 
   .iw-k {

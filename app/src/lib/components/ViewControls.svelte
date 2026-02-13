@@ -68,6 +68,28 @@
   // Always use the 2D-2D blue for the progress bar
   const fillColor = 'hsl(234, 70%, 40%)';
 
+  // Wavy progress bar
+  const WAVE_AMP = 6;
+  const WAVE_LENGTH = 150;
+
+  function getWaveY(xPixel: number): number {
+    return 10 + WAVE_AMP * Math.sin(2 * Math.PI * xPixel / WAVE_LENGTH);
+  }
+
+  let wavePath = $derived.by(() => {
+    if (barWidth <= 0) return '';
+    const steps = Math.max(80, Math.round(barWidth));
+    let d = '';
+    for (let i = 0; i <= steps; i++) {
+      const x = (i / steps) * barWidth;
+      const y = getWaveY(x);
+      d += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)}`;
+    }
+    return d;
+  });
+
+  let handleWaveY = $derived(getWaveY((progressPercent / 100) * barWidth));
+
   let active = $derived(isHovering || isDragging);
 
   function getSeekIndexFromEvent(e: MouseEvent) {
@@ -84,7 +106,6 @@
     if (!progressBarEl) return;
     const rect = progressBarEl.getBoundingClientRect();
     hoverX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-    barWidth = rect.width;
     const kfCount = automataStore.keyframeCount;
     if (kfCount <= 1) {
       hoveredIndexRaw = 0;
@@ -401,6 +422,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     bind:this={progressBarEl}
+    bind:clientWidth={barWidth}
     class="progress-bar absolute w-full cursor-pointer"
     style="height: 20px;"
     onmousedown={handleMouseDown}
@@ -438,20 +460,42 @@
       </div>
     {/if}
 
-    <!-- Bar Track -->
-    <div
-      style="position: absolute; top: 50%; left: 0; right: 0; height: {active ? 8 : 6}px; transform: translateY(-50%); background: black; border-radius: 4px; transition: height 0.15s ease; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.1);"
-    >
-      <!-- Progress Fill -->
-      <div
-        style="height: 100%; width: {progressPercent}%; background-color: {fillColor}; border-radius: 4px 0 0 4px;"
-      ></div>
-    </div>
+    <!-- Wavy Track -->
+    {#if barWidth > 0}
+      <svg
+        width={barWidth}
+        height="20"
+        style="position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none;"
+      >
+        <defs>
+          <clipPath id="wave-progress-clip">
+            <rect x="0" y="0" width={(progressPercent / 100) * barWidth} height="20" />
+          </clipPath>
+        </defs>
+        <path
+          d={wavePath}
+          stroke="black"
+          stroke-width={active ? 8 : 6}
+          fill="none"
+          stroke-linecap="round"
+          style="transition: stroke-width 0.15s ease; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));"
+        />
+        <path
+          d={wavePath}
+          stroke={fillColor}
+          stroke-width={active ? 8 : 6}
+          fill="none"
+          stroke-linecap="round"
+          clip-path="url(#wave-progress-clip)"
+          style="transition: stroke-width 0.15s ease;"
+        />
+      </svg>
+    {/if}
 
     <!-- Handle -->
     {#if automataStore.keyframeCount > 1}
       <div
-        style="position: absolute; top: 50%; left: {progressPercent}%; transform: translate(-50%, -50%); width: 18px; height: 18px; background-color: black; border-radius: 50%; pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,0.4);"
+        style="position: absolute; top: {handleWaveY}px; left: {progressPercent}%; transform: translate(-50%, -50%); width: 18px; height: 18px; background-color: black; border-radius: 50%; pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,0.4);"
       ></div>
     {/if}
   </div>
