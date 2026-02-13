@@ -430,7 +430,7 @@
   }
 
   .thumb-img.dense {
-    transform: scale(2.5);
+    transform: scale(2);
   }
 
   .card.dense .chip-stack {
