@@ -13,6 +13,7 @@
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
   import SteelPanel from '$lib/components/SteelPanel.svelte';
+  import Pipe from '$lib/components/Pipe.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
@@ -78,23 +79,35 @@
   <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-50 translate-y-1/2">
     <div class="controls-row">
       <div class="controls-far-left pointer-events-auto">
-        <div class="pipe-backdrop-far-left"></div>
         <HistoryNavButton direction="back" disabled={!canGoBack} onclick={handleHistoryBack} />
+        <Pipe variant="glow" color="cyan" width="6px" height="14px" backdrop
+          style="position: absolute; left: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-left pointer-events-auto">
-        <div class="pipe-backdrop"></div>
         <MiningLevelButton disabled={advancedOpen} />
+        <Pipe variant="glow" color="cyan" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+          style="position: absolute; left: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
+        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+          style="position: absolute; left: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
+        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+          style="position: absolute; left: clamp(-22px, -1.8vw, -14px); top: 50%; transform: translateY(-50%); z-index: 2;" />
+        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+          style="position: absolute; right: clamp(-22px, -1.8vw, -14px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-right pointer-events-auto">
-        <div class="pipe-backdrop-right"></div>
         <LatticePickerButton disabled={advancedOpen} />
+        <Pipe variant="glow" color="cyan" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+          style="position: absolute; right: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
+        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+          style="position: absolute; right: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-far-right pointer-events-auto">
-        <div class="pipe-backdrop-far-right"></div>
         <HistoryNavButton direction="forward" disabled={!canGoForward} onclick={handleHistoryForward} />
+        <Pipe variant="glow" color="cyan" width="6px" height="14px" backdrop
+          style="position: absolute; right: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
     </div>
   </div>
@@ -109,13 +122,7 @@
 <section class="relative z-10 bg-black">
   <!-- Advanced toggle button + panel -->
   <div class="advanced-toggle">
-    <div class="adv-pipe">
-      <div class="adv-pipe-outer">
-        <div class="adv-pipe-inner"></div>
-      </div>
-      <div class="adv-pipe-flange adv-pipe-flange-top"></div>
-      <div class="adv-pipe-flange adv-pipe-flange-bottom"></div>
-    </div>
+    <Pipe variant="metal" direction="vertical" color="cyan" width="14px" height="80px" flanges />
     <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
       <div class="adv-btn">
         <span class="adv-pretitle">Mode</span>
@@ -279,224 +286,12 @@
     margin-left: clamp(8px, 1.5vw, 20px);
   }
 
-  /* --- Far-left: back button → level button pipe --- */
-  .controls-far-left::after {
-    content: '';
-    position: absolute;
-    left: calc(100% + 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 14px;
-    border-radius: 3px;
-    border: 2px solid #0e7490;
-    background:
-      linear-gradient(
-        90deg,
-        #0c4a6e 0%,
-        #22d3ee 50%,
-        #0c4a6e 100%
-      );
-    box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.75),
-      inset 0 0 6px rgba(103, 232, 249, 0.95);
-    pointer-events: none;
-    z-index: 2;
-    animation: connector-pulse 1.1s ease-in-out infinite;
-  }
-
-  .controls-far-left .pipe-backdrop-far-left {
-    position: absolute;
-    left: calc(100% - 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 18px;
-    border-radius: 3px;
-    background: #1c1917;
-    pointer-events: none;
-    z-index: 1;
-  }
-
   .controls-left :global(.level-root) {
     transform: translateX(-2px);
   }
 
-  /* Glowing connector pipe from level button to mine button */
-  .controls-left::after {
-    content: '';
-    position: absolute;
-    left: calc(100% - 3px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(20px, 3vw, 42px);
-    height: 14px;
-    border-radius: 3px;
-    border: 2px solid #0e7490;
-    background:
-      linear-gradient(
-        90deg,
-        #0c4a6e 0%,
-        #22d3ee 50%,
-        #0c4a6e 100%
-      );
-    box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.75),
-      inset 0 0 6px rgba(103, 232, 249, 0.95);
-    pointer-events: none;
-    z-index: 2;
-    animation: connector-pulse 1.1s ease-in-out infinite;
-  }
-
-  .controls-left::before {
-    content: '';
-    position: absolute;
-    left: calc(100% + clamp(16px, 3vw, 38px));
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
-    border: 1px solid #44403c;
-    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .controls-left .pipe-backdrop {
-    position: absolute;
-    left: calc(100% - 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(20px, 3.5vw, 46px);
-    height: 18px;
-    border-radius: 3px;
-    background: #1c1917;
-    pointer-events: none;
-    z-index: 1;
-  }
-
   .controls-right :global(.lattice-root) {
     transform: translateX(2px);
-  }
-
-  /* Glowing connector pipe from mine button to lattice button */
-  .controls-right::after {
-    content: '';
-    position: absolute;
-    right: calc(100% - 3px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(20px, 3vw, 42px);
-    height: 14px;
-    border-radius: 3px;
-    border: 2px solid #0e7490;
-    background:
-      linear-gradient(
-        90deg,
-        #0c4a6e 0%,
-        #22d3ee 50%,
-        #0c4a6e 100%
-      );
-    box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.75),
-      inset 0 0 6px rgba(103, 232, 249, 0.95);
-    pointer-events: none;
-    z-index: 2;
-    animation: connector-pulse 1.1s ease-in-out infinite;
-  }
-
-  .controls-right::before {
-    content: '';
-    position: absolute;
-    right: calc(100% + clamp(16px, 3vw, 38px));
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
-    border: 1px solid #44403c;
-    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .controls-right .pipe-backdrop-right {
-    position: absolute;
-    right: calc(100% - 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(20px, 3.5vw, 46px);
-    height: 18px;
-    border-radius: 3px;
-    background: #1c1917;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* --- Far-right: lattice button → forward button pipe --- */
-  .controls-far-right::before {
-    content: '';
-    position: absolute;
-    right: calc(100% + 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 14px;
-    border-radius: 3px;
-    border: 2px solid #0e7490;
-    background:
-      linear-gradient(
-        90deg,
-        #0c4a6e 0%,
-        #22d3ee 50%,
-        #0c4a6e 100%
-      );
-    box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.75),
-      inset 0 0 6px rgba(103, 232, 249, 0.95);
-    pointer-events: none;
-    z-index: 2;
-    animation: connector-pulse 1.1s ease-in-out infinite;
-  }
-
-  .controls-far-right .pipe-backdrop-far-right {
-    position: absolute;
-    right: calc(100% - 1px);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 18px;
-    border-radius: 3px;
-    background: #1c1917;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .controls-center::before,
-  .controls-center::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, #57534e 0%, #78716c 50%, #57534e 100%);
-    border: 1px solid #44403c;
-    box-shadow: 0 0 5px rgba(34, 211, 238, 0.35);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .controls-center::before {
-    left: clamp(-22px, -1.8vw, -14px);
-  }
-
-  .controls-center::after {
-    right: clamp(-22px, -1.8vw, -14px);
   }
 
   /* Advanced toggle button */
@@ -507,68 +302,6 @@
     padding: 0 1rem;
   }
 
-  .adv-pipe {
-    position: relative;
-    width: 14px;
-    height: 80px;
-  }
-
-  .adv-pipe-outer {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      #1c1917 0%,
-      #292524 20%,
-      #44403c 50%,
-      #292524 80%,
-      #1c1917 100%
-    );
-    border-radius: 3px;
-    border: 1px solid #57534e;
-    overflow: hidden;
-  }
-
-  .adv-pipe-inner {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    transform: translateX(-50%);
-    background: rgba(34, 211, 238, 0.15);
-    box-shadow: 0 0 6px rgba(34, 211, 238, 0.3);
-    animation: adv-pipe-glow 1.1s ease-in-out infinite;
-  }
-
-  @keyframes adv-pipe-glow {
-    0%   { background: rgba(34, 211, 238, 0.15); }
-    50%  { background: rgba(34, 211, 238, 0.5); }
-    100% { background: rgba(34, 211, 238, 0.15); }
-  }
-
-  .adv-pipe-flange {
-    position: absolute;
-    left: -3px;
-    right: -3px;
-    height: 6px;
-    background: linear-gradient(
-      180deg,
-      #57534e 0%,
-      #78716c 40%,
-      #57534e 100%
-    );
-    border-radius: 2px;
-    border: 1px solid #44403c;
-  }
-
-  .adv-pipe-flange-top {
-    top: -2px;
-  }
-
-  .adv-pipe-flange-bottom {
-    bottom: -2px;
-  }
 
   .adv-btn {
     display: flex;
@@ -630,21 +363,4 @@
     margin-top: 16px;
   }
 
-  @keyframes connector-pulse {
-    0% {
-      box-shadow:
-        0 0 8px rgba(34, 211, 238, 0.45),
-        inset 0 0 4px rgba(34, 211, 238, 0.45);
-    }
-    50% {
-      box-shadow:
-        0 0 14px rgba(34, 211, 238, 0.9),
-        inset 0 0 8px rgba(103, 232, 249, 0.85);
-    }
-    100% {
-      box-shadow:
-        0 0 8px rgba(34, 211, 238, 0.45),
-        inset 0 0 4px rgba(34, 211, 238, 0.45);
-    }
-  }
 </style>

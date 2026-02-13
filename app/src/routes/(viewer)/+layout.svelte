@@ -6,6 +6,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { scrollPositionStore } from '$lib/stores/scroll-position.svelte';
+  import Pipe from '$lib/components/Pipe.svelte';
   import { beforeNavigate, afterNavigate } from '$app/navigation';
   import { page } from '$app/stores';
 
@@ -134,8 +135,10 @@
         {/if}
         {#if viewerUiStore.analysisOpen && $page.url.pathname === '/mine'}
           <div class="analysis-overlay">
-            <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
-            <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>
+            <Pipe variant="glow" color="yellow" width="28px" height="14px" openEnd="end"
+              style="position: absolute; left: -28px; top: 88px;" />
+            <Pipe variant="glow" color="yellow" width="28px" height="14px" openEnd="end"
+              style="position: absolute; left: -28px; top: 122px;" />
             <AnalysisOverlayContent />
           </div>
         {/if}
@@ -259,50 +262,4 @@
     color: #fde047;
   }
 
-  .analysis-pipe {
-    position: absolute;
-    left: -28px;
-    width: 28px;
-    height: 14px;
-    border-radius: 3px 0 0 3px;
-    border: 2px solid #facc15;
-    border-right: none;
-    background:
-      linear-gradient(
-        90deg,
-        #ca8a04 0%,
-        #fde047 50%,
-        #ca8a04 100%
-      );
-    box-shadow:
-      0 0 14px rgba(250, 204, 21, 0.5),
-      inset 0 0 6px rgba(254, 240, 138, 0.9);
-    animation: analysis-pipe-pulse 1.2s ease-in-out infinite;
-  }
-
-  .analysis-pipe-top {
-    top: 88px;
-  }
-
-  .analysis-pipe-bottom {
-    top: 122px;
-  }
-
-  @keyframes analysis-pipe-pulse {
-    0% {
-      box-shadow:
-        0 0 8px rgba(250, 204, 21, 0.35),
-        inset 0 0 3px rgba(254, 240, 138, 0.55);
-    }
-    50% {
-      box-shadow:
-        0 0 15px rgba(250, 204, 21, 0.75),
-        inset 0 0 8px rgba(254, 240, 138, 0.95);
-    }
-    100% {
-      box-shadow:
-        0 0 8px rgba(250, 204, 21, 0.35),
-        inset 0 0 3px rgba(254, 240, 138, 0.55);
-    }
-  }
 </style>

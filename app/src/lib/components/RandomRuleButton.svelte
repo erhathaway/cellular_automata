@@ -4,6 +4,7 @@
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import SteelPanel from '$lib/components/SteelPanel.svelte';
+  import Pipe from '$lib/components/Pipe.svelte';
 
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
@@ -102,20 +103,12 @@
 
 <div class="mine-root">
   <!-- Pipes connecting button to frame -->
-  <div class="pipe pipe-left" class:pipe-active={mining}>
-    <div class="pipe-outer">
-      <div class="pipe-inner"></div>
-    </div>
-    <div class="pipe-flange pipe-flange-top"></div>
-    <div class="pipe-flange pipe-flange-bottom"></div>
-  </div>
-  <div class="pipe pipe-right" class:pipe-active={mining}>
-    <div class="pipe-outer">
-      <div class="pipe-inner"></div>
-    </div>
-    <div class="pipe-flange pipe-flange-top"></div>
-    <div class="pipe-flange pipe-flange-bottom"></div>
-  </div>
+  <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="32px" flanges
+    active={mining} animate={mining}
+    style="position: absolute; left: 20px; bottom: 50%; z-index: -1;" />
+  <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="32px" flanges
+    active={mining} animate={mining}
+    style="position: absolute; right: 20px; bottom: 50%; z-index: -1;" />
 
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -163,97 +156,6 @@
 <style>
   .mine-root {
     position: relative;
-  }
-
-  /* === Pipes === */
-  .pipe {
-    position: absolute;
-    bottom: 50%;
-    width: 14px;
-    height: 32px;
-    z-index: -1;
-  }
-
-  .pipe-left {
-    left: 20px;
-  }
-
-  .pipe-right {
-    right: 20px;
-  }
-
-  .pipe-outer {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      #1c1917 0%,
-      #292524 20%,
-      #44403c 50%,
-      #292524 80%,
-      #1c1917 100%
-    );
-    border-radius: 3px;
-    border: 1px solid #57534e;
-    overflow: hidden;
-  }
-
-  .pipe-inner {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    transform: translateX(-50%);
-    background: rgba(250, 204, 21, 0.1);
-    transition: all 0.3s;
-  }
-
-  .pipe-active .pipe-inner {
-    background: rgba(250, 204, 21, 0.6);
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.5), 0 0 16px rgba(250, 204, 21, 0.2);
-    animation: pipe-flow 0.6s linear infinite;
-  }
-
-  /* Flanges — metal rings at top and bottom of each pipe */
-  .pipe-flange {
-    position: absolute;
-    left: -3px;
-    right: -3px;
-    height: 6px;
-    background: linear-gradient(
-      180deg,
-      #57534e 0%,
-      #78716c 40%,
-      #57534e 100%
-    );
-    border-radius: 2px;
-    border: 1px solid #44403c;
-  }
-
-  .pipe-flange-top {
-    top: -2px;
-  }
-
-  .pipe-flange-bottom {
-    bottom: -2px;
-  }
-
-  .pipe-active .pipe-flange {
-    border-color: rgba(250, 204, 21, 0.3);
-    box-shadow: 0 0 6px rgba(250, 204, 21, 0.15);
-  }
-
-  @keyframes pipe-flow {
-    0% {
-      background: rgba(250, 204, 21, 0.4);
-    }
-    50% {
-      background: rgba(250, 204, 21, 0.8);
-    }
-    100% {
-      background: rgba(250, 204, 21, 0.4);
-    }
   }
 
   .mine-btn {
