@@ -23,6 +23,7 @@
     centered = false,
     minerConfig = null,
     cropUpper = false,
+    bgColor = undefined,
     userId = undefined,
     popupData = undefined
   }: {
@@ -32,6 +33,7 @@
     centered?: boolean;
     minerConfig?: string | MinerConfig | null;
     cropUpper?: boolean;
+    bgColor?: string;
     userId?: string;
     popupData?: PopupData;
   } = $props();
@@ -291,11 +293,11 @@
   onclick={hasPopup ? (e: MouseEvent) => { e.stopPropagation(); navigateToProfile(); } : undefined}
 >
   {#if isMiner && minerDataUrl && cropUpper}
-    <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;">
+    <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;{bgColor ? ` background: ${bgColor};` : ''}">
       <img
         src={minerDataUrl}
         alt="Miner avatar"
-        style="image-rendering: pixelated; width: 100%; height: auto; display: block;"
+        style="image-rendering: pixelated; width: 100%; height: auto; display: block; transform: translateX(6%) translateY(8%);"
       />
     </div>
   {:else if isMiner && minerDataUrl}

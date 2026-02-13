@@ -173,9 +173,7 @@
         class="nav-item"
         aria-label="Profile"
       >
-        <div class="avatar-bg">
-          <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={72} fallbackInitials="?" cropUpper />
-        </div>
+        <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={72} fallbackInitials="?" cropUpper bgColor="blue" />
       </a>
     </SignedIn>
     <SignedOut>
@@ -212,15 +210,6 @@
 {/if}
 
 <style>
-  .avatar-bg {
-    background: blue;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
   /* ── Nav rail ── */
   .nav-rail {
     display: flex;
