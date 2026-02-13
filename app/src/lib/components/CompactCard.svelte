@@ -118,7 +118,7 @@
   </div>
 
   <div class="chip-stack">
-    <AutomataDetails {item} {hideOwner} />
+    <AutomataDetails {item} {hideOwner} {dense} />
   </div>
 
   <div class="info-row">

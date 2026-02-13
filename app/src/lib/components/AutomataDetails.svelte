@@ -127,7 +127,7 @@
     <div class="owner-avatar-label">
       <div class="owner-content">
         <div class="owner-avatar-wrap">
-          <PixelAvatar avatarId={item.userAvatarId} size={96} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} cropUpper userId={item.userId} />
+          <PixelAvatar avatarId={item.userAvatarId} size={dense ? 48 : 96} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} cropUpper userId={item.userId} />
         </div>
       </div>
     </div>
@@ -471,5 +471,70 @@
 
   .rule-sep {
     color: #78716c;
+  }
+
+  /* Dense mode */
+  .details-wrap.dense {
+    gap: 4px;
+  }
+
+  .details-wrap.dense .owner-avatar-label {
+    width: 48px;
+    height: 48px;
+  }
+
+  .details-wrap.dense .owner-avatar-wrap {
+    width: 48px;
+    height: 48px;
+    margin-top: 2px;
+  }
+
+  .details-wrap.dense .chip-info {
+    gap: 2px;
+    margin-top: -6px;
+  }
+
+  .details-wrap.dense .pill {
+    font-size: 9px;
+    padding: 1px 5px;
+    line-height: 1.2;
+  }
+
+  .details-wrap.dense .pills-row {
+    gap: 2px;
+    margin-top: 1px;
+  }
+
+  .details-wrap.dense .username-inline {
+    font-size: 11px;
+  }
+
+  .details-wrap.dense .time-ago {
+    font-size: 9px;
+    padding-left: 3px;
+  }
+
+  .details-wrap.dense .owner-meta {
+    gap: 2px;
+    margin-top: 0;
+  }
+
+  .details-wrap.dense .rule-text {
+    font-size: 10px;
+    padding: 1px 5px 2px;
+  }
+
+  .details-wrap.dense .color-swatch {
+    width: 7px;
+    height: 7px;
+  }
+
+  .details-wrap.dense .state-colors {
+    padding: 1px 4px;
+    gap: 2px;
+  }
+
+  .details-wrap.dense .swatch-label {
+    font-size: 8px;
   }
 </style>
