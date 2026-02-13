@@ -6,6 +6,11 @@
 
   onMount(() => {
     achievementsStore.fetch();
+    // Mark all as seen after a brief delay so "NEW" badges are visible momentarily
+    const timer = setTimeout(() => {
+      achievementsStore.markAllEarnedSeen();
+    }, 2000);
+    return () => clearTimeout(timer);
   });
 </script>
 

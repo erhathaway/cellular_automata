@@ -104,6 +104,11 @@ class AchievementsStore {
 		}
 	}
 
+	markAllEarnedSeen() {
+		const unseen = this.achievements.filter((a) => a.earned && !a.seen).map((a) => a.def.id);
+		this.markSeen(unseen);
+	}
+
 	dismissNotification() {
 		const ids = this.newlyEarned.map((a) => a.def.id);
 		this.newlyEarned = [];
