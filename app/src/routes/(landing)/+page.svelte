@@ -108,20 +108,18 @@
 		for (let r = 0; r < rows; r++) {
 			for (let c = 0; c < cols; c++) {
 				const alive = rand() < 0.3;
-				ctx.fillStyle = alive ? 'rgba(250, 204, 21, 0.7)' : '#1c1917';
-				ctx.strokeStyle = '#44403c';
-				ctx.lineWidth = 0.5;
 				const x = ox + c * step;
 				const y = oy + r * step;
-				ctx.fillRect(x, y, size, size);
-				ctx.strokeRect(x, y, size, size);
 				if (alive) {
 					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
 					ctx.shadowBlur = 6;
 					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
-					ctx.fillRect(x, y, size, size);
+				} else {
 					ctx.shadowBlur = 0;
+					ctx.fillStyle = '#1c1917';
 				}
+				ctx.fillRect(x, y, size, size);
+				ctx.shadowBlur = 0;
 			}
 		}
 	}
@@ -162,9 +160,6 @@
 				}
 				ctx.fill();
 				ctx.shadowBlur = 0;
-				ctx.strokeStyle = '#44403c';
-				ctx.lineWidth = 0.5;
-				ctx.stroke();
 			}
 		}
 	}
@@ -218,59 +213,79 @@
 	}
 
 	function drawTruncLattice(ctx: CanvasRenderingContext2D) {
-		const size = 16;
 		const rand = seededRandom(55);
 		ctx.fillStyle = '#000';
 		ctx.fillRect(0, 0, LW, LH);
 
-		// Truncated square: octagons + small squares
-		const s = size;
-		const a = s / (1 + Math.SQRT2); // side length of octagon edge
-		const cellStep = s;
-		const cols = Math.ceil(LW / cellStep) + 1;
-		const rows = Math.ceil(LH / cellStep) + 1;
-		const ox = (LW - (cols - 1) * cellStep) / 2;
-		const oy = (LH - (rows - 1) * cellStep) / 2;
-		const octR = cellStep / 2;
-		const sqHalf = a / 2;
+		// Truncated square tiling: octagons on a grid, small squares in diagonal gaps
+		const edge = 10; // octagon edge length
+		const d = edge / Math.SQRT2; // diagonal inset
+		const gridStep = edge + 2 * d; // center-to-center spacing
+		const octR = gridStep / 2; // circumradius for drawing
+		const sqSide = edge * (Math.SQRT2 - 1) * 1.4; // small square side, slightly enlarged to fill gap
 
+		const cols = Math.ceil(LW / gridStep) + 2;
+		const rows = Math.ceil(LH / gridStep) + 2;
+		const ox = LW / 2 - ((cols - 1) / 2) * gridStep;
+		const oy = LH / 2 - ((rows - 1) / 2) * gridStep;
+
+		function drawOct(alive: boolean) {
+			if (alive) {
+				ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+				ctx.shadowBlur = 6;
+				ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+			} else {
+				ctx.shadowBlur = 0;
+				ctx.fillStyle = '#1c1917';
+			}
+			ctx.fill();
+			ctx.shadowBlur = 0;
+		}
+
+		function drawSq(alive: boolean) {
+			if (alive) {
+				ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+				ctx.shadowBlur = 6;
+				ctx.fillStyle = 'rgba(250, 204, 21, 0.55)';
+			} else {
+				ctx.shadowBlur = 0;
+				ctx.fillStyle = '#292524';
+			}
+			ctx.fill();
+			ctx.shadowBlur = 0;
+		}
+
+		// Draw octagons
 		for (let r = 0; r < rows; r++) {
 			for (let c = 0; c < cols; c++) {
-				const isOct = (c + r) % 2 === 0;
-				const cx = ox + c * cellStep;
-				const cy = oy + r * cellStep;
-				const alive = rand() < (isOct ? 0.25 : 0.15);
-
-				if (isOct) {
-					// Regular octagon
-					ctx.beginPath();
-					for (let i = 0; i < 8; i++) {
-						const angle = (Math.PI / 4) * i + Math.PI / 8;
-						const px = cx + (octR - 1) * Math.cos(angle);
-						const py = cy + (octR - 1) * Math.sin(angle);
-						if (i === 0) ctx.moveTo(px, py);
-						else ctx.lineTo(px, py);
-					}
-					ctx.closePath();
-				} else {
-					// Small square
-					ctx.beginPath();
-					ctx.rect(cx - sqHalf, cy - sqHalf, a, a);
+				const cx = ox + c * gridStep;
+				const cy = oy + r * gridStep;
+				ctx.beginPath();
+				for (let i = 0; i < 8; i++) {
+					const angle = (Math.PI / 4) * i + Math.PI / 8;
+					const px = cx + octR * Math.cos(angle);
+					const py = cy + octR * Math.sin(angle);
+					if (i === 0) ctx.moveTo(px, py);
+					else ctx.lineTo(px, py);
 				}
+				ctx.closePath();
+				drawOct(rand() < 0.25);
+			}
+		}
 
-				if (alive) {
-					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
-					ctx.shadowBlur = 6;
-					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
-				} else {
-					ctx.shadowBlur = 0;
-					ctx.fillStyle = '#1c1917';
-				}
-				ctx.fill();
-				ctx.shadowBlur = 0;
-				ctx.strokeStyle = '#44403c';
-				ctx.lineWidth = 0.5;
-				ctx.stroke();
+		// Draw small squares in the gaps (offset by half a grid step in both axes)
+		for (let r = 0; r < rows; r++) {
+			for (let c = 0; c < cols; c++) {
+				const cx = ox + c * gridStep + gridStep / 2;
+				const cy = oy + r * gridStep + gridStep / 2;
+				const half = sqSide / 2;
+				ctx.beginPath();
+				ctx.moveTo(cx, cy - half);
+				ctx.lineTo(cx + half, cy);
+				ctx.lineTo(cx, cy + half);
+				ctx.lineTo(cx - half, cy);
+				ctx.closePath();
+				drawSq(rand() < 0.15);
 			}
 		}
 	}
@@ -698,14 +713,7 @@
 		width: 180px;
 		height: 180px;
 		border-radius: 50%;
-		border: 2px solid #292524;
 		image-rendering: auto;
-		transition: border-color 0.2s, box-shadow 0.2s;
-	}
-
-	.lattice-canvas:hover {
-		border-color: #44403c;
-		box-shadow: 0 0 20px rgba(250, 204, 21, 0.08);
 	}
 
 	.lattice-label {
