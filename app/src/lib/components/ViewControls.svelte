@@ -237,8 +237,11 @@
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const bg = automataStore.cellStates[0]?.color;
-    const fg = automataStore.cellStates[1]?.color;
+    const deadState = automataStore.cellStates.find((s: any) => s.role === 'dead');
+    const aliveState = automataStore.cellStates.find((s: any) => s.role === 'alive');
+    const bg = deadState?.color ?? { h: 0, s: 1, l: 1, a: 1 };
+    const alive = aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 };
+    const tc = automataStore.trailConfig;
     const shape = automataStore.populationShape;
     const w = shape.x ?? 1;
     const h = shape.y ?? 1;
@@ -248,11 +251,15 @@
     ctx.fillStyle = automataStore.hslString(bg);
     ctx.fillRect(0, 0, w, h);
 
-    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_2D + 1);
+    const trailSize = tc.size;
+    const startIdx = Math.max(0, hoveredIndex - trailSize + 1);
     const totalSteps = hoveredIndex - startIdx + 1;
-    const fgH = fg.h;
-    const fgS = Math.floor(fg.s * 100);
-    const fgL = Math.floor(fg.l * 100);
+    const deadH = bg.h;
+    const deadS = bg.s * 100;
+    const deadL = bg.l * 100;
+    const trailH = tc.color.h;
+    const trailS = tc.color.s * 100;
+    const trailL = tc.color.l * 100;
 
     // Render oldest to newest so newest overwrites
     for (let gi = startIdx; gi <= hoveredIndex; gi++) {
@@ -260,11 +267,22 @@
       if (!pop) continue;
       const rows = pop as number[][];
 
-      const age = hoveredIndex - gi;
-      const t = totalSteps > 1 ? 1 - age / (totalSteps - 1) : 1;
-      // Lerp lightness: oldest → 92% (nearly invisible), newest → fg lightness
-      const lightness = Math.floor(92 - t * (92 - fgL));
-      ctx.fillStyle = `hsl(${fgH}, ${fgS}%, ${lightness}%)`;
+      if (gi === hoveredIndex) {
+        // Current generation: alive color
+        ctx.fillStyle = automataStore.hslString(alive);
+      } else {
+        // Trail: interpolate from dead (oldest) to trail color (youngest)
+        const age = hoveredIndex - gi;
+        const tRaw = totalSteps > 2 ? 1 - age / (totalSteps - 2) : 1;
+        let t: number;
+        if (tc.stepFn === 'exponential') t = tRaw * tRaw;
+        else if (tc.stepFn === 'none') t = 1;
+        else t = tRaw;
+        const ch = Math.floor(deadH + t * (trailH - deadH));
+        const cs = Math.floor(deadS + t * (trailS - deadS));
+        const cl = Math.floor(deadL + t * (trailL - deadL));
+        ctx.fillStyle = `hsl(${ch}, ${cs}%, ${cl}%)`;
+      }
 
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
