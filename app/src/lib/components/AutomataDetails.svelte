@@ -8,11 +8,15 @@
 
   let {
     item,
-    hideOwner = false
+    hideOwner = false,
+    fullRules = [],
   }: {
     item: any;
     hideOwner?: boolean;
+    fullRules?: Array<{ label: string; born: number[]; survive: number[] }>;
   } = $props();
+
+  let expanded = $state(false);
 
   function parseNums(s: string): string[] {
     if (!s) return [];
@@ -127,37 +131,44 @@
     </div>
   {/if}
   <div class="chip-info">
-    <div class="rule-row">
-      <p class="rule-text">
-        {#if displayTitle()}
-          {displayTitle()}
-        {:else if parsed}
-          B<span class="eq">:</span>{parsed.born} <span class="eq">|</span> S<span class="eq">:</span>{parsed.survive}
-        {:else}
-          {item.ruleDefinition}
-        {/if}
-      </p>
-      {#if counts}
-        <span class="pill rule-count born"><span class="count-label">Count</span> B<span class="eq">=</span>{counts.born}</span>
-        <span class="pill rule-count survive"><span class="count-label">Count</span> S<span class="eq">=</span>{counts.survive}</span>
-      {/if}
-    </div>
     <div class="pills-row">
       <span class="pill level-{levelLabel()}">{levelLabel()}</span>
       <span class="pill dim">{item.dimension}D</span>
       <span class="pill lattice">{latticeLabel()}</span>
-      <span class="pill radius">r={item.neighborhoodRadius ?? 1}</span>
       <span class="pill neighbors">{neighborCount(item.dimension ?? 2, item.neighborhoodRadius ?? 1)} neighbors</span>
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <span class="pill more-toggle" onclick={() => expanded = !expanded}>{expanded ? '− Less' : '+ More'}</span>
     </div>
-    {#if labeledColors.length > 0}
-      <div class="colors-row">
-        {#each labeledColors as { label, color }}
-          <span class="pill state-colors">
-            <span class="swatch-label">{label}</span>
-            <span class="color-swatch" style="background: {hslToCSS(color)};"></span>
-          </span>
-        {/each}
+    {#if expanded}
+      <div class="rule-row">
+        <p class="rule-text">
+          {#if displayTitle()}
+            {displayTitle()}
+          {:else if parsed}
+            B<span class="eq">:</span>{parsed.born} <span class="eq">|</span> S<span class="eq">:</span>{parsed.survive}
+          {:else}
+            {item.ruleDefinition}
+          {/if}
+        </p>
+        {#if counts}
+          <span class="pill rule-count born"><span class="count-label">Count</span> B<span class="eq">=</span>{counts.born}</span>
+          <span class="pill rule-count survive"><span class="count-label">Count</span> S<span class="eq">=</span>{counts.survive}</span>
+        {/if}
       </div>
+      <div class="pills-row">
+        <span class="pill radius">r={item.neighborhoodRadius ?? 1}</span>
+      </div>
+      {#if labeledColors.length > 0}
+        <div class="colors-row">
+          {#each labeledColors as { label, color }}
+            <span class="pill state-colors">
+              <span class="swatch-label">{label}</span>
+              <span class="color-swatch" style="background: {hslToCSS(color)};"></span>
+            </span>
+          {/each}
+        </div>
+      {/if}
     {/if}
     {#if !hideOwner}
       <div class="owner-meta">
@@ -347,6 +358,19 @@
     color: #dc2626;
     background: rgba(220, 38, 38, 0.1);
     border: 1px solid rgba(220, 38, 38, 0.2);
+  }
+
+  .more-toggle {
+    color: #78716c;
+    background: rgba(120, 113, 108, 0.08);
+    border: 1px solid rgba(120, 113, 108, 0.15);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .more-toggle:hover {
+    color: #a8a29e;
+    border-color: #a8a29e;
   }
 
   .pill.dim {
