@@ -260,7 +260,7 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
   }
 
   removeGeneration() {
-    if (this.meshes.length > 40) {
+    if (this.meshes.length > this._trailConfig.size) {
       const mesh = this.meshes[0];
       this.cleanUpRefsByMesh(mesh, true);
     }
@@ -281,9 +281,11 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
 
   animateUpdateFn() {
     this.removeGeneration();
-    const colorable = this.meshes.slice(-40);
-    const { h } = this.states[1];
-    const trailHue = (h + 180) % 360;
+    const trailSize = this._trailConfig.size;
+    const colorable = this.meshes.slice(-trailSize);
+    const tc = this._trailConfig;
+    const trailHue = tc.color.h;
+    const trailSat = Math.floor(tc.color.s * 100);
     const last = colorable.length - 1;
     colorable.forEach((m: any, i: number) => {
       const mat = m.material;
@@ -292,9 +294,15 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
         mat.color.set(new Color(0x000000));
       } else {
         // t=1 at second-youngest (just after black), t=0 at oldest
-        const t = last > 1 ? i / (last - 1) : 0;
-        const lightness = 80 - t * 30;
-        mat.color.set(new Color(`hsl(${trailHue}, 100%, ${lightness}%)`));
+        const tRaw = last > 1 ? i / (last - 1) : 0;
+        let t: number;
+        if (tc.stepFn === 'exponential') t = tRaw * tRaw;
+        else if (tc.stepFn === 'none') t = 1;
+        else t = tRaw; // linear
+        const lightness = tc.stepFn === 'none'
+          ? Math.floor(tc.color.l * 100)
+          : 80 - t * 30;
+        mat.color.set(new Color(`hsl(${trailHue}, ${trailSat}%, ${lightness}%)`));
       }
       // z controls draw order; newest on top
       if (i === last) {

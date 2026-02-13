@@ -60,7 +60,7 @@
   let radius = $derived(automataStore.neighborhoodRadius);
   let neighborCount = $derived(automataStore.neighbors.length);
 
-  let editingColorState: number | null = $state(null);
+  let editingColorState: string | null = $state(null);
 
   function hslString(color: { h: number; s: number; l: number; a: number }): string {
     return `hsla(${Math.floor(color.h)}, ${Math.floor(color.s * 100)}%, ${Math.floor(color.l * 100)}%, ${color.a})`;
@@ -128,32 +128,32 @@
             <div class="flex flex-col gap-2">
               {#each automataStore.cellStates as cellState}
                 <div class="flex items-center gap-3">
-                  <span class="w-6 text-center text-xs" style="color: rgba(255,255,255,0.5);">{cellState.number}</span>
+                  <span class="w-6 text-center text-xs" style="color: rgba(255,255,255,0.5); text-transform: capitalize;">{cellState.role}</span>
                   <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <!-- svelte-ignore a11y_no_static_element_interactions -->
                   <div
                     class="h-6 w-6 cursor-pointer rounded border"
                     style="background-color: {hslString(cellState.color)}; border-color: rgba(255,255,255,0.2);"
-                    onclick={() => { editingColorState = editingColorState === cellState.number ? null : cellState.number; }}
+                    onclick={() => { editingColorState = editingColorState === cellState.role ? null : cellState.role; }}
                   ></div>
-                  <span class="text-xs" style="color: rgba(255,255,255,0.4);">State {cellState.number}</span>
+                  <span class="text-xs" style="color: rgba(255,255,255,0.4); text-transform: capitalize;">{cellState.role}</span>
                 </div>
-                {#if editingColorState === cellState.number}
+                {#if editingColorState === cellState.role}
                   <div class="ml-9 flex flex-col gap-1.5">
                     <label class="flex items-center gap-2 text-xs" style="color: rgba(255,255,255,0.5);">
                       H
                       <input type="range" min="0" max="360" value={cellState.color.h} class="w-full"
-                        oninput={(e) => automataStore.setCellStateColor(cellState.number, { ...cellState.color, h: parseInt((e.target as HTMLInputElement).value) })} />
+                        oninput={(e) => automataStore.setCellStateColor(cellState.role, { ...cellState.color, h: parseInt((e.target as HTMLInputElement).value) })} />
                     </label>
                     <label class="flex items-center gap-2 text-xs" style="color: rgba(255,255,255,0.5);">
                       S
                       <input type="range" min="0" max="100" value={Math.floor(cellState.color.s * 100)} class="w-full"
-                        oninput={(e) => automataStore.setCellStateColor(cellState.number, { ...cellState.color, s: parseInt((e.target as HTMLInputElement).value) / 100 })} />
+                        oninput={(e) => automataStore.setCellStateColor(cellState.role, { ...cellState.color, s: parseInt((e.target as HTMLInputElement).value) / 100 })} />
                     </label>
                     <label class="flex items-center gap-2 text-xs" style="color: rgba(255,255,255,0.5);">
                       L
                       <input type="range" min="0" max="100" value={Math.floor(cellState.color.l * 100)} class="w-full"
-                        oninput={(e) => automataStore.setCellStateColor(cellState.number, { ...cellState.color, l: parseInt((e.target as HTMLInputElement).value) / 100 })} />
+                        oninput={(e) => automataStore.setCellStateColor(cellState.role, { ...cellState.color, l: parseInt((e.target as HTMLInputElement).value) / 100 })} />
                     </label>
                   </div>
                 {/if}

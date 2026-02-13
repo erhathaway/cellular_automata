@@ -1,14 +1,18 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
 
-  let editingState: number | null = $state(null);
+  let editingState: string | null = $state(null);
 
   function hslString(color: { h: number; s: number; l: number; a: number }): string {
     return `hsla(${Math.floor(color.h)}, ${Math.floor(color.s * 100)}%, ${Math.floor(color.l * 100)}%, ${color.a})`;
   }
 
-  function toggleColorEditor(stateNum: number) {
-    editingState = editingState === stateNum ? null : stateNum;
+  function toggleColorEditor(role: string) {
+    editingState = editingState === role ? null : role;
+  }
+
+  function capitalize(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 </script>
 
@@ -41,14 +45,14 @@
     {#each automataStore.cellStates as cellState}
       <div class="flex h-10 w-[200px] items-center justify-evenly">
         <div class="flex h-[30px] w-full items-center justify-center p-1 text-black" style="margin-left: 10px; margin-right: 20px;">
-          {cellState.number}
+          {capitalize(cellState.role)}
         </div>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="flex w-full cursor-pointer justify-center p-1"
           style="margin-left: 20px; margin-right: 20px; margin-bottom: 10px;"
-          onclick={() => toggleColorEditor(cellState.number)}
+          onclick={() => toggleColorEditor(cellState.role)}
         >
           <div
             class="mr-1 h-[30px] w-[30px] border border-gray-300"
@@ -57,7 +61,7 @@
         </div>
       </div>
 
-      {#if editingState === cellState.number}
+      {#if editingState === cellState.role}
         <div class="mb-3 flex flex-col gap-2 px-2">
           <label class="flex items-center gap-2 text-xs text-black">
             H
@@ -67,7 +71,7 @@
               max="360"
               value={cellState.color.h}
               oninput={(e) => {
-                automataStore.setCellStateColor(cellState.number, {
+                automataStore.setCellStateColor(cellState.role, {
                   ...cellState.color,
                   h: parseInt((e.target as HTMLInputElement).value),
                 });
@@ -83,7 +87,7 @@
               max="100"
               value={Math.floor(cellState.color.s * 100)}
               oninput={(e) => {
-                automataStore.setCellStateColor(cellState.number, {
+                automataStore.setCellStateColor(cellState.role, {
                   ...cellState.color,
                   s: parseInt((e.target as HTMLInputElement).value) / 100,
                 });
@@ -99,7 +103,7 @@
               max="100"
               value={Math.floor(cellState.color.l * 100)}
               oninput={(e) => {
-                automataStore.setCellStateColor(cellState.number, {
+                automataStore.setCellStateColor(cellState.role, {
                   ...cellState.color,
                   l: parseInt((e.target as HTMLInputElement).value) / 100,
                 });

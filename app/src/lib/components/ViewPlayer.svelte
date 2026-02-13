@@ -363,6 +363,13 @@
     viewer.states = states;
   });
 
+  // Watch for trail config changes
+  $effect(() => {
+    const tc = automataStore.trailConfig;
+    if (!viewer) return;
+    viewer.trailConfig = tc;
+  });
+
   // Watch for shape changes (without reinitializing viewer)
   $effect(() => {
     const shape = automataStore.populationShape;
@@ -410,12 +417,12 @@
     const target = automataStore.seekTarget;
     if (target === null || !automataManager || !viewer) return;
 
-    // Determine trail size based on viewer type
+    // Determine trail size based on trail config or viewer type
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
     let trailSize = 1;
-    if (dim === 2 && view === 2) trailSize = 40;
-    else if (dim === 2 && view === 3) trailSize = 60;
+    if (dim === 2 && view === 2) trailSize = automataStore.trailConfig.size;
+    else if (dim === 2 && view === 3) trailSize = automataStore.trailConfig.size;
     else if (dim === 1 && view === 2) trailSize = viewer.maxGenerationsToShow || 100;
 
     // Seek automata manager to a position that allows trail preloading
@@ -447,19 +454,26 @@
 
     // Apply color gradient for 2D-2D viewer
     if (dim === 2 && view === 2 && viewer.meshes) {
-      const colorable = viewer.meshes.slice(-40);
-      const { h, s } = viewer.states[1];
-      const computedS = Math.floor(s * 100);
+      const tc = automataStore.trailConfig;
+      const colorable = viewer.meshes.slice(-tc.size);
+      const trailHue = tc.color.h;
+      const trailSat = Math.floor(tc.color.s * 100);
       const last = colorable.length - 1;
       colorable.forEach((m: any, i: number) => {
         if (i === last) {
           m.material.color.set(new Color(0x000000));
         } else {
-          const color = new Color(`hsl(${h}, ${computedS}%, ${100 - (i + 5) * 1}%)`);
+          const tRaw = last > 1 ? i / (last - 1) : 0;
+          let t: number;
+          if (tc.stepFn === 'exponential') t = tRaw * tRaw;
+          else if (tc.stepFn === 'none') t = 1;
+          else t = tRaw;
+          const lightness = tc.stepFn === 'none'
+            ? Math.floor(tc.color.l * 100)
+            : 80 - t * 30;
+          const color = new Color(`hsl(${trailHue}, ${trailSat}%, ${lightness}%)`);
           m.material.color.set(color);
         }
-        // Keep trail ordered with older generations in front of newer ones...
-        // ...but force the newest (current living) generation to the very front.
         if (i === last) {
           m.position.z = 2;
         } else {

@@ -4,8 +4,10 @@ import type {
   CellStateEntry,
   ComboSettings,
   MiningDifficulty,
+  TrailConfig,
+  CellStatesData,
 } from './automata.svelte';
-import { VALID_COMBOS, defaultRule } from './automata.svelte';
+import { VALID_COMBOS, defaultRule, defaultTrailConfig } from './automata.svelte';
 import { replaceState } from '$app/navigation';
 import { isValidLattice, defaultLattice } from '$lib-core';
 import type { LatticeType } from '$lib-core';
@@ -92,6 +94,50 @@ export function deserializeColor(s: string): HSLColor | null {
   return { h, s: s_pct / 100, l: l_pct / 100, a: 1 };
 }
 
+// --- Cell states migration ---
+
+/** Maps old `number`-based cell state entries to `role`-based. */
+function numberToRole(n: number): string {
+  if (n === 0) return 'dead';
+  if (n === 1) return 'alive';
+  return `alive ${n}`;
+}
+
+/** Maps role back to index for URL param keys. */
+function roleToIndex(role: string): number {
+  if (role === 'dead') return 0;
+  if (role === 'alive') return 1;
+  const match = role.match(/^alive (\d+)$/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+/**
+ * Migrate raw parsed cell_states JSON to the new CellStatesData format.
+ * Handles:
+ *  - New format: `{ states: [...], trail: {...} }` → returned as-is
+ *  - Old format: `[{number, color}, ...]` → converted to role-based + default trail
+ */
+export function migrateCellStatesData(raw: any): CellStatesData {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw) && Array.isArray(raw.states)) {
+    return raw as CellStatesData;
+  }
+  if (Array.isArray(raw)) {
+    const states: CellStateEntry[] = raw.map((entry: any) => {
+      if (entry.role) return entry as CellStateEntry;
+      return { role: numberToRole(entry.number ?? 0), color: entry.color };
+    });
+    const aliveState = states.find(s => s.role === 'alive');
+    const trail = defaultTrailConfig(aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 });
+    return { states, trail };
+  }
+  // Fallback — return default
+  const defaultStates: CellStateEntry[] = [
+    { role: 'dead', color: { h: 360, s: 1, l: 1, a: 1 } },
+    { role: 'alive', color: { h: 0, s: 0, l: 0, a: 1 } },
+  ];
+  return { states: defaultStates, trail: defaultTrailConfig({ h: 0, s: 0, l: 0, a: 1 }) };
+}
+
 // --- URL params ---
 
 export function buildURLParams(
@@ -112,7 +158,15 @@ export function buildURLParams(
   params.set('r', serializeRule(settings.rule));
 
   for (const cs of settings.cellStates) {
-    params.set(`c${cs.number}`, serializeColor(cs.color));
+    params.set(`c${roleToIndex(cs.role)}`, serializeColor(cs.color));
+  }
+
+  if (settings.trailConfig) {
+    params.set('ts', String(settings.trailConfig.size));
+    params.set('tc', serializeColor(settings.trailConfig.color));
+    if (settings.trailConfig.stepFn !== 'linear') {
+      params.set('tf', settings.trailConfig.stepFn);
+    }
   }
 
   if (settings.neighborhoodRadius !== undefined && settings.neighborhoodRadius > 1) {
@@ -176,16 +230,37 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
     if (rule) settings.rule = rule;
   }
 
-  // Parse colors
+  // Parse colors (index→role mapping for backward compatibility)
   const cellStates: CellStateEntry[] = [];
   for (let i = 0; i <= 9; i++) {
     const cStr = params.get(`c${i}`);
     if (cStr) {
       const color = deserializeColor(cStr);
-      if (color) cellStates.push({ number: i, color });
+      if (color) cellStates.push({ role: numberToRole(i), color });
     }
   }
   if (cellStates.length > 0) settings.cellStates = cellStates;
+
+  // Parse trail config
+  const tsStr = params.get('ts');
+  const tcStr = params.get('tc');
+  const tfStr = params.get('tf');
+  if (tsStr || tcStr || tfStr) {
+    const aliveState = cellStates.find(s => s.role === 'alive');
+    const base = defaultTrailConfig(aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 });
+    if (tsStr) {
+      const size = parseInt(tsStr, 10);
+      if (!isNaN(size) && size >= 1 && size <= 200) base.size = size;
+    }
+    if (tcStr) {
+      const color = deserializeColor(tcStr);
+      if (color) base.color = color;
+    }
+    if (tfStr && (tfStr === 'linear' || tfStr === 'exponential' || tfStr === 'none')) {
+      base.stepFn = tfStr;
+    }
+    settings.trailConfig = base;
+  }
 
   // Parse neighborhood radius
   const nrStr = params.get('nr');
@@ -299,7 +374,19 @@ export function loadFromLocalStorage(): PersistedData | null {
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data || typeof data !== 'object' || !data.combos) return null;
-    return migrateCorruptedRules(data as PersistedData);
+    const migrated = migrateCorruptedRules(data as PersistedData);
+    // Migrate cell states from old number-based format to role-based
+    for (const key of Object.keys(migrated.combos)) {
+      const combo = migrated.combos[key];
+      if (combo.cellStates) {
+        const result = migrateCellStatesData(combo.cellStates);
+        combo.cellStates = result.states;
+        if (!combo.trailConfig) {
+          combo.trailConfig = result.trail;
+        }
+      }
+    }
+    return migrated;
   } catch {
     return null;
   }

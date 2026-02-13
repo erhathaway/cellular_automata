@@ -9,14 +9,12 @@
 
   let {
     userProfile = null,
-    onsettingsclick,
     onhistoryclick,
     historyOpen = false,
     dark = false,
     black = false,
   }: {
     userProfile?: UserProfile;
-    onsettingsclick?: () => void;
     onhistoryclick?: () => void;
     historyOpen?: boolean;
     dark?: boolean;
@@ -162,13 +160,13 @@
   <!-- Auth -->
   <div class="auth-section">
     <SignedIn>
-      <button
+      <a
+        href="/user"
         class="nav-item"
-        onclick={() => onsettingsclick?.()}
-        aria-label="Settings"
+        aria-label="Profile"
       >
         <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={72} fallbackInitials="?" cropUpper />
-      </button>
+      </a>
     </SignedIn>
     <SignedOut>
       <a href="/sign-in" class="nav-item">

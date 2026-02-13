@@ -10,8 +10,29 @@ export interface HSLColor {
 }
 
 export interface CellStateEntry {
-  number: number;
+  role: string;
   color: HSLColor;
+}
+
+export type TrailStepFn = 'linear' | 'exponential' | 'none';
+
+export interface TrailConfig {
+  color: HSLColor;
+  size: number;
+  stepFn: TrailStepFn;
+}
+
+export interface CellStatesData {
+  states: CellStateEntry[];
+  trail: TrailConfig;
+}
+
+export function defaultTrailConfig(aliveColor: HSLColor): TrailConfig {
+  return {
+    color: { h: (aliveColor.h + 180) % 360, s: 1, l: 0.65, a: 1 },
+    size: 40,
+    stepFn: 'linear',
+  };
 }
 
 const LIVING_BLACK: HSLColor = { h: 0, s: 0, l: 0, a: 1 };
@@ -37,6 +58,7 @@ export interface ComboSettings {
   populationShape: Record<string, number>;
   rule: AutomataRule;
   cellStates: CellStateEntry[];
+  trailConfig?: TrailConfig;
   neighborhoodRadius?: number;
   lattice?: LatticeType;
   shapeRules?: { survive: number[]; born: number[] }[];
@@ -58,11 +80,7 @@ export function defaultShape(dim: number, viewer: number): Record<string, number
 // --- Default cell states by dimension+viewer combo ---
 export function defaultCellStates(dim: number, viewer: number): CellStateEntry[] {
   const white: HSLColor = { h: 360, s: 1, l: 1, a: 1 };
-  if (dim === 1) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
-  if (dim === 2 && viewer === 2) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
-  if (dim === 2 && viewer === 3) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
-  if (dim === 3) return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
-  return [{ number: 0, color: white }, { number: 1, color: { ...LIVING_BLACK } }];
+  return [{ role: 'dead', color: white }, { role: 'alive', color: { ...LIVING_BLACK } }];
 }
 
 function defaultNeighbors(dim: number, radius: number = 1, lattice?: LatticeType): string[] {
@@ -100,9 +118,10 @@ class AutomataStore {
   lattice: LatticeType = $state('square');
   populationShape: Record<string, number> = $state({ x: 200, y: 100 });
   cellStates: CellStateEntry[] = $state([
-    { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
-    { number: 1, color: { ...LIVING_BLACK } },
+    { role: 'dead', color: { h: 360, s: 1, l: 1, a: 1 } },
+    { role: 'alive', color: { ...LIVING_BLACK } },
   ]);
+  trailConfig: TrailConfig = $state(defaultTrailConfig(LIVING_BLACK));
   neighbors: string[] = $state([...TWO_D_NEIGHBORS]);
   allNeighborsForRadius: string[] = $state([...TWO_D_NEIGHBORS]);
   neighborEnabled: boolean[] = $state(TWO_D_NEIGHBORS.map(() => true));
@@ -184,6 +203,7 @@ class AutomataStore {
   // Indexed history for shape, cellStates, rule, radius, and lattice
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();
+  private _trailConfigHistory: Map<string, TrailConfig> = new Map();
   private _ruleHistory: Map<string, AutomataRule> = new Map();
   private _radiusHistory: Map<string, number> = new Map();
   private _latticeHistory: Map<string, LatticeType> = new Map();
@@ -197,9 +217,10 @@ class AutomataStore {
     const key = historyKey(2, 2);
     this._shapeHistory.set(key, { x: 200, y: 200 });
     this._cellStatesHistory.set(key, [
-      { number: 0, color: { h: 360, s: 1, l: 1, a: 1 } },
-      { number: 1, color: { ...LIVING_BLACK } },
+      { role: 'dead', color: { h: 360, s: 1, l: 1, a: 1 } },
+      { role: 'alive', color: { ...LIVING_BLACK } },
     ]);
+    this._trailConfigHistory.set(key, defaultTrailConfig(LIVING_BLACK));
     this._ruleHistory.set(key, { type: 'conway', survive: [2, 3], born: [3] });
   }
 
@@ -208,7 +229,7 @@ class AutomataStore {
     return Object.keys(this.populationShape);
   }
 
-  get cellStatesForViewer(): { number: number; color: HSLColor }[] {
+  get cellStatesForViewer(): CellStateEntry[] {
     return this.cellStates;
   }
 
@@ -218,7 +239,7 @@ class AutomataStore {
 
   private _enforceLivingBlack(states: CellStateEntry[]): CellStateEntry[] {
     return states.map((s) => (
-      s.number === 1
+      s.role === 'alive'
         ? { ...s, color: { ...LIVING_BLACK } }
         : { ...s }
     ));
@@ -300,15 +321,16 @@ class AutomataStore {
     this._shapeHistory.set(historyKey(this.dimension, this.viewer), { ...this.populationShape });
   }
 
-  setCellStateColor(stateNumber: number, color: HSLColor) {
-    const nextColor = stateNumber === 1 ? { ...LIVING_BLACK } : color;
+  setCellStateColor(role: string, color: HSLColor) {
+    const nextColor = role === 'alive' ? { ...LIVING_BLACK } : color;
     this.cellStates = this._enforceLivingBlack(
       this.cellStates.map((s) =>
-        s.number === stateNumber ? { ...s, color: nextColor } : s
+        s.role === role ? { ...s, color: nextColor } : s
       )
     );
+    const key = historyKey(this.dimension, this.viewer);
     this._cellStatesHistory.set(
-      historyKey(this.dimension, this.viewer),
+      key,
       this.cellStates.map((s) => ({ ...s }))
     );
   }
@@ -539,8 +561,11 @@ class AutomataStore {
       if (this.dimension === 2) {
         const h1 = Math.floor(Math.random() * 360);
         const h0 = (h1 + 30 + Math.floor(Math.random() * 60)) % 360;
-        this.setCellStateColor(0, { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
-        this.setCellStateColor(1, { ...LIVING_BLACK });
+        this.setCellStateColor('dead', { h: h0, s: 0.3 + Math.random() * 0.4, l: 0.85 + Math.random() * 0.1, a: 1 });
+        this.setCellStateColor('alive', { ...LIVING_BLACK });
+        // Recompute trail color from new alive hue
+        this.trailConfig = { ...this.trailConfig, color: { h: (h0 + 180) % 360, s: 1, l: 0.65, a: 1 } };
+        this._trailConfigHistory.set(historyKey(this.dimension, this.viewer), { ...this.trailConfig });
       }
     }
 
@@ -562,6 +587,21 @@ class AutomataStore {
   }
   setLockNeighborhood(v: boolean) { this.lockNeighborhood = v; }
   setLockColors(v: boolean) { this.lockColors = v; }
+
+  setTrailColor(color: HSLColor) {
+    this.trailConfig = { ...this.trailConfig, color };
+    this._trailConfigHistory.set(historyKey(this.dimension, this.viewer), { ...this.trailConfig });
+  }
+
+  setTrailSize(size: number) {
+    this.trailConfig = { ...this.trailConfig, size };
+    this._trailConfigHistory.set(historyKey(this.dimension, this.viewer), { ...this.trailConfig });
+  }
+
+  setTrailStepFn(fn: TrailStepFn) {
+    this.trailConfig = { ...this.trailConfig, stepFn: fn };
+    this._trailConfigHistory.set(historyKey(this.dimension, this.viewer), { ...this.trailConfig });
+  }
 
   setMiningDifficulty(difficulty: MiningDifficulty) {
     this.miningDifficulty = difficulty;
@@ -702,10 +742,13 @@ class AutomataStore {
       const dvKey = `${dim}-${viewer}`;
       const lat = this._latticeHistory.get(dvKey) ?? defaultLattice(dim);
       const key = historyKey(dim, viewer, lat);
+      const states = this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer);
+      const aliveState = states.find(s => s.role === 'alive');
       const combo: ComboSettings = {
         populationShape: this._shapeHistory.get(key) ?? defaultShape(dim, viewer),
         rule: this._ruleHistory.get(key) ?? defaultRule(dim, lat),
-        cellStates: this._cellStatesHistory.get(key) ?? defaultCellStates(dim, viewer),
+        cellStates: states,
+        trailConfig: this._trailConfigHistory.get(key) ?? defaultTrailConfig(aliveState?.color ?? LIVING_BLACK),
         neighborhoodRadius: this._radiusHistory.get(key) ?? 1,
         lattice: lat !== defaultLattice(dim) ? lat : undefined,
       };
@@ -736,6 +779,9 @@ class AutomataStore {
     if (settings.cellStates) {
       this._cellStatesHistory.set(key, this._enforceLivingBlack(settings.cellStates));
     }
+    if (settings.trailConfig) {
+      this._trailConfigHistory.set(key, { ...settings.trailConfig });
+    }
     if (settings.neighborhoodRadius !== undefined) {
       this._radiusHistory.set(key, settings.neighborhoodRadius);
     }
@@ -762,6 +808,11 @@ class AutomataStore {
     this.cellStates = this._cellStatesHistory.get(key)
       ? this._enforceLivingBlack(this._cellStatesHistory.get(key)!)
       : defaultCellStates(dim, viewer);
+    const savedTrail = this._trailConfigHistory.get(key);
+    const aliveState = this.cellStates.find(s => s.role === 'alive');
+    this.trailConfig = savedTrail
+      ? { ...savedTrail }
+      : defaultTrailConfig(aliveState?.color ?? LIVING_BLACK);
     const savedSR = this._shapeRulesHistory.get(key);
     if (savedSR) {
       this.shapeRules = savedSR.map(r => ({ ...r }));
@@ -808,7 +859,7 @@ class AutomataStore {
       ruleDefinition,
       shapeRulesDefinition,
       populationShape: JSON.stringify(this.populationShape),
-      cellStates: JSON.stringify(this.cellStates),
+      cellStates: JSON.stringify({ states: this.cellStates, trail: this.trailConfig }),
       neighborhoodRadius: this.neighborhoodRadius,
       generationIndex: this.generationIndex,
       stability,
@@ -825,6 +876,7 @@ class AutomataStore {
       key,
       this.cellStates.map((s) => ({ ...s }))
     );
+    this._trailConfigHistory.set(key, { ...this.trailConfig });
     this._ruleHistory.set(key, { ...this.rule });
     this._radiusHistory.set(key, this.neighborhoodRadius);
     this._latticeHistory.set(`${this.dimension}-${this.viewer}`, this.lattice);
@@ -883,6 +935,12 @@ class AutomataStore {
     this.cellStates = savedStates
       ? this._enforceLivingBlack(savedStates)
       : defaultCellStates(this.dimension, this.viewer);
+
+    const savedTrail = this._trailConfigHistory.get(key);
+    const aliveState = this.cellStates.find(s => s.role === 'alive');
+    this.trailConfig = savedTrail
+      ? { ...savedTrail }
+      : defaultTrailConfig(aliveState?.color ?? LIVING_BLACK);
 
     const savedRule = this._ruleHistory.get(key);
     this.rule = savedRule

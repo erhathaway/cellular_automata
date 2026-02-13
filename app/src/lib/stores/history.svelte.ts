@@ -1,4 +1,5 @@
-import type { CellStateEntry } from './automata.svelte';
+import type { CellStateEntry, TrailConfig } from './automata.svelte';
+import { migrateCellStatesData } from './persistence';
 
 export interface HistoryEntry {
   id: string;
@@ -11,6 +12,7 @@ export interface HistoryEntry {
   lattice?: string;
   populationShape: Record<string, number>;
   cellStates: CellStateEntry[];
+  trailConfig?: TrailConfig;
   thumbnail?: string;
   liked?: boolean;
   bookmarked?: boolean;
@@ -131,7 +133,17 @@ class HistoryStore {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          this._entries = parsed.slice(0, MAX_ENTRIES);
+          // Migrate old number-based cell states to role-based
+          this._entries = parsed.slice(0, MAX_ENTRIES).map((entry: any) => {
+            if (entry.cellStates) {
+              const result = migrateCellStatesData(entry.cellStates);
+              entry.cellStates = result.states;
+              if (!entry.trailConfig) {
+                entry.trailConfig = result.trail;
+              }
+            }
+            return entry;
+          });
           this.bump();
         }
       }

@@ -199,9 +199,10 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
 
   updateTrailAppearance() {
     const count = this.meshes.length;
-    const { h, s, l } = this.states[1];
-    const sPercent = Math.floor(s * 100);
-    const lPercent = Math.floor(l * 100);
+    const tc = this._trailConfig;
+    const trailH = tc.color.h;
+    const trailS = Math.floor(tc.color.s * 100);
+    const trailL = Math.floor(tc.color.l * 100);
     const last = count - 1;
 
     for (let i = 0; i < count; i++) {
@@ -214,12 +215,23 @@ export default class TwoDimensionViewerInThreeDimensions extends BaseClass {
         mat.opacity = 1;
         mat.color.set(new Color(0x000000));
       } else {
-        // Trail: user color with gradient
-        const t = count > 1 ? i / (count - 1) : 1;
+        // Trail: trail config color with gradient
+        const tRaw = count > 1 ? i / (count - 1) : 1;
+        let t: number;
+        if (tc.stepFn === 'exponential') t = tRaw * tRaw;
+        else if (tc.stepFn === 'none') t = 1;
+        else t = tRaw; // linear
+
         const opacity = 0.05 + t * 0.95;
-        const hue = (h - (1 - t) * 190 + 360) % 360;
-        const lightness = Math.floor(lPercent + (1 - t) * (95 - lPercent));
-        const sat = Math.floor(sPercent + (1 - t) * (100 - sPercent));
+        const hue = tc.stepFn === 'none'
+          ? trailH
+          : (trailH - (1 - t) * 190 + 360) % 360;
+        const lightness = tc.stepFn === 'none'
+          ? trailL
+          : Math.floor(trailL + (1 - t) * (95 - trailL));
+        const sat = tc.stepFn === 'none'
+          ? trailS
+          : Math.floor(trailS + (1 - t) * (100 - trailS));
         mat.opacity = opacity;
         mat.color.set(new Color(`hsl(${Math.floor(hue)}, ${sat}%, ${lightness}%)`));
       }

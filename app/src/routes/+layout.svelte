@@ -4,7 +4,6 @@
 	import NavSidebar from '$lib/components/NavSidebar.svelte';
 	import HistoryPanel from '$lib/components/HistoryPanel.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
-	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import AchievementNotification from '$lib/components/achievements/AchievementNotification.svelte';
 	import { ClerkProvider, SignedIn } from 'svelte-clerk';
 	import { goto } from '$app/navigation';
@@ -20,11 +19,10 @@
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
 
-	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/'));
-	let blackNav = $derived($page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/'));
+	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
+	let blackNav = $derived($page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
 
 	let leftOpen = $state(true);
-	let settingsOpen = $state(false);
 	let historyOpen = $state(false);
 
 	const NAV_WIDTH = 120;
@@ -99,7 +97,7 @@
 			style="width: {NAV_WIDTH}px; background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};"
 			onclick={() => { if (historyOpen) { historyOpen = false; animateResize(); } }}
 		>
-			<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onsettingsclick={() => { settingsOpen = true; }} onhistoryclick={toggleHistory} />
+			<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onhistoryclick={toggleHistory} />
 		</div>
 
 		<!-- Main content -->
@@ -120,7 +118,6 @@
 
 	<SignedIn>
 		<OnboardingModal {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
-		<SettingsModal bind:open={settingsOpen} {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 		<AchievementNotification />
 	</SignedIn>
 </ClerkProvider>

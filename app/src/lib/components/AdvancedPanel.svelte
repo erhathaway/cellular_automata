@@ -790,14 +790,14 @@
       <div class="section-body" class:section-disabled={!automataStore.lockColors}>
       {#each automataStore.cellStates as cs}
         <div class="color-row">
-          <span class="color-label">{cs.number === 0 ? 'Dead' : 'Alive'}</span>
+          <span class="color-label" style="text-transform: capitalize;">{cs.role}</span>
           <input
             type="color"
             class="color-input"
             value={hslToHex(cs.color)}
             oninput={(e) => {
               const hex = (e.target as HTMLInputElement).value;
-              automataStore.setCellStateColor(cs.number, hexToHsl(hex));
+              automataStore.setCellStateColor(cs.role, hexToHsl(hex));
             }}
           />
         </div>

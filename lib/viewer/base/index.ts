@@ -10,8 +10,16 @@ export interface HSLColor {
 }
 
 export interface CellState {
-  number: number;
+  role: string;
   color: HSLColor;
+}
+
+export type TrailStepFn = 'linear' | 'exponential' | 'none';
+
+export interface TrailConfig {
+  color: HSLColor;
+  size: number;
+  stepFn: TrailStepFn;
 }
 
 export interface ViewerConstructorOptions {
@@ -40,6 +48,20 @@ export default class BaseClass {
     0: 'hsla(0, 100%, 100%, 1)',
     1: 'hsla(0, 0%, 0%, 1)',
   };
+
+  _trailConfig: TrailConfig = {
+    color: { h: 180, s: 1, l: 0.65, a: 1 },
+    size: 40,
+    stepFn: 'linear',
+  };
+
+  set trailConfig(tc: TrailConfig) {
+    this._trailConfig = tc;
+  }
+
+  get trailConfig(): TrailConfig {
+    return this._trailConfig;
+  }
 
   materials: Material[] = [];
   geometries: BufferGeometry[] = [];
@@ -93,8 +115,10 @@ export default class BaseClass {
   }
 
   generateStatesObject(states: CellState[], fn?: (color: HSLColor) => string): any {
-    return states.reduce((acc: any, { number, color }) => {
-      acc[number] = fn ? fn(color) : color;
+    const roleToIndex: Record<string, number> = { dead: 0, alive: 1 };
+    return states.reduce((acc: any, { role, color }) => {
+      const idx = roleToIndex[role] ?? (role.startsWith('alive ') ? parseInt(role.split(' ')[1], 10) : 0);
+      acc[idx] = fn ? fn(color) : color;
       return acc;
     }, {});
   }
