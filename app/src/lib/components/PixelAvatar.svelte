@@ -159,21 +159,33 @@
     }
   }
 
+  function dismissPopup() {
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+    if (showPopup) {
+      showPopup = false;
+      window.removeEventListener('scroll', onScroll, true);
+    }
+  }
+
+  function onScroll() {
+    dismissPopup();
+  }
+
   function onMouseEnter() {
     if (!hasPopup) return;
     ensureData();
     hoverTimer = setTimeout(() => {
       positionPopup();
       showPopup = true;
+      window.addEventListener('scroll', onScroll, true);
     }, 300);
   }
 
   function onMouseLeave() {
-    if (hoverTimer) {
-      clearTimeout(hoverTimer);
-      hoverTimer = null;
-    }
-    showPopup = false;
+    dismissPopup();
   }
 
   // Full-size avatar for popup (no crop, larger)
@@ -322,15 +334,7 @@
     position: fixed;
     transform: translate(-50%, -100%);
     z-index: 1000;
-    background-color: #1c1917;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 10px,
-        rgba(68, 64, 60, 0.1) 10px,
-        rgba(68, 64, 60, 0.1) 11px
-      );
+    background: #1c1917;
     border: 1px solid #44403c;
     border-radius: 8px;
     padding: 16px 16px 12px;
@@ -340,13 +344,27 @@
     gap: 6px;
     min-width: 160px;
     max-width: 220px;
-    pointer-events: none;
     animation: popup-fade-in 0.15s ease;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 
+  /* Invisible bridge toward the avatar so mouse can traverse the gap */
+  .avatar-popup::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -16px;
+    height: 16px;
+  }
+
   .avatar-popup.flip-below {
     transform: translate(-50%, 0);
+  }
+
+  .avatar-popup.flip-below::after {
+    bottom: auto;
+    top: -16px;
   }
 
   @keyframes popup-fade-in {

@@ -69,7 +69,7 @@
       {#if isTopLevel}
         <div class="avatar-wrap">
           {#if comment.userAvatarId}
-            <PixelAvatar avatarId={comment.userAvatarId} size={20} fallbackInitials={initials} />
+            <PixelAvatar avatarId={comment.userAvatarId} size={20} fallbackInitials={initials} userId={comment.userId} />
           {:else if comment.userImageUrl}
             <img src={comment.userImageUrl} alt="" class="avatar-img" />
           {:else}
@@ -79,7 +79,7 @@
       {:else}
         <div class="avatar-wrap avatar-sm">
           {#if comment.userAvatarId}
-            <PixelAvatar avatarId={comment.userAvatarId} size={16} fallbackInitials={initials} />
+            <PixelAvatar avatarId={comment.userAvatarId} size={16} fallbackInitials={initials} userId={comment.userId} />
           {:else if comment.userImageUrl}
             <img src={comment.userImageUrl} alt="" class="avatar-img-sm" />
           {:else}

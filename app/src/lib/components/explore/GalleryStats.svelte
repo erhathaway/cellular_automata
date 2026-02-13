@@ -157,6 +157,8 @@
                       fallbackInitials={(entry.displayName ?? '?')[0]}
                       minerConfig={entry.minerConfig}
                       cropUpper
+                      userId={entry.userId}
+                      popupData={{ displayName: entry.displayName, claimCount: entry.claimCount, byRadius: entry.byRadius, byLattice: entry.byLattice }}
                     />
                     <span class="user-name">{entry.displayName ?? 'Anonymous'}</span>
                   </td>

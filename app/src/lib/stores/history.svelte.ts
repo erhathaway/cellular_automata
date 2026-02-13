@@ -39,19 +39,22 @@ class HistoryStore {
 
   get canGoBack(): boolean {
     this.load();
-    if (this.cursorIndex === -1) return this.entries.length > 0;
+    // At live (-1): need at least 2 entries (entry 0 is current, entry 1 is previous)
+    if (this.cursorIndex === -1) return this.entries.length > 1;
     return this.cursorIndex < this.entries.length - 1;
   }
 
   get canGoForward(): boolean {
-    return this.cursorIndex >= 0;
+    // Can go forward only if we've navigated past entry 0
+    return this.cursorIndex > 0;
   }
 
   goBack(): HistoryEntry | null {
     this.load();
     if (this.cursorIndex === -1) {
-      if (this.entries.length === 0) return null;
-      this.cursorIndex = 0;
+      // Entry 0 is current config — skip to entry 1 (previous)
+      if (this.entries.length < 2) return null;
+      this.cursorIndex = 1;
     } else if (this.cursorIndex < this.entries.length - 1) {
       this.cursorIndex++;
     } else {
@@ -62,11 +65,13 @@ class HistoryStore {
   }
 
   goForward(): HistoryEntry | null {
-    if (this.cursorIndex < 0) return null;
+    if (this.cursorIndex <= 0) return null;
     this.cursorIndex--;
-    if (this.cursorIndex < 0) {
+    if (this.cursorIndex <= 0) {
+      // Reached most recent entry — return to live
+      this.cursorIndex = -1;
       this.persistCursor();
-      return null;
+      return this.entries[0] ?? null;
     }
     this.persistCursor();
     return this.entries[this.cursorIndex] ?? null;
@@ -75,7 +80,8 @@ class HistoryStore {
   goToIndex(index: number): HistoryEntry | null {
     this.load();
     if (index < 0 || index >= this.entries.length) return null;
-    this.cursorIndex = index;
+    // Entry 0 is current config — treat as live
+    this.cursorIndex = index === 0 ? -1 : index;
     this.persistCursor();
     return this.entries[index] ?? null;
   }

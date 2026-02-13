@@ -88,7 +88,7 @@
       <div class="entry-list">
         {#each historyStore.entries as entry, i (entry.id)}
           <button
-            class="entry {historyStore.cursorIndex === i ? 'active' : ''}"
+            class="entry {(historyStore.cursorIndex === -1 ? i === 0 : historyStore.cursorIndex === i) ? 'active' : ''}"
             onclick={() => onload(entry)}
           >
             <div class="entry-thumb">

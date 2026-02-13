@@ -1,5 +1,6 @@
 <script lang="ts">
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 
   let mining = $derived(automataStore.isMining);
@@ -59,6 +60,7 @@
 
   function handleClick() {
     clearTimeout(miningTimer);
+    historyStore.resetCursor();
     viewerUiStore.openAnalysis();
     automataStore.isMining = true;
     miningKey++;

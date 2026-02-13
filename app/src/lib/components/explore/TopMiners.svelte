@@ -62,6 +62,8 @@
               size={360}
               fallbackInitials={(entry.displayName ?? '?')[0]}
               minerConfig={entry.minerConfig}
+              userId={entry.userId}
+              popupData={{ displayName: entry.displayName, claimCount: entry.claimCount, byRadius: entry.byRadius, byLattice: entry.byLattice }}
             />
           </div>
         </div>
