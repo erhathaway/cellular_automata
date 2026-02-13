@@ -121,8 +121,8 @@
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           {/if}
+          <span class="nav-label" class:active>{item.label}</span>
         </div>
-        <span class="nav-label" class:active>{item.label}</span>
       </a>
     {/each}
   </div>
@@ -137,8 +137,8 @@
           <circle cx="12" cy="12" r="9" />
           <polyline points="12,7 12,12 15.5,14" />
         </svg>
+        <span class="nav-label" class:active={historyOpen}>History</span>
       </div>
-      <span class="nav-label" class:active={historyOpen}>History</span>
     </button>
   </div>
 
@@ -158,9 +158,9 @@
               <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
               <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
             </svg>
-            {/if}
+          {/if}
+          <span class="nav-label" class:active>{item.label}</span>
         </div>
-        <span class="nav-label" class:active>{item.label}</span>
       </a>
     {/each}
   </div>
@@ -189,8 +189,8 @@
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
+              <span class="nav-label">Sign in</span>
             </div>
-            <span class="nav-label">Sign in</span>
           </div>
         {/snippet}
       </SignInButton>
@@ -234,8 +234,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 6px 8px;
+    padding: 2px 8px;
     border-radius: 10px;
     cursor: pointer;
     text-decoration: none;
@@ -259,10 +258,12 @@
   .icon-frame {
     position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     width: 76px;
-    height: 76px;
+    height: 86px;
     border-radius: 12px;
     background: #e7e5e4;
     border: 1.5px solid #d6d3d1;
@@ -351,18 +352,19 @@
   }
 
   .nav-icon {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
   }
 
   .nav-label {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #a8a29e;
     transition: color 0.2s ease;
+    z-index: 1;
   }
 
   .nav-label.active {
