@@ -61,10 +61,13 @@
     hasMore = false;
     try {
       const params = buildParams(0);
+      console.log('[ExploreGrid] fetchItems params:', params.toString());
       const result = await api<{ items: any[]; hasMore: boolean }>('GET', `/api/explore?${params.toString()}`);
+      console.log('[ExploreGrid] fetchItems result:', result.items.length, 'items, hasMore:', result.hasMore);
       items = result.items;
       hasMore = result.hasMore;
-    } catch {
+    } catch (err) {
+      console.error('[ExploreGrid] fetchItems error:', err);
       items = [];
     } finally {
       loading = false;

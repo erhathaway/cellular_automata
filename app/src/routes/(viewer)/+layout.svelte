@@ -69,7 +69,7 @@
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
-  <main class="viewer-main relative h-full min-w-0 flex-1 overflow-y-auto" style="background: blue;">
+  <main class="viewer-main relative h-full min-w-0 flex-1 overflow-y-auto">
     {@render children()}
 
     <!-- Right toggle tab -->

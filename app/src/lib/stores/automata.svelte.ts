@@ -124,6 +124,8 @@ class AutomataStore {
   miningLattice: LatticeType | 'random' = $state('random');
   claimAnimationCounter = $state(0);
   claimGemOrigin: { x: number; y: number } | null = $state(null);
+  mineGemAnimationCounter = $state(0);
+  mineGemOrigin: { x: number; y: number } | null = $state(null);
 
   // Stability detection
   stableDetected = $state(false);
