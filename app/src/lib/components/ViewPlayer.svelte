@@ -96,8 +96,12 @@
 
     const gen = automataManager!.absoluteGeneration;
 
-    // Ease into slow rate between step 40-50, then hold
-    if (gen >= SLOWDOWN_START && viewer) {
+    // If not mining, always use slow rate
+    if (!automataStore.isMining && viewer) {
+      viewer.updateRateInMS = SLOW_RATE_MS;
+    }
+    // Mining: ease into slow rate between step 25-50, then hold
+    else if (gen >= SLOWDOWN_START && viewer) {
       const baseRate = viewerDefaultUpdateRateMs ?? 0;
       if (gen >= SLOWDOWN_END) {
         viewer.updateRateInMS = SLOW_RATE_MS;
