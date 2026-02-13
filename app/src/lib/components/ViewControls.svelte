@@ -7,7 +7,7 @@
   let controlsVisible = $state(false);
   let fadeTimer: ReturnType<typeof setTimeout> | null = null;
   const FADE_DELAY = 3000;
-  const FADE_DELAY_MOBILE = 10000;
+  const FADE_DELAY_MOBILE = 5000;
 
   function isMobile() {
     return typeof window !== 'undefined' && window.innerWidth < 600;
