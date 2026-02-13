@@ -144,7 +144,7 @@
           <span class="label label-found">{notViable ? 'No viable automata found' : 'Automata found!'}</span>
           <span class="sub-label">Click again to find new ones</span>
         {:else}
-          <span class="label">Mine for automata</span>
+          <span class="label">Mine for<br>automata</span>
         {/if}
       </div>
 
@@ -269,8 +269,7 @@
     position: relative;
     overflow: visible;
     z-index: 1;
-    width: 460px;
-    max-width: 100%;
+    width: clamp(200px, 35vw, 460px);
     padding: 14px 14px 18px;
     background-color: #1c1917;
     background-image:
@@ -356,18 +355,17 @@
   }
 
   .pickaxe {
-    width: 42px;
-    height: 42px;
+    width: clamp(20px, 3.5vw, 42px);
+    height: clamp(20px, 3.5vw, 42px);
     flex-shrink: 0;
   }
 
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: clamp(14px, 3.5vw, 22px);
+    font-size: clamp(10px, 2.5vw, 22px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    white-space: nowrap;
   }
 
   .label-wrap {
@@ -380,12 +378,12 @@
 
   .label-found {
     color: #fde047;
-    font-size: 16px;
+    font-size: clamp(8px, 2vw, 16px);
   }
 
   .sub-label {
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: clamp(7px, 1.5vw, 11px);
     font-weight: 600;
     letter-spacing: 0.02em;
     color: #fef3c7;
