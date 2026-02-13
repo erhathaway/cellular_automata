@@ -26,7 +26,8 @@ export const GET: RequestHandler = async ({ url }) => {
 				createdAt: generationRun.createdAt,
 				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 				userImageUrl: user.imageUrl,
-				userAvatarId: user.avatarId
+				userAvatarId: user.avatarId,
+				userMinerConfig: user.minerConfig
 			})
 			.from(generationRun)
 			.leftJoin(user, eq(generationRun.userId, user.id))
@@ -50,7 +51,8 @@ export const GET: RequestHandler = async ({ url }) => {
 				stability: cellPopulation.stability,
 				userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 				userImageUrl: user.imageUrl,
-				userAvatarId: user.avatarId
+				userAvatarId: user.avatarId,
+				userMinerConfig: user.minerConfig
 			})
 			.from(cellPopulation)
 			.leftJoin(user, eq(cellPopulation.userId, user.id))

@@ -34,7 +34,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 	// Get discoverer's name
 	const discoverer = await db
-		.select({ name: user.name, displayName: user.displayName, imageUrl: user.imageUrl, avatarId: user.avatarId })
+		.select({ name: user.name, displayName: user.displayName, imageUrl: user.imageUrl, avatarId: user.avatarId, minerConfig: user.minerConfig })
 		.from(user)
 		.where(eq(user.id, disc.discoveredByUserId))
 		.get();
@@ -102,6 +102,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		discoveredBy: discoverer?.displayName ?? discoverer?.name ?? 'Anonymous',
 		discoveredByImageUrl: discoverer?.imageUrl ?? null,
 		discoveredByAvatarId: discoverer?.avatarId ?? null,
+		discoveredByMinerConfig: discoverer?.minerConfig ?? null,
 		discoveredAt: disc.discoveredAt,
 		saveCount: runs.length + pops.length,
 		totalLikes,

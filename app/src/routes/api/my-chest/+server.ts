@@ -26,6 +26,7 @@ const runColumns = {
 	userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 	userImageUrl: user.imageUrl,
 	userAvatarId: user.avatarId,
+	userMinerConfig: user.minerConfig,
 };
 
 const popColumns = {
@@ -49,6 +50,7 @@ const popColumns = {
 	userName: sql<string>`COALESCE(${user.displayName}, ${user.name})`.as('user_name'),
 	userImageUrl: user.imageUrl,
 	userAvatarId: user.avatarId,
+	userMinerConfig: user.minerConfig,
 };
 
 async function fetchClaimed(userId: string, maxRows: number) {

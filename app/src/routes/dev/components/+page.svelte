@@ -7,47 +7,61 @@
 
   <section>
     <h2>LoadingIcon</h2>
-    <p class="desc">Gem wireframe with sphere nodes and random edge pulses. Accepts <code>size</code> and <code>class</code> props. Inherits <code>currentColor</code>.</p>
+    <p class="desc">Gem wireframe with sphere nodes and gold pulse shots. Props: <code>size</code>, <code>mode</code> (<code>"dark"</code> | <code>"light"</code>).</p>
 
-    <div class="demo-row">
-      <div class="demo-item">
-        <LoadingIcon size={16} />
-        <span class="label">16px</span>
+    <div class="mode-grid">
+      <!-- Dark mode -->
+      <div class="mode-panel dark-panel">
+        <span class="mode-label">dark</span>
+        <div class="demo-row">
+          <div class="demo-item">
+            <LoadingIcon size={24} mode="dark" />
+            <span class="label">24</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={32} mode="dark" />
+            <span class="label">32</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={48} mode="dark" />
+            <span class="label">48</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={64} mode="dark" />
+            <span class="label">64</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={96} mode="dark" />
+            <span class="label">96</span>
+          </div>
+        </div>
       </div>
-      <div class="demo-item">
-        <LoadingIcon size={24} />
-        <span class="label">24px</span>
-      </div>
-      <div class="demo-item">
-        <LoadingIcon size={32} />
-        <span class="label">32px</span>
-      </div>
-      <div class="demo-item">
-        <LoadingIcon size={48} />
-        <span class="label">48px</span>
-      </div>
-      <div class="demo-item">
-        <LoadingIcon size={64} />
-        <span class="label">64px</span>
-      </div>
-    </div>
 
-    <div class="demo-row">
-      <div class="demo-item color-yellow">
-        <LoadingIcon size={32} />
-        <span class="label">yellow</span>
-      </div>
-      <div class="demo-item color-cyan">
-        <LoadingIcon size={32} />
-        <span class="label">cyan</span>
-      </div>
-      <div class="demo-item color-red">
-        <LoadingIcon size={32} />
-        <span class="label">red</span>
-      </div>
-      <div class="demo-item color-dim">
-        <LoadingIcon size={32} />
-        <span class="label">dim</span>
+      <!-- Light mode -->
+      <div class="mode-panel light-panel">
+        <span class="mode-label light-label">light</span>
+        <div class="demo-row">
+          <div class="demo-item">
+            <LoadingIcon size={24} mode="light" />
+            <span class="label light-text">24</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={32} mode="light" />
+            <span class="label light-text">32</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={48} mode="light" />
+            <span class="label light-text">48</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={64} mode="light" />
+            <span class="label light-text">64</span>
+          </div>
+          <div class="demo-item">
+            <LoadingIcon size={96} mode="light" />
+            <span class="label light-text">96</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -56,7 +70,7 @@
 <style>
   .page {
     padding: 40px;
-    max-width: 720px;
+    max-width: 960px;
     color: #d6d3d1;
     font-family: 'Space Grotesk', sans-serif;
   }
@@ -78,7 +92,7 @@
   .desc {
     font-size: 13px;
     color: #78716c;
-    margin: 0 0 16px;
+    margin: 0 0 20px;
   }
 
   code {
@@ -93,11 +107,48 @@
     margin-bottom: 40px;
   }
 
+  .mode-grid {
+    display: flex;
+    gap: 16px;
+  }
+
+  .mode-panel {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .dark-panel {
+    background: #0c0a09;
+    border: 1px solid #292524;
+  }
+
+  .light-panel {
+    background: #fafaf9;
+    border: 1px solid #d6d3d1;
+  }
+
+  .mode-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #57534e;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .light-label {
+    color: #a8a29e;
+  }
+
   .demo-row {
     display: flex;
     align-items: flex-end;
-    gap: 24px;
-    margin-bottom: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
   }
 
   .demo-item {
@@ -105,7 +156,6 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    color: #a8a29e;
   }
 
   .label {
@@ -114,8 +164,7 @@
     color: #57534e;
   }
 
-  .color-yellow { color: #facc15; }
-  .color-cyan { color: #22d3ee; }
-  .color-red { color: #ef4444; }
-  .color-dim { color: #44403c; }
+  .light-text {
+    color: #a8a29e;
+  }
 </style>

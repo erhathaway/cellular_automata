@@ -12,6 +12,7 @@
     discoveredBy?: string;
     discoveredByImageUrl?: string | null;
     discoveredByAvatarId?: string | null;
+    discoveredByMinerConfig?: string | null;
     discoveredAt?: string;
   }
 
@@ -168,8 +169,10 @@
     {#if discoveryInfo?.found && !automataStore.isMining}
       <PixelAvatar
         avatarId={discoveryInfo.discoveredByAvatarId ?? null}
-        size={40}
+        minerConfig={discoveryInfo.discoveredByMinerConfig ?? null}
+        size={72}
         fallbackInitials={discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
+        cropUpper
       />
       <div class="info">
         <span class="label">Claimed by</span>
@@ -194,8 +197,9 @@
         <PixelAvatar
           avatarId={userProfile?.avatarId ?? null}
           minerConfig={userProfile?.minerConfig ?? null}
-          size={40}
+          size={72}
           fallbackInitials={userProfile?.displayName?.[0]?.toUpperCase() ?? '?'}
+          cropUpper
         />
       </div>
       <div class="info">
@@ -218,7 +222,7 @@
             </div>
           {:else if saveError}
             <div class="gem" bind:this={gemEl}>
-              <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
                 <path d="M2 9h20" />
@@ -239,7 +243,7 @@
             </div>
           {:else}
             <div class="gem" bind:this={gemEl}>
-              <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
                 <path d="M2 9h20" />
@@ -260,7 +264,7 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="unclaimed-action" onclick={signIn}>
               <div class="gem">
-                <svg class="gem-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M6 3h12l4 6-10 13L2 9Z" />
                   <path d="M11 3 8 9l4 13 4-13-3-6" />
                   <path d="M2 9h20" />
@@ -282,7 +286,7 @@
 <style>
   .claim {
     position: relative;
-    width: 180px;
+    width: 280px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -294,7 +298,7 @@
       );
     border: 2px solid #44403c;
     border-radius: 6px;
-    padding: 14px 16px 16px;
+    padding: 24px 16px 28px;
     text-align: center;
   }
 
@@ -338,7 +342,7 @@
 
   .header-text {
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -355,7 +359,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 14px;
   }
 
   .info {
@@ -383,8 +387,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px;
+    max-width: 240px;
     line-height: 1.3;
+    margin: 6px 0;
   }
 
   .date {
@@ -398,8 +403,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 72px;
+    height: 72px;
     color: rgba(255, 255, 255, 0.25);
   }
 
@@ -419,8 +424,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 72px;
+    height: 72px;
   }
 
   .gem-icon {
