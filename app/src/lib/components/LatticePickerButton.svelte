@@ -341,7 +341,7 @@
   }
 
   @media (max-width: 700px) {
-    .label {
+    .label, .pretitle {
       display: none;
     }
   }
