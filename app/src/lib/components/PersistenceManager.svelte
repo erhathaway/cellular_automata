@@ -20,6 +20,9 @@
   let thumbnailInterval: ReturnType<typeof setInterval> | undefined;
 
   onMount(() => {
+    // Eagerly load history before any hydration so entries and cursor are populated
+    historyStore.ensureLoaded();
+
     const urlParsed = parseURLParams(new URLSearchParams(window.location.search));
     const stored = loadFromLocalStorage();
 

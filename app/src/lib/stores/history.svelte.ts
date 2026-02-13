@@ -91,6 +91,11 @@ class HistoryStore {
     this.persistCursor();
   }
 
+  /** Eagerly load entries from localStorage. Safe to call multiple times. */
+  ensureLoaded() {
+    this.load();
+  }
+
   private load() {
     if (this.loaded) return;
     // Don't mark as loaded during SSR — storage APIs aren't available
@@ -127,17 +132,6 @@ class HistoryStore {
       if (truncated.length !== this.entries.length) {
         this.entries = truncated;
       }
-      // Safety: never overwrite a larger stored history with a smaller one
-      // (guards against persist being called before entries are fully loaded)
-      const existing = localStorage.getItem(STORAGE_KEY);
-      if (existing) {
-        try {
-          const parsed = JSON.parse(existing);
-          if (Array.isArray(parsed) && parsed.length > truncated.length) {
-            return;
-          }
-        } catch { /* corrupt — ok to overwrite */ }
-      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(truncated));
     } catch {
       // quota exceeded — silently fail
@@ -158,13 +152,6 @@ class HistoryStore {
     this.load();
     // Don't record while navigating history
     if (this.cursorIndex >= 0) return;
-
-    // Skip the first recording after page load — it's just hydration from URL/localStorage,
-    // not a genuine new config from mining
-    if (this.hydratingFromLoad) {
-      this.hydratingFromLoad = false;
-      return;
-    }
 
     // Deduplicate: skip if identical to most recent
     if (this.entries.length > 0 && entriesMatch(this.entries[0], entry)) {
