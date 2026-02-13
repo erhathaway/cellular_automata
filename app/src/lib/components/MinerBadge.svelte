@@ -35,6 +35,7 @@
   let showMineGemFly = $state(false);
   let mineGemStyle = $state('');
   let gemLanded = $state(false);
+  let gemArriving = $state(false);
   let mineGemInitialized = false;
 
   $effect(() => {
@@ -55,11 +56,13 @@
     const startY = origin?.y ?? window.innerHeight * 0.5;
 
     mineGemStyle = `--mg-start-x: ${startX}px; --mg-start-y: ${startY}px; --mg-end-x: ${targetX}px; --mg-end-y: ${targetY}px;`;
+    gemArriving = true;
     showMineGemFly = true;
     gemLanded = false;
     setTimeout(() => {
       showMineGemFly = false;
       gemLanded = true;
+      gemArriving = false;
       setTimeout(() => { gemLanded = false; }, 2000);
     }, 1200);
   }
@@ -170,7 +173,7 @@
   }
 
   let isUnclaimed = $derived(
-    discoveryInfo !== null && !discoveryInfo.found && !automataStore.isMining
+    discoveryInfo !== null && !discoveryInfo.found && !automataStore.isMining && !gemArriving
   );
 </script>
 
