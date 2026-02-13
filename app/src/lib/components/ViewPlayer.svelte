@@ -468,8 +468,10 @@
     const seekStart = Math.max(0, target - trailSize);
     automataManager.seekTo(seekStart);
 
-    // Clear all viewer meshes
+    // Clear all viewer meshes (clearGenerations resets updateRateInMS — restore it)
+    const savedRate = viewer.updateRateInMS ?? viewerDefaultUpdateRateMs;
     viewer.clearGenerations();
+    viewer.updateRateInMS = savedRate;
 
     // Preload trail by stepping through history
     const steps = target - seekStart;
