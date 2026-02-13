@@ -310,25 +310,25 @@
   .adv-btn {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: clamp(6px, 1vw, 12px);
     cursor: pointer;
-    padding: 18px 22px;
+    padding: clamp(10px, 1.5vw, 18px) clamp(12px, 1.8vw, 22px);
     color: #67e8f9;
   }
 
   .adv-icon {
-    width: 40px;
-    height: 40px;
+    width: clamp(22px, 3.5vw, 40px);
+    height: clamp(22px, 3.5vw, 40px);
     flex-shrink: 0;
     filter: drop-shadow(0 0 7px rgba(103, 232, 249, 0.6));
   }
 
   .adv-pretitle {
     position: absolute;
-    top: 8px;
-    left: 74px;
+    top: clamp(4px, 0.7vw, 8px);
+    left: clamp(44px, 6.5vw, 74px);
     font-family: 'Space Mono', monospace;
-    font-size: 8px;
+    font-size: clamp(6px, 0.7vw, 8px);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -338,7 +338,7 @@
 
   .adv-label {
     font-family: 'Space Mono', monospace;
-    font-size: 13px;
+    font-size: clamp(9px, 1.1vw, 13px);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #cffafe;
@@ -347,10 +347,10 @@
 
   .adv-status {
     position: absolute;
-    bottom: 6px;
-    left: 74px;
+    bottom: clamp(3px, 0.5vw, 6px);
+    left: clamp(44px, 6.5vw, 74px);
     font-family: 'Space Mono', monospace;
-    font-size: 14px;
+    font-size: clamp(9px, 1.2vw, 14px);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
