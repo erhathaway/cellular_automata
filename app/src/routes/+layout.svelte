@@ -12,7 +12,7 @@
 	import { automataStore } from '$lib/stores/automata.svelte';
 	import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 	import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
-	import type { HistoryEntry } from '$lib/stores/history.svelte';
+	import { historyStore, type HistoryEntry } from '$lib/stores/history.svelte';
 
 	let { children, data } = $props();
 
@@ -53,6 +53,11 @@
 	}
 
 	function handleHistoryLoad(entry: HistoryEntry) {
+		const index = historyStore.entries.indexOf(entry);
+		if (index >= 0) {
+			historyStore.goToIndex(index);
+		}
+
 		const rule = deserializeRule(entry.ruleDefinition);
 		if (!rule) return;
 
@@ -69,7 +74,6 @@
 		automataStore.useSavedSeed = true;
 		automataStore.resetMiningToRandom();
 		automataStore.reset();
-		viewerUiStore.openAnalysis();
 
 		const params = buildURLParams(entry.dimension, entry.viewer, settings);
 		goto(`/?${params.toString()}`);

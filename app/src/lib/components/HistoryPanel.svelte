@@ -86,9 +86,9 @@
       </div>
     {:else}
       <div class="entry-list">
-        {#each historyStore.entries as entry (entry.id)}
+        {#each historyStore.entries as entry, i (entry.id)}
           <button
-            class="entry"
+            class="entry {historyStore.cursorIndex === i ? 'active' : ''}"
             onclick={() => onload(entry)}
           >
             <div class="entry-thumb">
@@ -308,6 +308,11 @@
 
   .entry:hover {
     background: #292524;
+  }
+
+  .entry.active {
+    background: rgba(250, 204, 21, 0.06);
+    border-left: 2px solid #facc15;
   }
 
   /* ── Thumbnail ── */

@@ -19,6 +19,7 @@ export interface HistoryEntry {
 
 const MAX_ENTRIES = 100;
 const STORAGE_KEY = 'cellular-automata-history';
+const CURSOR_KEY = 'cellular-automata-history-cursor';
 
 function entriesMatch(a: HistoryEntry, b: HistoryEntry): boolean {
   return (
@@ -56,18 +57,32 @@ class HistoryStore {
     } else {
       return null;
     }
+    this.persistCursor();
     return this.entries[this.cursorIndex] ?? null;
   }
 
   goForward(): HistoryEntry | null {
     if (this.cursorIndex < 0) return null;
     this.cursorIndex--;
-    if (this.cursorIndex < 0) return null;
+    if (this.cursorIndex < 0) {
+      this.persistCursor();
+      return null;
+    }
+    this.persistCursor();
     return this.entries[this.cursorIndex] ?? null;
+  }
+
+  goToIndex(index: number): HistoryEntry | null {
+    this.load();
+    if (index < 0 || index >= this.entries.length) return null;
+    this.cursorIndex = index;
+    this.persistCursor();
+    return this.entries[index] ?? null;
   }
 
   resetCursor() {
     this.cursorIndex = -1;
+    this.persistCursor();
   }
 
   private load() {
@@ -78,31 +93,57 @@ class HistoryStore {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          this.entries = parsed;
+          this.entries = parsed.slice(0, MAX_ENTRIES);
         }
       }
     } catch {
       // localStorage unavailable or corrupt — start empty
     }
+    try {
+      const cursor = sessionStorage.getItem(CURSOR_KEY);
+      if (cursor !== null) {
+        const idx = parseInt(cursor, 10);
+        if (!isNaN(idx) && idx >= -1 && idx < this.entries.length) {
+          this.cursorIndex = idx;
+        }
+      }
+    } catch {
+      // sessionStorage unavailable
+    }
   }
 
   private persist() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entries));
+      const truncated = this.entries.slice(0, MAX_ENTRIES);
+      if (truncated.length !== this.entries.length) {
+        this.entries = truncated;
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(truncated));
     } catch {
       // quota exceeded — silently fail
+    }
+    this.persistCursor();
+  }
+
+  private persistCursor() {
+    try {
+      sessionStorage.setItem(CURSOR_KEY, String(this.cursorIndex));
+    } catch {
+      // sessionStorage unavailable
     }
   }
 
   addEntry(entry: HistoryEntry) {
     this.load();
+    // Don't record while navigating history
+    if (this.cursorIndex >= 0) return;
+
     // Deduplicate: skip if identical to most recent
     if (this.entries.length > 0 && entriesMatch(this.entries[0], entry)) {
       return;
     }
 
     this.entries = [entry, ...this.entries].slice(0, MAX_ENTRIES);
-    this.cursorIndex = -1;
     this.persist();
   }
 
@@ -172,6 +213,7 @@ class HistoryStore {
 
   clearHistory() {
     this.entries = [];
+    this.cursorIndex = -1;
     this.loaded = true;
     this.persist();
   }
