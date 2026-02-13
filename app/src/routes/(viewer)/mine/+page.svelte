@@ -394,6 +394,16 @@
     .advanced-toggle :global(.pipe.vertical) {
       height: 24px !important;
     }
+
+    .adv-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .adv-btn {
+      padding: 8px 10px;
+      gap: 5px;
+    }
   }
 
 </style>

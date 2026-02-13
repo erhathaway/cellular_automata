@@ -36,8 +36,16 @@ export async function encodeMp4(
     error: (e) => { throw e; },
   });
 
+  // Pick AVC level based on coded area (macroblock-aligned dimensions)
+  const mbW = Math.ceil(encWidth / 16) * 16;
+  const mbH = Math.ceil(encHeight / 16) * 16;
+  const codedArea = mbW * mbH;
+  // Baseline profile (0x42, 0x00) + level byte:
+  //   1f = 3.1 (≤921,600)   28 = 4.0 (≤2,097,152)   33 = 5.1 (≤36,864,000)
+  const level = codedArea <= 921_600 ? '1f' : codedArea <= 2_097_152 ? '28' : '33';
+
   encoder.configure({
-    codec: 'avc1.42001f', // Baseline profile — maximum compatibility
+    codec: `avc1.4200${level}`,
     width: encWidth,
     height: encHeight,
     bitrate: 2_000_000,
