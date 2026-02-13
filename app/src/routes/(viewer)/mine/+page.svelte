@@ -80,8 +80,8 @@
     <div class="controls-row">
       <div class="controls-far-left pointer-events-auto">
         <HistoryNavButton direction="back" disabled={!canGoBack} onclick={handleHistoryBack} />
-        <Pipe variant="glow" color="yellow" width="6px" height="14px" backdrop
-          style="position: absolute; left: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
+        <Pipe variant="glow" color="yellow" width="clamp(8px, 1.5vw, 20px)" height="14px" backdrop
+          style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-left pointer-events-auto">
         <MiningLevelButton disabled={advancedOpen} />
@@ -106,8 +106,8 @@
       </div>
       <div class="controls-far-right pointer-events-auto">
         <HistoryNavButton direction="forward" disabled={!canGoForward} onclick={handleHistoryForward} />
-        <Pipe variant="glow" color="yellow" width="6px" height="14px" backdrop
-          style="position: absolute; right: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
+        <Pipe variant="glow" color="yellow" width="clamp(8px, 1.5vw, 20px)" height="14px" backdrop
+          style="position: absolute; right: 100%; top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
     </div>
   </div>
