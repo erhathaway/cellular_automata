@@ -345,38 +345,38 @@
 
   .pill {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     border-radius: 4px;
-    padding: 2px 7px;
+    padding: 3px 9px;
     line-height: 1.3;
     white-space: nowrap;
   }
 
   .pill.level-easy {
     color: #16a34a;
-    background: rgba(22, 163, 74, 0.1);
-    border: 1px solid rgba(22, 163, 74, 0.2);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.level-medium {
     color: #ca8a04;
-    background: rgba(202, 138, 4, 0.1);
-    border: 1px solid rgba(202, 138, 4, 0.2);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.level-hard {
     color: #dc2626;
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.2);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .more-toggle {
     color: #78716c;
-    background: rgba(120, 113, 108, 0.08);
-    border: 1px solid rgba(120, 113, 108, 0.15);
+    background: #1c1917;
+    border: 1px solid #44403c;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
   }
@@ -388,26 +388,26 @@
 
   .pill.dim {
     color: #57534e;
-    background: rgba(87, 83, 78, 0.08);
-    border: 1px solid rgba(87, 83, 78, 0.15);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.lattice {
     color: #0891b2;
-    background: rgba(8, 145, 178, 0.08);
-    border: 1px solid rgba(8, 145, 178, 0.18);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.radius {
     color: #78716c;
-    background: rgba(120, 113, 108, 0.08);
-    border: 1px solid rgba(120, 113, 108, 0.15);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.neighbors {
     color: #78716c;
-    background: rgba(120, 113, 108, 0.08);
-    border: 1px solid rgba(120, 113, 108, 0.15);
+    background: #1c1917;
+    border: 1px solid #44403c;
   }
 
   .pill.state-colors {
