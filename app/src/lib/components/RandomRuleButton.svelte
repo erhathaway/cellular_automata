@@ -270,6 +270,7 @@
     overflow: visible;
     z-index: 1;
     width: 460px;
+    max-width: 100%;
     padding: 14px 14px 18px;
     background-color: #1c1917;
     background-image:
@@ -314,9 +315,9 @@
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: clamp(8px, 2vw, 14px);
     cursor: pointer;
-    padding: 18px 32px;
+    padding: 18px clamp(14px, 3vw, 32px);
     background: linear-gradient(180deg, #44403c 0%, #292524 40%, #1c1917 100%);
     border: 1.5px solid #57534e;
     border-top-color: #78716c;
@@ -362,7 +363,7 @@
 
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 22px;
+    font-size: clamp(14px, 3.5vw, 22px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;

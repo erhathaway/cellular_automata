@@ -11,6 +11,7 @@
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
+  import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
@@ -18,6 +19,7 @@
   import { goto } from '$app/navigation';
   import type { HistoryEntry } from '$lib/stores/history.svelte';
 
+  let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
   let advancedOpen = $derived(automataStore.advancedMode);
   let canGoBack = $derived(historyStore.canGoBack);
   let canGoForward = $derived(historyStore.canGoForward);
@@ -58,6 +60,7 @@
   }
 </script>
 
+<svelte:window bind:innerWidth={innerWidth} />
 <div class="mine-page-bg">
 <div class="relative" style="height: 75vh; margin: 0 1rem;">
   <CornerBlocks />
@@ -95,6 +98,12 @@
     </div>
   </div>
 </div>
+
+{#if innerWidth < 1000}
+  <div class="inline-analysis">
+    <AnalysisOverlayContent />
+  </div>
+{/if}
 
 <section class="relative z-10 bg-black">
   <!-- Advanced toggle button + panel -->
@@ -146,6 +155,44 @@
 </div>
 
 <style>
+  .inline-analysis {
+    padding: 16px 1rem 0;
+    background: #000;
+  }
+
+  .inline-analysis :global(.analysis-body) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .inline-analysis :global(.analysis-body > *) {
+    min-width: 0;
+  }
+
+  .inline-analysis :global(.status-card) {
+    min-height: auto;
+    padding: 8px 12px;
+  }
+
+  .inline-analysis :global(.status-card .iw-k) {
+    font-size: 11px;
+  }
+
+  .inline-analysis :global(.status-card .iw-v) {
+    font-size: 10px;
+  }
+
+  .inline-analysis :global(.count-card) {
+    padding: 8px 12px;
+  }
+
+  .inline-analysis :global(.count-card .life-label-v) {
+    font-size: 14px;
+  }
+
   .mine-page-bg {
     background: blue;
     min-height: 100%;
