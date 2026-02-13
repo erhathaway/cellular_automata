@@ -754,7 +754,7 @@
   .studio-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    z-index: 10001;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     display: flex;
