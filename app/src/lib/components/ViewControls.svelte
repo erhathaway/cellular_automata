@@ -284,9 +284,11 @@
         ctx.fillStyle = `hsl(${ch}, ${cs}%, ${cl}%)`;
       }
 
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          if (rows[y][x] === 1) {
+      for (let x = 0; x < w; x++) {
+        const col = rows[x];
+        if (!col) continue;
+        for (let y = 0; y < h; y++) {
+          if (col[y] === 1) {
             ctx.fillRect(x, y, 1, 1);
           }
         }
