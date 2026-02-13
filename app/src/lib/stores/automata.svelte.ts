@@ -30,7 +30,7 @@ export interface CellStatesData {
 export function defaultTrailConfig(aliveColor: HSLColor): TrailConfig {
   return {
     color: { h: (aliveColor.h + 180) % 360, s: 1, l: 0.65, a: 1 },
-    size: 40,
+    size: 10,
     stepFn: 'linear',
   };
 }

@@ -284,8 +284,13 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
     const trailSize = this._trailConfig.size;
     const colorable = this.meshes.slice(-trailSize);
     const tc = this._trailConfig;
-    const trailHue = tc.color.h;
-    const trailSat = Math.floor(tc.color.s * 100);
+    const deadHSL = this._states[0] || { h: 0, s: 1, l: 1 };
+    const trailH = tc.color.h;
+    const trailS = tc.color.s * 100;
+    const trailL = tc.color.l * 100;
+    const deadH = deadHSL.h;
+    const deadS = deadHSL.s * 100;
+    const deadL = deadHSL.l * 100;
     const last = colorable.length - 1;
     colorable.forEach((m: any, i: number) => {
       const mat = m.material;
@@ -293,22 +298,24 @@ export default class TwoDimensionViewerInTwoDimensions extends BaseClass {
       if (i === last) {
         mat.color.set(new Color(0x000000));
       } else {
-        // t=1 at second-youngest (just after black), t=0 at oldest
+        // t=0 at oldest (dead color), t=1 at youngest (trail color)
         const tRaw = last > 1 ? i / (last - 1) : 0;
         let t: number;
         if (tc.stepFn === 'exponential') t = tRaw * tRaw;
         else if (tc.stepFn === 'none') t = 1;
         else t = tRaw; // linear
-        const lightness = tc.stepFn === 'none'
-          ? Math.floor(tc.color.l * 100)
-          : 80 - t * 30;
-        mat.color.set(new Color(`hsl(${trailHue}, ${trailSat}%, ${lightness}%)`));
+        // Interpolate from dead color (t=0) to trail color (t=1)
+        const h = Math.floor(deadH + t * (trailH - deadH));
+        const s = Math.floor(deadS + t * (trailS - deadS));
+        const l = Math.floor(deadL + t * (trailL - deadL));
+        mat.color.set(new Color(`hsl(${h}, ${s}%, ${l}%)`));
       }
-      // z controls draw order; newest on top
+      // z controls draw order; alive on top, oldest trail just below, youngest at bottom
       if (i === last) {
         m.position.z = 2;
       } else {
-        m.position.z = i / (last || 1);
+        const trailCount = last - 1 || 1;
+        m.position.z = 1 - i / trailCount;
       }
     });
     this.addGeneration();

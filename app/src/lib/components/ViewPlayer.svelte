@@ -457,8 +457,13 @@
     if (dim === 2 && view === 2 && viewer.meshes) {
       const tc = automataStore.trailConfig;
       const colorable = viewer.meshes.slice(-tc.size);
-      const trailHue = tc.color.h;
-      const trailSat = Math.floor(tc.color.s * 100);
+      const deadState = automataStore.cellStates.find((s: any) => s.role === 'dead');
+      const deadH = deadState?.color.h ?? 0;
+      const deadS = (deadState?.color.s ?? 1) * 100;
+      const deadL = (deadState?.color.l ?? 1) * 100;
+      const trailH = tc.color.h;
+      const trailS = tc.color.s * 100;
+      const trailL = tc.color.l * 100;
       const last = colorable.length - 1;
       colorable.forEach((m: any, i: number) => {
         if (i === last) {
@@ -469,16 +474,16 @@
           if (tc.stepFn === 'exponential') t = tRaw * tRaw;
           else if (tc.stepFn === 'none') t = 1;
           else t = tRaw;
-          const lightness = tc.stepFn === 'none'
-            ? Math.floor(tc.color.l * 100)
-            : 80 - t * 30;
-          const color = new Color(`hsl(${trailHue}, ${trailSat}%, ${lightness}%)`);
-          m.material.color.set(color);
+          const h = Math.floor(deadH + t * (trailH - deadH));
+          const s = Math.floor(deadS + t * (trailS - deadS));
+          const l = Math.floor(deadL + t * (trailL - deadL));
+          m.material.color.set(new Color(`hsl(${h}, ${s}%, ${l}%)`));
         }
         if (i === last) {
           m.position.z = 2;
         } else {
-          m.position.z = (last - i) / (last || 1);
+          const trailCount = last - 1 || 1;
+          m.position.z = 1 - i / trailCount;
         }
       });
     }
