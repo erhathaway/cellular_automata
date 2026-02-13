@@ -32,18 +32,36 @@ function entriesMatch(a: HistoryEntry, b: HistoryEntry): boolean {
   );
 }
 
+/**
+ * History store using a plain array for entries (NOT $state) to avoid
+ * Svelte 5 deep-proxy issues with JSON serialization and array spreading.
+ * Reactivity is driven by a $state version counter that increments on mutations.
+ */
 class HistoryStore {
-  entries: HistoryEntry[] = $state([]);
+  // Plain array — no $state proxy. All serialization/iteration works on plain objects.
+  private _entries: HistoryEntry[] = [];
+  // Reactive version counter — read this in templates/effects to create a dependency
+  private _version = $state(0);
+  // Cursor uses $state since it's a simple primitive (no proxy issues)
   cursorIndex = $state(-1);
   private loaded = false;
-  /** High-water mark — the most entries we've ever seen in this session */
-  private highWaterMark = 0;
+
+  /** Reactive entries getter — reading this creates a Svelte dependency via _version */
+  get entries(): HistoryEntry[] {
+    // Touch _version to establish reactive dependency
+    void this._version;
+    return this._entries;
+  }
+
+  private bump() {
+    this._version++;
+  }
 
   get canGoBack(): boolean {
     this.load();
     // At live (-1): need at least 2 entries (entry 0 is current, entry 1 is previous)
-    if (this.cursorIndex === -1) return this.entries.length > 1;
-    return this.cursorIndex < this.entries.length - 1;
+    if (this.cursorIndex === -1) return this._entries.length > 1;
+    return this.cursorIndex < this._entries.length - 1;
   }
 
   get canGoForward(): boolean {
@@ -55,15 +73,15 @@ class HistoryStore {
     this.load();
     if (this.cursorIndex === -1) {
       // Entry 0 is current config — skip to entry 1 (previous)
-      if (this.entries.length < 2) return null;
+      if (this._entries.length < 2) return null;
       this.cursorIndex = 1;
-    } else if (this.cursorIndex < this.entries.length - 1) {
+    } else if (this.cursorIndex < this._entries.length - 1) {
       this.cursorIndex++;
     } else {
       return null;
     }
     this.persistCursor();
-    return this.entries[this.cursorIndex] ?? null;
+    return this._entries[this.cursorIndex] ?? null;
   }
 
   goForward(): HistoryEntry | null {
@@ -73,19 +91,19 @@ class HistoryStore {
       // Reached most recent entry — return to live
       this.cursorIndex = -1;
       this.persistCursor();
-      return this.entries[0] ?? null;
+      return this._entries[0] ?? null;
     }
     this.persistCursor();
-    return this.entries[this.cursorIndex] ?? null;
+    return this._entries[this.cursorIndex] ?? null;
   }
 
   goToIndex(index: number): HistoryEntry | null {
     this.load();
-    if (index < 0 || index >= this.entries.length) return null;
+    if (index < 0 || index >= this._entries.length) return null;
     // Entry 0 is current config — treat as live
     this.cursorIndex = index === 0 ? -1 : index;
     this.persistCursor();
-    return this.entries[index] ?? null;
+    return this._entries[index] ?? null;
   }
 
   resetCursor() {
@@ -108,9 +126,8 @@ class HistoryStore {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          this.entries = parsed.slice(0, MAX_ENTRIES);
-          this.highWaterMark = this.entries.length;
-          console.log(`[HistoryStore] load: ${this.entries.length} entries from localStorage`);
+          this._entries = parsed.slice(0, MAX_ENTRIES);
+          this.bump();
         }
       }
     } catch {
@@ -120,7 +137,7 @@ class HistoryStore {
       const cursor = localStorage.getItem(CURSOR_KEY);
       if (cursor !== null) {
         const idx = parseInt(cursor, 10);
-        if (!isNaN(idx) && idx >= -1 && idx < this.entries.length) {
+        if (!isNaN(idx) && idx >= -1 && idx < this._entries.length) {
           this.cursorIndex = idx;
         }
       }
@@ -129,37 +146,14 @@ class HistoryStore {
     }
   }
 
-  private persist(allowShrink = false) {
+  private persist() {
     if (typeof window === 'undefined') return;
     try {
-      const truncated = this.entries.slice(0, MAX_ENTRIES);
-
-      // Safety: never overwrite more entries with fewer unless explicitly allowed
-      // (removeEntry, removeCorrupted, clearHistory pass allowShrink=true)
-      if (!allowShrink && truncated.length < this.highWaterMark) {
-        console.warn(
-          `[HistoryStore] persist BLOCKED: would reduce ${this.highWaterMark} → ${truncated.length} entries`,
-          new Error().stack
-        );
-        // Self-heal: reload from localStorage to restore in-memory state
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              this.entries = parsed.slice(0, MAX_ENTRIES);
-              this.highWaterMark = this.entries.length;
-            }
-          }
-        } catch { /* ignore */ }
-        return;
-      }
-
-      if (truncated.length !== this.entries.length) {
-        this.entries = truncated;
+      const truncated = this._entries.slice(0, MAX_ENTRIES);
+      if (truncated.length !== this._entries.length) {
+        this._entries = truncated;
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(truncated));
-      this.highWaterMark = Math.max(this.highWaterMark, truncated.length);
     } catch {
       // quota exceeded — silently fail
     }
@@ -181,37 +175,37 @@ class HistoryStore {
     if (this.cursorIndex >= 0) return;
 
     // Deduplicate: skip if identical to most recent
-    if (this.entries.length > 0 && entriesMatch(this.entries[0], entry)) {
+    if (this._entries.length > 0 && entriesMatch(this._entries[0], entry)) {
       return;
     }
 
-    console.log(`[HistoryStore] addEntry: ${this.entries.length} → ${this.entries.length + 1} entries`);
-    this.entries = [entry, ...this.entries].slice(0, MAX_ENTRIES);
+    this._entries = [entry, ...this._entries].slice(0, MAX_ENTRIES);
+    this.bump();
     this.persist();
   }
 
   updateLatestThumbnail(thumbnail: string) {
-    if (this.entries.length === 0) return;
-    this.entries[0].thumbnail = thumbnail;
+    if (this._entries.length === 0) return;
+    this._entries[0].thumbnail = thumbnail;
+    // No bump needed — thumbnail changes don't need to trigger UI re-renders
   }
 
   flush() {
     this.load();
-    console.log(`[HistoryStore] flush: ${this.entries.length} entries in memory`);
     this.persist();
   }
 
   removeEntry(id: string) {
     this.load();
-    this.entries = this.entries.filter((e) => e.id !== id);
-    this.highWaterMark = this.entries.length;
-    this.persist(true);
+    this._entries = this._entries.filter((e) => e.id !== id);
+    this.bump();
+    this.persist();
   }
 
   removeCorrupted() {
     this.load();
-    const before = this.entries.length;
-    this.entries = this.entries.filter((e) => {
+    const before = this._entries.length;
+    this._entries = this._entries.filter((e) => {
       if (e.ruleType !== 'conway') return true;
       // Old format without commas that could have multi-digit corruption
       const match = e.ruleDefinition.match(/^B([0-9,]*)S([0-9,]*)$/);
@@ -229,10 +223,9 @@ class HistoryStore {
       }
       return true;
     });
-    if (this.entries.length !== before) {
-      console.log(`[HistoryStore] removeCorrupted: ${before} → ${this.entries.length} entries`);
-      this.highWaterMark = this.entries.length;
-      this.persist(true);
+    if (this._entries.length !== before) {
+      this.bump();
+      this.persist();
     }
   }
 
@@ -245,7 +238,7 @@ class HistoryStore {
   ) {
     this.load();
     let changed = false;
-    for (const entry of this.entries) {
+    for (const entry of this._entries) {
       if (
         entry.ruleDefinition === ruleDefinition &&
         entry.dimension === dimension &&
@@ -256,15 +249,18 @@ class HistoryStore {
         if (flags.claimed !== undefined) { entry.claimed = flags.claimed; changed = true; }
       }
     }
-    if (changed) this.persist();
+    if (changed) {
+      this.bump();
+      this.persist();
+    }
   }
 
   clearHistory() {
-    this.entries = [];
+    this._entries = [];
     this.cursorIndex = -1;
     this.loaded = true;
-    this.highWaterMark = 0;
-    this.persist(true);
+    this.bump();
+    this.persist();
   }
 }
 

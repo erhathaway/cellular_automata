@@ -5,6 +5,14 @@
   import { getLattice, defaultLattice } from '$lib-core';
   import { historyStore } from '$lib/stores/history.svelte';
   import MinerBadge from './MinerBadge.svelte';
+  import AutomataDetails from './AutomataDetails.svelte';
+
+  let detailsItem = $derived.by(() => ({
+    ruleDefinition: serializeRule(automataStore.rule),
+    dimension: automataStore.dimension,
+    neighborhoodRadius: automataStore.neighborhoodRadius,
+    latticeType: automataStore.lattice,
+  }));
 
   let title = $derived.by(() => {
     const dim = automataStore.dimension;
@@ -13,11 +21,7 @@
     const r = automataStore.neighborhoodRadius;
     const lat = automataStore.lattice;
 
-    let name = `${dim}D`;
-    if (lat !== defaultLattice(dim)) {
-      name += ` ${getLattice(lat).label}`;
-    }
-    if (r > 1) name += ` r=${r}`;
+    let name = `${dim}D ${getLattice(lat).label} r=${r}`;
     if (view === 3) name += ` (3D view)`;
 
     if (rule.type === 'wolfram') {
@@ -33,29 +37,6 @@
     const nc = automataStore.neighbors.length;
     return `${name} (${nc}n) — B${bornStr}/S${surviveStr}`;
   });
-
-  let description = $derived.by(() => {
-    const rule = automataStore.rule;
-    const lat = automataStore.lattice;
-    const dim = automataStore.dimension;
-    const isNonDefault = lat !== defaultLattice(dim);
-    const latticeLabel = isNonDefault ? getLattice(lat).label.toLowerCase() : '';
-    const gridName = isNonDefault ? `${latticeLabel} grid` : 'grid';
-
-    if (rule.type === 'wolfram') {
-      return `Elementary cellular automaton using Wolfram's Rule ${rule.rule}. Each cell's next state is determined by its current state and its two immediate neighbors, producing one of 256 possible rule sets.`;
-    }
-    const born = rule.born.join(', ');
-    const survive = rule.survive.join(', ');
-    const nc = automataStore.neighbors.length;
-    return `Life-like cellular automaton on a ${gridName} (${nc} neighbors) where a dead cell becomes alive with ${born} neighbors (birth) and a living cell survives with ${survive} neighbors (survival). All other cells die from loneliness or overcrowding.`;
-  });
-
-  let shapeText = $derived(
-    Object.entries(automataStore.populationShape)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join(' × ')
-  );
 
   // Discovery lookup
   interface DiscoveryInfo {
@@ -218,43 +199,10 @@
     <MinerBadge />
   </div>
 
-  <!-- Center column: Title + Description -->
+  <!-- Center column: Title + Details -->
   <div class="content-col">
     <h1 class="title" title={title}>{title}</h1>
-
-    <div class="stats">
-      <div class="stat">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        <span>Gen {automataStore.totalGenerations.toLocaleString()}</span>
-      </div>
-      <div class="stat-dot"></div>
-      <div class="stat">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M3 9h18" />
-          <path d="M9 3v18" />
-        </svg>
-        <span>{shapeText}</span>
-      </div>
-      <div class="stat-dot"></div>
-      <div class="stat">
-        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="5" r="3" />
-          <path d="M6.5 8a6.5 6.5 0 0 0 11 0" />
-          <circle cx="5" cy="14" r="2" />
-          <circle cx="19" cy="14" r="2" />
-          <circle cx="12" cy="19" r="2" />
-        </svg>
-        <span>{automataStore.neighbors.length} neighbors</span>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <p class="description">{description}</p>
+    <AutomataDetails item={detailsItem} hideOwner />
   </div>
 
   <!-- Right column: Action buttons -->
@@ -366,52 +314,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .stats {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 400;
-    color: #a8a29e;
-  }
-
-  .stat-icon {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    color: #d6d3d1;
-  }
-
-  .stat-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: #57534e;
-  }
-
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, #57534e 0%, transparent 100%);
-    margin: 16px 0;
-  }
-
-  .description {
-    font-family: 'Space Grotesk Variable', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.75;
-    color: #a8a29e;
+    margin-bottom: 8px;
   }
 
   .action-buttons {

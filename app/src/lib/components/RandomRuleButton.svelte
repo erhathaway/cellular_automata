@@ -2,6 +2,7 @@
   import { automataStore } from '$lib/stores/automata.svelte';
   import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
+  import { serializeRule } from '$lib/stores/persistence';
 
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
@@ -58,6 +59,23 @@
     }
   });
 
+  function recordHistory() {
+    const rule = automataStore.rule;
+    const ruleDefinition = serializeRule(rule);
+    historyStore.addEntry({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      dimension: automataStore.dimension,
+      viewer: automataStore.viewer,
+      ruleType: rule.type,
+      ruleDefinition,
+      neighborhoodRadius: automataStore.neighborhoodRadius,
+      lattice: automataStore.lattice,
+      populationShape: { ...automataStore.populationShape },
+      cellStates: automataStore.cellStates.map((s: any) => ({ ...s })),
+    });
+  }
+
   function handleClick() {
     clearTimeout(miningTimer);
     historyStore.resetCursor();
@@ -65,6 +83,8 @@
     automataStore.isMining = true;
     miningKey++;
     automataStore.randomizeRule();
+    // Record to history immediately after rule change
+    recordHistory();
     miningTimer = setTimeout(() => {
       automataStore.isMining = false;
       hasCompletedMine = true;

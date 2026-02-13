@@ -7,16 +7,15 @@
     loadFromLocalStorage,
     saveToLocalStorage,
     serializeRule,
+    deserializeRule,
     updateURL,
     urlFingerprint,
   } from '$lib/stores/persistence';
   import { historyStore } from '$lib/stores/history.svelte';
 
   let initialized = $state(false);
-  let historyRecordingReady = false;
   let configDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
-  let historyDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let thumbnailInterval: ReturnType<typeof setInterval> | undefined;
 
   onMount(() => {
@@ -101,6 +100,44 @@
     }
     // Note: neighbor enabled must stay separate from the main preference block above
     // because hydrateActive() (which runs between them) resets these arrays.
+
+    // Rehydrate history cursor position across reloads
+    if (historyStore.cursorIndex >= 0) {
+      const cursorEntry = historyStore.entries[historyStore.cursorIndex];
+      if (cursorEntry) {
+        // Compare current hydrated config against the cursor entry
+        const currentRule = serializeRule(automataStore.rule);
+        const urlMatchesCursor =
+          automataStore.dimension === cursorEntry.dimension &&
+          automataStore.viewer === cursorEntry.viewer &&
+          currentRule === cursorEntry.ruleDefinition &&
+          automataStore.neighborhoodRadius === cursorEntry.neighborhoodRadius;
+
+        if (urlMatchesCursor) {
+          // URL matches cursor entry — keep cursor position, config is already correct
+        } else {
+          // URL differs from cursor — add URL config to top of history, go live
+          historyStore.resetCursor();
+          const rule = automataStore.rule;
+          const ruleDefinition = serializeRule(rule);
+          historyStore.addEntry({
+            id: crypto.randomUUID(),
+            timestamp: Date.now(),
+            dimension: automataStore.dimension,
+            viewer: automataStore.viewer,
+            ruleType: rule.type,
+            ruleDefinition,
+            neighborhoodRadius: automataStore.neighborhoodRadius,
+            lattice: automataStore.lattice,
+            populationShape: { ...automataStore.populationShape },
+            cellStates: automataStore.cellStates.map((s: any) => ({ ...s })),
+          });
+        }
+      } else {
+        // Cursor index out of bounds — reset to live
+        historyStore.resetCursor();
+      }
+    }
 
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
@@ -207,40 +244,7 @@
     genDebounceTimer = setTimeout(doURLUpdate, 2000);
   });
 
-  // History recording: capture config changes to browsable history (300ms debounce)
-  // Skip the first invocation after init — that's just hydration from URL/localStorage,
-  // not a genuine new config from mining.
-  $effect(() => {
-    if (!initialized) return;
-
-    const dim = automataStore.dimension;
-    const viewer = automataStore.viewer;
-    const shape = automataStore.populationShape;
-    const rule = automataStore.rule;
-    const cellStates = automataStore.cellStates;
-    const radius = automataStore.neighborhoodRadius;
-    const lattice = automataStore.lattice;
-
-    if (!historyRecordingReady) {
-      historyRecordingReady = true;
-      return;
-    }
-
-    clearTimeout(historyDebounceTimer);
-    historyDebounceTimer = setTimeout(() => {
-      const ruleDefinition = serializeRule(rule);
-      historyStore.addEntry({
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        dimension: dim,
-        viewer,
-        ruleType: rule.type,
-        ruleDefinition,
-        neighborhoodRadius: radius,
-        lattice,
-        populationShape: { ...shape },
-        cellStates: cellStates.map((s) => ({ ...s })),
-      });
-    }, 300);
-  });
+  // History recording is handled directly by RandomRuleButton (on mine)
+  // rather than via a reactive $effect, to avoid hydration timing issues
+  // that caused entries to be overwritten on page reload.
 </script>
