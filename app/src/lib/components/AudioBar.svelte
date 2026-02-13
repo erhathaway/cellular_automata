@@ -147,8 +147,8 @@
 	.boombox {
 		position: fixed;
 		bottom: 0;
-		left: 50%;
-		transform: translateX(calc(-50% - 115px));
+		left: calc(120px + (100% - 120px) / 2);
+		transform: translateX(-50%);
 		z-index: 9999;
 		display: flex;
 		align-items: center;
@@ -183,10 +183,11 @@
 		left: auto;
 		transform: none;
 		width: 100%;
+		height: auto;
 		border-radius: 0;
 		border: none;
 		border-bottom: 1px solid #292524;
-		justify-content: center;
+		justify-content: space-between;
 	}
 
 	/* Corner nails */
@@ -376,7 +377,20 @@
 
 	@media (max-width: 1000px) {
 		.boombox {
+			left: 50%;
 			transform: translateX(-50%);
+		}
+	}
+
+	@media (max-width: 600px) {
+		.track-label {
+			display: none;
+		}
+	}
+
+	@media (max-width: 500px) {
+		.track-name {
+			max-width: 60px;
 		}
 	}
 </style>

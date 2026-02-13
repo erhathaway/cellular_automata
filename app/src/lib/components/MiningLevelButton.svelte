@@ -213,8 +213,8 @@
 
   .pretitle {
     position: absolute;
-    top: 8px;
-    left: 74px;
+    top: 5px;
+    left: calc(clamp(12px, 2vw, 22px) + clamp(24px, 4vw, 40px) + 12px);
     font-family: 'Space Mono', monospace;
     font-size: 8px;
     font-weight: 700;
@@ -364,6 +364,10 @@
     .dial {
       width: clamp(24px, calc(4vw - 16px), 40px);
       height: clamp(24px, calc(4vw - 16px), 40px);
+    }
+
+    .pretitle {
+      left: calc(clamp(12px, calc(2.5vw - 13px), 22px) + clamp(24px, calc(4vw - 16px), 40px) + clamp(6px, calc(1.5vw - 9px), 12px));
     }
 
     .label {
