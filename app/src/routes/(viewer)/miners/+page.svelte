@@ -188,13 +188,32 @@
   }
 
   .section-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-family: 'Pixelify Sans Variable', 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: #facc15;
     margin: 0 0 4px;
+    background: linear-gradient(
+      90deg,
+      #ff6b9d,
+      #ffa64d,
+      #ffe44d,
+      #7ddf64,
+      #4dc8ff,
+      #a78bfa,
+      #ff6b9d
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: rainbow-shift 4s linear infinite;
+  }
+
+  @keyframes rainbow-shift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 
   .section-subtitle {
