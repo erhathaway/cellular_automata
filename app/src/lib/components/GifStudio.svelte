@@ -40,6 +40,7 @@
   let isCropping = $state(false);
   let cropStart: { x: number; y: number } | null = null;
   let pendingCropRect: { x: number; y: number; w: number; h: number } | null = $state(null);
+  let cropRectCSS: { x: number; y: number; w: number; h: number } | null = $state(null);
 
   // DOM refs
   let viewerContainer: HTMLDivElement;
@@ -231,6 +232,7 @@
     openingSnapshot = null;
     markedStartSnapshot = null;
     cropRect = null;
+    cropRectCSS = null;
     pendingCropRect = null;
     isPlaying = false;
     isCapturing = false;
@@ -466,6 +468,8 @@
       window.removeEventListener('mouseup', handleCropMouseUp);
 
       if (pendingCropRect && pendingCropRect.w > 10 && pendingCropRect.h > 10) {
+        // Save CSS-pixel version for persistent overlay display
+        cropRectCSS = { ...pendingCropRect };
         // Convert from CSS pixels to canvas pixels
         if (studioViewer?.renderer?.domElement && cropOverlayEl) {
           const canvas = studioViewer.renderer.domElement as HTMLCanvasElement;
@@ -491,6 +495,7 @@
 
   function clearCrop() {
     cropRect = null;
+    cropRectCSS = null;
     pendingCropRect = null;
   }
 
@@ -580,8 +585,17 @@
                     class="crop-selection"
                     style="left:{pendingCropRect.x}px;top:{pendingCropRect.y}px;width:{pendingCropRect.w}px;height:{pendingCropRect.h}px"
                   ></div>
+                {:else if cropRectCSS}
+                  <div
+                    class="crop-selection"
+                    style="left:{cropRectCSS.x}px;top:{cropRectCSS.y}px;width:{cropRectCSS.w}px;height:{cropRectCSS.h}px"
+                  ></div>
                 {/if}
               </div>
+            {:else if cropRectCSS}
+              <div class="crop-selection-persistent"
+                style="left:{cropRectCSS.x}px;top:{cropRectCSS.y}px;width:{cropRectCSS.w}px;height:{cropRectCSS.h}px"
+              ></div>
             {/if}
             {#if cropRect}
               <div class="crop-badge">
@@ -853,13 +867,15 @@
     z-index: 5;
   }
 
-  .crop-selection {
+  .crop-selection,
+  .crop-selection-persistent {
     position: absolute;
-    border: 3px dashed #facc15;
-    outline: 2px solid rgba(0, 0, 0, 0.8);
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.8);
+    border: 4px dashed #facc15;
+    outline: 5px solid rgba(0, 0, 0, 0.85);
+    box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.85);
     background: rgba(250, 204, 21, 0.08);
     pointer-events: none;
+    z-index: 4;
   }
 
   .crop-badge {
