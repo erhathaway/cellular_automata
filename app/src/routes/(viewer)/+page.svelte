@@ -6,13 +6,54 @@
   import RandomRuleButton from '$lib/components/RandomRuleButton.svelte';
   import MiningLevelButton from '$lib/components/MiningLevelButton.svelte';
   import LatticePickerButton from '$lib/components/LatticePickerButton.svelte';
+  import HistoryNavButton from '$lib/components/HistoryNavButton.svelte';
   import ViewerDescription from '$lib/components/ViewerDescription.svelte';
   import ViewerComments from '$lib/components/ViewerComments.svelte';
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { historyStore } from '$lib/stores/history.svelte';
+  import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
+  import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
+  import { goto } from '$app/navigation';
+  import type { HistoryEntry } from '$lib/stores/history.svelte';
 
   let advancedOpen = $derived(automataStore.advancedMode);
+  let canGoBack = $derived(historyStore.canGoBack);
+  let canGoForward = $derived(historyStore.canGoForward);
+
+  function loadHistoryEntry(entry: HistoryEntry) {
+    const rule = deserializeRule(entry.ruleDefinition);
+    if (!rule) return;
+
+    const settings = {
+      populationShape: { ...entry.populationShape },
+      rule,
+      cellStates: entry.cellStates.map((s) => ({ ...s })),
+      neighborhoodRadius: entry.neighborhoodRadius,
+    };
+
+    automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
+    automataStore.hydrateActive(entry.dimension, entry.viewer);
+    automataStore.savedSeed = null;
+    automataStore.useSavedSeed = true;
+    automataStore.resetMiningToRandom();
+    automataStore.reset();
+    viewerUiStore.openAnalysis();
+
+    const params = buildURLParams(entry.dimension, entry.viewer, settings);
+    goto(`/?${params.toString()}`);
+  }
+
+  function handleHistoryBack() {
+    const entry = historyStore.goBack();
+    if (entry) loadHistoryEntry(entry);
+  }
+
+  function handleHistoryForward() {
+    const entry = historyStore.goForward();
+    if (entry) loadHistoryEntry(entry);
+  }
 </script>
 
 <div class="relative m-4" style="height: 75vh;">
@@ -27,8 +68,12 @@
     <div class="pointer-events-none absolute inset-0 z-10 rounded-2xl" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.15), inset 0 0 2px rgba(0,0,0,0.1);"></div>
     <ViewControls />
   </section>
-  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-30 translate-y-1/2">
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-50 translate-y-1/2">
     <div class="controls-row">
+      <div class="controls-far-left pointer-events-auto">
+        <div class="pipe-backdrop-far-left"></div>
+        <HistoryNavButton direction="back" disabled={!canGoBack} onclick={handleHistoryBack} />
+      </div>
       <div class="controls-left pointer-events-auto">
         <div class="pipe-backdrop"></div>
         <MiningLevelButton disabled={advancedOpen} />
@@ -39,6 +84,10 @@
       <div class="controls-right pointer-events-auto">
         <div class="pipe-backdrop-right"></div>
         <LatticePickerButton disabled={advancedOpen} />
+      </div>
+      <div class="controls-far-right pointer-events-auto">
+        <div class="pipe-backdrop-far-right"></div>
+        <HistoryNavButton direction="forward" disabled={!canGoForward} onclick={handleHistoryForward} />
       </div>
     </div>
   </div>
@@ -141,26 +190,73 @@
 
   .controls-row {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto auto auto auto auto;
+    justify-content: center;
     align-items: center;
     width: 100%;
   }
 
-  .controls-left {
-    justify-self: end;
-    margin-right: 38px;
+  .controls-far-left {
     position: relative;
+    margin-right: 20px;
+  }
+
+  .controls-left {
+    position: relative;
+    margin-right: 38px;
   }
 
   .controls-center {
-    justify-self: center;
     position: relative;
   }
 
   .controls-right {
-    justify-self: start;
-    margin-left: 38px;
     position: relative;
+    margin-left: 38px;
+  }
+
+  .controls-far-right {
+    position: relative;
+    margin-left: 38px;
+  }
+
+  /* --- Far-left: back button → level button pipe --- */
+  .controls-far-left::after {
+    content: '';
+    position: absolute;
+    left: calc(100% - 4px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 14px;
+    border-radius: 3px;
+    border: 2px solid #0e7490;
+    background:
+      linear-gradient(
+        90deg,
+        #0c4a6e 0%,
+        #22d3ee 50%,
+        #0c4a6e 100%
+      );
+    box-shadow:
+      0 0 10px rgba(34, 211, 238, 0.75),
+      inset 0 0 6px rgba(103, 232, 249, 0.95);
+    pointer-events: none;
+    z-index: 2;
+    animation: connector-pulse 1.1s ease-in-out infinite;
+  }
+
+  .controls-far-left .pipe-backdrop-far-left {
+    position: absolute;
+    left: calc(100% - 5px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 18px;
+    border-radius: 3px;
+    background: #1c1917;
+    pointer-events: none;
+    z-index: 1;
   }
 
   .controls-left :global(.level-root) {
@@ -272,6 +368,45 @@
     position: absolute;
     right: calc(100% - 5px);
     top: calc(50% - 8px);
+    transform: translateY(-50%);
+    width: 50px;
+    height: 18px;
+    border-radius: 3px;
+    background: #1c1917;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* --- Far-right: lattice button → forward button pipe --- */
+  .controls-far-right::before {
+    content: '';
+    position: absolute;
+    right: calc(100% - 4px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 14px;
+    border-radius: 3px;
+    border: 2px solid #0e7490;
+    background:
+      linear-gradient(
+        90deg,
+        #0c4a6e 0%,
+        #22d3ee 50%,
+        #0c4a6e 100%
+      );
+    box-shadow:
+      0 0 10px rgba(34, 211, 238, 0.75),
+      inset 0 0 6px rgba(103, 232, 249, 0.95);
+    pointer-events: none;
+    z-index: 2;
+    animation: connector-pulse 1.1s ease-in-out infinite;
+  }
+
+  .controls-far-right .pipe-backdrop-far-right {
+    position: absolute;
+    right: calc(100% - 5px);
+    top: 50%;
     transform: translateY(-50%);
     width: 50px;
     height: 18px;

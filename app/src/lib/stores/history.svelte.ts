@@ -33,7 +33,42 @@ function entriesMatch(a: HistoryEntry, b: HistoryEntry): boolean {
 
 class HistoryStore {
   entries: HistoryEntry[] = $state([]);
+  cursorIndex = $state(-1);
   private loaded = false;
+
+  get canGoBack(): boolean {
+    this.load();
+    if (this.cursorIndex === -1) return this.entries.length > 0;
+    return this.cursorIndex < this.entries.length - 1;
+  }
+
+  get canGoForward(): boolean {
+    return this.cursorIndex >= 0;
+  }
+
+  goBack(): HistoryEntry | null {
+    this.load();
+    if (this.cursorIndex === -1) {
+      if (this.entries.length === 0) return null;
+      this.cursorIndex = 0;
+    } else if (this.cursorIndex < this.entries.length - 1) {
+      this.cursorIndex++;
+    } else {
+      return null;
+    }
+    return this.entries[this.cursorIndex] ?? null;
+  }
+
+  goForward(): HistoryEntry | null {
+    if (this.cursorIndex < 0) return null;
+    this.cursorIndex--;
+    if (this.cursorIndex < 0) return null;
+    return this.entries[this.cursorIndex] ?? null;
+  }
+
+  resetCursor() {
+    this.cursorIndex = -1;
+  }
 
   private load() {
     if (this.loaded) return;
@@ -67,6 +102,7 @@ class HistoryStore {
     }
 
     this.entries = [entry, ...this.entries].slice(0, MAX_ENTRIES);
+    this.cursorIndex = -1;
     this.persist();
   }
 
