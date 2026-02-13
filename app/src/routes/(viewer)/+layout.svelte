@@ -15,7 +15,7 @@
   let rightOpen = $state(true);
   let prevMining = $state(automataStore.isMining);
 
-  let hideRightDrawer = $derived($page.url.pathname === '/user');
+  let hideRightDrawer = $derived($page.url.pathname === '/user' || $page.url.pathname.startsWith('/miners/detail'));
 
   const RIGHT_WIDTH = 360;
 
