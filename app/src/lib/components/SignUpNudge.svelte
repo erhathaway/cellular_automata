@@ -2,6 +2,14 @@
   import { SignInButton } from 'svelte-clerk/client';
   import { onMount } from 'svelte';
 
+  let {
+    forceShow = false,
+    onclose
+  }: {
+    forceShow?: boolean;
+    onclose?: () => void;
+  } = $props();
+
   const ACTIVITY_THRESHOLD = 180; // seconds of active usage before showing
   const IDLE_TIMEOUT = 30_000; // 30s without interaction = idle
   const SESSION_KEY = 'signup-nudge-dismissed';
@@ -10,7 +18,14 @@
   let lastInteraction = $state(0);
   let activeSeconds = $state(0);
 
+  // Dev preview: show immediately when forceShow is set
+  $effect(() => {
+    if (forceShow) show = true;
+  });
+
   onMount(() => {
+    if (forceShow) return;
+
     // Already dismissed this session
     if (sessionStorage.getItem(SESSION_KEY)) return;
 
@@ -46,7 +61,10 @@
 
   function dismiss() {
     show = false;
-    sessionStorage.setItem(SESSION_KEY, '1');
+    if (!forceShow) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+    }
+    onclose?.();
   }
 </script>
 
@@ -77,8 +95,8 @@
         </svg>
       </div>
 
-      <h2 class="modal-title">Your backpack is filling up</h2>
-      <p class="modal-subtitle">Sign in to save your discoveries and claim new finds.</p>
+      <h2 class="modal-title">Don't lose your progress</h2>
+      <p class="modal-subtitle">Sign in to claim discoveries, track your collection, and appear on the leaderboard.</p>
 
       <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/mine'} asChild>
         {#snippet children({ signIn })}
@@ -193,16 +211,16 @@
   /* Title */
   .modal-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
     color: #f5f5f4;
-    margin: 0 0 6px;
+    margin: 8px 0 16px;
   }
 
   .modal-subtitle {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
-    color: #78716c;
+    font-size: 18px;
+    color: #a8a29e;
     margin: 0 0 24px;
     line-height: 1.5;
   }

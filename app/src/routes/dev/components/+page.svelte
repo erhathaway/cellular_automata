@@ -197,4 +197,23 @@
     grid-template-columns: repeat(3, 180px);
     gap: 12px;
   }
+
+  .preview-btn {
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1c1917;
+    background: #facc15;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .preview-btn:hover {
+    background: #fde047;
+  }
 </style>
