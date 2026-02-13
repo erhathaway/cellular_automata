@@ -161,7 +161,7 @@ export function buildURLParams(
     params.set(`c${roleToIndex(cs.role)}`, serializeColor(cs.color));
   }
 
-  if (settings.trailConfig) {
+  if (settings.trailConfig && dim > 1) {
     params.set('ts', String(settings.trailConfig.size));
     params.set('tc', serializeColor(settings.trailConfig.color));
     if (settings.trailConfig.stepFn !== 'linear') {

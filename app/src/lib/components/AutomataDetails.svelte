@@ -67,8 +67,11 @@
       result.push({ label: 'dead', color: deadState.color });
     }
 
-    // Trail from trail config
-    result.push({ label: 'trail', color: data.trail.color });
+    // Trail from trail config (not applicable to 1D)
+    const dim = item.dimension ?? 2;
+    if (dim > 1) {
+      result.push({ label: 'trail', color: data.trail.color });
+    }
 
     return result;
   });
