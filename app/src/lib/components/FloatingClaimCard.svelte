@@ -85,6 +85,9 @@
     }, 1200);
   }
 
+  let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
+  let compact = $derived(innerWidth < 900);
+
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
 
   // Visibility: show whenever automata is viable and not actively mining
@@ -115,6 +118,7 @@
   }
 </script>
 
+<svelte:window bind:innerWidth={innerWidth} />
 <div class="floating-claim-outer" bind:this={slotEl}>
   <div class="floating-claim-wrapper" class:visible>
     <div class="pipes-right">
@@ -134,6 +138,7 @@
         avatarEntering={discoveryStore.avatarEntering}
         {gemLanded}
         {gemArriving}
+        {compact}
         isMining={automataStore.isMining}
         {userProfile}
         onclaim={handleClaim}

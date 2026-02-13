@@ -17,6 +17,7 @@
     gemLanded = false,
     gemArriving = false,
     isMining = false,
+    compact = false,
     userProfile = null,
     onclaim,
     gemEl = $bindable<HTMLElement | undefined>(undefined),
@@ -34,16 +35,17 @@
     gemLanded?: boolean;
     gemArriving?: boolean;
     isMining?: boolean;
+    compact?: boolean;
     userProfile?: { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null;
     onclaim?: () => void;
     gemEl?: HTMLElement | undefined;
     gemAreaEl?: HTMLElement | undefined;
   } = $props();
 
-  let avatarSize = $derived(typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72);
+  let avatarSize = $derived(compact ? 36 : (typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72));
 </script>
 
-<div class="claim">
+<div class="claim" class:compact>
   <!-- Nails in the corners -->
   <div class="nails">
     <div class="nail"></div>
@@ -513,5 +515,92 @@
     100% {
       filter: none;
     }
+  }
+
+  /* Compact mode — narrower card for smaller viewports */
+  .compact {
+    width: clamp(90px, 13vw, 130px);
+    padding: 10px 8px 12px;
+  }
+
+  .compact .header {
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+
+  .compact .pickaxe {
+    display: none;
+  }
+
+  .compact .header-text {
+    font-size: 8px;
+  }
+
+  .compact .divider {
+    margin-bottom: 6px;
+  }
+
+  .compact .body {
+    gap: 6px;
+  }
+
+  .compact .label {
+    font-size: 7px;
+  }
+
+  .compact .label-lg {
+    font-size: 8px;
+  }
+
+  .compact .label-title {
+    font-size: 9px;
+  }
+
+  .compact .name {
+    font-size: 9px;
+    max-width: 120px;
+    margin: 2px 0;
+  }
+
+  .compact .date {
+    font-size: 7px;
+  }
+
+  .compact .date-lg {
+    font-size: 8px;
+  }
+
+  .compact .date-title {
+    font-size: 8px;
+  }
+
+  .compact .icon-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .compact .icon-svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .compact .gem {
+    width: 36px;
+    height: 36px;
+  }
+
+  .compact .gem-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .compact .spinner-svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .compact .nail {
+    width: 4px;
+    height: 4px;
   }
 </style>
