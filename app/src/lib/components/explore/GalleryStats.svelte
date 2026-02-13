@@ -3,23 +3,11 @@
   import { api } from '$lib/api';
   import { LEVELS, aggregateByLevel } from '$lib/levels';
   import { LATTICE_REGISTRY } from '$lib-core';
-  import PixelAvatar from '$lib/components/PixelAvatar.svelte';
-
-  type LeaderboardEntry = {
-    userId: string;
-    displayName: string | null;
-    avatarId: string | null;
-    minerConfig: string | null;
-    claimCount: number;
-    byRadius: Record<string, number>;
-    byLattice: Record<string, number>;
-  };
-
   type StatsResponse = {
     totalClaims: number;
     byRadius: Record<string, number>;
     byLattice: Record<string, number>;
-    leaderboard: LeaderboardEntry[];
+    leaderboard: unknown[];
   };
 
   let stats: StatsResponse | null = $state(null);
@@ -62,15 +50,6 @@
     }
   });
 
-  function userLevelBreakdown(entry: LeaderboardEntry): { key: string; label: string; pct: number }[] {
-    const agg = aggregateByLevel(entry.byRadius);
-    const total = entry.claimCount || 1;
-    return LEVELS.map(l => ({
-      key: l.key,
-      label: l.label,
-      pct: Math.round(((agg[l.key] ?? 0) / total) * 100)
-    })).filter(l => l.pct > 0);
-  }
 </script>
 
 <div class="stats-body">
@@ -127,56 +106,6 @@
       </div>
     </div>
 
-    <!-- Leaderboard -->
-    {#if stats.leaderboard.length > 0}
-      <div class="panel leaderboard-card">
-        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-        <a href="/miners/leaderboard" class="section-label leaderboard-link">
-          <span>Leaderboard</span>
-          <span class="view-all">View all &rarr;</span>
-        </a>
-        <div class="leaderboard-scroll">
-          <table class="leaderboard">
-            <thead>
-              <tr>
-                <th class="th-rank">#</th>
-                <th class="th-user">Explorer</th>
-                <th class="th-count">Claims</th>
-                <th class="th-levels">Levels</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each stats.leaderboard as entry, i (entry.userId)}
-                <tr>
-                  <td class="td-rank">{i + 1}</td>
-                  <td class="td-user">
-                    <PixelAvatar
-                      avatarId={entry.avatarId}
-                      size={66}
-                      fallbackInitials={(entry.displayName ?? '?')[0]}
-                      minerConfig={entry.minerConfig}
-                      cropUpper
-                      userId={entry.userId}
-                      popupData={{ displayName: entry.displayName, claimCount: entry.claimCount, byRadius: entry.byRadius, byLattice: entry.byLattice }}
-                    />
-                    <span class="user-name">{entry.displayName ?? 'Anonymous'}</span>
-                  </td>
-                  <td class="td-count">{entry.claimCount}</td>
-                  <td class="td-levels">
-                    <div class="level-chips">
-                      {#each userLevelBreakdown(entry) as lb (lb.key)}
-                        <span class="level-chip level-{lb.key}">{lb.label[0]} {lb.pct}%</span>
-                      {/each}
-                    </div>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    {/if}
   {/if}
 </div>
 
@@ -248,28 +177,6 @@
     margin-bottom: 10px;
   }
 
-  .leaderboard-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .leaderboard-link:hover {
-    color: #facc15;
-  }
-
-  .view-all {
-    font-size: 9px;
-    color: #78716c;
-    transition: color 0.15s ease;
-  }
-
-  .leaderboard-link:hover .view-all {
-    color: #facc15;
-  }
-
   /* Total Claims */
   .total-value {
     font-family: 'Space Grotesk', sans-serif;
@@ -328,111 +235,4 @@
     flex-shrink: 0;
   }
 
-  /* Leaderboard */
-  .leaderboard-card {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .leaderboard-scroll {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-  }
-
-  .leaderboard {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-  }
-
-  .leaderboard thead {
-    position: sticky;
-    top: 0;
-    background: #1c1917;
-  }
-
-  .leaderboard th {
-    text-align: left;
-    font-weight: 600;
-    color: #78716c;
-    font-size: 9px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 4px 4px 6px;
-    border-bottom: 1px solid #44403c;
-  }
-
-  .th-rank { width: 24px; }
-  .th-count { width: 44px; text-align: right; }
-  .th-levels { text-align: right; }
-
-  .leaderboard td {
-    padding: 5px 4px;
-    border-bottom: 1px solid #292524;
-    color: #a8a29e;
-    vertical-align: middle;
-  }
-
-  .td-rank {
-    font-weight: 700;
-    color: #78716c;
-  }
-
-  .td-user {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .user-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100px;
-    color: #d6d3d1;
-  }
-
-  .td-count {
-    font-weight: 700;
-    text-align: right;
-    color: #fef08a;
-  }
-
-  .td-levels {
-    text-align: right;
-  }
-
-  .level-chips {
-    display: flex;
-    gap: 3px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-  }
-
-  .level-chip {
-    font-size: 8px;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .level-easy {
-    background: rgba(22, 163, 74, 0.2);
-    color: #4ade80;
-  }
-
-  .level-medium {
-    background: rgba(250, 204, 21, 0.15);
-    color: #fde047;
-  }
-
-  .level-hard {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-  }
 </style>

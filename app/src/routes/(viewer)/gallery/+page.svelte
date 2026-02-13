@@ -7,23 +7,11 @@
   import { api } from '$lib/api';
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
-  import TopMiners from '$lib/components/explore/TopMiners.svelte';
   import TopClaims from '$lib/components/explore/TopClaims.svelte';
 
   const PAGE_SIZE = 20;
   const SESSION_KEY = 'explore-filters';
 
-  type LeaderboardEntry = {
-    userId: string;
-    displayName: string | null;
-    avatarId: string | null;
-    minerConfig: string | null;
-    claimCount: number;
-    byRadius: Record<string, number>;
-    byLattice: Record<string, number>;
-  };
-
-  let topMiners: LeaderboardEntry[] = $state([]);
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
@@ -91,10 +79,6 @@
     fetchItems();
   }
 
-  function handleMinerClick(entry: LeaderboardEntry) {
-    goto(`/miners/detail/${entry.userId}`);
-  }
-
   async function handleLoad(item: any) {
     const dim = item.dimension;
     const viewer = item.viewer;
@@ -133,12 +117,8 @@
     goto(`/mine?${params.toString()}`);
   }
 
-  onMount(async () => {
+  onMount(() => {
     fetchItems();
-    try {
-      const stats = await api<{ leaderboard: LeaderboardEntry[] }>('GET', '/api/explore/stats');
-      topMiners = stats.leaderboard;
-    } catch {}
   });
 </script>
 
@@ -157,10 +137,6 @@
         />
       </div>
     </div>
-
-    {#if topMiners.length > 0}
-      <TopMiners miners={topMiners} onminerclick={handleMinerClick} />
-    {/if}
 
     <TopClaims onload={handleLoad} />
 

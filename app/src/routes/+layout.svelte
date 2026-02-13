@@ -90,8 +90,8 @@
 		userProfile = data.userProfile;
 	});
 
-	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
-	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
+	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
+	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
 
 	let leftOpen = $state(true);
 	let historyOpen = $state(false);
