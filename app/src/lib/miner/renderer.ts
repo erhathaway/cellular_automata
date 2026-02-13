@@ -33,13 +33,13 @@ const LEG_LAYERS: CategoryId[] = [
  *  Each beat: [headX, headY, torsoX, torsoY, legsX, legsY]
  */
 const GROOVE_BEATS: [number, number, number, number, number, number][] = [
-	[ 0, -2,  0,  0,  0,  0],  // 1 — head up, standing
+	[ 0, -2,  0,  0,  0,  0],  // 1 — head up
 	[ 1,  1,  1,  2,  0, -2],  // 2 — lean right, dip, knees bend
-	[ 0, -3,  0,  0,  0,  0],  // 3 — head bounce, standing
+	[ 0, -3,  0,  0,  0,  0],  // 3 — head bounce
 	[-1,  1, -1,  2,  0, -2],  // 4 — lean left, dip, knees bend
-	[ 0, -2,  0,  0,  0,  0],  // 5 — head up, standing
+	[ 0, -2,  0,  0,  0,  0],  // 5 — head up
 	[ 2,  2,  1,  3,  0, -3],  // 6 — lean right, deep dip, big bend
-	[ 0, -3,  0,  0,  0,  0],  // 7 — head bounce, standing
+	[ 0, -3,  0,  0,  0,  0],  // 7 — head bounce
 	[-2,  2, -1,  3,  0, -3],  // 8 — lean left, deep dip, big bend
 ];
 

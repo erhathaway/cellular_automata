@@ -363,7 +363,7 @@
     border-radius: 8px;
     padding: 24px;
     width: 340px;
-    height: 340px;
+    height: 520px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -846,7 +846,7 @@
 
     .avatar-frame {
       width: 260px;
-      height: 260px;
+      height: 400px;
     }
   }
 </style>
