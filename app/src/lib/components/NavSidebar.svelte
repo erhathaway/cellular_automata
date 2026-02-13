@@ -22,7 +22,7 @@
   } = $props();
 
   const topItems = [
-    { href: '/', label: 'Mine', icon: 'pickaxe' },
+    { href: '/mine', label: 'Mine', icon: 'pickaxe' },
     { href: '/gallery', label: 'Gallery', icon: 'compass' },
     { href: '/backpack', label: 'Backpack', icon: 'backpack' },
   ];
@@ -32,7 +32,7 @@
   ];
 
   function isActive(pathname: string, href: string): boolean {
-    if (href === '/') return pathname === '/';
+    if (href === '/mine') return pathname === '/mine';
     return pathname.startsWith(href);
   }
 

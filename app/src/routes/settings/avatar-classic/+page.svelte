@@ -30,7 +30,7 @@
 		try {
 			await api('PATCH', '/api/user/profile', { avatarId: selectedAvatarId });
 			await invalidateAll();
-			goto('/');
+			goto('/mine');
 		} catch (err: any) {
 			errorMsg = err.message || 'Something went wrong';
 			saving = false;
@@ -38,7 +38,7 @@
 	}
 
 	function goBack() {
-		goto('/');
+		goto('/mine');
 	}
 </script>
 

@@ -1,7 +1,7 @@
 /** Tracks scroll positions for pages that should restore on back-navigation from the viewer. */
 
 const TRACKED_PATHS = new Set(['/gallery', '/backpack']);
-const VIEWER_PATH = '/';
+const VIEWER_PATH = '/mine';
 
 class ScrollPositionStore {
 	/** path → scrollTop */
@@ -21,7 +21,7 @@ class ScrollPositionStore {
 	restore(toPath: string): number {
 		if (!TRACKED_PATHS.has(toPath)) return 0;
 		// Only restore if coming back from the viewer
-		if (this.lastPath === VIEWER_PATH || this.lastPath.startsWith('/?')) {
+		if (this.lastPath === VIEWER_PATH || this.lastPath.startsWith('/mine?')) {
 			return this.positions.get(toPath) ?? 0;
 		}
 		// Coming from elsewhere — reset

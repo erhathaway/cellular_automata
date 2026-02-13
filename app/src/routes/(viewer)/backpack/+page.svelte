@@ -122,7 +122,7 @@
     automataStore.reset();
     viewerUiStore.openAnalysis();
     const params = buildURLParams(dim, viewer, settings);
-    goto(`/?${params.toString()}`);
+    goto(`/mine?${params.toString()}`);
   }
 
   let earnedAchievements = $derived(

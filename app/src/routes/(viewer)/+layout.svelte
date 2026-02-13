@@ -47,7 +47,7 @@
     const mining = automataStore.isMining;
 
     // Auto-open analysis when a new mine run starts (mine page only).
-    if (mining && !prevMining && $page.url.pathname === '/') {
+    if (mining && !prevMining && $page.url.pathname === '/mine') {
       viewerUiStore.openAnalysis();
     }
 
@@ -57,7 +57,7 @@
   $effect(() => {
     const playing = automataStore.isPlaying;
     const analysisOpen = viewerUiStore.analysisOpen;
-    if (playing && !analysisOpen && $page.url.pathname === '/') {
+    if (playing && !analysisOpen && $page.url.pathname === '/mine') {
       viewerUiStore.openAnalysis();
     }
   });
@@ -130,7 +130,7 @@
         {:else}
           <RightDrawerContent />
         {/if}
-        {#if viewerUiStore.analysisOpen && $page.url.pathname === '/'}
+        {#if viewerUiStore.analysisOpen && $page.url.pathname === '/mine'}
           <div class="analysis-overlay">
             <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
             <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>

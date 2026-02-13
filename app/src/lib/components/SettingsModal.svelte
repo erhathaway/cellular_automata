@@ -117,7 +117,7 @@
     try {
       await api('DELETE', '/api/user/delete');
       open = false;
-      goto('/intro');
+      goto('/');
     } catch (err: any) {
       errorMsg = err.message || 'Failed to delete account';
       deleting = false;
@@ -257,7 +257,7 @@
 
       <!-- Footer actions -->
       <div class="footer-actions">
-        <SignOutButton redirectUrl="/intro">
+        <SignOutButton redirectUrl="/">
           <button class="btn-footer">Log Out</button>
         </SignOutButton>
 

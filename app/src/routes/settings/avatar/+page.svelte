@@ -37,7 +37,7 @@
 				minerConfig: JSON.stringify(config)
 			});
 			await invalidateAll();
-			goto('/');
+			goto('/mine');
 		} catch (err: any) {
 			errorMsg = err.message || 'Something went wrong';
 			saving = false;
@@ -45,7 +45,7 @@
 	}
 
 	function handleCancel() {
-		goto('/');
+		goto('/mine');
 	}
 </script>
 

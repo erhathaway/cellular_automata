@@ -11,7 +11,7 @@
 
 		<div class="flex flex-col items-center gap-4">
 			<a
-				href="/"
+				href="/mine"
 				class="rounded-lg bg-white px-8 py-3 text-lg font-semibold text-black transition hover:bg-gray-200"
 			>
 				Start Exploring

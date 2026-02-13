@@ -19,8 +19,8 @@
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
 
-	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
-	let blackNav = $derived($page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
+	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
+	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
 
 	let leftOpen = $state(true);
 	let historyOpen = $state(false);
@@ -75,7 +75,7 @@
 		automataStore.reset();
 
 		const params = buildURLParams(entry.dimension, entry.viewer, settings);
-		goto(`/?${params.toString()}`, { replaceState: true });
+		goto(`/mine?${params.toString()}`, { replaceState: true });
 
 		historyOpen = false;
 		animateResize();

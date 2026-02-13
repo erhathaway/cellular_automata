@@ -237,13 +237,6 @@ class AutomataStore {
     return `hsl(${Math.floor(color.h)}, ${Math.floor(color.s * 100)}%, ${Math.floor(color.l * 100)}%)`;
   }
 
-  private _enforceLivingBlack(states: CellStateEntry[]): CellStateEntry[] {
-    return states.map((s) => (
-      s.role === 'alive'
-        ? { ...s, color: { ...LIVING_BLACK } }
-        : { ...s }
-    ));
-  }
 
   // --- Actions ---
   setDimension(newDim: 1 | 2 | 3) {
@@ -322,11 +315,8 @@ class AutomataStore {
   }
 
   setCellStateColor(role: string, color: HSLColor) {
-    const nextColor = role === 'alive' ? { ...LIVING_BLACK } : color;
-    this.cellStates = this._enforceLivingBlack(
-      this.cellStates.map((s) =>
-        s.role === role ? { ...s, color: nextColor } : s
-      )
+    this.cellStates = this.cellStates.map((s) =>
+      s.role === role ? { ...s, color } : s
     );
     const key = historyKey(this.dimension, this.viewer);
     this._cellStatesHistory.set(
@@ -777,7 +767,7 @@ class AutomataStore {
       this._ruleHistory.set(key, { ...settings.rule });
     }
     if (settings.cellStates) {
-      this._cellStatesHistory.set(key, this._enforceLivingBlack(settings.cellStates));
+      this._cellStatesHistory.set(key, settings.cellStates.map(s => ({ ...s })));
     }
     if (settings.trailConfig) {
       this._trailConfigHistory.set(key, { ...settings.trailConfig });
@@ -806,7 +796,7 @@ class AutomataStore {
       ? { ...this._ruleHistory.get(key)! }
       : defaultRule(dim, lat);
     this.cellStates = this._cellStatesHistory.get(key)
-      ? this._enforceLivingBlack(this._cellStatesHistory.get(key)!)
+      ? this._cellStatesHistory.get(key)!.map(s => ({ ...s }))
       : defaultCellStates(dim, viewer);
     const savedTrail = this._trailConfigHistory.get(key);
     const aliveState = this.cellStates.find(s => s.role === 'alive');
@@ -933,7 +923,7 @@ class AutomataStore {
 
     const savedStates = this._cellStatesHistory.get(key);
     this.cellStates = savedStates
-      ? this._enforceLivingBlack(savedStates)
+      ? savedStates.map(s => ({ ...s }))
       : defaultCellStates(this.dimension, this.viewer);
 
     const savedTrail = this._trailConfigHistory.get(key);

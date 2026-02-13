@@ -212,7 +212,7 @@
 
 <SignedOut>
   {#if isUndiscovered && !automataStore.isMining && !(automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1)}
-    <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/'} asChild>
+    <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/mine'} asChild>
       {#snippet children({ signIn })}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->

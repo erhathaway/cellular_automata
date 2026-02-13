@@ -166,13 +166,13 @@
   });
 
   afterNavigate(({ to }) => {
-    if (initialized && to?.url.pathname === '/') {
+    if (initialized && to?.url.pathname === '/mine') {
       doURLUpdate();
     }
   });
 
   function doURLUpdate() {
-    if (window.location.pathname !== '/') return;
+    if (window.location.pathname !== '/mine') return;
     const dim = automataStore.dimension;
     const viewer = automataStore.viewer;
     const allCombos = automataStore.getAllComboSettings();

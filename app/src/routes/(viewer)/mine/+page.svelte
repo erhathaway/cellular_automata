@@ -42,7 +42,7 @@
     automataStore.reset();
 
     const params = buildURLParams(entry.dimension, entry.viewer, settings);
-    goto(`/?${params.toString()}`, { replaceState: true });
+    goto(`/mine?${params.toString()}`, { replaceState: true });
   }
 
   function handleHistoryBack() {
