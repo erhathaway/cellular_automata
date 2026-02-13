@@ -409,7 +409,7 @@
     height: 86px;
     border-radius: 12px;
     background: #e7e5e4;
-    border: 1.5px solid #d6d3d1;
+    border: 1.5px solid blue;
     color: #57534e;
     transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
   }
@@ -447,7 +447,7 @@
 
   .nav-item:hover .icon-frame:not(.active) {
     background: #d6d3d1;
-    border-color: #a8a29e;
+    border-color: blue;
   }
 
   .nav-item:hover .icon-frame:not(.active) :global(svg) {
@@ -457,7 +457,7 @@
 
   .icon-frame.active {
     background: #000000;
-    border-color: #292524;
+    border-color: blue;
     box-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
     animation: frame-activate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -539,7 +539,7 @@
 
   .dark .icon-frame {
     background: #292524;
-    border-color: #44403c;
+    border-color: blue;
     color: #a8a29e;
   }
 
@@ -559,7 +559,7 @@
 
   .dark .nav-item:hover .icon-frame:not(.active) {
     background: #44403c;
-    border-color: #57534e;
+    border-color: blue;
   }
 
   .dark .nav-item:hover .icon-frame:not(.active) :global(svg) {
