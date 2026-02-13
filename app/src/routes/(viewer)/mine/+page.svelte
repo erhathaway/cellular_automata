@@ -58,7 +58,8 @@
   }
 </script>
 
-<div class="relative m-4" style="height: 75vh;">
+<div class="mine-page-bg">
+<div class="relative" style="height: 75vh; margin: 0 1rem;">
   <CornerBlocks />
   <!-- Electric containment edges over the black border -->
   <span class="edge top"></span>
@@ -142,8 +143,15 @@
   <ViewerDescription />
   <ViewerComments />
 </section>
+</div>
 
 <style>
+  .mine-page-bg {
+    background: blue;
+    min-height: 100%;
+    padding: 1rem 0;
+  }
+
   /* Electric edges overlaying the black border */
   .edge {
     position: absolute;
