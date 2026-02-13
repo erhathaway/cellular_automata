@@ -13,6 +13,7 @@
   import { historyStore } from '$lib/stores/history.svelte';
 
   let initialized = $state(false);
+  let historyRecordingReady = false;
   let configDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let historyDebounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -204,6 +205,8 @@
   });
 
   // History recording: capture config changes to browsable history (300ms debounce)
+  // Skip the first invocation after init — that's just hydration from URL/localStorage,
+  // not a genuine new config from mining.
   $effect(() => {
     if (!initialized) return;
 
@@ -214,6 +217,11 @@
     const cellStates = automataStore.cellStates;
     const radius = automataStore.neighborhoodRadius;
     const lattice = automataStore.lattice;
+
+    if (!historyRecordingReady) {
+      historyRecordingReady = true;
+      return;
+    }
 
     clearTimeout(historyDebounceTimer);
     historyDebounceTimer = setTimeout(() => {

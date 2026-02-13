@@ -36,7 +36,6 @@ class HistoryStore {
   entries: HistoryEntry[] = $state([]);
   cursorIndex = $state(-1);
   private loaded = false;
-  private hydratingFromLoad = false;
 
   get canGoBack(): boolean {
     this.load();
@@ -103,9 +102,6 @@ class HistoryStore {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           this.entries = parsed.slice(0, MAX_ENTRIES);
-          if (this.entries.length > 0) {
-            this.hydratingFromLoad = true;
-          }
         }
       }
     } catch {
