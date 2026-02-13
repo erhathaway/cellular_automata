@@ -39,6 +39,11 @@
     }
   });
 
+  // Drive discovery store reactive lookup
+  $effect(() => {
+    discoveryStore.checkDiscovery();
+  });
+
   // Watch mine gem animation counter
   $effect(() => {
     const count = automataStore.mineGemAnimationCounter;

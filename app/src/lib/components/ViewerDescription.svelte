@@ -3,7 +3,6 @@
   import { discoveryStore } from '$lib/stores/discovery.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { getLattice } from '$lib-core';
-  import MinerBadge from './MinerBadge.svelte';
   import AutomataDetails from './AutomataDetails.svelte';
   import ActionButtons from './ActionButtons.svelte';
 
@@ -96,18 +95,10 @@
   <div class="compact-details-row">
     <AutomataDetails item={detailsItem} hideOwner {fullRules} />
   </div>
-  <div class="compact-badge-row">
-    <MinerBadge />
-  </div>
 </div>
 {:else}
 <div class="desc-root">
-  <!-- Left column: Miner badge -->
-  <div class="badge-col">
-    <MinerBadge />
-  </div>
-
-  <!-- Center column: Title + Details -->
+  <!-- Left column: Title + Details -->
   <div class="content-col">
     <h1 class="title" title={title}>{title}</h1>
     <AutomataDetails item={detailsItem} hideOwner {fullRules} />
@@ -136,14 +127,6 @@
     max-width: 56rem;
     margin: 0 auto;
     padding: 120px 24px 40px;
-  }
-
-  .badge-col {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 4px;
   }
 
   .content-col {
@@ -199,8 +182,4 @@
     justify-content: center;
   }
 
-  .compact-badge-row {
-    display: flex;
-    justify-content: center;
-  }
 </style>
