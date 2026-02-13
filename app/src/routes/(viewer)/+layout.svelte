@@ -15,6 +15,8 @@
   let rightOpen = $state(true);
   let prevMining = $state(automataStore.isMining);
 
+  let hideRightDrawer = $derived($page.url.pathname === '/user');
+
   const RIGHT_WIDTH = 360;
 
   function toggleRight() {
@@ -92,48 +94,52 @@
     {@render children()}
 
     <!-- Right toggle tab -->
-    <button
-      class="toggle-tab"
-      onclick={toggleRight}
-      aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
-    >
-      <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-        {#if rightOpen}
-          <path d="M4.5 2L7.5 6L4.5 10" />
-        {:else}
-          <path d="M7.5 2L4.5 6L7.5 10" />
-        {/if}
-      </svg>
-    </button>
+    {#if !hideRightDrawer}
+      <button
+        class="toggle-tab"
+        onclick={toggleRight}
+        aria-label={rightOpen ? 'Close right panel' : 'Open right panel'}
+      >
+        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+          {#if rightOpen}
+            <path d="M4.5 2L7.5 6L4.5 10" />
+          {:else}
+            <path d="M7.5 2L4.5 6L7.5 10" />
+          {/if}
+        </svg>
+      </button>
+    {/if}
   </main>
 
   <!-- Right drawer -->
-  <aside
-    class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-    style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
-    style:background="#000"
-    style:border-left="1px solid #44403c"
-  >
-    <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
-      {#if $page.url.pathname === '/gallery'}
-        <div class="gallery-stats-panel">
-          <div class="gallery-stats-header">
-            <span class="gallery-stats-title">Mine Productivity</span>
+  {#if !hideRightDrawer}
+    <aside
+      class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
+      style:width="{rightOpen ? RIGHT_WIDTH : 0}px"
+      style:background="#000"
+      style:border-left="1px solid #44403c"
+    >
+      <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
+        {#if $page.url.pathname === '/gallery'}
+          <div class="gallery-stats-panel">
+            <div class="gallery-stats-header">
+              <span class="gallery-stats-title">Mine Productivity</span>
+            </div>
+            <GalleryStats />
           </div>
-          <GalleryStats />
-        </div>
-      {:else}
-        <RightDrawerContent />
-      {/if}
-      {#if viewerUiStore.analysisOpen && $page.url.pathname === '/'}
-        <div class="analysis-overlay">
-          <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
-          <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>
-          <AnalysisOverlayContent />
-        </div>
-      {/if}
-    </div>
-  </aside>
+        {:else}
+          <RightDrawerContent />
+        {/if}
+        {#if viewerUiStore.analysisOpen && $page.url.pathname === '/'}
+          <div class="analysis-overlay">
+            <div class="analysis-pipe analysis-pipe-top" aria-hidden="true"></div>
+            <div class="analysis-pipe analysis-pipe-bottom" aria-hidden="true"></div>
+            <AnalysisOverlayContent />
+          </div>
+        {/if}
+      </div>
+    </aside>
+  {/if}
 </div>
 
 <style>

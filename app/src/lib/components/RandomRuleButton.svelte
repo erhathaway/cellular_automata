@@ -73,6 +73,7 @@
       lattice: automataStore.lattice,
       populationShape: { ...automataStore.populationShape },
       cellStates: automataStore.cellStates.map((s: any) => ({ ...s })),
+      trailConfig: { ...automataStore.trailConfig },
     });
   }
 

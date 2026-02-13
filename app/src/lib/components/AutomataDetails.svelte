@@ -3,6 +3,7 @@
   import { radiusToLevel } from '$lib/levels';
   import { getLattice, defaultLattice } from '$lib-core';
   import type { LatticeType } from '$lib-core';
+  import { migrateCellStatesData } from '$lib/stores/persistence';
   import PixelAvatar from './PixelAvatar.svelte';
 
   let {
@@ -35,12 +36,11 @@
 
   interface HSLColor { h: number; s: number; l: number; a: number }
 
-  function parseCellStates(): HSLColor[] {
+  function parseCellStatesData() {
     const raw = item.cellStates;
-    if (!raw) return [];
-    const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    if (!Array.isArray(arr)) return [];
-    return arr.map((s: any) => s.color as HSLColor);
+    if (!raw) return null;
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return migrateCellStatesData(parsed);
   }
 
   interface LabeledColor {
@@ -49,32 +49,26 @@
   }
 
   let labeledColors = $derived.by((): LabeledColor[] => {
-    const colors = parseCellStates();
-    if (colors.length === 0) return [];
+    const data = parseCellStatesData();
+    if (!data) return [];
 
     const result: LabeledColor[] = [];
 
-    // State 1 = alive (index 1)
-    if (colors.length >= 2) {
-      result.push({ label: 'alive', color: colors[1] });
+    // Alive states first
+    for (const s of data.states) {
+      if (s.role !== 'dead') {
+        result.push({ label: s.role, color: s.color });
+      }
     }
 
-    // Additional alive states (index 2+)
-    for (let i = 2; i < colors.length; i++) {
-      result.push({ label: `alive ${i}`, color: colors[i] });
+    // Dead state
+    const deadState = data.states.find(s => s.role === 'dead');
+    if (deadState) {
+      result.push({ label: 'dead', color: deadState.color });
     }
 
-    // State 0 = dead (index 0)
-    result.push({ label: 'dead', color: colors[0] });
-
-    // Trail = complementary hue of alive color
-    if (colors.length >= 2) {
-      const alive = colors[1];
-      result.push({
-        label: 'trail',
-        color: { h: (alive.h + 180) % 360, s: 1, l: 0.65, a: 1 },
-      });
-    }
+    // Trail from trail config
+    result.push({ label: 'trail', color: data.trail.color });
 
     return result;
   });

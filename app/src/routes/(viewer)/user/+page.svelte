@@ -2,38 +2,26 @@
   import { goto, invalidateAll } from '$app/navigation';
   import { SignOutButton } from 'svelte-clerk';
   import { api } from '$lib/api';
-  import { LEVELS, aggregateByLevel } from '$lib/levels';
-  import { LATTICE_REGISTRY } from '$lib-core';
   import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from '$lib/components/PixelAvatar.svelte';
+  import UserStats from '$lib/components/UserStats.svelte';
 
   let { data } = $props();
 
-  // Stats derivations
-  let levelData = $derived.by(() => {
-    const agg = aggregateByLevel(data.stats.byRadius);
-    return LEVELS.map(l => ({ key: l.key, label: l.label, count: agg[l.key] ?? 0 }));
-  });
+  // Name modal state
+  let nameModalOpen = $state(false);
 
-  let maxLevel = $derived.by(() => {
-    const m = Math.max(...levelData.map(d => d.count));
-    return m > 0 ? m : 1;
-  });
+  function openNameModal() {
+    displayName = data.profile.displayName ?? '';
+    saveMsg = '';
+    errorMsg = '';
+    nameAvailable = null;
+    nameModalOpen = true;
+  }
 
-  let latticeData = $derived.by(() => {
-    return Object.entries(data.stats.byLattice)
-      .map(([type, count]) => ({
-        type,
-        label: (LATTICE_REGISTRY as Record<string, { label: string }>)[type]?.label ?? type,
-        count
-      }))
-      .sort((a, b) => b.count - a.count);
-  });
-
-  let maxLattice = $derived.by(() => {
-    const m = Math.max(...latticeData.map(d => d.count));
-    return m > 0 ? m : 1;
-  });
+  function closeNameModal() {
+    if (!saving) nameModalOpen = false;
+  }
 
   // Settings form state
   let displayName = $state(data.profile.displayName ?? '');
@@ -137,7 +125,7 @@
     <div class="hero">
       <!-- Left: Avatar -->
       <div class="hero-avatar">
-        <div class="avatar-frame">
+        <a href="/settings/avatar" class="avatar-frame" aria-label="Change avatar">
           <div class="nails"><div class="nail"></div><div class="nail"></div></div>
           <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
           <div class="avatar-inner">
@@ -148,207 +136,189 @@
               minerConfig={data.profile.minerConfig}
             />
           </div>
+          <div class="avatar-hover-overlay">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            </svg>
+            <span>Change Miner</span>
+          </div>
+        </a>
+        <div class="hero-name-row">
+          <span class="hero-name">{data.profile.displayName ?? 'Anonymous'}</span>
+          <button class="name-edit-btn" onclick={openNameModal} aria-label="Edit name">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            </svg>
+          </button>
         </div>
-        <div class="hero-name">{data.profile.displayName ?? 'Anonymous'}</div>
         <div class="hero-joined">Joined {timeAgo(data.profile.createdAt)}</div>
       </div>
 
       <!-- Right: Stats -->
       <div class="hero-stats">
-        <!-- Total Claims -->
-        <div class="panel">
-          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-          <div class="stat-label">Total Claims</div>
-          <div class="claims-row">
-            <svg class="claims-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 3h12l4 6-10 13L2 9Z" />
-              <path d="M11 3 8 9l4 13 4-13-3-6" />
-              <path d="M2 9h20" />
-            </svg>
-            <span class="total-value">{data.stats.claimCount.toLocaleString()}</span>
-          </div>
-        </div>
-
-        <!-- Level Distribution -->
-        <div class="panel">
-          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-          <div class="stat-label">Level Distribution</div>
-          <div class="hbar-list">
-            {#each levelData as d (d.key)}
-              <div class="hbar-row">
-                <div class="hbar-name">{d.label}</div>
-                <div class="hbar-track">
-                  <div
-                    class="hbar-fill"
-                    style="width: {Math.max(2, (d.count / maxLevel) * 100)}%;"
-                  ></div>
-                </div>
-                <div class="hbar-count">{d.count}</div>
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Lattice Distribution -->
-        {#if latticeData.length > 0}
-          <div class="panel">
-            <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-            <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-            <div class="stat-label">Lattice Distribution</div>
-            <div class="hbar-list">
-              {#each latticeData as d (d.type)}
-                <div class="hbar-row">
-                  <div class="hbar-name">{d.label}</div>
-                  <div class="hbar-track">
-                    <div
-                      class="hbar-fill"
-                      style="width: {Math.max(2, (d.count / maxLattice) * 100)}%;"
-                    ></div>
-                  </div>
-                  <div class="hbar-count">{d.count}</div>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
+        <UserStats stats={data.stats} />
       </div>
     </div>
 
-    <!-- Settings section -->
+    <!-- Account actions -->
     <div class="settings-section">
-      <div class="panel settings-panel">
-        <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-        <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+      <div class="footer-actions">
+        <SignOutButton redirectUrl="/intro">
+          <button class="btn-footer">Log Out</button>
+        </SignOutButton>
 
-        <div class="section">
-          <span class="section-label">
-            <svg class="section-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Profile
-          </span>
-
-          <div class="field">
-            <label class="field-label" for="settings-name">Display Name</label>
-            <div class="name-input-row">
-              <div class="name-input-wrap" class:name-taken={nameAvailable === false} class:name-ok={nameAvailable === true}>
-                <input
-                  id="settings-name"
-                  type="text"
-                  bind:value={displayName}
-                  oninput={handleNameInput}
-                  maxlength={30}
-                  class="field-input name-field"
-                />
-                {#if nameChecking}
-                  <span class="name-status checking" title="Checking...">...</span>
-                {:else if nameAvailable === true}
-                  <span class="name-status available" title="Available">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                  </span>
-                {:else if nameAvailable === false}
-                  <span class="name-status taken" title="Already taken">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                  </span>
-                {/if}
-              </div>
-              <button
-                class="dice-btn"
-                onclick={suggestName}
-                disabled={suggestingName}
-                title="Generate random name"
-                aria-label="Generate random name"
-              >
-                {#if suggestingName}
-                  <svg class="dice-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
-                {:else}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="2.5" />
-                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                    <circle cx="16" cy="8" r="1.5" fill="currentColor" />
-                    <circle cx="8" cy="16" r="1.5" fill="currentColor" />
-                    <circle cx="16" cy="16" r="1.5" fill="currentColor" />
-                    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-                  </svg>
-                {/if}
-              </button>
-            </div>
-            {#if nameAvailable === false}
-              <p class="name-taken-msg">This name is already taken</p>
-            {/if}
-          </div>
-
-          {#if errorMsg}
-            <p class="msg-error">{errorMsg}</p>
-          {/if}
-
-          {#if saveMsg}
-            <p class="msg-success">{saveMsg}</p>
-          {/if}
-
-          <button
-            class="btn-save"
-            class:disabled={!canSave || saving}
-            disabled={!canSave || saving}
-            onclick={save}
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Avatar link -->
-        <a href="/settings/avatar" class="btn-footer">Change Avatar</a>
-
-        <div class="divider"></div>
-
-        <!-- Footer actions -->
-        <div class="footer-actions">
-          <SignOutButton redirectUrl="/intro">
-            <button class="btn-footer">Log Out</button>
-          </SignOutButton>
-
-          {#if !showDeleteConfirm}
-            <button class="btn-footer btn-footer-danger" onclick={() => { showDeleteConfirm = true; }}>
-              Delete Account
-            </button>
-          {:else}
-            <div class="danger-zone">
-              <p class="danger-text">This is permanent. All data will be deleted.</p>
-              <p class="danger-prompt">Type <strong>DELETE</strong> to confirm:</p>
-              <input
-                type="text"
-                bind:value={deleteInput}
-                placeholder="DELETE"
-                class="field-input danger-input"
-              />
-              <div class="danger-actions">
-                <button
-                  class="btn-footer"
-                  onclick={() => { showDeleteConfirm = false; deleteInput = ''; }}
-                >
-                  Cancel
-                </button>
-                <button
-                  class="btn-danger"
-                  class:disabled={deleteInput !== 'DELETE' || deleting}
-                  disabled={deleteInput !== 'DELETE' || deleting}
-                  onclick={deleteAccount}
-                >
-                  {deleting ? 'Deleting...' : 'Confirm Delete'}
-                </button>
-              </div>
-            </div>
-          {/if}
-        </div>
+        <button class="btn-footer btn-footer-danger" onclick={() => { showDeleteConfirm = true; deleteInput = ''; }}>
+          Delete Account
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Name editing modal -->
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') { if (nameModalOpen) closeNameModal(); if (showDeleteConfirm && !deleting) { showDeleteConfirm = false; deleteInput = ''; } } }} />
+{#if nameModalOpen}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="modal-backdrop" onclick={closeNameModal}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="modal-panel" onclick={(e) => e.stopPropagation()}>
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+
+      <button class="modal-close" onclick={closeNameModal} aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+
+      <div class="modal-title">Edit Display Name</div>
+
+      <div class="field">
+        <label class="field-label" for="modal-name">Display Name</label>
+        <div class="name-input-row">
+          <div class="name-input-wrap" class:name-taken={nameAvailable === false} class:name-ok={nameAvailable === true}>
+            <input
+              id="modal-name"
+              type="text"
+              bind:value={displayName}
+              oninput={handleNameInput}
+              maxlength={30}
+              class="field-input name-field"
+            />
+            {#if nameChecking}
+              <span class="name-status checking" title="Checking...">...</span>
+            {:else if nameAvailable === true}
+              <span class="name-status available" title="Available">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              </span>
+            {:else if nameAvailable === false}
+              <span class="name-status taken" title="Already taken">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+              </span>
+            {/if}
+          </div>
+          <button
+            class="dice-btn"
+            onclick={suggestName}
+            disabled={suggestingName}
+            title="Generate random name"
+            aria-label="Generate random name"
+          >
+            {#if suggestingName}
+              <svg class="dice-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+            {:else}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.5" />
+                <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+                <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
+            {/if}
+          </button>
+        </div>
+        {#if nameAvailable === false}
+          <p class="name-taken-msg">This name is already taken</p>
+        {/if}
+      </div>
+
+      {#if errorMsg}
+        <p class="msg-error">{errorMsg}</p>
+      {/if}
+
+      {#if saveMsg}
+        <p class="msg-success">{saveMsg}</p>
+      {/if}
+
+      <button
+        class="btn-save"
+        class:disabled={!canSave || saving}
+        disabled={!canSave || saving}
+        onclick={async () => { await save(); if (!errorMsg) closeNameModal(); }}
+      >
+        {saving ? 'Saving...' : 'Save'}
+      </button>
+    </div>
+  </div>
+{/if}
+
+<!-- Delete account modal -->
+{#if showDeleteConfirm}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="modal-backdrop" onclick={() => { if (!deleting) { showDeleteConfirm = false; deleteInput = ''; } }}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="modal-panel" onclick={(e) => e.stopPropagation()}>
+      <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+      <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+
+      <button class="modal-close" onclick={() => { if (!deleting) { showDeleteConfirm = false; deleteInput = ''; } }} aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+
+      <div class="modal-title modal-title-danger">Delete Account</div>
+
+      <p class="danger-text">This is permanent. All data will be deleted.</p>
+      <p class="danger-prompt">Type <strong>DELETE</strong> to confirm:</p>
+      <input
+        type="text"
+        bind:value={deleteInput}
+        placeholder="DELETE"
+        class="field-input danger-input"
+      />
+
+      {#if errorMsg}
+        <p class="msg-error">{errorMsg}</p>
+      {/if}
+
+      <div class="danger-actions">
+        <button
+          class="btn-footer"
+          onclick={() => { showDeleteConfirm = false; deleteInput = ''; }}
+          disabled={deleting}
+        >
+          Cancel
+        </button>
+        <button
+          class="btn-danger"
+          class:disabled={deleteInput !== 'DELETE' || deleting}
+          disabled={deleteInput !== 'DELETE' || deleting}
+          onclick={deleteAccount}
+        >
+          {deleting ? 'Deleting...' : 'Confirm Delete'}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   .user-page {
@@ -390,6 +360,42 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .avatar-frame:hover {
+    border-color: #facc15;
+  }
+
+  .avatar-hover-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 7px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: #facc15;
+    pointer-events: none;
+  }
+
+  .avatar-frame:hover .avatar-hover-overlay {
+    opacity: 1;
+  }
+
+  .avatar-hover-overlay span {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
   }
 
   .avatar-inner {
@@ -398,13 +404,41 @@
     justify-content: center;
   }
 
+  .hero-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
   .hero-name {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 24px;
     font-weight: 700;
     color: #d6d3d1;
-    margin-top: 16px;
     text-align: center;
+  }
+
+  .name-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #44403c;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #78716c;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .name-edit-btn:hover {
+    color: #facc15;
+    border-color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
   }
 
   .hero-joined {
@@ -417,16 +451,36 @@
 
   /* Stats column */
   .hero-stats {
-    flex: 1;
+    width: 400px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    min-width: 0;
   }
 
-  /* Panel */
-  .panel {
+  /* Settings section */
+  .settings-section {
+    max-width: 480px;
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-panel {
     position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 16px;
+    padding: 28px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -436,141 +490,46 @@
         rgba(68, 64, 60, 0.1) 10px,
         rgba(68, 64, 60, 0.1) 11px
       );
-    border: 1px solid #44403c;
+    border: 2px solid #44403c;
     border-radius: 8px;
-    padding: 20px 16px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
   }
 
-  .nails {
+  .modal-close {
     position: absolute;
-    top: 8px;
-    left: 10px;
-    right: 10px;
+    top: 18px;
+    right: 18px;
     display: flex;
-    justify-content: space-between;
-    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    color: #78716c;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    z-index: 1;
   }
 
-  .nails-bottom {
-    top: auto;
-    bottom: 8px;
+  .modal-close:hover {
+    color: #f5f5f4;
+    background: rgba(255, 255, 255, 0.1);
   }
 
-  .nail {
-    width: 4px;
-    height: 4px;
-    background: #a8a29e;
-    border-radius: 50%;
-    opacity: 0.45;
-  }
-
-  .stat-label {
+  .modal-title {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #fde68a;
-    margin-bottom: 10px;
-  }
-
-  .claims-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .claims-icon {
-    flex-shrink: 0;
-  }
-
-  .total-value {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
+    font-size: 14px;
     font-weight: 700;
-    line-height: 1;
-    color: #fef08a;
-  }
-
-  /* Horizontal bar chart */
-  .hbar-list {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-
-  .hbar-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .hbar-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #d6d3d1;
-    width: 68px;
-    flex-shrink: 0;
-  }
-
-  .hbar-track {
-    flex: 1;
-    height: 16px;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid #44403c;
-    overflow: hidden;
-  }
-
-  .hbar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #facc15 0%, #fde047 100%);
-    box-shadow: 0 0 6px rgba(250, 204, 21, 0.3);
-    border-radius: 2px;
-    transition: width 0.4s ease;
-  }
-
-  .hbar-count {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: #d6d3d1;
-    width: 36px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  /* Settings section */
-  .settings-section {
-    max-width: 480px;
-  }
-
-  .settings-panel {
-    padding: 28px;
-  }
-
-  /* Section */
-  .section {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #facc15;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
-  .section-icon {
-    color: #facc15;
-    filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.3));
+  .modal-title-danger {
+    color: #ef4444;
   }
 
   /* Fields */
@@ -760,13 +719,6 @@
     cursor: not-allowed;
   }
 
-  /* Divider */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #44403c 15%, #44403c 85%, transparent);
-    margin: 20px 0;
-  }
-
   /* Footer actions */
   .footer-actions {
     display: flex;
@@ -809,13 +761,6 @@
   }
 
   /* Danger zone */
-  .danger-zone {
-    padding: 16px;
-    background: rgba(239, 68, 68, 0.05);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 6px;
-  }
-
   .danger-text {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 14px;
@@ -885,6 +830,10 @@
       flex-direction: column;
       align-items: center;
       gap: 24px;
+    }
+
+    .hero-stats {
+      width: 100%;
     }
 
     .avatar-frame {

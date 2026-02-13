@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
-  import { deserializeRule, buildURLParams, base64ToUint8Array } from '$lib/stores/persistence';
+  import { deserializeRule, buildURLParams, base64ToUint8Array, migrateCellStatesData } from '$lib/stores/persistence';
   import { api } from '$lib/api';
   import CompactCard from './CompactCard.svelte';
   import SkeletonCard from './SkeletonCard.svelte';
@@ -49,10 +49,11 @@
     const viewer = item.viewer;
     const rule = deserializeRule(item.ruleDefinition);
     const shape = typeof item.populationShape === 'string' ? JSON.parse(item.populationShape) : item.populationShape;
-    const cellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
+    const rawCellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
+    const cellStatesData = migrateCellStatesData(rawCellStates);
     const neighborhoodRadius = item.neighborhoodRadius ?? 1;
 
-    const settings = { populationShape: shape, rule: rule!, cellStates, neighborhoodRadius };
+    const settings = { populationShape: shape, rule: rule!, cellStates: cellStatesData.states, trailConfig: cellStatesData.trail, neighborhoodRadius };
     if (rule) {
       automataStore.hydrateCombo(dim, viewer, settings);
     }

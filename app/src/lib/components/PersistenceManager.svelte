@@ -131,6 +131,7 @@
             lattice: automataStore.lattice,
             populationShape: { ...automataStore.populationShape },
             cellStates: automataStore.cellStates.map((s: any) => ({ ...s })),
+            trailConfig: { ...automataStore.trailConfig },
           });
         }
       } else {
@@ -191,6 +192,7 @@
     const _shape = automataStore.populationShape;
     const _rule = automataStore.rule;
     const _cellStates = automataStore.cellStates;
+    const _trailConfig = automataStore.trailConfig;
     const _radius = automataStore.neighborhoodRadius;
     const _lattice = automataStore.lattice;
     const _miningDifficulty = automataStore.miningDifficulty;

@@ -12,7 +12,7 @@
     dimension: automataStore.dimension,
     neighborhoodRadius: automataStore.neighborhoodRadius,
     latticeType: automataStore.lattice,
-    cellStates: automataStore.cellStates,
+    cellStates: { states: automataStore.cellStates, trail: automataStore.trailConfig },
   }));
 
   interface ShapeRuleDisplay {
