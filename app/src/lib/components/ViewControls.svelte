@@ -88,6 +88,21 @@
     return d;
   });
 
+  let borderPath = $derived.by(() => {
+    if (barWidth <= 0) return '';
+    const steps = Math.max(80, Math.round(barWidth));
+    const top: string[] = [];
+    const bot: string[] = [];
+    for (let i = 0; i <= steps; i++) {
+      const x = (i / steps) * barWidth;
+      const waveY = getWaveY(x);
+      const half = 7;
+      top.push(`${x.toFixed(1)},${(waveY - half).toFixed(1)}`);
+      bot.push(`${x.toFixed(1)},${(waveY + half).toFixed(1)}`);
+    }
+    return `M${top.join('L')}L${bot.reverse().join('L')}Z`;
+  });
+
   let handleWaveY = $derived(getWaveY((progressPercent / 100) * barWidth));
 
   let active = $derived(isHovering || isDragging);
@@ -469,16 +484,21 @@
       >
         <defs>
           <clipPath id="wave-progress-clip">
-            <rect x="0" y="0" width={(progressPercent / 100) * barWidth} height="20" />
+            <rect x="0" y="0" width={(progressPercent / 100) * barWidth} height="40" />
           </clipPath>
         </defs>
+        <path
+          d={borderPath}
+          fill="black"
+          style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));"
+        />
         <path
           d={wavePath}
           stroke="black"
           stroke-width={active ? 8 : 6}
           fill="none"
           stroke-linecap="round"
-          style="transition: stroke-width 0.15s ease; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));"
+          style="transition: stroke-width 0.15s ease;"
         />
         <path
           d={wavePath}
@@ -508,9 +528,9 @@
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="flex cursor-pointer items-center gap-2"
-        style="height: 38px; padding: 0 14px; border-radius: 19px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
+        style="height: 38px; padding: 0 14px; border-radius: 19px; border: 4px solid black; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: hsl(234, 70%, 40%); font-size: 13px; white-space: nowrap;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'hsl(234, 70%, 48%)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'hsl(234, 70%, 40%)'; }}
         onclick={() => { automataStore.useSavedSeed = true; automataStore.reset(); }}
       >
         <!-- Replay arrow icon -->
@@ -525,9 +545,9 @@
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="flex cursor-pointer items-center gap-2"
-        style="height: 38px; padding: 0 14px; border-radius: 19px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
+        style="height: 38px; padding: 0 14px; border-radius: 19px; border: 4px solid black; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: hsl(234, 70%, 40%); font-size: 13px; white-space: nowrap;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'hsl(234, 70%, 48%)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'hsl(234, 70%, 40%)'; }}
         onclick={() => { automataStore.useSavedSeed = false; automataStore.reset(); }}
       >
         <!-- Shuffle icon -->
@@ -552,9 +572,9 @@
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
-        onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.85)'; }}
-        onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.7)'; }}
+        style="height: 44px; width: 44px; border-radius: 50%; border: 4px solid black; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: hsl(234, 70%, 40%);"
+        onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(234, 70%, 48%)'; }}
+        onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(234, 70%, 40%)'; }}
         onclick={() => automataStore.togglePlay()}
       >
         {#if automataStore.isPlaying}
@@ -575,7 +595,7 @@
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
           class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+          style="height: 44px; width: 44px; border-radius: 50%; border: 4px solid black; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: hsl(234, 70%, 40%);"
           onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
           onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
           onclick={() => automataStore.reset()}
@@ -593,7 +613,7 @@
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       class="flex cursor-pointer items-center justify-center"
-      style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+      style="height: 44px; width: 44px; border-radius: 50%; border: 4px solid black; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: hsl(234, 70%, 40%);"
       onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.85)'; }}
       onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.7)'; }}
       onclick={toggleFullscreen}

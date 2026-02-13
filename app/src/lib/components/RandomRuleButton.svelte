@@ -61,6 +61,15 @@
     }
   });
 
+  // End mining early when automata enters a non-healthy state (died, frozen, intervention)
+  $effect(() => {
+    if (mining && !automataStore.isViableAutomata) {
+      clearTimeout(miningTimer);
+      automataStore.isMining = false;
+      hasCompletedMine = true;
+    }
+  });
+
   function recordHistory() {
     const rule = automataStore.rule;
     const ruleDefinition = serializeRule(rule);
@@ -126,7 +135,6 @@
       <div class="label-wrap" class:label-hidden={mining}>
         {#if hasCompletedMine}
           <span class="label label-found">{notViable ? 'No viable automata found' : 'Automata found!'}</span>
-          <span class="sub-label">Click again to find new ones</span>
         {:else}
           <span class="label">Mine for<br>automata</span>
         {/if}
@@ -220,24 +228,16 @@
   .label-wrap {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     line-height: 1;
     gap: 5px;
+    flex: 1;
+    text-align: center;
   }
 
   .label-found {
     color: #fde047;
     font-size: clamp(8px, 2vw, 16px);
-  }
-
-  .sub-label {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(7px, 1.5vw, 11px);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: #fef3c7;
-    white-space: nowrap;
-    opacity: 0.95;
   }
 
   .label-hidden {
