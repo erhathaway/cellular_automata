@@ -63,6 +63,11 @@
     trackedViewer = automataStore.viewer;
     trackedResetCounter = automataStore.resetCounter;
     trackedLattice = automataStore.lattice;
+    // Stop the animation immediately so no frames run on the stale automataManager
+    // (e.g. a wolfram rule set on a LifeLike ruleApplicator during a radius change)
+    if (viewer) {
+      try { viewer.turnSimulationOff(); } catch (_e) {}
+    }
     // Debounce: if multiple effects trigger in the same flush, only one init runs
     if (pendingInit !== null) clearTimeout(pendingInit);
     pendingInit = setTimeout(() => {

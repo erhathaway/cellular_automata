@@ -39,15 +39,21 @@
   let mineGemInitialized = false;
   let mineGemLandTimer: ReturnType<typeof setTimeout> | undefined;
   let mineGemGlowTimer: ReturnType<typeof setTimeout> | undefined;
+  let gemRunId = 0; // Guards against stale timer callbacks
+
+  function resetGemState() {
+    clearTimeout(mineGemLandTimer);
+    clearTimeout(mineGemGlowTimer);
+    gemRunId++;
+    showMineGemFly = false;
+    gemLanded = false;
+    gemArriving = false;
+  }
 
   // Reset gem animation state when a new mine starts
   $effect(() => {
     if (automataStore.isMining) {
-      clearTimeout(mineGemLandTimer);
-      clearTimeout(mineGemGlowTimer);
-      showMineGemFly = false;
-      gemLanded = false;
-      gemArriving = false;
+      resetGemState();
     }
   });
 
@@ -60,11 +66,11 @@
   });
 
   function triggerMineGemAnimation() {
-    if (!gemAreaEl || !automataStore.isViableAutomata) return;
+    if (!gemAreaEl || !automataStore.isViableAutomata || automataStore.isMining) return;
 
-    // Clear any in-flight animation from a previous run
-    clearTimeout(mineGemLandTimer);
-    clearTimeout(mineGemGlowTimer);
+    // Cancel any previous animation
+    resetGemState();
+    const thisRun = gemRunId;
 
     const rect = gemAreaEl.getBoundingClientRect();
     const targetX = rect.left + rect.width / 2;
@@ -78,10 +84,14 @@
     showMineGemFly = true;
     gemLanded = false;
     mineGemLandTimer = setTimeout(() => {
+      if (gemRunId !== thisRun) return; // stale — a new run started
       showMineGemFly = false;
       gemLanded = true;
       gemArriving = false;
-      mineGemGlowTimer = setTimeout(() => { gemLanded = false; }, 2000);
+      mineGemGlowTimer = setTimeout(() => {
+        if (gemRunId !== thisRun) return;
+        gemLanded = false;
+      }, 2000);
     }, 1200);
   }
 

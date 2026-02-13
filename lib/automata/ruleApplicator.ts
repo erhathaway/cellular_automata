@@ -68,8 +68,10 @@ export class LifeLike {
   }
 
   run({ neighborStatesCount, cellState }: LifeLikeResult): number {
-    if (cellState === 1 && this._rule.survive.includes(neighborStatesCount[1])) return 1;
-    if (cellState === 0 && this._rule.born.includes(neighborStatesCount[1])) return 1;
+    const { survive, born } = this._rule;
+    if (!survive || !born) return 0;
+    if (cellState === 1 && survive.includes(neighborStatesCount[1])) return 1;
+    if (cellState === 0 && born.includes(neighborStatesCount[1])) return 1;
     return 0;
   }
 }
