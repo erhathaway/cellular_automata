@@ -48,6 +48,7 @@ export default class AutomataManager {
   private _absoluteGeneration = 0;
   private _simulationStartTime = 0;
   private _lastKeyframeTime = 0;
+  keyframeEveryGeneration = false;
 
   // Multi-shape fields
   private _latticeType: LatticeType | undefined;
@@ -726,14 +727,19 @@ export default class AutomataManager {
 
     // Only add new keyframes when at the end of existing keyframes
     if (this._currentKeyframeIndex >= this._keyframes.length - 1) {
-      const now = performance.now();
-      if (this._simulationStartTime === 0) this._simulationStartTime = now;
-      const elapsed = now - this._simulationStartTime;
-      const interval = elapsed < 10_000 ? 500 : 5_000;
-      if (now - this._lastKeyframeTime >= interval) {
+      if (this.keyframeEveryGeneration) {
         this._keyframes.push({ generation: this._absoluteGeneration, snapshot });
         this._currentKeyframeIndex = this._keyframes.length - 1;
-        this._lastKeyframeTime = now;
+      } else {
+        const now = performance.now();
+        if (this._simulationStartTime === 0) this._simulationStartTime = now;
+        const elapsed = now - this._simulationStartTime;
+        const interval = elapsed < 10_000 ? 500 : 5_000;
+        if (now - this._lastKeyframeTime >= interval) {
+          this._keyframes.push({ generation: this._absoluteGeneration, snapshot });
+          this._currentKeyframeIndex = this._keyframes.length - 1;
+          this._lastKeyframeTime = now;
+        }
       }
     }
 

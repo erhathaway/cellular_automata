@@ -173,6 +173,7 @@
         automataManager.useOneDimensionGenerator();
       }
       automataManager.generationHistorySize = 900;
+      automataManager.keyframeEveryGeneration = true;
       viewer = new OneDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 2) {
       automataManager.useLifeLikeGenerator();

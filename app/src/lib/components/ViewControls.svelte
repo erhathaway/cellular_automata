@@ -280,15 +280,17 @@
     const bg = states[0]?.color;
     const fg = states[1]?.color;
 
-    // Collect all keyframe rows from 0 to hovered index
+    // Show the most recent rows up to the hovered index, capped to population width for ~square aspect
+    const w = automataStore.populationShape.x ?? 1;
+    const maxRows = w;
+    const startIdx = Math.max(0, idx - maxRows + 1);
     const rows: number[][] = [];
-    for (let i = 0; i <= idx; i++) {
+    for (let i = startIdx; i <= idx; i++) {
       const pop = getPopAt(i) as number[] | null;
       if (pop) rows.push(pop);
     }
     if (rows.length === 0) return;
 
-    const w = rows[0].length;
     const h = rows.length;
 
     previewCanvas.width = w;
