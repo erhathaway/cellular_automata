@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { historyStore, type HistoryEntry } from '$lib/stores/history.svelte';
   import { radiusToLevel } from '$lib/levels';
   import { getLattice, defaultLattice } from '$lib-core';
@@ -9,6 +10,19 @@
   }: {
     onload: (entry: HistoryEntry) => void;
   } = $props();
+
+  let panelBodyEl: HTMLDivElement | undefined;
+
+  // Scroll to the active entry when the panel mounts (drawer opens)
+  $effect(() => {
+    if (!panelBodyEl) return;
+    tick().then(() => {
+      const active = panelBodyEl?.querySelector('.entry.active') as HTMLElement | null;
+      if (active) {
+        active.scrollIntoView({ block: 'center' });
+      }
+    });
+  });
 
   function ruleLabel(entry: HistoryEntry): string {
     if (entry.ruleType === 'wolfram') {
@@ -74,7 +88,7 @@
   </div>
 
   <!-- Entries -->
-  <div class="panel-body">
+  <div class="panel-body" bind:this={panelBodyEl}>
     {#if historyStore.entries.length === 0}
       <div class="empty-state">
         <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
