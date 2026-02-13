@@ -196,7 +196,7 @@
 <SeizureWarningModal />
 
 <ClerkProvider {...data} appearance={clerkAppearance}>
-	<div class="flex h-screen w-screen overflow-hidden" class:flex-col={isMobile}>
+	<div class="flex w-screen overflow-hidden" class:flex-col={isMobile} style="height: 100dvh;">
 		<!-- Nav rail (desktop) -->
 		{#if !isMobile}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
