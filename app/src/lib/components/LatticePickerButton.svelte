@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { LATTICE_REGISTRY } from '$lib-core';
+  import SteelPanel from '$lib/components/SteelPanel.svelte';
   import type { LatticeType } from '$lib-core';
 
   let { disabled = false }: { disabled?: boolean } = $props();
@@ -57,48 +58,39 @@
 </script>
 
 <div class="lattice-root" bind:this={rootEl}>
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="lattice-btn {open ? 'open' : ''} {disabled ? 'is-disabled' : ''}" onclick={toggle}>
-    <div class="nails">
-      <div class="nail"></div>
-      <div class="nail"></div>
+  <SteelPanel variant="cyan" active={open} {disabled} onclick={toggle}>
+    <div class="lattice-btn" class:is-disabled={disabled}>
+      <span class="pretitle">Lattice</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="grid-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <!-- 3x3 grid of dots connected by lines -->
+        <line class="grid-line" x1="6" y1="6" x2="18" y2="6" />
+        <line class="grid-line" x1="6" y1="12" x2="18" y2="12" />
+        <line class="grid-line" x1="6" y1="18" x2="18" y2="18" />
+        <line class="grid-line" x1="6" y1="6" x2="6" y2="18" />
+        <line class="grid-line" x1="12" y1="6" x2="12" y2="18" />
+        <line class="grid-line" x1="18" y1="6" x2="18" y2="18" />
+        <circle class="grid-dot" cx="6" cy="6" r="1.8" />
+        <circle class="grid-dot" cx="12" cy="6" r="1.8" />
+        <circle class="grid-dot" cx="18" cy="6" r="1.8" />
+        <circle class="grid-dot" cx="6" cy="12" r="1.8" />
+        <circle class="grid-dot" cx="12" cy="12" r="1.8" />
+        <circle class="grid-dot" cx="18" cy="12" r="1.8" />
+        <circle class="grid-dot" cx="6" cy="18" r="1.8" />
+        <circle class="grid-dot" cx="12" cy="18" r="1.8" />
+        <circle class="grid-dot" cx="18" cy="18" r="1.8" />
+      </svg>
+
+      <span class="label">{current.label}</span>
+
+      {#if disabled}
+        <div class="disabled-overlay">
+          <div class="cross-line cross-line-1"></div>
+          <div class="cross-line cross-line-2"></div>
+          <div class="disabled-pill">Advanced Mode</div>
+        </div>
+      {/if}
     </div>
-    <div class="nails nails-bottom">
-      <div class="nail"></div>
-      <div class="nail"></div>
-    </div>
-
-    <span class="pretitle">Lattice</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="grid-icon" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <!-- 3x3 grid of dots connected by lines -->
-      <line class="grid-line" x1="6" y1="6" x2="18" y2="6" />
-      <line class="grid-line" x1="6" y1="12" x2="18" y2="12" />
-      <line class="grid-line" x1="6" y1="18" x2="18" y2="18" />
-      <line class="grid-line" x1="6" y1="6" x2="6" y2="18" />
-      <line class="grid-line" x1="12" y1="6" x2="12" y2="18" />
-      <line class="grid-line" x1="18" y1="6" x2="18" y2="18" />
-      <circle class="grid-dot" cx="6" cy="6" r="1.8" />
-      <circle class="grid-dot" cx="12" cy="6" r="1.8" />
-      <circle class="grid-dot" cx="18" cy="6" r="1.8" />
-      <circle class="grid-dot" cx="6" cy="12" r="1.8" />
-      <circle class="grid-dot" cx="12" cy="12" r="1.8" />
-      <circle class="grid-dot" cx="18" cy="12" r="1.8" />
-      <circle class="grid-dot" cx="6" cy="18" r="1.8" />
-      <circle class="grid-dot" cx="12" cy="18" r="1.8" />
-      <circle class="grid-dot" cx="18" cy="18" r="1.8" />
-    </svg>
-
-    <span class="label">{current.label}</span>
-
-    {#if disabled}
-      <div class="disabled-overlay">
-        <div class="cross-line cross-line-1"></div>
-        <div class="cross-line cross-line-2"></div>
-        <div class="disabled-pill">Advanced Mode</div>
-      </div>
-    {/if}
-  </div>
+  </SteelPanel>
 
   {#if open}
     <div class="popup">
@@ -128,39 +120,18 @@
   }
 
   .lattice-btn {
-    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
     padding: clamp(10px, 2vw, 18px) clamp(12px, 2vw, 22px);
-    background-color: #1c1917;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 8px,
-        rgba(68, 64, 60, 0.12) 8px,
-        rgba(68, 64, 60, 0.12) 9px
-      );
-    border: 1px solid #44403c;
-    border-radius: 6px;
     color: #67e8f9;
-    transition: border-color 0.15s, background-color 0.15s;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
     min-height: 0;
-  }
-
-  .lattice-btn:hover:not(.is-disabled),
-  .lattice-btn.open {
-    border-color: #67e8f9;
-    background-color: #292524;
   }
 
   .lattice-btn.is-disabled {
     cursor: not-allowed;
     pointer-events: auto;
-    border-color: #292524;
     color: #44403c;
   }
 
@@ -183,11 +154,6 @@
 
   .lattice-btn.is-disabled .pretitle {
     color: #78590a;
-  }
-
-  .lattice-btn.is-disabled .nail {
-    background: #44403c;
-    box-shadow: none;
   }
 
   .grid-icon {
@@ -309,29 +275,6 @@
     color: #67e8f9;
     white-space: nowrap;
     flex-shrink: 0;
-  }
-
-  .nails {
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    right: 8px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-  }
-
-  .nails-bottom {
-    top: auto;
-    bottom: 5px;
-  }
-
-  .nail {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #67e8f9;
-    box-shadow: 0 0 3px rgba(103, 232, 249, 0.25);
   }
 
   .disabled-overlay {

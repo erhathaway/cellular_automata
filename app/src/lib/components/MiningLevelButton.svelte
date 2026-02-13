@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import SteelPanel from '$lib/components/SteelPanel.svelte';
   import type { MiningDifficulty } from '$lib/stores/automata.svelte';
 
   let { disabled = false }: { disabled?: boolean } = $props();
@@ -51,53 +52,44 @@
 </script>
 
 <div class="level-root" bind:this={rootEl}>
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="level-btn {open ? 'open' : ''} {disabled ? 'is-disabled' : ''}" onclick={toggle}>
-    <div class="nails">
-      <div class="nail"></div>
-      <div class="nail"></div>
+  <SteelPanel variant="cyan" active={open} {disabled} onclick={toggle}>
+    <div class="level-btn" class:is-disabled={disabled}>
+      <span class="pretitle">Level</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="dial" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle class="dial-rim" cx="12" cy="12" r="9" />
+        <circle class="dial-face" cx="12" cy="12" r="7" />
+        <line class="dial-tick" x1="7.7" y1="16.3" x2="9.1" y2="14.9" />
+        <line class="dial-tick" x1="12" y1="6.1" x2="12" y2="8.1" />
+        <line class="dial-tick" x1="16.3" y1="16.3" x2="14.9" y2="14.9" />
+        <circle class="dial-hub" cx="12" cy="12" r="2.2" />
+        <line
+          class="dial-needle"
+          x1="12"
+          y1="12"
+          x2={current.key === 'easy' ? '8.4' : current.key === 'hard' ? '15.6' : '12'}
+          y2={current.key === 'easy' ? '8.6' : current.key === 'hard' ? '8.6' : '6.6'}
+        />
+        <path
+          class="dial-tip"
+          d={current.key === 'easy'
+            ? 'M8.1 8.3 L9.1 8.5 L8.5 9.1 Z'
+            : current.key === 'hard'
+              ? 'M15.9 8.3 L15.5 9.1 L14.9 8.5 Z'
+              : 'M11.5 6.2 L12.5 6.2 L12 5.2 Z'}
+        />
+      </svg>
+
+      <span class="label">{current.label}</span>
+
+      {#if disabled}
+        <div class="disabled-overlay">
+          <div class="cross-line cross-line-1"></div>
+          <div class="cross-line cross-line-2"></div>
+          <div class="disabled-pill">Advanced Mode</div>
+        </div>
+      {/if}
     </div>
-    <div class="nails nails-bottom">
-      <div class="nail"></div>
-      <div class="nail"></div>
-    </div>
-
-    <span class="pretitle">Level</span>
-    <svg xmlns="http://www.w3.org/2000/svg" class="dial" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <circle class="dial-rim" cx="12" cy="12" r="9" />
-      <circle class="dial-face" cx="12" cy="12" r="7" />
-      <line class="dial-tick" x1="7.7" y1="16.3" x2="9.1" y2="14.9" />
-      <line class="dial-tick" x1="12" y1="6.1" x2="12" y2="8.1" />
-      <line class="dial-tick" x1="16.3" y1="16.3" x2="14.9" y2="14.9" />
-      <circle class="dial-hub" cx="12" cy="12" r="2.2" />
-      <line
-        class="dial-needle"
-        x1="12"
-        y1="12"
-        x2={current.key === 'easy' ? '8.4' : current.key === 'hard' ? '15.6' : '12'}
-        y2={current.key === 'easy' ? '8.6' : current.key === 'hard' ? '8.6' : '6.6'}
-      />
-      <path
-        class="dial-tip"
-        d={current.key === 'easy'
-          ? 'M8.1 8.3 L9.1 8.5 L8.5 9.1 Z'
-          : current.key === 'hard'
-            ? 'M15.9 8.3 L15.5 9.1 L14.9 8.5 Z'
-            : 'M11.5 6.2 L12.5 6.2 L12 5.2 Z'}
-      />
-    </svg>
-
-    <span class="label">{current.label}</span>
-
-    {#if disabled}
-      <div class="disabled-overlay">
-        <div class="cross-line cross-line-1"></div>
-        <div class="cross-line cross-line-2"></div>
-        <div class="disabled-pill">Advanced Mode</div>
-      </div>
-    {/if}
-  </div>
+  </SteelPanel>
 
   {#if open}
     <div class="popup">
@@ -125,39 +117,18 @@
   }
 
   .level-btn {
-    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
     padding: clamp(10px, 2vw, 18px) clamp(12px, 2vw, 22px);
-    background-color: #1c1917;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 8px,
-        rgba(68, 64, 60, 0.12) 8px,
-        rgba(68, 64, 60, 0.12) 9px
-      );
-    border: 1px solid #44403c;
-    border-radius: 6px;
     color: #67e8f9;
-    transition: border-color 0.15s, background-color 0.15s;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
     min-height: 0;
-  }
-
-  .level-btn:hover:not(.is-disabled),
-  .level-btn.open {
-    border-color: #67e8f9;
-    background-color: #292524;
   }
 
   .level-btn.is-disabled {
     cursor: not-allowed;
     pointer-events: auto;
-    border-color: #292524;
     color: #44403c;
   }
 
@@ -198,11 +169,6 @@
 
   .level-btn.is-disabled .pretitle {
     color: #78590a;
-  }
-
-  .level-btn.is-disabled .nail {
-    background: #44403c;
-    box-shadow: none;
   }
 
   .dial {
@@ -344,29 +310,6 @@
     color: #67e8f9;
     white-space: nowrap;
     flex-shrink: 0;
-  }
-
-  .nails {
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    right: 8px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-  }
-
-  .nails-bottom {
-    top: auto;
-    bottom: 5px;
-  }
-
-  .nail {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #67e8f9;
-    box-shadow: 0 0 3px rgba(103, 232, 249, 0.25);
   }
 
   .disabled-overlay {

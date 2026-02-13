@@ -3,6 +3,7 @@
   import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { serializeRule } from '$lib/stores/persistence';
+  import SteelPanel from '$lib/components/SteelPanel.svelte';
 
   let mining = $derived(automataStore.isMining);
   let miningTimer: ReturnType<typeof setTimeout> | undefined;
@@ -119,17 +120,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div class="mine-panel">
-    <!-- Panel nails -->
-    <div class="nails">
-      <div class="nail"></div>
-      <div class="nail"></div>
-    </div>
-    <div class="nails nails-bottom">
-      <div class="nail"></div>
-      <div class="nail"></div>
-    </div>
-
+  <SteelPanel variant="muted" borderRadius="8px" borderWidth={2} style="overflow: visible; z-index: 1; width: clamp(200px, 35vw, 460px); padding: 14px 14px 18px;">
     <!-- Raised button -->
     <div class="mine-btn {mining ? 'mining' : ''}" bind:this={btnEl} onclick={handleClick}>
       <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -166,7 +157,7 @@
         {/key}
       {/if}
     </div>
-  </div>
+  </SteelPanel>
 </div>
 
 <style>
@@ -263,50 +254,6 @@
     100% {
       background: rgba(250, 204, 21, 0.4);
     }
-  }
-
-  .mine-panel {
-    position: relative;
-    overflow: visible;
-    z-index: 1;
-    width: clamp(200px, 35vw, 460px);
-    padding: 14px 14px 18px;
-    background-color: #1c1917;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 8px,
-        rgba(68, 64, 60, 0.12) 8px,
-        rgba(68, 64, 60, 0.12) 9px
-      );
-    border: 2px solid #44403c;
-    border-radius: 8px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .nails {
-    position: absolute;
-    top: 6px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .nails-bottom {
-    top: auto;
-    bottom: 6px;
-  }
-
-  .nail {
-    width: 4px;
-    height: 4px;
-    background: #a8a29e;
-    border-radius: 50%;
-    opacity: 0.45;
   }
 
   .mine-btn {

@@ -12,6 +12,7 @@
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
+  import SteelPanel from '$lib/components/SteelPanel.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { historyStore } from '$lib/stores/history.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
@@ -115,32 +116,24 @@
       <div class="adv-pipe-flange adv-pipe-flange-top"></div>
       <div class="adv-pipe-flange adv-pipe-flange-bottom"></div>
     </div>
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="adv-btn {advancedOpen ? 'adv-open' : ''}" onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
-      <div class="nails">
-        <div class="nail"></div>
-        <div class="nail"></div>
+    <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
+      <div class="adv-btn">
+        <span class="adv-pretitle">Mode</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14" />
+          <line x1="4" y1="10" x2="4" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12" y2="3" />
+          <line x1="20" y1="21" x2="20" y2="16" />
+          <line x1="20" y1="12" x2="20" y2="3" />
+          <line x1="1" y1="14" x2="7" y2="14" />
+          <line x1="9" y1="8" x2="15" y2="8" />
+          <line x1="17" y1="16" x2="23" y2="16" />
+        </svg>
+        <span class="adv-label">Advanced</span>
+        <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
       </div>
-      <div class="nails nails-bottom">
-        <div class="nail"></div>
-        <div class="nail"></div>
-      </div>
-      <span class="adv-pretitle">Mode</span>
-      <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="4" y1="21" x2="4" y2="14" />
-        <line x1="4" y1="10" x2="4" y2="3" />
-        <line x1="12" y1="21" x2="12" y2="12" />
-        <line x1="12" y1="8" x2="12" y2="3" />
-        <line x1="20" y1="21" x2="20" y2="16" />
-        <line x1="20" y1="12" x2="20" y2="3" />
-        <line x1="1" y1="14" x2="7" y2="14" />
-        <line x1="9" y1="8" x2="15" y2="8" />
-        <line x1="17" y1="16" x2="23" y2="16" />
-      </svg>
-      <span class="adv-label">Advanced</span>
-      <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
-    </div>
+    </SteelPanel>
   </div>
 
   {#if advancedOpen}
@@ -578,55 +571,12 @@
   }
 
   .adv-btn {
-    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
     padding: 18px 22px;
-    background-color: #1c1917;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 8px,
-        rgba(68, 64, 60, 0.12) 8px,
-        rgba(68, 64, 60, 0.12) 9px
-      );
-    border: 1px solid #44403c;
-    border-radius: 6px;
     color: #67e8f9;
-    transition: border-color 0.15s, background-color 0.15s;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .adv-btn:hover,
-  .adv-btn.adv-open {
-    border-color: #67e8f9;
-    background-color: #292524;
-  }
-
-  .adv-btn .nails {
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    right: 8px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-  }
-
-  .adv-btn .nails-bottom {
-    top: auto;
-    bottom: 5px;
-  }
-
-  .adv-btn .nail {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #67e8f9;
-    box-shadow: 0 0 3px rgba(103, 232, 249, 0.25);
   }
 
   .adv-icon {
