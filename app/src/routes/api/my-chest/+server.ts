@@ -195,5 +195,13 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	});
 
 	const items = await annotateInteractions(all.slice(offset, offset + limit), auth.userId);
-	return json({ items, hasMore: offset + limit < all.length, currentUserId: auth.userId });
+
+	// Total claims count (generation_runs + cell_populations owned by user)
+	const [runCount, popCount] = await Promise.all([
+		db.select({ count: sql<number>`count(*)` }).from(generationRun).where(eq(generationRun.userId, auth.userId)),
+		db.select({ count: sql<number>`count(*)` }).from(cellPopulation).where(eq(cellPopulation.userId, auth.userId)),
+	]);
+	const totalClaims = Number(runCount[0].count) + Number(popCount[0].count);
+
+	return json({ items, hasMore: offset + limit < all.length, currentUserId: auth.userId, totalClaims });
 };

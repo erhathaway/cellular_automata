@@ -25,10 +25,12 @@
   ];
 
   let activeTab: ChestTab = $state('all');
+  const MAX_SLOTS = 100;
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
   let currentUserId = $state('');
+  let totalClaims = $state(0);
 
   // Read initial tab from URL query param
   onMount(() => {
@@ -56,13 +58,14 @@
     items = [];
     hasMore = false;
     try {
-      const result = await api<{ items: any[]; hasMore: boolean; currentUserId?: string }>(
+      const result = await api<{ items: any[]; hasMore: boolean; currentUserId?: string; totalClaims?: number }>(
         'GET',
         `/api/my-chest?filter=${filter}&limit=${PAGE_SIZE}&offset=0`
       );
       items = result.items;
       hasMore = result.hasMore;
       if (result.currentUserId) currentUserId = result.currentUserId;
+      if (result.totalClaims != null) totalClaims = result.totalClaims;
     } catch {
       items = [];
     } finally {
@@ -128,7 +131,22 @@
 
 <div class="chest-bg">
   <div class="mx-auto max-w-7xl px-6 py-8">
-    <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #facc15; margin: 0 0 24px;">My Chest</h1>
+    <div class="backpack-header">
+      <h1 class="backpack-title">Backpack</h1>
+      <div class="capacity-indicator">
+        <div class="capacity-bar-track">
+          <div
+            class="capacity-bar-fill"
+            style="width: {Math.min(totalClaims / MAX_SLOTS * 100, 100)}%"
+          ></div>
+        </div>
+        <span class="capacity-label">
+          <span class="capacity-count">{totalClaims}</span>
+          <span class="capacity-sep">/</span>
+          <span class="capacity-max">{MAX_SLOTS}</span>
+        </span>
+      </div>
+    </div>
 
     <SignedOut>
       <div class="flex h-40 items-center justify-center">

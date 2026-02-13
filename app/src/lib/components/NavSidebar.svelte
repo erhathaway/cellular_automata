@@ -26,7 +26,7 @@
   const topItems = [
     { href: '/', label: 'Mine', icon: 'pickaxe' },
     { href: '/gallery', label: 'Gallery', icon: 'compass' },
-    { href: '/my-chest', label: 'My Chest', icon: 'chest' },
+    { href: '/backpack', label: 'Backpack', icon: 'backpack' },
   ];
 
   const bottomItems = [
@@ -98,13 +98,14 @@
               <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none" opacity="0.3" />
               <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" />
             </svg>
-          {:else if item.icon === 'chest'}
+          {:else if item.icon === 'backpack'}
             <div class="relative" bind:this={chestEl}>
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-                <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-                <line x1="4" y1="13" x2="20" y2="13" />
-                <rect x="10" y="11" width="4" height="4" rx="1" />
+                <path d="M4 10a4 4 0 014-4h8a4 4 0 014 4v10a2 2 0 01-2 2H6a2 2 0 01-2-2V10z" />
+                <path d="M9 6V4a3 3 0 016 0v2" />
+                <path d="M8 21v-5a2 2 0 012-2h4a2 2 0 012 2v5" />
+                <path d="M20 10h-2" />
+                <path d="M6 10H4" />
               </svg>
               {#if showPlusOne}
                 <span class="plus-one">+1</span>
