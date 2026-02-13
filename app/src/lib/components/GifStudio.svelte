@@ -28,6 +28,8 @@
   let studioGeneration = $state(0);
   let isEncoding = $state(false);
 
+  let bgColor = $derived(automataStore.hslString(automataStore.cellStates[0]?.color ?? { h: 360, s: 1, l: 1, a: 1 }));
+
   // Crop drag state
   let isCropping = $state(false);
   let cropStart: { x: number; y: number } | null = null;
@@ -122,6 +124,10 @@
     }
     if (!viewerContainer || !engine) return;
 
+    // Ensure container has real dimensions before Three.js reads them
+    const rect = viewerContainer.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return false;
+
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
 
@@ -147,13 +153,37 @@
         studioViewer.addGeneration();
       }
     }
+
+    // Add initial generation for 2D/3D so something is visible
+    if (dim >= 2) {
+      studioViewer.addGeneration();
+      if (studioViewer.renderer && studioViewer.scene && studioViewer.camera) {
+        studioViewer.renderer.render(studioViewer.scene, studioViewer.camera);
+      }
+    }
+
+    return true;
   }
 
   async function initStudio() {
     engine = createStudioEngine();
     loadPopulation();
+
+    // Poll until the container has real layout dimensions (up to 500ms)
     await tick();
-    createStudioViewer();
+    for (let i = 0; i < 20; i++) {
+      await new Promise(r => requestAnimationFrame(r));
+      if (viewerContainer && viewerContainer.clientWidth > 0 && viewerContainer.clientHeight > 0) break;
+    }
+
+    const ok = createStudioViewer();
+    if (!ok) return;
+
+    // Auto-mark start and capture frames
+    if (engine && studioViewer) {
+      markStart();
+      await captureFramesAction();
+    }
   }
 
   function destroyStudio() {
@@ -268,6 +298,9 @@
       canvas.width = sw;
       canvas.height = sh;
       const ctx = canvas.getContext('2d')!;
+      // Fill with dead-cell background (Three.js renderer is transparent)
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, sw, sh);
       ctx.drawImage(source, sx, sy, sw, sh, 0, 0, sw, sh);
 
       newFrames.push(ctx.getImageData(0, 0, sw, sh));
@@ -447,7 +480,7 @@
         <!-- Left: Live Viewer -->
         <div class="viewer-section">
           <div class="viewer-wrapper">
-            <div class="viewer-container" bind:this={viewerContainer}></div>
+            <div class="viewer-container" bind:this={viewerContainer} style:background-color={bgColor}></div>
             {#if isCropping}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
@@ -696,6 +729,7 @@
   .viewer-container {
     width: 100%;
     height: 100%;
+    min-height: 300px;
   }
 
   .viewer-container :global(canvas) {
