@@ -7,6 +7,7 @@
 	import AchievementNotification from '$lib/components/achievements/AchievementNotification.svelte';
 	import { ClerkProvider, SignedIn, SignedOut, useClerkContext } from 'svelte-clerk';
 	import SignUpNudge from '$lib/components/SignUpNudge.svelte';
+	import SeizureWarningModal from '$lib/components/SeizureWarningModal.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { automataStore } from '$lib/stores/automata.svelte';
@@ -140,6 +141,7 @@
 
 		automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
 		automataStore.hydrateActive(entry.dimension, entry.viewer);
+		automataStore.generationRunId = null;
 		automataStore.savedSeed = null;
 		automataStore.useSavedSeed = true;
 		automataStore.resetMiningToRandom();
@@ -157,6 +159,8 @@
 	<link rel="icon" href={favicon} />
 	<title>Cellular Automata</title>
 </svelte:head>
+
+<SeizureWarningModal />
 
 <ClerkProvider {...data} appearance={clerkAppearance}>
 	<div class="flex h-screen w-screen overflow-hidden">

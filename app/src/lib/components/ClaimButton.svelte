@@ -39,7 +39,11 @@
         body: JSON.stringify({ ...data, thumbnail })
       });
       if (res.status === 409) {
-        // Already exists — treat as success
+        // Already exists — extract existing ID
+        try {
+          const body = await res.json();
+          if (body.existingId) automataStore.generationRunId = body.existingId;
+        } catch {}
       } else if (!res.ok) {
         let msg = `Server error (${res.status})`;
         try {
@@ -49,6 +53,12 @@
           msg = (await res.text()) || msg;
         }
         throw new Error(msg);
+      } else {
+        // 201 Created — extract new ID
+        try {
+          const body = await res.json();
+          if (body.id) automataStore.generationRunId = body.id;
+        } catch {}
       }
 
       saved = true;

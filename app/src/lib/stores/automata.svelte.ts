@@ -197,6 +197,9 @@ class AutomataStore {
   savedSeed: Uint8Array | null = $state(null);
   useSavedSeed: boolean = $state(true);
 
+  // Generation run ID — links to a specific claimed snapshot for reproducible URLs
+  generationRunId: string | null = $state(null);
+
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
   getKeyframePopulation: ((index: number) => any) | null = null;
@@ -421,6 +424,7 @@ class AutomataStore {
   randomizeRule() {
     this.savedSeed = null;
     this.useSavedSeed = true;
+    this.generationRunId = null;
 
     // Granular lock flags — locking lattice implicitly locks cell dimension too
     const skipCell = this.advancedMode && (this.lockCell || this.lockLattice);

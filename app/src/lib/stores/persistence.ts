@@ -145,6 +145,7 @@ export function buildURLParams(
   viewer: number,
   settings: ComboSettings,
   generation?: number,
+  generationRunId?: string | null,
 ): URLSearchParams {
   const params = new URLSearchParams();
   params.set('d', String(dim));
@@ -185,6 +186,10 @@ export function buildURLParams(
     params.set('g', String(generation));
   }
 
+  if (generationRunId) {
+    params.set('gr', generationRunId);
+  }
+
   return params;
 }
 
@@ -193,6 +198,7 @@ interface ParsedURL {
   viewer: number;
   settings: Partial<ComboSettings>;
   generation?: number;
+  generationRunId?: string;
 }
 
 export function parseURLParams(params: URLSearchParams): ParsedURL | null {
@@ -292,7 +298,11 @@ export function parseURLParams(params: URLSearchParams): ParsedURL | null {
     if (!isNaN(g) && g > 0) generation = g;
   }
 
-  return { dimension, viewer, settings, generation };
+  // Parse generation run ID
+  const grStr = params.get('gr');
+  const generationRunId = grStr || undefined;
+
+  return { dimension, viewer, settings, generation, generationRunId };
 }
 
 // --- localStorage ---
@@ -327,6 +337,7 @@ export interface PersistedData {
 export function urlFingerprint(search: string): string {
   const params = new URLSearchParams(search);
   params.delete('g');
+  params.delete('gr');
   params.sort();
   return params.toString();
 }
@@ -394,8 +405,8 @@ export function loadFromLocalStorage(): PersistedData | null {
 
 // --- URL update (no navigation, no history pollution) ---
 
-export function updateURL(dim: number, viewer: number, settings: ComboSettings, generation?: number): void {
-  const params = buildURLParams(dim, viewer, settings, generation);
+export function updateURL(dim: number, viewer: number, settings: ComboSettings, generation?: number, generationRunId?: string | null): void {
+  const params = buildURLParams(dim, viewer, settings, generation, generationRunId);
   const url = new URL(window.location.href);
   url.search = params.toString();
   try {

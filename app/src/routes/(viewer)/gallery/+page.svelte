@@ -113,6 +113,7 @@
 
     // Fetch seed on demand (not included in list responses for performance)
     if (item.entityType === 'generation_run') {
+      automataStore.generationRunId = item.id;
       try {
         const { seedPopulation, claimPopulation } = await api<{ seedPopulation: string | null; claimPopulation: string | null }>('GET', `/api/seed?id=${item.id}`);
         const popToUse = claimPopulation ?? seedPopulation;
@@ -121,13 +122,14 @@
         automataStore.savedSeed = null;
       }
     } else {
+      automataStore.generationRunId = null;
       automataStore.savedSeed = null;
     }
     automataStore.useSavedSeed = true;
     automataStore.resetMiningToRandom();
     automataStore.reset();
     viewerUiStore.openAnalysis();
-    const params = buildURLParams(dim, viewer, settings);
+    const params = buildURLParams(dim, viewer, settings, undefined, automataStore.generationRunId);
     goto(`/mine?${params.toString()}`);
   }
 

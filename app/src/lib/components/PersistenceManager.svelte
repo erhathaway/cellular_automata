@@ -10,7 +10,9 @@
     deserializeRule,
     updateURL,
     urlFingerprint,
+    base64ToUint8Array,
   } from '$lib/stores/persistence';
+  import { api } from '$lib/api';
   import { historyStore } from '$lib/stores/history.svelte';
 
   let initialized = $state(false);
@@ -18,7 +20,7 @@
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let thumbnailInterval: ReturnType<typeof setInterval> | undefined;
 
-  onMount(() => {
+  onMount(async () => {
     // Eagerly load history before any hydration so entries and cursor are populated
     historyStore.ensureLoaded();
 
@@ -143,6 +145,21 @@
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
 
+    // If URL has a generation run ID, fetch the seed snapshot for reproducible loading
+    if (urlParsed?.generationRunId) {
+      automataStore.generationRunId = urlParsed.generationRunId;
+      try {
+        const { seedPopulation, claimPopulation } = await api<{ seedPopulation: string | null; claimPopulation: string | null }>('GET', `/api/seed?id=${urlParsed.generationRunId}`);
+        const popToUse = claimPopulation ?? seedPopulation;
+        automataStore.savedSeed = popToUse ? base64ToUint8Array(popToUse) : null;
+        automataStore.useSavedSeed = true;
+      } catch {
+        // Seed fetch failed — clear ID, fall back to random seed
+        automataStore.generationRunId = null;
+        automataStore.savedSeed = null;
+      }
+    }
+
     // Signal that URL/localStorage state has been applied — ViewPlayer waits for this
     automataStore.hydrated = true;
     initialized = true;
@@ -182,7 +199,7 @@
     const activeKey = `${dim}-${viewer}`;
     const activeSettings = allCombos[activeKey];
     if (activeSettings) {
-      updateURL(dim, viewer, activeSettings, automataStore.totalGenerations);
+      updateURL(dim, viewer, activeSettings, automataStore.totalGenerations, automataStore.generationRunId);
     }
   }
 
@@ -214,6 +231,7 @@
     const _lockColors = automataStore.lockColors;
     const _neighborEnabled = automataStore.neighborEnabled;
     const _shapeNeighborEnabled = automataStore.shapeNeighborEnabled;
+    const _generationRunId = automataStore.generationRunId;
 
     clearTimeout(configDebounceTimer);
     configDebounceTimer = setTimeout(() => {

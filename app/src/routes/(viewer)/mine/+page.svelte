@@ -37,6 +37,7 @@
 
     automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
     automataStore.hydrateActive(entry.dimension, entry.viewer);
+    automataStore.generationRunId = null;
     automataStore.savedSeed = null;
     automataStore.useSavedSeed = true;
     automataStore.resetMiningToRandom();

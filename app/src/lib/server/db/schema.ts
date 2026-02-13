@@ -329,6 +329,30 @@ export const userGenerationView = sqliteTable(
 	]
 );
 
+// --- Seizure Warning Response ---
+
+export const seizureWarningResponse = sqliteTable(
+	'seizure_warning_response',
+	{
+		id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+		agreed: integer('agreed', { mode: 'boolean' }).notNull(),
+		ipAddress: text('ip_address').notNull(),
+		userAgent: text('user_agent').notNull(),
+		language: text('language').notNull(),
+		screenWidth: integer('screen_width'),
+		screenHeight: integer('screen_height'),
+		referrer: text('referrer'),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(table) => [
+		index('seizure_warning_user_id_idx').on(table.userId),
+		index('seizure_warning_ip_idx').on(table.ipAddress)
+	]
+);
+
 // --- Discovery ---
 
 export const discovery = sqliteTable(

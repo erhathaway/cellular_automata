@@ -125,7 +125,7 @@
       const allCombos = automataStore.getAllComboSettings();
       const settings = allCombos[`${dim}-${viewer}`];
       if (settings) {
-        const params = buildURLParams(dim, viewer, settings, automataStore.totalGenerations);
+        const params = buildURLParams(dim, viewer, settings, automataStore.totalGenerations, automataStore.generationRunId);
         return `${window.location.origin}/mine?${params.toString()}`;
       }
     }
