@@ -15,7 +15,8 @@
   // Internal state
   let startMode: 'current' | 'seed' = $state('current');
   let frameCount = $state(20);
-  let frameDelay = $state(100);
+  let fps = $state(10);
+  let frameDelay = $derived(Math.round(1000 / fps));
   let capturedFrames: ImageData[] = $state([]);
   let frameThumbnails: string[] = $state([]);
   let cropRect: { x: number; y: number; w: number; h: number } | null = $state(null);
@@ -284,6 +285,10 @@
 
     for (let i = 0; i < frameCount; i++) {
       studioViewer.addGeneration();
+      // Run trail removal + coloring (mirrors the normal animation loop)
+      if (studioViewer.animateUpdateFn) {
+        studioViewer.animateUpdateFn();
+      }
       if (studioViewer.renderer && studioViewer.scene && studioViewer.camera) {
         studioViewer.renderer.render(studioViewer.scene, studioViewer.camera);
       }
@@ -566,10 +571,12 @@
             <div class="setting-row">
               <label class="setting-label" for="frame-count">Frames</label>
               <input id="frame-count" type="number" class="setting-input" bind:value={frameCount} min="2" max="200" />
+              <span class="setting-limit">2–200</span>
             </div>
             <div class="setting-row">
-              <label class="setting-label" for="frame-delay">Speed (ms)</label>
-              <input id="frame-delay" type="number" class="setting-input" bind:value={frameDelay} min="10" max="2000" step="10" />
+              <label class="setting-label" for="fps">FPS</label>
+              <input id="fps" type="number" class="setting-input" bind:value={fps} min="1" max="400" step="1" />
+              <span class="setting-limit">1–400</span>
             </div>
           </div>
 
@@ -906,6 +913,13 @@
   .setting-input:focus {
     outline: none;
     border-color: #facc15;
+  }
+
+  .setting-limit {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #57534e;
+    white-space: nowrap;
   }
 
   .radio-group {
