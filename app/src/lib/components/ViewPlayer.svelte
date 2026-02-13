@@ -209,6 +209,10 @@
       return automataManager._snapshotPopulation(pop);
     };
 
+    // Snapshot cell states + trail config for preview rendering
+    automataStore.previewCellStates = [...automataStore.cellStates];
+    automataStore.previewTrailConfig = { ...automataStore.trailConfig };
+
     if (viewer) {
       // Set cell state colors + trail config
       viewer.states = automataStore.cellStates;
@@ -337,6 +341,8 @@
     automataStore.captureThumbnail = null;
     automataStore.getSeedSnapshot = null;
     automataStore.getCurrentPopulationSnapshot = null;
+    automataStore.previewCellStates = null;
+    automataStore.previewTrailConfig = null;
     if (viewer) {
       try { viewer.quit(); } catch (_e) {}
       viewer = undefined;
@@ -400,6 +406,7 @@
     const states = automataStore.cellStates;
     if (!viewer) return;
     viewer.states = states;
+    automataStore.previewCellStates = [...states];
   });
 
   // Watch for trail config changes
@@ -407,6 +414,7 @@
     const tc = automataStore.trailConfig;
     if (!viewer) return;
     viewer.trailConfig = tc;
+    automataStore.previewTrailConfig = { ...tc };
   });
 
   // Watch for shape changes (without reinitializing viewer)
@@ -464,12 +472,16 @@
     else if (dim === 2 && view === 3) trailSize = automataStore.trailConfig.size;
     else if (dim === 1 && view === 2) trailSize = viewer.maxGenerationsToShow || 100;
 
+    // Pause the animation loop during seek to prevent races with rAF
+    const wasRunning = viewer.runSimulation;
+    viewer.runSimulation = false;
+
     // Seek automata manager to a position that allows trail preloading
     const seekStart = Math.max(0, target - trailSize);
     automataManager.seekTo(seekStart);
 
     // Clear all viewer meshes (clearGenerations resets updateRateInMS — restore it)
-    const savedRate = viewer.updateRateInMS ?? viewerDefaultUpdateRateMs;
+    const savedRate = viewer.updateRateInMS ?? viewerDefaultUpdateRateMs ?? 100;
     viewer.clearGenerations();
     viewer.updateRateInMS = savedRate;
 
@@ -481,6 +493,9 @@
 
     // Ensure automata is at target (1D guard can block some addGeneration calls)
     automataManager.seekTo(target);
+
+    // Reset animation timer so next frame respects the rate delay
+    viewer.updateStartTime = new Date().getTime();
 
     // For 2D-in-3D: scroll scene and light to match preloaded generations
     if (dim === 2 && view === 3 && viewer.cellShape) {
@@ -533,6 +548,9 @@
       automataManager.totalGenerations,
       automataManager.generationHistorySize
     );
+
+    // Restore simulation state
+    viewer.runSimulation = wasRunning;
 
     automataStore.clearSeekTarget();
   });

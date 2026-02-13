@@ -200,6 +200,10 @@ class AutomataStore {
   getSeedSnapshot: (() => Uint8Array | null) | null = null;
   getCurrentPopulationSnapshot: (() => Uint8Array | null) | null = null;
 
+  // Snapshotted rendering params for preview (set alongside callbacks, avoids stale colors)
+  previewCellStates: CellStateEntry[] | null = null;
+  previewTrailConfig: TrailConfig | null = null;
+
   // Indexed history for shape, cellStates, rule, radius, and lattice
   private _shapeHistory: Map<string, Record<string, number>> = new Map();
   private _cellStatesHistory: Map<string, CellStateEntry[]> = new Map();

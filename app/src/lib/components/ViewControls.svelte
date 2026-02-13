@@ -117,8 +117,15 @@
   let wasPlayingBeforeDrag = false;
   let isHovering = $state(false);
   let hoverX = $state(0);
-  let hoveredIndex = $state(-1);
+  let hoveredIndexRaw = $state(-1);
   let barWidth = $state(0);
+
+  // Clamp hoveredIndex to current history bounds so it never goes stale
+  let hoveredIndex = $derived(
+    hoveredIndexRaw < 0
+      ? -1
+      : Math.min(hoveredIndexRaw, Math.max(0, automataStore.totalGenerations - 1))
+  );
 
   let progressPercent = $derived(
     automataStore.historyCapacity > 1
@@ -148,7 +155,7 @@
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
     // Clamp to computed range
-    hoveredIndex = Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
+    hoveredIndexRaw = Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
     // Snap hoverX to clamped index position so tooltip doesn't float over the black region
     if (automataStore.historyCapacity > 1) {
       hoverX = (hoveredIndex / (automataStore.historyCapacity - 1)) * rect.width;
@@ -192,7 +199,7 @@
   function handleBarMouseLeave() {
     if (!isDragging) {
       isHovering = false;
-      hoveredIndex = -1;
+      hoveredIndexRaw = -1;
     }
   }
 
@@ -202,6 +209,10 @@
     pendingFrame = requestAnimationFrame(() => {
       pendingFrame = 0;
       renderPreview();
+      // While hovering and playing, keep re-rendering so the preview tracks the live simulation
+      if (showCanvas && automataStore.isPlaying && hoveredIndex >= 0) {
+        schedulePreviewRender();
+      }
     });
   }
 
@@ -210,7 +221,7 @@
   const PREVIEW_TRAIL_3D = 20;
 
   function renderPreview() {
-    if (!previewCanvas || hoveredIndex < 0) return;
+    if (!previewCanvas || hoveredIndex < 0 || !automataStore.getPopulationAtIndex) return;
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
     if (view === 3) renderPreview3D();
@@ -219,11 +230,16 @@
   }
 
   function renderPreview3D() {
+    const getPopAt = automataStore.getPopulationAtIndex;
+    if (!getPopAt) return;
+    const idx = hoveredIndex;
+    if (idx < 0) return;
+
     // Gather trail of populations
-    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_3D + 1);
+    const startIdx = Math.max(0, idx - PREVIEW_TRAIL_3D + 1);
     const populations: any[] = [];
-    for (let i = startIdx; i <= hoveredIndex; i++) {
-      const pop = automataStore.getPopulationAtIndex?.(i);
+    for (let i = startIdx; i <= idx; i++) {
+      const pop = getPopAt(i);
       if (pop) populations.push(pop);
     }
     if (populations.length === 0) return;
@@ -237,14 +253,25 @@
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const deadState = automataStore.cellStates.find((s: any) => s.role === 'dead');
-    const aliveState = automataStore.cellStates.find((s: any) => s.role === 'alive');
+    // Snapshot callback and index so they stay consistent across this render
+    const getPopAt = automataStore.getPopulationAtIndex;
+    if (!getPopAt) return;
+    const idx = hoveredIndex;
+    if (idx < 0) return;
+
+    const states = automataStore.previewCellStates ?? automataStore.cellStates;
+    const deadState = states.find((s: any) => s.role === 'dead');
+    const aliveState = states.find((s: any) => s.role === 'alive');
     const bg = deadState?.color ?? { h: 0, s: 1, l: 1, a: 1 };
     const alive = aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 };
-    const tc = automataStore.trailConfig;
+    const tc = automataStore.previewTrailConfig ?? automataStore.trailConfig;
     const shape = automataStore.populationShape;
     const w = shape.x ?? 1;
     const h = shape.y ?? 1;
+
+    // Verify the target generation actually exists before drawing anything
+    const targetPop = getPopAt(idx) as number[][] | null;
+    if (!targetPop) return;
 
     previewCanvas.width = w;
     previewCanvas.height = h;
@@ -252,8 +279,8 @@
     ctx.fillRect(0, 0, w, h);
 
     const trailSize = tc.size;
-    const startIdx = Math.max(0, hoveredIndex - trailSize + 1);
-    const totalSteps = hoveredIndex - startIdx + 1;
+    const startIdx = Math.max(0, idx - trailSize + 1);
+    const totalSteps = idx - startIdx + 1;
     const deadH = bg.h;
     const deadS = bg.s * 100;
     const deadL = bg.l * 100;
@@ -262,17 +289,16 @@
     const trailL = tc.color.l * 100;
 
     // Render oldest to newest so newest overwrites
-    for (let gi = startIdx; gi <= hoveredIndex; gi++) {
-      const pop = automataStore.getPopulationAtIndex?.(gi);
+    for (let gi = startIdx; gi <= idx; gi++) {
+      const pop = (gi === idx ? targetPop : getPopAt(gi) as number[][] | null);
       if (!pop) continue;
-      const rows = pop as number[][];
 
-      if (gi === hoveredIndex) {
+      if (gi === idx) {
         // Current generation: alive color
         ctx.fillStyle = automataStore.hslString(alive);
       } else {
         // Trail: interpolate from dead (oldest) to trail color (youngest)
-        const age = hoveredIndex - gi;
+        const age = idx - gi;
         const tRaw = totalSteps > 2 ? 1 - age / (totalSteps - 2) : 1;
         let t: number;
         if (tc.stepFn === 'exponential') t = tRaw * tRaw;
@@ -285,7 +311,7 @@
       }
 
       for (let x = 0; x < w; x++) {
-        const col = rows[x];
+        const col = pop[x];
         if (!col) continue;
         for (let y = 0; y < h; y++) {
           if (col[y] === 1) {
@@ -300,14 +326,20 @@
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const bg = automataStore.cellStates[0]?.color;
-    const fg = automataStore.cellStates[1]?.color;
+    const getPopAt = automataStore.getPopulationAtIndex;
+    if (!getPopAt) return;
+    const idx = hoveredIndex;
+    if (idx < 0) return;
 
-    const startIdx = Math.max(0, hoveredIndex - PREVIEW_TRAIL_1D + 1);
-    const numRows = hoveredIndex - startIdx + 1;
+    const states = automataStore.previewCellStates ?? automataStore.cellStates;
+    const bg = states[0]?.color;
+    const fg = states[1]?.color;
+
+    const startIdx = Math.max(0, idx - PREVIEW_TRAIL_1D + 1);
+    const numRows = idx - startIdx + 1;
 
     // Get width from first population
-    const pop0 = automataStore.getPopulationAtIndex?.(startIdx);
+    const pop0 = getPopAt(startIdx);
     if (!pop0) return;
     const w = (pop0 as number[]).length;
 
@@ -319,7 +351,7 @@
 
     // Each row is a generation, newest at bottom
     for (let row = 0; row < numRows; row++) {
-      const pop = automataStore.getPopulationAtIndex?.(startIdx + row);
+      const pop = getPopAt(startIdx + row);
       if (!pop) continue;
       const cells = pop as number[];
       for (let x = 0; x < w; x++) {
@@ -363,7 +395,7 @@
     active && hoveredIndex >= 0 && automataStore.totalGenerations > 1
   );
 
-  let showCanvas = $derived(showTooltip);
+  let showCanvas = $derived(showTooltip && !!automataStore.getPopulationAtIndex);
 
   let asideEl: HTMLElement;
 
