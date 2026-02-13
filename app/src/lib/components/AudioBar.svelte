@@ -47,7 +47,7 @@
 	});
 </script>
 
-<audio bind:this={audioEl} src="/toejam-jammin.mp3" loop preload="auto"></audio>
+<audio bind:this={audioEl} src="/toejam-jammin.mp3" loop preload="auto" onended={() => { if (audioEl && started) { audioEl.currentTime = 0; audioEl.play(); } }}></audio>
 
 <div class="audio-bar">
 	<button class="play-btn" onclick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
