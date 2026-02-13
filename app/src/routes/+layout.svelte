@@ -20,8 +20,8 @@
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
 
-	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/docs') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/explore') || $page.url.pathname.startsWith('/bookmarks'));
-	let blackNav = $derived($page.url.pathname.startsWith('/docs') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/explore') || $page.url.pathname.startsWith('/bookmarks'));
+	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/docs') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/explore') || $page.url.pathname.startsWith('/bookmarks') || $page.url.pathname.startsWith('/miners/'));
+	let blackNav = $derived($page.url.pathname.startsWith('/docs') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/explore') || $page.url.pathname.startsWith('/bookmarks') || $page.url.pathname.startsWith('/miners/'));
 
 	let leftOpen = $state(true);
 	let settingsOpen = $state(false);
