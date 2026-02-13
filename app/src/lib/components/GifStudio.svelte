@@ -22,6 +22,7 @@
   let cropRect: { x: number; y: number; w: number; h: number } | null = $state(null);
   let isCapturing = $state(false);
   let isPlaying = $state(false);
+  let openingSnapshot: Uint8Array | null = null;
   let markedStartSnapshot: Uint8Array | null = $state(null);
   let gifBlob: Blob | null = $state(null);
   let gifUrl: string | null = $state(null);
@@ -29,7 +30,10 @@
   let studioGeneration = $state(0);
   let isEncoding = $state(false);
 
-  let bgColor = $derived(automataStore.hslString(automataStore.cellStates[0]?.color ?? { h: 360, s: 1, l: 1, a: 1 }));
+  let bgColor = $derived.by(() => {
+    const states = automataStore.gifTargetConfig?.cellStates ?? automataStore.cellStates;
+    return automataStore.hslString(states[0]?.color ?? { h: 360, s: 1, l: 1, a: 1 });
+  });
 
   // Crop drag state
   let isCropping = $state(false);
@@ -55,12 +59,31 @@
     return TwoDimensionInTwoDimensions;
   }
 
+  // Resolve config: use gifTargetConfig if set (from card), otherwise live store
+  function cfg() {
+    const t = automataStore.gifTargetConfig;
+    return {
+      dimension: t?.dimension ?? automataStore.dimension,
+      viewer: t?.viewer ?? automataStore.viewer,
+      rule: t?.rule ?? automataStore.rule,
+      lattice: t?.lattice ?? automataStore.lattice,
+      neighborhoodRadius: t?.neighborhoodRadius ?? automataStore.neighborhoodRadius,
+      populationShape: t?.populationShape ?? automataStore.populationShape,
+      cellStates: t?.cellStates ?? automataStore.cellStates,
+      trailConfig: t?.trailConfig ?? automataStore.trailConfig,
+      shapeRules: t?.shapeRules ?? automataStore.shapeRules,
+      neighbors: automataStore.neighbors,
+      seedPopulation: t?.seedPopulation ?? null,
+    };
+  }
+
   function createStudioEngine() {
-    const dim = automataStore.dimension;
+    const c = cfg();
+    const dim = c.dimension;
     const e = new AutomataManager();
 
     if (dim === 1) {
-      if (automataStore.neighborhoodRadius > 1) {
+      if (c.neighborhoodRadius > 1) {
         e.useLifeLikeGenerator();
       } else {
         e.useOneDimensionGenerator();
@@ -76,24 +99,22 @@
       e.generationHistorySize = 900;
     }
 
-    e.populationShape = { ...automataStore.populationShape };
+    e.populationShape = { ...c.populationShape };
 
-    // Set lattice
     if (dim >= 2) {
-      e.setLattice(automataStore.lattice, automataStore.neighborhoodRadius);
-    } else if (automataStore.neighborhoodRadius > 1) {
-      e.neighbors = automataStore.neighbors;
+      e.setLattice(c.lattice, c.neighborhoodRadius);
+    } else if (c.neighborhoodRadius > 1) {
+      e.neighbors = c.neighbors;
     }
 
-    // Set rule
-    const rule = automataStore.rule;
+    const rule = c.rule;
     if (rule.type === 'wolfram') {
       e.rule = rule.rule;
     } else {
       e.rule = { survive: rule.survive, born: rule.born };
     }
-    if (automataStore.shapeRules) {
-      e.setShapeRules(automataStore.shapeRules);
+    if (c.shapeRules) {
+      e.setShapeRules(c.shapeRules);
     }
 
     return e;
@@ -101,19 +122,24 @@
 
   function loadPopulation() {
     if (!engine) return;
-    if (startMode === 'current') {
-      const snap = automataStore.getCurrentPopulationSnapshot?.();
-      if (snap) {
-        engine.setSeedPopulation(snap);
-      } else {
-        engine.getSeedPopulation();
-      }
+    const c = cfg();
+    // Decode base64 seed from card item if available
+    let cardSeed: Uint8Array | null = null;
+    if (c.seedPopulation) {
+      try {
+        const bin = atob(c.seedPopulation);
+        cardSeed = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) cardSeed[i] = bin.charCodeAt(i);
+      } catch {}
+    }
+    // Use the snapshot captured at open time, falling back through cardSeed → savedSeed → random
+    const snap = startMode === 'current'
+      ? (openingSnapshot ?? cardSeed ?? automataStore.savedSeed)
+      : (cardSeed ?? automataStore.savedSeed ?? openingSnapshot);
+    if (snap) {
+      engine.setSeedPopulation(snap);
     } else {
-      if (automataStore.savedSeed) {
-        engine.setSeedPopulation(automataStore.savedSeed);
-      } else {
-        engine.getSeedPopulation();
-      }
+      engine.getSeedPopulation();
     }
     studioGeneration = 0;
   }
@@ -129,23 +155,24 @@
     const rect = viewerContainer.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return false;
 
-    const dim = automataStore.dimension;
-    const view = automataStore.viewer;
+    const c = cfg();
+    const dim = c.dimension;
+    const view = c.viewer;
 
     const ViewerClass = getViewerClass(dim, view);
     studioViewer = new ViewerClass({
       containerEl: viewerContainer,
-      populationShape: { ...automataStore.populationShape },
+      populationShape: { ...c.populationShape },
       retrieveNextGeneration: () => {
         const pop = engine!.run();
         studioGeneration = engine!.absoluteGeneration;
         return pop;
       },
-      latticeType: automataStore.lattice,
+      latticeType: c.lattice,
     });
 
-    studioViewer.states = automataStore.cellStates;
-    studioViewer.trailConfig = automataStore.trailConfig;
+    studioViewer.states = c.cellStates;
+    studioViewer.trailConfig = c.trailConfig;
     studioViewer.createScene();
 
     // Pre-fill for 1D
@@ -167,6 +194,9 @@
   }
 
   async function initStudio() {
+    // Capture snapshot once at open time so recaptures use the same state
+    openingSnapshot = automataStore.getCurrentPopulationSnapshot?.() ?? null;
+
     engine = createStudioEngine();
     loadPopulation();
 
@@ -197,6 +227,7 @@
     engine = undefined;
     capturedFrames = [];
     frameThumbnails = [];
+    openingSnapshot = null;
     markedStartSnapshot = null;
     cropRect = null;
     pendingCropRect = null;
@@ -443,6 +474,7 @@
   function closeStudio() {
     destroyStudio();
     automataStore.gifStudioOpen = false;
+    automataStore.gifTargetConfig = null;
   }
 
   // Handle Escape key

@@ -200,6 +200,19 @@ class AutomataStore {
 
   // GIF Studio open state (global so any ActionButtons can trigger it)
   gifStudioOpen = $state(false);
+  // Optional config override for GIF studio (set when opening from a card)
+  gifTargetConfig: {
+    dimension: number;
+    viewer: number;
+    rule: AutomataRule;
+    lattice: LatticeType;
+    neighborhoodRadius: number;
+    populationShape: Record<string, number>;
+    cellStates: CellStateEntry[];
+    trailConfig: TrailConfig;
+    shapeRules: { survive: number[]; born: number[] }[] | null;
+    seedPopulation: string | null;
+  } | null = $state(null);
 
   // Generation run ID — links to a specific claimed snapshot for reproducible URLs
   generationRunId: string | null = $state(null);

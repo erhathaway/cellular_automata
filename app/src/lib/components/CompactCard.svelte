@@ -108,6 +108,7 @@
             compact
             vertical
             showLabels={false}
+            gifItem={item}
             onlikechange={(v) => { isLiked = v; }}
             onbookmarkchange={(v) => { isBookmarked = v; }}
           />

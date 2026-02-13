@@ -1,7 +1,10 @@
 <script lang="ts">
   import { api } from '$lib/api';
   import { automataStore } from '$lib/stores/automata.svelte';
-  import { buildURLParams } from '$lib/stores/persistence';
+  import { buildURLParams, deserializeRule } from '$lib/stores/persistence';
+  import { defaultShape, defaultCellStates, defaultRule, defaultTrailConfig } from '$lib/stores/automata.svelte';
+  import { defaultLattice, getLattice } from '$lib-core';
+  import type { LatticeType } from '$lib-core';
 
   let {
     entityType = '',
@@ -15,6 +18,7 @@
     showLabels = true,
     loading = false,
     vertical = false,
+    gifItem,
     onlikechange,
     onbookmarkchange,
   }: {
@@ -29,9 +33,63 @@
     showLabels?: boolean;
     loading?: boolean;
     vertical?: boolean;
+    gifItem?: any;
     onlikechange?: (liked: boolean) => void;
     onbookmarkchange?: (bookmarked: boolean) => void;
   } = $props();
+
+  function openGifStudio(e: MouseEvent) {
+    e.stopPropagation();
+    if (gifItem) {
+      // Build config from card item data
+      const dim = gifItem.dimension ?? 2;
+      const viewer = gifItem.viewer ?? dim;
+      const lat = (gifItem.latticeType ?? defaultLattice(dim)) as LatticeType;
+      const rule = deserializeRule(gifItem.ruleDefinition) ?? defaultRule(dim, lat);
+      const nr = gifItem.neighborhoodRadius ?? 1;
+
+      let cellStates = defaultCellStates(dim, viewer);
+      let trailConfig = defaultTrailConfig(cellStates[1]?.color ?? { h: 0, s: 0, l: 0, a: 1 });
+      try {
+        const raw = typeof gifItem.cellStates === 'string' ? JSON.parse(gifItem.cellStates) : gifItem.cellStates;
+        if (raw?.states) { cellStates = raw.states; }
+        if (raw?.trail) { trailConfig = raw.trail; }
+      } catch {}
+
+      const config = getLattice(lat);
+      let shapeRules: { survive: number[]; born: number[] }[] | null = null;
+      if (config.shapes) {
+        if (gifItem.shapeRulesDefinition) {
+          shapeRules = gifItem.shapeRulesDefinition.split(';').map((s: string) => {
+            const bm = s.match(/B([\d,]*)S([\d,]*)/);
+            return bm
+              ? { born: bm[1] ? bm[1].split(',').map(Number) : [], survive: bm[2] ? bm[2].split(',').map(Number) : [] }
+              : { born: [], survive: [] };
+          });
+        } else {
+          shapeRules = config.shapes.map(s => ({ survive: [...s.defaultRule.survive], born: [...s.defaultRule.born] }));
+        }
+      }
+
+      automataStore.gifTargetConfig = {
+        dimension: dim,
+        viewer,
+        rule,
+        lattice: lat,
+        neighborhoodRadius: nr,
+        populationShape: gifItem.populationShape
+          ? (typeof gifItem.populationShape === 'string' ? JSON.parse(gifItem.populationShape) : gifItem.populationShape)
+          : defaultShape(dim, viewer),
+        cellStates,
+        trailConfig,
+        shapeRules,
+        seedPopulation: gifItem.seedPopulation ?? null,
+      };
+    } else {
+      automataStore.gifTargetConfig = null;
+    }
+    automataStore.gifStudioOpen = true;
+  }
 
   let ready = $derived(!!entityType && !!entityId);
 
@@ -225,7 +283,7 @@
 
     <!-- GIF Studio -->
     <div class="action-col">
-      <button class="action-btn" aria-label="GIF Studio" onclick={(e) => { e.stopPropagation(); automataStore.gifStudioOpen = true; }}>
+      <button class="action-btn" aria-label="GIF Studio" onclick={openGifStudio}>
         <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -326,7 +384,7 @@
 
     <!-- GIF Studio -->
     <div class="action-col">
-      <button class="action-btn" aria-label="GIF Studio" onclick={(e) => { e.stopPropagation(); automataStore.gifStudioOpen = true; }}>
+      <button class="action-btn" aria-label="GIF Studio" onclick={openGifStudio}>
         <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
