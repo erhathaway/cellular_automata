@@ -13,7 +13,8 @@
     <span class="edge left"></span>
     <span class="edge right"></span>
     <div class="thumb-placeholder">
-      <LoadingIcon size={40} mode="dark" />
+      <LoadingIcon size={64} mode="dark" />
+      <span class="loading-text">loading<span class="dots"></span></span>
     </div>
   </div>
   <div class="info-row">
@@ -116,8 +117,30 @@
     border-radius: 4px;
     background: #0c0a09;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 14px;
+  }
+
+  .loading-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #e7e5e4;
+  }
+
+  .dots::after {
+    content: '';
+    animation: ellipsis 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes ellipsis {
+    0%  { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
   }
 
   .info-row {
