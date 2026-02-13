@@ -59,12 +59,16 @@ class HistoryStore {
 
   get canGoBack(): boolean {
     this.load();
+    // Touch _version to establish reactive dependency on entries changes
+    void this._version;
     // At live (-1): need at least 2 entries (entry 0 is current, entry 1 is previous)
     if (this.cursorIndex === -1) return this._entries.length > 1;
     return this.cursorIndex < this._entries.length - 1;
   }
 
   get canGoForward(): boolean {
+    // Touch _version to establish reactive dependency
+    void this._version;
     // Can go forward only if we've navigated past entry 0
     return this.cursorIndex > 0;
   }
