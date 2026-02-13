@@ -67,6 +67,7 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"@fontsource-variable/pixelify-sans": "^5.2.7",
 		"@fontsource-variable/space-grotesk": "^5.2.10",
 		"@fontsource/space-mono": "^5.2.9",
 		"@libsql/client": "^0.17.0",

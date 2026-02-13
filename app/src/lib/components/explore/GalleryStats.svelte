@@ -169,12 +169,32 @@
   }
 
   .section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.06em;
+    font-family: 'Pixelify Sans Variable', 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: #fde68a;
     margin-bottom: 10px;
+    background: linear-gradient(
+      90deg,
+      #ff6b9d,
+      #ffa64d,
+      #ffe44d,
+      #7ddf64,
+      #4dc8ff,
+      #a78bfa,
+      #ff6b9d
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: rainbow-shift 4s linear infinite;
+  }
+
+  @keyframes rainbow-shift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 
   /* Total Claims */

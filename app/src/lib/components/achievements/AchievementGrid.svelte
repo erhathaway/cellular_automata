@@ -50,6 +50,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding-bottom: 50vh;
   }
 
   .grid-header {
