@@ -2,6 +2,7 @@
   import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { page } from '$app/stores';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { historyStore } from '$lib/stores/history.svelte';
   import { serializeRule } from '$lib/stores/persistence';
   import { timeAgo } from '$lib/utils/timeAgo';
   import PixelAvatar from './PixelAvatar.svelte';
@@ -66,7 +67,7 @@
   });
 
   function triggerMineGemAnimation() {
-    if (!gemAreaEl || !automataStore.isViableAutomata || automataStore.isMining) return;
+    if (!gemAreaEl || !automataStore.isViableAutomata || automataStore.isMining || historyStore.cursorIndex >= 0) return;
 
     // Cancel any previous animation
     resetGemState();

@@ -39,7 +39,6 @@
     automataStore.useSavedSeed = true;
     automataStore.resetMiningToRandom();
     automataStore.reset();
-    viewerUiStore.openAnalysis();
 
     const params = buildURLParams(entry.dimension, entry.viewer, settings);
     goto(`/?${params.toString()}`);

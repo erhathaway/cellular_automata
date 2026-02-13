@@ -132,7 +132,10 @@
       <div class="panel leaderboard-card">
         <div class="nails"><div class="nail"></div><div class="nail"></div></div>
         <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-        <div class="section-label">Leaderboard</div>
+        <a href="/miners/leaderboard" class="section-label leaderboard-link">
+          <span>Leaderboard</span>
+          <span class="view-all">View all &rarr;</span>
+        </a>
         <div class="leaderboard-scroll">
           <table class="leaderboard">
             <thead>
@@ -241,6 +244,28 @@
     text-transform: uppercase;
     color: #fde68a;
     margin-bottom: 10px;
+  }
+
+  .leaderboard-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .leaderboard-link:hover {
+    color: #facc15;
+  }
+
+  .view-all {
+    font-size: 9px;
+    color: #78716c;
+    transition: color 0.15s ease;
+  }
+
+  .leaderboard-link:hover .view-all {
+    color: #facc15;
   }
 
   /* Total Claims */

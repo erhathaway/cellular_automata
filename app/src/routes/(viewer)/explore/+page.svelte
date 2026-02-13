@@ -92,7 +92,7 @@
   }
 
   function handleMinerClick(entry: LeaderboardEntry) {
-    goto(`/miners/${entry.userId}`);
+    goto(`/miners/detail/${entry.userId}`);
   }
 
   async function handleLoad(item: any) {
