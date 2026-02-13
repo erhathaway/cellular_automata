@@ -378,6 +378,12 @@
 	@media (max-width: 1000px) {
 		.boombox {
 			left: 50%;
+			transform: translateX(calc(-50% + 60px));
+		}
+	}
+
+	@media (max-width: 700px) {
+		.boombox {
 			transform: translateX(-50%);
 		}
 	}
