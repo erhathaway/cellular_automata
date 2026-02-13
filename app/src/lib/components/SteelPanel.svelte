@@ -74,6 +74,55 @@
     background-clip: padding-box;
   }
 
+  .steel-panel::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: var(--sp-r);
+    background: conic-gradient(
+      from var(--sp-glow-angle, 0deg),
+      #ff000088,
+      #ff880088,
+      #ffff0088,
+      #00ff0088,
+      #0088ff88,
+      #8800ff88,
+      #ff00ff88,
+      #ff000088
+    );
+    filter: blur(10px);
+    opacity: 0.45;
+    z-index: -1;
+    animation: sp-rainbow-spin 4s linear infinite;
+  }
+
+  @keyframes sp-rainbow-spin {
+    to { --sp-glow-angle: 360deg; }
+  }
+
+  @property --sp-glow-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .steel-panel::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: var(--sp-r);
+    background: radial-gradient(ellipse at center, rgba(250, 204, 21, 0.35), rgba(250, 180, 0, 0.15) 50%, transparent 75%);
+    filter: blur(16px);
+    z-index: -2;
+    animation: sp-gold-pulse 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sp-gold-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.06); }
+  }
+
   .steel-panel.hoverable:hover:not(.is-disabled),
   .steel-panel.is-active {
     border-color: var(--sp-hi);
