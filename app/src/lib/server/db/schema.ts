@@ -43,6 +43,7 @@ export const generationRun = sqliteTable(
 		populationShape: text('population_shape').notNull(), // JSON e.g. '{"x":200,"y":200}'
 		cellStates: text('cell_states').notNull(), // JSON array of {number, color}
 		seedPopulation: blob('seed_population', { mode: 'buffer' }),
+		claimPopulation: blob('claim_population', { mode: 'buffer' }),
 		generationIndex: integer('generation_index'),
 		title: text('title').notNull().default(''),
 		description: text('description').notNull().default(''),

@@ -75,8 +75,9 @@
 
     if (item.entityType === 'generation_run') {
       try {
-        const { seedPopulation } = await api<{ seedPopulation: string | null }>('GET', `/api/seed?id=${item.id}`);
-        automataStore.savedSeed = seedPopulation ? base64ToUint8Array(seedPopulation) : null;
+        const { seedPopulation, claimPopulation } = await api<{ seedPopulation: string | null; claimPopulation: string | null }>('GET', `/api/seed?id=${item.id}`);
+        const popToUse = claimPopulation ?? seedPopulation;
+        automataStore.savedSeed = popToUse ? base64ToUint8Array(popToUse) : null;
       } catch {
         automataStore.savedSeed = null;
       }

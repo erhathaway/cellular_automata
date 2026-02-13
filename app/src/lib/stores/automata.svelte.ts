@@ -834,6 +834,11 @@ class AutomataStore {
       ? btoa(String.fromCharCode(...seedSnapshot))
       : undefined;
 
+    const claimSnapshot = this.getCurrentPopulationSnapshot?.();
+    const claimPopulation = claimSnapshot
+      ? btoa(String.fromCharCode(...claimSnapshot))
+      : undefined;
+
     let shapeRulesDefinition: string | undefined;
     if (this.shapeRules) {
       shapeRulesDefinition = this.shapeRules
@@ -854,7 +859,8 @@ class AutomataStore {
       generationIndex: this.generationIndex,
       stability,
       stablePeriod: this.stablePeriod || null,
-      seedPopulation
+      seedPopulation,
+      claimPopulation
     };
   }
 

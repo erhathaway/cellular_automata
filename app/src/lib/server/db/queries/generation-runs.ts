@@ -13,6 +13,7 @@ export interface CreateGenerationRunInput {
 	populationShape: string;
 	cellStates: string;
 	seedPopulation?: Buffer;
+	claimPopulation?: Buffer;
 	generationIndex?: number;
 	title?: string;
 	description?: string;
@@ -34,6 +35,7 @@ export async function createGenerationRun(input: CreateGenerationRunInput) {
 			populationShape: input.populationShape,
 			cellStates: input.cellStates,
 			seedPopulation: input.seedPopulation,
+			claimPopulation: input.claimPopulation,
 			generationIndex: input.generationIndex,
 			title: input.title ?? '',
 			description: input.description ?? '',

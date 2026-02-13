@@ -9,7 +9,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (!id) return error(400, 'Missing id');
 
 	const row = await db
-		.select({ seedPopulation: generationRun.seedPopulation })
+		.select({ seedPopulation: generationRun.seedPopulation, claimPopulation: generationRun.claimPopulation })
 		.from(generationRun)
 		.where(eq(generationRun.id, id))
 		.limit(1);
@@ -17,5 +17,9 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (row.length === 0) return error(404, 'Not found');
 
 	const seed = row[0].seedPopulation;
-	return json({ seedPopulation: seed ? (seed as Buffer).toString('base64') : null });
+	const claim = row[0].claimPopulation;
+	return json({
+		seedPopulation: seed ? (seed as Buffer).toString('base64') : null,
+		claimPopulation: claim ? (claim as Buffer).toString('base64') : null
+	});
 };
