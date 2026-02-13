@@ -116,6 +116,8 @@
   async function logout() {
     localStorage.clear();
     await clerk?.signOut({ redirectUrl: '/' });
+    // Hard reload to clear in-memory stores
+    window.location.href = '/';
   }
 
   async function deleteAccount() {
@@ -124,8 +126,7 @@
     try {
       await api('DELETE', '/api/user/delete');
       localStorage.clear();
-      open = false;
-      goto('/');
+      window.location.href = '/';
     } catch (err: any) {
       errorMsg = err.message || 'Failed to delete account';
       deleting = false;

@@ -111,6 +111,8 @@
   async function logout() {
     localStorage.clear();
     await clerk?.signOut({ redirectUrl: '/' });
+    // Hard reload to clear in-memory stores
+    window.location.href = '/';
   }
 
   async function deleteAccount() {
@@ -119,7 +121,7 @@
     try {
       await api('DELETE', '/api/user/delete');
       localStorage.clear();
-      goto('/');
+      window.location.href = '/';
     } catch (err: any) {
       errorMsg = err.message || 'Failed to delete account';
       deleting = false;
@@ -171,9 +173,7 @@
     <!-- Account actions -->
     <div class="settings-section">
       <div class="footer-actions">
-        <SignOutButton redirectUrl="/">
-          <button class="btn-footer">Log Out</button>
-        </SignOutButton>
+        <button class="btn-footer" onclick={logout}>Log Out</button>
 
         <button class="btn-footer btn-footer-danger" onclick={() => { showDeleteConfirm = true; deleteInput = ''; }}>
           Delete Account
