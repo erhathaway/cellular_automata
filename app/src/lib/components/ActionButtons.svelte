@@ -362,8 +362,9 @@
   }
 
   .compact .action-btn {
-    width: 56px;
-    height: 56px;
+    width: 42px;
+    height: 42px;
+    border-radius: 5px;
   }
 
   .action-btn:hover {
@@ -444,8 +445,8 @@
   }
 
   .compact .action-icon {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
   }
 
   .action-icon.spin {
@@ -455,8 +456,23 @@
   }
 
   .compact .action-icon.spin {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .compact .btn-nails {
+    top: 2px;
+    left: 3px;
+    right: 3px;
+  }
+
+  .compact .btn-nails-bottom {
+    bottom: 2px;
+  }
+
+  .compact .btn-nail {
+    width: 3px;
+    height: 3px;
   }
 
   .action-label {
@@ -535,11 +551,6 @@
       border-radius: 5px;
     }
 
-    .compact .action-btn {
-      width: 42px;
-      height: 42px;
-    }
-
     .btn-nails {
       top: 2px;
       left: 3px;
@@ -560,9 +571,5 @@
       height: 16px;
     }
 
-    .compact .action-icon {
-      width: 18px;
-      height: 18px;
-    }
   }
 </style>
