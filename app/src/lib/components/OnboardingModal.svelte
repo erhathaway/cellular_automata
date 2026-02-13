@@ -197,13 +197,16 @@
               {#if suggestingName}
                 <svg class="dice-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
               {:else}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="2.5" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                  <circle cx="16" cy="8" r="1.5" fill="currentColor" />
-                  <circle cx="8" cy="16" r="1.5" fill="currentColor" />
-                  <circle cx="16" cy="16" r="1.5" fill="currentColor" />
-                  <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+                  <path d="M12 2 L22 7 L12 12 L2 7 Z"/>
+                  <path d="M2 7 L12 12 L12 22 L2 17 Z"/>
+                  <path d="M12 12 L22 7 L22 17 L12 22 Z"/>
+                  <circle cx="12" cy="7" r="1.3" fill="currentColor" stroke="none"/>
+                  <circle cx="5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="7" cy="14.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="9" cy="18.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="19" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="15" cy="18.5" r="1.1" fill="currentColor" stroke="none"/>
                 </svg>
               {/if}
             </button>
@@ -231,13 +234,16 @@
             </div>
             <div class="avatar-actions">
               <button class="dice-btn" onclick={rerollMiner} title="Randomize miner" aria-label="Randomize miner">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="2.5" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                  <circle cx="16" cy="8" r="1.5" fill="currentColor" />
-                  <circle cx="8" cy="16" r="1.5" fill="currentColor" />
-                  <circle cx="16" cy="16" r="1.5" fill="currentColor" />
-                  <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+                  <path d="M12 2 L22 7 L12 12 L2 7 Z"/>
+                  <path d="M2 7 L12 12 L12 22 L2 17 Z"/>
+                  <path d="M12 12 L22 7 L22 17 L12 22 Z"/>
+                  <circle cx="12" cy="7" r="1.3" fill="currentColor" stroke="none"/>
+                  <circle cx="5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="7" cy="14.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="9" cy="18.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="19" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
+                  <circle cx="15" cy="18.5" r="1.1" fill="currentColor" stroke="none"/>
                 </svg>
               </button>
               <button class="edit-btn" onclick={() => { editing = true; }}>
