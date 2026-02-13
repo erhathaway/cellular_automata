@@ -65,8 +65,9 @@
     const rawCellStates = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
     const cellStatesData = migrateCellStatesData(rawCellStates);
     const neighborhoodRadius = item.neighborhoodRadius ?? 1;
+    const lattice = item.latticeType ?? undefined;
 
-    const settings = { populationShape: shape, rule: rule!, cellStates: cellStatesData.states, trailConfig: cellStatesData.trail, neighborhoodRadius };
+    const settings = { populationShape: shape, rule: rule!, cellStates: cellStatesData.states, trailConfig: cellStatesData.trail, neighborhoodRadius, lattice };
     if (rule) {
       automataStore.hydrateCombo(dim, viewer, settings);
     }
