@@ -149,11 +149,8 @@
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
         {:else}
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-            <line x1="4" y1="13" x2="20" y2="13" />
-            <rect x="10" y="11" width="4" height="4" rx="1" />
+          <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
           </svg>
         {/if}
       </button>
@@ -284,11 +281,8 @@
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
         {:else}
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-            <line x1="4" y1="13" x2="20" y2="13" />
-            <rect x="10" y="11" width="4" height="4" rx="1" />
+          <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
           </svg>
         {/if}
       </button>

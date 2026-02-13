@@ -122,7 +122,7 @@
   {:else}
     <div class="card-list">
       {#each items as item (item.id)}
-        <CompactCard {item} onclick={handleLoad} />
+        <CompactCard {item} onclick={handleLoad} interactive />
       {/each}
 
       {#if loading}

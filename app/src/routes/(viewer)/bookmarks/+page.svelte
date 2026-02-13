@@ -19,7 +19,7 @@
   const TABS: { id: ChestTab; label: string }[] = [
     { id: 'all', label: 'All' },
     { id: 'claimed', label: 'Claimed' },
-    { id: 'liked', label: 'Liked' },
+    { id: 'liked', label: 'Loved' },
     { id: 'bookmarked', label: 'Bookmarked' },
     { id: 'achievements', label: 'Achievements' },
   ];
@@ -184,7 +184,7 @@
               {:else if activeTab === 'claimed'}
                 No claims yet. Use the save button on the viewer to claim a configuration.
               {:else if activeTab === 'liked'}
-                No likes yet. Browse the gallery and like what you enjoy.
+                No loved items yet. Browse the gallery and love what you enjoy.
               {:else}
                 No bookmarks yet. Use the chest button on cards to bookmark.
               {/if}
