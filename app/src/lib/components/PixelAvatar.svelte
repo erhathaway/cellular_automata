@@ -114,7 +114,7 @@
   }
 
   $effect(() => {
-    if (!animCanvas || !audioStore.playing || !isMiner || !cropUpper) return;
+    if (!animCanvas || !audioStore.playing || !isMiner) return;
     animState = createAnimState(true);
     lastFrameTime = 0;
     animDraw();
@@ -122,7 +122,7 @@
     return () => cancelAnimationFrame(animRafId);
   });
 
-  let showAnimated = $derived(audioStore.playing && isMiner && cropUpper);
+  let showAnimated = $derived(audioStore.playing && isMiner);
 
   // ── Popup state ──
   const hasPopup = $derived(!!userId);
@@ -356,12 +356,22 @@
       {/if}
     </div>
   {:else if isMiner && minerDataUrl}
-    <img
-      src={minerDataUrl}
-      alt="Miner avatar"
-      class="shrink-0"
-      style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto; display: block;"
-    />
+    {#if showAnimated}
+      <canvas
+        bind:this={animCanvas}
+        width={CANVAS_W * animScale}
+        height={CANVAS_H * animScale}
+        class="shrink-0"
+        style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto; display: block;"
+      ></canvas>
+    {:else}
+      <img
+        src={minerDataUrl}
+        alt="Miner avatar"
+        class="shrink-0"
+        style="image-rendering: pixelated; object-fit: contain; height: {size}px; width: auto; display: block;"
+      />
+    {/if}
   {:else if avatar}
     <svg
       width={size}
