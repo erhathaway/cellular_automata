@@ -91,7 +91,8 @@
     );
     automataStore.updateKeyframeInfo(
       automataManager!.keyframeCount,
-      automataManager!.absoluteGeneration
+      automataManager!.absoluteGeneration,
+      automataManager!.currentKeyframeIndex
     );
 
     const gen = automataManager!.absoluteGeneration;
@@ -640,7 +641,8 @@
     );
     automataStore.updateKeyframeInfo(
       automataManager.keyframeCount,
-      automataManager.absoluteGeneration
+      automataManager.absoluteGeneration,
+      automataManager.currentKeyframeIndex
     );
 
     viewer.runSimulation = wasRunning;

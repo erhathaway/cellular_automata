@@ -86,7 +86,7 @@
 
     <div class="thumb-inner" style:background={deadBg}>
       {#if thumbnailUrl && !thumbError}
-        <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
+        <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" class:dense loading="lazy" onerror={() => { thumbError = true; }} />
       {:else}
         <div class="thumb-fallback">
           <LoadingIcon size={40} mode="dark" />
@@ -427,6 +427,10 @@
   .card.dense .edge.left, .card.dense .edge.right {
     top: 10px;
     bottom: 10px;
+  }
+
+  .thumb-img.dense {
+    transform: scale(2.5);
   }
 
   .card.dense .chip-stack {

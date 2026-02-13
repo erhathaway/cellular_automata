@@ -44,6 +44,7 @@ export default class AutomataManager {
 
   // Keyframe fields
   private _keyframes: Keyframe[] = [];
+  private _currentKeyframeIndex = 0;
   private _absoluteGeneration = 0;
   private _simulationStartTime = 0;
   private _lastKeyframeTime = 0;
@@ -586,6 +587,10 @@ export default class AutomataManager {
     return this._keyframes.length;
   }
 
+  get currentKeyframeIndex(): number {
+    return this._currentKeyframeIndex;
+  }
+
   get absoluteGeneration(): number {
     return this._absoluteGeneration;
   }
@@ -607,7 +612,7 @@ export default class AutomataManager {
     if (!kf) return;
     this._currentPopulation = this._restorePopulation(kf.snapshot);
     this._absoluteGeneration = kf.generation;
-    this._keyframes.length = index + 1;
+    this._currentKeyframeIndex = index;
     this._history = [kf.snapshot];
     this._historyIndex = 0;
     this._lastKeyframeTime = performance.now();
@@ -617,6 +622,7 @@ export default class AutomataManager {
 
   clearKeyframes() {
     this._keyframes = [];
+    this._currentKeyframeIndex = 0;
     this._absoluteGeneration = 0;
     this._simulationStartTime = 0;
     this._lastKeyframeTime = 0;
@@ -710,14 +716,25 @@ export default class AutomataManager {
     this._history.push(snapshot);
     this._absoluteGeneration++;
 
-    // Keyframe sampling: dense (500ms) for first 10s, sparse (5s) after
-    const now = performance.now();
-    if (this._simulationStartTime === 0) this._simulationStartTime = now;
-    const elapsed = now - this._simulationStartTime;
-    const interval = elapsed < 10_000 ? 500 : 5_000;
-    if (now - this._lastKeyframeTime >= interval) {
-      this._keyframes.push({ generation: this._absoluteGeneration, snapshot });
-      this._lastKeyframeTime = now;
+    // Advance current keyframe index if we've replayed past the next keyframe
+    while (
+      this._currentKeyframeIndex < this._keyframes.length - 1 &&
+      this._absoluteGeneration >= this._keyframes[this._currentKeyframeIndex + 1].generation
+    ) {
+      this._currentKeyframeIndex++;
+    }
+
+    // Only add new keyframes when at the end of existing keyframes
+    if (this._currentKeyframeIndex >= this._keyframes.length - 1) {
+      const now = performance.now();
+      if (this._simulationStartTime === 0) this._simulationStartTime = now;
+      const elapsed = now - this._simulationStartTime;
+      const interval = elapsed < 10_000 ? 500 : 5_000;
+      if (now - this._lastKeyframeTime >= interval) {
+        this._keyframes.push({ generation: this._absoluteGeneration, snapshot });
+        this._currentKeyframeIndex = this._keyframes.length - 1;
+        this._lastKeyframeTime = now;
+      }
     }
 
     if (this._history.length > this._generationHistorySize) {

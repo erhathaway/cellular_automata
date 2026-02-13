@@ -60,8 +60,8 @@
   );
 
   let progressPercent = $derived(
-    automataStore.peakKeyframeCount > 1
-      ? ((automataStore.keyframeCount - 1) / (automataStore.peakKeyframeCount - 1)) * 100
+    automataStore.keyframeCount > 1
+      ? (automataStore.currentKeyframeIndex / (automataStore.keyframeCount - 1)) * 100
       : 0
   );
 

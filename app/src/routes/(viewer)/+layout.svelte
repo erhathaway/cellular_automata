@@ -18,7 +18,7 @@
   let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
   let RIGHT_WIDTH = $derived(innerWidth < 1024 ? 280 : innerWidth < 1280 ? 320 : 360);
 
-  let hideRightDrawer = $derived($page.url.pathname === '/user' || $page.url.pathname === '/miners' || $page.url.pathname.startsWith('/miners/detail') || ($page.url.pathname === '/backpack' && innerWidth < 1000) || ($page.url.pathname === '/gallery' && innerWidth < 1000) || ($page.url.pathname === '/mine' && innerWidth < 1000));
+  let hideRightDrawer = $derived($page.url.pathname === '/user' || $page.url.pathname === '/miners' || $page.url.pathname.startsWith('/miners/detail') || $page.url.pathname === '/backpack' || ($page.url.pathname === '/gallery' && innerWidth < 1000) || ($page.url.pathname === '/mine' && innerWidth < 1000));
 
   function toggleRight() {
     if (rightOpen && viewerUiStore.analysisOpen) {
