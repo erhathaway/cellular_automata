@@ -243,6 +243,7 @@
   .rule-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 5px;
     min-width: 0;
   }

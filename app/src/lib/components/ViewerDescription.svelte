@@ -328,11 +328,16 @@
   }
 
   .compact-title-row .action-buttons-col {
-    padding-top: 0;
+    padding-top: 12px;
+    margin-right: 24px;
   }
 
   .compact-row {
     display: flex;
     gap: 24px;
+  }
+
+  .compact-row .content-col {
+    padding-top: 28px;
   }
 </style>
