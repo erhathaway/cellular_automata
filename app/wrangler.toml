@@ -4,7 +4,7 @@ compatibility_date = "2024-10-10"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_Y2xpbWJpbmcteWV0aS0zLmNsZXJrLmFjY291bnRzLmRldiQ"
+PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsuY2VsbHVsb3NlLnN0dWRpbyQ"
 PUBLIC_CLERK_SIGN_IN_URL = "/sign-in"
 PUBLIC_CLERK_SIGN_UP_URL = "/sign-up"
 PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL = "/"
