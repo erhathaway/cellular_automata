@@ -216,12 +216,32 @@
     });
   }
 
+  // Re-render preview whenever the tooltip becomes visible or the hovered index changes
+  $effect(() => {
+    // Read reactive deps
+    const visible = showCanvas;
+    const idx = hoveredIndex;
+    if (visible && idx >= 0) {
+      // Use tick so the canvas binding is set before we try to render
+      schedulePreviewRender();
+    }
+  });
+
   const PREVIEW_TRAIL_1D = 100;
   const PREVIEW_TRAIL_2D = 15;
   const PREVIEW_TRAIL_3D = 20;
 
+  function clearPreviewCanvas() {
+    if (!previewCanvas) return;
+    const ctx = previewCanvas.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  }
+
   function renderPreview() {
-    if (!previewCanvas || hoveredIndex < 0 || !automataStore.getPopulationAtIndex) return;
+    if (!previewCanvas || hoveredIndex < 0 || !automataStore.getPopulationAtIndex) {
+      clearPreviewCanvas();
+      return;
+    }
     const dim = automataStore.dimension;
     const view = automataStore.viewer;
     if (view === 3) renderPreview3D();
