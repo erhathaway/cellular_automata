@@ -123,7 +123,7 @@
 </script>
 
 <div class="gallery-bg">
-  <div class="mx-auto max-w-7xl px-6">
+  <div class="mx-auto max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
     <div class="sticky-filters sticky top-0 z-20 pb-4 pt-8">
       <div class="flex flex-wrap items-center gap-4">
         <h1 style="font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #facc15; margin: 0;">Gallery</h1>

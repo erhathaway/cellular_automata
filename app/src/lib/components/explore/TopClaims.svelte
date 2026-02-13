@@ -94,8 +94,14 @@
 
   .claims-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .claims-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .claim-wrapper {

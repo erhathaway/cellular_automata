@@ -15,9 +15,10 @@
   let rightOpen = $state(true);
   let prevMining = $state(automataStore.isMining);
 
-  let hideRightDrawer = $derived($page.url.pathname === '/user' || $page.url.pathname === '/miners' || $page.url.pathname.startsWith('/miners/detail'));
+  let hideRightDrawer = $derived($page.url.pathname === '/user' || $page.url.pathname === '/miners' || $page.url.pathname.startsWith('/miners/detail') || ($page.url.pathname === '/backpack' && innerWidth < 1000));
 
-  const RIGHT_WIDTH = 360;
+  let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
+  let RIGHT_WIDTH = $derived(innerWidth < 1024 ? 280 : innerWidth < 1280 ? 320 : 360);
 
   function toggleRight() {
     if (rightOpen && viewerUiStore.analysisOpen) {
@@ -86,6 +87,7 @@
   });
 </script>
 
+<svelte:window bind:innerWidth={innerWidth} />
 <PersistenceManager />
 
 <div class="flex h-full w-full">

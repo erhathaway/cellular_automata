@@ -134,7 +134,7 @@
 </script>
 
 <div class="chest-bg">
-  <div class="mx-auto max-w-7xl px-6">
+  <div class="mx-auto max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
     <div class="sticky-top sticky top-0 z-20 pb-4 pt-8">
       <div class="backpack-header">
         <h1 class="backpack-title">Backpack</h1>
