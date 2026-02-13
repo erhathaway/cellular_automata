@@ -340,6 +340,19 @@
     opacity: 1;
   }
 
+  /* Hide inactive buttons when not hovering */
+  .hover-actions :global(.action-col) {
+    display: none;
+  }
+
+  .hover-actions :global(.action-col:has(.active)) {
+    display: flex;
+  }
+
+  .card:hover .hover-actions :global(.action-col) {
+    display: flex;
+  }
+
   /* Info row */
   .info-row {
     display: flex;
