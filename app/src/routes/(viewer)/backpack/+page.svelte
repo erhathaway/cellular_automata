@@ -25,7 +25,7 @@
   ];
 
   let activeTab: ChestTab = $state('all');
-  const MAX_SLOTS = 100;
+  const MAX_SLOTS = 300;
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
@@ -135,18 +135,19 @@
       <h1 class="backpack-title">Backpack</h1>
       <div class="capacity-section">
         <span class="capacity-text">
-          Capacity
+          Claim Capacity
           <span class="capacity-count">{totalClaims}</span>
           <span class="capacity-sep">/</span>
           <span class="capacity-max">{MAX_SLOTS}</span>
         </span>
         <div class="capacity-blocks">
           {#each Array(10) as _, i}
-            {@const blockClaims = Math.min(Math.max(totalClaims - i * 10, 0), 10)}
-            <div class="cap-block" class:cap-block-full={blockClaims >= 10}>
+            {@const perBlock = MAX_SLOTS / 10}
+            {@const blockClaims = Math.min(Math.max(totalClaims - i * perBlock, 0), perBlock)}
+            <div class="cap-block" class:cap-block-full={blockClaims >= perBlock}>
               <div
                 class="cap-block-fill"
-                style="height: {blockClaims * 10}%"
+                style="height: {(blockClaims / perBlock) * 100}%"
               ></div>
             </div>
           {/each}
@@ -187,15 +188,19 @@
         {#if activeTab === 'all' && earnedAchievements.length > 0}
           <div class="achievements-row">
             <div class="achievements-row-header">
-              <span class="achievements-row-title">Achievements</span>
-              <button class="achievements-row-link" onclick={() => switchTab('achievements')}>
-                View all &rarr;
-              </button>
+              <span class="achievements-row-title">Achievements <span class="achievements-row-count">{earnedAchievements.length} / {achievementsStore.achievements.length}</span></span>
             </div>
-            <div class="achievements-row-icons">
-              {#each earnedAchievements as a (a.def.id)}
-                <AchievementCard achievement={a} />
-              {/each}
+            <div class="achievements-row-clip">
+              <div class="achievements-row-icons">
+                {#each earnedAchievements as a (a.def.id)}
+                  <AchievementCard achievement={a} />
+                {/each}
+              </div>
+              <div class="achievements-row-fade">
+                <button class="achievements-row-link" onclick={() => switchTab('achievements')}>
+                  View all achievements &rarr;
+                </button>
+              </div>
             </div>
           </div>
         {/if}
@@ -387,7 +392,6 @@
   .achievements-row-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 16px;
   }
 
@@ -400,11 +404,37 @@
     color: #a8a29e;
   }
 
+  .achievements-row-count {
+    font-size: 16px;
+    color: #57534e;
+    margin-left: 8px;
+  }
+
+  .achievements-row-clip {
+    position: relative;
+    max-height: 220px;
+    overflow: hidden;
+  }
+
+  .achievements-row-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent 0%, #1a1a1a 85%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 14px;
+  }
+
   .achievements-row-link {
     font-family: 'Space Mono', monospace;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: #facc15;
     background: none;
     border: none;
