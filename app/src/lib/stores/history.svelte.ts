@@ -93,6 +93,8 @@ class HistoryStore {
 
   private load() {
     if (this.loaded) return;
+    // Don't mark as loaded during SSR — storage APIs aren't available
+    if (typeof window === 'undefined') return;
     this.loaded = true;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -119,6 +121,7 @@ class HistoryStore {
   }
 
   private persist() {
+    if (typeof window === 'undefined') return;
     try {
       const truncated = this.entries.slice(0, MAX_ENTRIES);
       if (truncated.length !== this.entries.length) {
@@ -132,6 +135,7 @@ class HistoryStore {
   }
 
   private persistCursor() {
+    if (typeof window === 'undefined') return;
     try {
       sessionStorage.setItem(CURSOR_KEY, String(this.cursorIndex));
     } catch {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { getAvatarById } from '$lib/avatars';
   import type { MinerConfig } from '$lib/miner/types';
   import { renderMinerToDataURL } from '$lib/miner/renderer';
@@ -42,7 +43,6 @@
     if (!isMiner || !minerConfig) return '';
     try {
       const config: MinerConfig = typeof minerConfig === 'string' ? JSON.parse(minerConfig) : minerConfig;
-      // Scale factor: size / 48 (canvas width), minimum 1
       const scale = Math.max(1, Math.ceil(size / 48));
       return renderMinerToDataURL(config, scale);
     } catch {
@@ -82,6 +82,9 @@
   let popupY = $state(0);
   let flipBelow = $state(false);
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+  let leaveTimer: ReturnType<typeof setTimeout> | null = null;
+  let overAvatar = false;
+  let overPopup = false;
   let containerEl: HTMLDivElement | undefined = $state();
 
   // Module-level cache for fetched stats
@@ -148,7 +151,6 @@
     const GAP = 8;
 
     if (rect.top < POPUP_HEIGHT + GAP + 20) {
-      // Flip below
       flipBelow = true;
       popupX = cx;
       popupY = rect.bottom + GAP;
@@ -164,28 +166,73 @@
       clearTimeout(hoverTimer);
       hoverTimer = null;
     }
+    if (leaveTimer) {
+      clearTimeout(leaveTimer);
+      leaveTimer = null;
+    }
+    overAvatar = false;
+    overPopup = false;
     if (showPopup) {
       showPopup = false;
       window.removeEventListener('scroll', onScroll, true);
     }
   }
 
+  function scheduleHide() {
+    if (leaveTimer) clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(() => {
+      if (!overAvatar && !overPopup) {
+        dismissPopup();
+      }
+    }, 80);
+  }
+
   function onScroll() {
     dismissPopup();
   }
 
-  function onMouseEnter() {
+  function onAvatarEnter() {
     if (!hasPopup) return;
+    overAvatar = true;
+    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
     ensureData();
-    hoverTimer = setTimeout(() => {
-      positionPopup();
-      showPopup = true;
-      window.addEventListener('scroll', onScroll, true);
-    }, 300);
+    if (!showPopup && !hoverTimer) {
+      hoverTimer = setTimeout(() => {
+        hoverTimer = null;
+        positionPopup();
+        showPopup = true;
+        window.addEventListener('scroll', onScroll, true);
+      }, 300);
+    }
   }
 
-  function onMouseLeave() {
-    dismissPopup();
+  function onAvatarLeave() {
+    overAvatar = false;
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+    scheduleHide();
+  }
+
+  function onPopupEnter() {
+    overPopup = true;
+    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+  }
+
+  function onPopupLeave() {
+    overPopup = false;
+    scheduleHide();
+  }
+
+  // Portal action: moves the element to document.body
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      }
+    };
   }
 
   // Full-size avatar for popup (no crop, larger)
@@ -198,14 +245,18 @@
       return '';
     }
   });
+
+  onDestroy(() => {
+    dismissPopup();
+  });
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="pixel-avatar-wrap"
   bind:this={containerEl}
-  onmouseenter={onMouseEnter}
-  onmouseleave={onMouseLeave}
+  onmouseenter={onAvatarEnter}
+  onmouseleave={onAvatarLeave}
 >
   {#if isMiner && minerDataUrl && cropUpper}
     <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;">
@@ -246,83 +297,89 @@
       {fallbackInitials.slice(0, 2).toUpperCase()}
     </div>
   {/if}
+</div>
 
-  {#if hasPopup && showPopup}
-    <div
-      class="avatar-popup"
-      class:flip-below={flipBelow}
-      style="left: {popupX}px; top: {popupY}px;"
-    >
-      <div class="popup-nails"><div class="popup-nail"></div><div class="popup-nail"></div></div>
-      <div class="popup-nails popup-nails-bottom"><div class="popup-nail"></div><div class="popup-nail"></div></div>
+{#if hasPopup && showPopup}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    use:portal
+    class="avatar-popup"
+    class:flip-below={flipBelow}
+    style="left: {popupX}px; top: {popupY}px;"
+    onmouseenter={onPopupEnter}
+    onmouseleave={onPopupLeave}
+  >
+    <div class="popup-nails"><div class="popup-nail"></div><div class="popup-nail"></div></div>
+    <div class="popup-nails popup-nails-bottom"><div class="popup-nail"></div><div class="popup-nail"></div></div>
 
-      <!-- Avatar preview -->
-      <div class="popup-avatar">
-        {#if isMiner && popupMinerDataUrl}
-          <img
-            src={popupMinerDataUrl}
-            alt="Avatar"
-            style="image-rendering: pixelated; height: 120px; width: auto; display: block;"
-          />
-        {:else if avatar}
-          <svg
-            width="120"
-            height="120"
-            viewBox="0 0 8 8"
-            style="image-rendering: pixelated;"
-          >
-            {#each avatar.grid as row, y}
-              {#each row as cell, x}
-                {#if cell}
-                  <rect {x} {y} width="1" height="1" fill={avatar.color} />
-                {/if}
-              {/each}
+    <!-- Avatar preview -->
+    <div class="popup-avatar">
+      {#if isMiner && popupMinerDataUrl}
+        <img
+          src={popupMinerDataUrl}
+          alt="Avatar"
+          style="image-rendering: pixelated; height: 120px; width: auto; display: block;"
+        />
+      {:else if avatar}
+        <svg
+          width="120"
+          height="120"
+          viewBox="0 0 8 8"
+          style="image-rendering: pixelated;"
+        >
+          {#each avatar.grid as row, y}
+            {#each row as cell, x}
+              {#if cell}
+                <rect {x} {y} width="1" height="1" fill={avatar.color} />
+              {/if}
             {/each}
-          </svg>
-        {:else}
-          <div class="popup-avatar-fallback">
-            {fallbackInitials.slice(0, 2).toUpperCase()}
-          </div>
-        {/if}
-      </div>
-
-      {#if fetching}
-        <div class="popup-loading">Loading...</div>
-      {:else if activeData}
-        {#if activeData.displayName}
-          <div class="popup-name">{activeData.displayName}</div>
-        {/if}
-
-        <div class="popup-claims">
-          <svg class="popup-gem" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 3h12l4 6-10 13L2 9Z" />
-            <path d="M11 3 8 9l4 13 4-13-3-6" />
-            <path d="M2 9h20" />
-          </svg>
-          <span class="popup-claim-count">{activeData.claimCount}</span>
-          <span class="popup-claim-label">claims</span>
+          {/each}
+        </svg>
+      {:else}
+        <div class="popup-avatar-fallback">
+          {fallbackInitials.slice(0, 2).toUpperCase()}
         </div>
-
-        {#if levelBreakdown(activeData.byRadius).length > 0}
-          <div class="popup-levels">
-            {#each levelBreakdown(activeData.byRadius) as lb (lb.key)}
-              <span class="popup-level-chip" style="color: {lb.color};">{lb.label} {lb.count}</span>
-            {/each}
-          </div>
-        {/if}
-
-        {@const topLat = primaryLattice(activeData.byLattice)}
-        {#if topLat}
-          <div class="popup-lattice">{topLat}</div>
-        {/if}
-
-        {#if activeData.createdAt}
-          <div class="popup-joined">Joined {timeAgo(activeData.createdAt)}</div>
-        {/if}
       {/if}
     </div>
-  {/if}
-</div>
+
+    {#if fetching}
+      <div class="popup-loading">Loading...</div>
+    {:else if activeData}
+      {#if activeData.displayName}
+        <div class="popup-name">{activeData.displayName}</div>
+      {/if}
+
+      <div class="popup-claims">
+        <svg class="popup-gem" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3h12l4 6-10 13L2 9Z" />
+          <path d="M11 3 8 9l4 13 4-13-3-6" />
+          <path d="M2 9h20" />
+        </svg>
+        <span class="popup-claim-count">{activeData.claimCount}</span>
+        <span class="popup-claim-label">claims</span>
+      </div>
+
+      {#if levelBreakdown(activeData.byRadius).length > 0}
+        <div class="popup-levels">
+          {#each levelBreakdown(activeData.byRadius) as lb (lb.key)}
+            <span class="popup-level-chip" style="color: {lb.color};">{lb.label} {lb.count}</span>
+          {/each}
+        </div>
+      {/if}
+
+      {@const topLat = primaryLattice(activeData.byLattice)}
+      {#if topLat}
+        <div class="popup-lattice">{topLat}</div>
+      {/if}
+
+      {#if activeData.createdAt}
+        <div class="popup-joined">Joined {timeAgo(activeData.createdAt)}</div>
+      {/if}
+
+      <a href="/miners/detail/{userId}" class="popup-profile-link">View profile &rarr;</a>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .pixel-avatar-wrap {
@@ -330,10 +387,10 @@
     position: relative;
   }
 
-  .avatar-popup {
+  :global(.avatar-popup) {
     position: fixed;
     transform: translate(-50%, -100%);
-    z-index: 1000;
+    z-index: 10000;
     background: #1c1917;
     border: 1px solid #44403c;
     border-radius: 8px;
@@ -349,7 +406,7 @@
   }
 
   /* Invisible bridge toward the avatar so mouse can traverse the gap */
-  .avatar-popup::after {
+  :global(.avatar-popup)::after {
     content: '';
     position: absolute;
     left: 0;
@@ -358,11 +415,11 @@
     height: 16px;
   }
 
-  .avatar-popup.flip-below {
+  :global(.avatar-popup.flip-below) {
     transform: translate(-50%, 0);
   }
 
-  .avatar-popup.flip-below::after {
+  :global(.avatar-popup.flip-below)::after {
     bottom: auto;
     top: -16px;
   }
@@ -372,7 +429,7 @@
     to { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
   }
 
-  .flip-below {
+  :global(.avatar-popup.flip-below) {
     animation-name: popup-fade-in-below;
   }
 
@@ -381,7 +438,7 @@
     to { opacity: 1; transform: translate(-50%, 0) translateY(0); }
   }
 
-  .popup-nails {
+  :global(.avatar-popup .popup-nails) {
     position: absolute;
     top: 6px;
     left: 8px;
@@ -391,12 +448,12 @@
     pointer-events: none;
   }
 
-  .popup-nails-bottom {
+  :global(.avatar-popup .popup-nails-bottom) {
     top: auto;
     bottom: 6px;
   }
 
-  .popup-nail {
+  :global(.avatar-popup .popup-nail) {
     width: 3px;
     height: 3px;
     background: #a8a29e;
@@ -404,13 +461,13 @@
     opacity: 0.45;
   }
 
-  .popup-avatar {
+  :global(.avatar-popup .popup-avatar) {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .popup-avatar-fallback {
+  :global(.avatar-popup .popup-avatar-fallback) {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -424,13 +481,13 @@
     color: #78716c;
   }
 
-  .popup-loading {
+  :global(.avatar-popup .popup-loading) {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: #78716c;
   }
 
-  .popup-name {
+  :global(.avatar-popup .popup-name) {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 14px;
     font-weight: 700;
@@ -442,17 +499,17 @@
     max-width: 100%;
   }
 
-  .popup-claims {
+  :global(.avatar-popup .popup-claims) {
     display: flex;
     align-items: center;
     gap: 4px;
   }
 
-  .popup-gem {
+  :global(.avatar-popup .popup-gem) {
     flex-shrink: 0;
   }
 
-  .popup-claim-count {
+  :global(.avatar-popup .popup-claim-count) {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 16px;
     font-weight: 700;
@@ -460,7 +517,7 @@
     line-height: 1;
   }
 
-  .popup-claim-label {
+  :global(.avatar-popup .popup-claim-label) {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.06em;
@@ -468,28 +525,44 @@
     color: #78716c;
   }
 
-  .popup-levels {
+  :global(.avatar-popup .popup-levels) {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .popup-level-chip {
+  :global(.avatar-popup .popup-level-chip) {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     font-weight: 700;
   }
 
-  .popup-lattice {
+  :global(.avatar-popup .popup-lattice) {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
     color: #a8a29e;
   }
 
-  .popup-joined {
+  :global(.avatar-popup .popup-joined) {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     color: #57534e;
+  }
+
+  :global(.avatar-popup .popup-profile-link) {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #78716c;
+    text-decoration: none;
+    margin-top: 2px;
+    transition: color 0.15s ease;
+  }
+
+  :global(.avatar-popup .popup-profile-link:hover) {
+    color: #facc15;
   }
 </style>
