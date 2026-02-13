@@ -204,7 +204,7 @@
     };
     automataStore.getCurrentPopulationSnapshot = () => {
       if (!automataManager) return null;
-      const pop = automataManager.getPopulationAtIndex(automataStore.generationIndex);
+      const pop = automataManager.currentPopulation;
       if (!pop) return null;
       return automataManager._snapshotPopulation(pop);
     };
