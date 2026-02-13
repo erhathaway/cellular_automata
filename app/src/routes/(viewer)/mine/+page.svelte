@@ -325,7 +325,7 @@
     content: '';
     position: absolute;
     left: calc(100% - 3px);
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: clamp(20px, 3vw, 42px);
     height: 14px;
@@ -350,7 +350,7 @@
     content: '';
     position: absolute;
     left: calc(100% + clamp(16px, 3vw, 38px));
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: 4px;
     height: 20px;
@@ -365,7 +365,7 @@
   .controls-left .pipe-backdrop {
     position: absolute;
     left: calc(100% - 1px);
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: clamp(20px, 3.5vw, 46px);
     height: 18px;
@@ -384,7 +384,7 @@
     content: '';
     position: absolute;
     right: calc(100% - 3px);
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: clamp(20px, 3vw, 42px);
     height: 14px;
@@ -409,7 +409,7 @@
     content: '';
     position: absolute;
     right: calc(100% + clamp(16px, 3vw, 38px));
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: 4px;
     height: 20px;
@@ -424,7 +424,7 @@
   .controls-right .pipe-backdrop-right {
     position: absolute;
     right: calc(100% - 1px);
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: clamp(20px, 3.5vw, 46px);
     height: 18px;
@@ -477,7 +477,7 @@
   .controls-center::after {
     content: '';
     position: absolute;
-    top: calc(50% - 8px);
+    top: 50%;
     transform: translateY(-50%);
     width: 4px;
     height: 20px;
