@@ -25,6 +25,9 @@
   <div class="nail nail-bl"></div>
   <div class="nail nail-br"></div>
 
+  {#if achievement.earned && !achievement.seen}
+    <span class="new-badge">New</span>
+  {/if}
   <span class="category">{categoryLabelMap.get(achievement.def.category) ?? achievement.def.category}</span>
 
   <div class="icon-area">
@@ -106,6 +109,28 @@
   .nail-tr { top: 6px; right: 6px; }
   .nail-bl { bottom: 6px; left: 6px; }
   .nail-br { bottom: 6px; right: 6px; }
+
+  .new-badge {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #000;
+    background: #facc15;
+    padding: 2px 7px;
+    border-radius: 4px;
+    z-index: 1;
+    animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes badge-pop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
 
   .category {
     position: absolute;

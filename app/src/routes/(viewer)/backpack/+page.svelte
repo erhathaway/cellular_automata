@@ -41,8 +41,8 @@
     if (activeTab !== 'achievements') {
       fetchItems(activeTab);
     }
-    // Fetch achievements for the summary row + badge
-    achievementsStore.fetch();
+    // Fetch achievements for the summary row + badge, then auto-check
+    achievementsStore.fetch().then(() => achievementsStore.checkAll());
   });
 
   function switchTab(tab: ChestTab) {

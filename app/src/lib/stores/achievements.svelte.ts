@@ -54,6 +54,7 @@ class AchievementsStore {
 	}
 
 	async checkAll() {
+		if (this.checking) return;
 		this.checking = true;
 		this.checkProgress = 0;
 		const newlyEarnedList: AchievementState[] = [];

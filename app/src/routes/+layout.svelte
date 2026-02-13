@@ -17,6 +17,7 @@
 	import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 	import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
 	import { historyStore, type HistoryEntry } from '$lib/stores/history.svelte';
+	import { achievementsStore } from '$lib/stores/achievements.svelte';
 
 	let { children, data } = $props();
 
@@ -110,6 +111,8 @@
 				displayName: data.userProfile?.displayName,
 				email: data.userProfile?.email
 			});
+			// Auto-check achievements on login / page refresh while signed in
+			achievementsStore.fetch().then(() => achievementsStore.checkAll());
 		} else if (!uid && prevUserId) {
 			posthog.reset();
 		}
