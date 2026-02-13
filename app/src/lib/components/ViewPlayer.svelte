@@ -145,19 +145,19 @@
       } else {
         automataManager.useOneDimensionGenerator();
       }
-      automataManager.generationHistorySize = 10800;
+      automataManager.generationHistorySize = 900;
       viewer = new OneDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 2) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 10800;
+      automataManager.generationHistorySize = 900;
       viewer = new TwoDimensionInTwoDimensions(viewerConfig);
     } else if (dim === 2 && view === 3) {
       automataManager.useLifeLikeGenerator();
-      automataManager.generationHistorySize = 5400;
+      automataManager.generationHistorySize = 450;
       viewer = new TwoDimensionInThreeDimensions(viewerConfig);
     } else if (dim === 3 && view === 3) {
       automataManager.useThreeDimensionGenerator();
-      automataManager.generationHistorySize = 1800;
+      automataManager.generationHistorySize = 150;
       automataManager.seedDensity = 0.12;
       viewer = new ThreeDimensionInThreeDimensions(viewerConfig);
     }
