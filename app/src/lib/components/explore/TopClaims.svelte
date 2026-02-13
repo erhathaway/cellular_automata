@@ -5,7 +5,7 @@
   import SkeletonCard from '../SkeletonCard.svelte';
   import RankBadge from './RankBadge.svelte';
 
-  let { onload }: { onload?: (item: any) => void } = $props();
+  let { onload, dense = false }: { onload?: (item: any) => void; dense?: boolean } = $props();
 
   const ROWS_PER_PAGE = 2;
   const COLS = 2;
@@ -59,7 +59,7 @@
           <div class="rank-badge-wrap">
             <RankBadge rank={i + 1} />
           </div>
-          <CompactCard {item} onclick={onload} interactive />
+          <CompactCard {item} onclick={onload} interactive {dense} />
         </div>
       {/each}
     </div>

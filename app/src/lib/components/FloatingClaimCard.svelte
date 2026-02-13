@@ -79,7 +79,7 @@
         if (gemRunId !== thisRun) return;
         gemLanded = false;
       }, 2000);
-    }, 1800);
+    }, 1200);
   }
 
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
@@ -197,14 +197,14 @@
     pointer-events: none;
     top: 0;
     left: var(--mg-start-x);
-    animation: mg-move-x 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: mg-move-x 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .mine-gem-fly-y {
     position: relative;
     top: var(--mg-start-y);
     left: -24px;
-    animation: mg-move-y 2.4s cubic-bezier(0.1, 0, 0.3, 1) forwards;
+    animation: mg-move-y 1.2s cubic-bezier(0.1, 0, 0.3, 1) forwards;
     filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8));
   }
 

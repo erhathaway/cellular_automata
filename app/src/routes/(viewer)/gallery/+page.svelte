@@ -148,7 +148,7 @@
       </div>
     {/if}
 
-    <TopClaims onload={handleLoad} />
+    <TopClaims onload={handleLoad} dense={innerWidth < 550} />
 
     <ExploreGrid {items} {loading} {hasMore} dense={innerWidth < 550} onload={handleLoad} onloadmore={loadMore} />
   </div>
