@@ -383,9 +383,50 @@
     {/if}
   </div>
 
+  <!-- Replay buttons (above progress bar, only when saved seed exists) -->
+  {#if automataStore.savedSeed}
+    <div class="absolute flex items-center gap-2" style="bottom: calc(100% + 8px); left: 0;">
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center gap-2"
+        style="height: 38px; padding: 0 14px; border-radius: 19px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
+        onclick={() => { automataStore.useSavedSeed = true; automataStore.reset(); }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 17v5" />
+          <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76z" />
+        </svg>
+        Replay with claimed seed
+      </div>
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="flex cursor-pointer items-center gap-2"
+        style="height: 38px; padding: 0 14px; border-radius: 19px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
+        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
+        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
+        onclick={() => { automataStore.useSavedSeed = false; automataStore.reset(); }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="2" />
+          <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+          <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+          <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+          <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        </svg>
+        Replay with random seed
+      </div>
+    </div>
+  {/if}
+
   <!-- Buttons Row -->
-  <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between">
-    <!-- Left: Play + Reset -->
+  <div class="absolute bottom-0 left-0 right-0 flex items-center">
     <div class="flex items-center gap-2">
       <!-- Play Button -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -409,59 +450,24 @@
         {/if}
       </div>
 
-      <!-- Reset Button -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <div
-        class="flex cursor-pointer items-center justify-center"
-        style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
-        onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-        onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
-        onclick={() => automataStore.reset()}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-        </svg>
-      </div>
-
-      <!-- Seed Toggle Button (only when a saved seed exists) -->
-      {#if automataStore.savedSeed}
+      {#if !automataStore.savedSeed}
+        <!-- Reset Button -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
-          class="flex cursor-pointer items-center gap-2"
-          style="height: 44px; padding: 0 14px; border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); font-size: 13px; white-space: nowrap;"
-          title={automataStore.useSavedSeed ? 'Rerun with random seed' : 'Rerun with claimed seed'}
+          class="flex cursor-pointer items-center justify-center"
+          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
           onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
           onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
-          onclick={() => { automataStore.useSavedSeed = !automataStore.useSavedSeed; automataStore.reset(); }}
+          onclick={() => automataStore.reset()}
         >
-          {#if automataStore.useSavedSeed}
-            <!-- Dice icon — click to use random seed -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="2" />
-              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-              <circle cx="16" cy="8" r="1.5" fill="currentColor" />
-              <circle cx="8" cy="16" r="1.5" fill="currentColor" />
-              <circle cx="16" cy="16" r="1.5" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-            </svg>
-            Random seed
-          {:else}
-            <!-- Pin icon — click to use saved seed -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 17v5" />
-              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76z" />
-            </svg>
-            Claimed seed
-          {/if}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
         </div>
       {/if}
-
     </div>
-
   </div>
 </aside>
 
