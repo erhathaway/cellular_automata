@@ -86,6 +86,8 @@
   let overAvatar = false;
   let overPopup = false;
   let containerEl: HTMLDivElement | undefined = $state();
+  let lastMouseX = 0;
+  let lastMouseY = 0;
 
   // Module-level cache for fetched stats
   const statsCache = new Map<string, PopupData>();
@@ -143,21 +145,36 @@
     }
   }
 
-  function positionPopup() {
-    if (!containerEl) return;
-    const rect = containerEl.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const POPUP_HEIGHT = 180;
-    const GAP = 8;
+  const POPUP_W = 200;
+  const POPUP_H = 280;
+  const GAP = 12;
+  const MARGIN = 8;
 
-    if (rect.top < POPUP_HEIGHT + GAP + 20) {
+  function positionPopup() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const mx = lastMouseX;
+    const my = lastMouseY;
+
+    // Prefer above cursor; flip below if not enough room
+    if (my - GAP - POPUP_H < MARGIN) {
       flipBelow = true;
-      popupX = cx;
-      popupY = rect.bottom + GAP;
+      popupY = my + GAP;
     } else {
       flipBelow = false;
-      popupX = cx;
-      popupY = rect.top - GAP;
+      popupY = my - GAP - POPUP_H;
+    }
+
+    // Center horizontally on cursor, clamp to viewport
+    let left = mx - POPUP_W / 2;
+    left = Math.max(MARGIN, Math.min(left, vw - POPUP_W - MARGIN));
+    popupX = left;
+
+    // Clamp vertical too
+    if (flipBelow) {
+      popupY = Math.min(popupY, vh - POPUP_H - MARGIN);
+    } else {
+      popupY = Math.max(MARGIN, popupY);
     }
   }
 
@@ -191,8 +208,10 @@
     dismissPopup();
   }
 
-  function onAvatarEnter() {
+  function onAvatarEnter(e: MouseEvent) {
     if (!hasPopup) return;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
     overAvatar = true;
     if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
     ensureData();
@@ -389,7 +408,6 @@
 
   :global(.avatar-popup) {
     position: fixed;
-    transform: translate(-50%, -100%);
     z-index: 10000;
     background: #1c1917;
     border: 1px solid #44403c;
@@ -401,7 +419,7 @@
     gap: 6px;
     min-width: 160px;
     max-width: 220px;
-    animation: popup-fade-in 0.15s ease;
+    animation: popup-fade-in 0.15s ease-out;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 
@@ -411,22 +429,18 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -16px;
-    height: 16px;
-  }
-
-  :global(.avatar-popup.flip-below) {
-    transform: translate(-50%, 0);
+    bottom: -20px;
+    height: 20px;
   }
 
   :global(.avatar-popup.flip-below)::after {
     bottom: auto;
-    top: -16px;
+    top: -20px;
   }
 
   @keyframes popup-fade-in {
-    from { opacity: 0; transform: translate(-50%, -100%) translateY(4px); }
-    to { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   :global(.avatar-popup.flip-below) {
@@ -434,8 +448,8 @@
   }
 
   @keyframes popup-fade-in-below {
-    from { opacity: 0; transform: translate(-50%, 0) translateY(-4px); }
-    to { opacity: 1; transform: translate(-50%, 0) translateY(0); }
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   :global(.avatar-popup .popup-nails) {
