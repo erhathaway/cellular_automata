@@ -45,7 +45,7 @@
     <p class="empty-text">No items yet</p>
   </div>
 {:else}
-  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+  <div class="grid grid-cols-2 gap-6">
     {#each items as item (item.id)}
       <CompactCard {item} onclick={onload} interactive {currentUserId} />
     {/each}
