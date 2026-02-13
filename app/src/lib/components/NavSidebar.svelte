@@ -201,11 +201,13 @@
 {#if showGemFly}
   <div class="gem-fly" style={gemStyle}>
     <div class="gem-fly-glow"></div>
-    <svg xmlns="http://www.w3.org/2000/svg" class="gem-fly-icon" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));">
-      <path d="M6 3h12l4 6-10 13L2 9Z" />
-      <path d="M11 3 8 9l4 13 4-13-3-6" />
-      <path d="M2 9h20" />
-    </svg>
+    <div class="gem-fly-bg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="gem-fly-icon" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));">
+        <path d="M6 3h12l4 6-10 13L2 9Z" />
+        <path d="M11 3 8 9l4 13 4-13-3-6" />
+        <path d="M2 9h20" />
+      </svg>
+    </div>
   </div>
 {/if}
 
@@ -469,6 +471,16 @@
     animation:
       fly-x 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards,
       fly-y 1.4s cubic-bezier(0.6, 0, 0.4, 1) forwards;
+  }
+
+  .gem-fly-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #000;
   }
 
   .gem-fly-icon {

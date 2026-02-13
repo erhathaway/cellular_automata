@@ -367,11 +367,13 @@
   <div class="mine-gem-fly-x" style={mineGemStyle}>
     <!-- Inner: vertical movement (up then gravity down) + scale -->
     <div class="mine-gem-fly-y">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 3h12l4 6-10 13L2 9Z" />
-        <path d="M11 3 8 9l4 13 4-13-3-6" />
-        <path d="M2 9h20" />
-      </svg>
+      <div class="mine-gem-fly-bg">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3h12l4 6-10 13L2 9Z" />
+          <path d="M11 3 8 9l4 13 4-13-3-6" />
+          <path d="M2 9h20" />
+        </svg>
+      </div>
     </div>
   </div>
 {/if}
@@ -646,6 +648,16 @@
   @keyframes spinner {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  .mine-gem-fly-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #000;
   }
 
   /* Flying gem from mine button into claim card — two-axis arc */
