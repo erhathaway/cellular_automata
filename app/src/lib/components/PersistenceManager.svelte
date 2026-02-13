@@ -20,7 +20,7 @@
   let genDebounceTimer: ReturnType<typeof setTimeout> | undefined;
   let thumbnailInterval: ReturnType<typeof setInterval> | undefined;
 
-  onMount(async () => {
+  onMount(() => {
     // Eagerly load history before any hydration so entries and cursor are populated
     historyStore.ensureLoaded();
 
@@ -145,24 +145,31 @@
     // Clear corrupted history entries from old serialization format
     historyStore.removeCorrupted();
 
-    // If URL has a generation run ID, fetch the seed snapshot for reproducible loading
+    // If URL has a generation run ID, fetch the seed snapshot before hydrating.
+    // This must complete before ViewPlayer renders so it uses the correct seed.
+    const finishHydration = () => {
+      automataStore.hydrated = true;
+      initialized = true;
+    };
+
     if (urlParsed?.generationRunId) {
       automataStore.generationRunId = urlParsed.generationRunId;
-      try {
-        const { seedPopulation, claimPopulation } = await api<{ seedPopulation: string | null; claimPopulation: string | null }>('GET', `/api/seed?id=${urlParsed.generationRunId}`);
-        const popToUse = claimPopulation ?? seedPopulation;
-        automataStore.savedSeed = popToUse ? base64ToUint8Array(popToUse) : null;
-        automataStore.useSavedSeed = true;
-      } catch {
-        // Seed fetch failed — clear ID, fall back to random seed
-        automataStore.generationRunId = null;
-        automataStore.savedSeed = null;
-      }
+      api<{ seedPopulation: string | null; claimPopulation: string | null }>('GET', `/api/seed?id=${urlParsed.generationRunId}`)
+        .then(({ seedPopulation, claimPopulation }) => {
+          const popToUse = claimPopulation ?? seedPopulation;
+          automataStore.savedSeed = popToUse ? base64ToUint8Array(popToUse) : null;
+          automataStore.useSavedSeed = true;
+        })
+        .catch(() => {
+          // Seed fetch failed — clear ID, fall back to random seed
+          automataStore.generationRunId = null;
+          automataStore.savedSeed = null;
+        })
+        .finally(finishHydration);
+    } else {
+      // Signal that URL/localStorage state has been applied — ViewPlayer waits for this
+      finishHydration();
     }
-
-    // Signal that URL/localStorage state has been applied — ViewPlayer waits for this
-    automataStore.hydrated = true;
-    initialized = true;
 
     // Capture thumbnail for the active history entry (500ms if <20 entries, 5s otherwise)
     const tickThumbnail = () => {
