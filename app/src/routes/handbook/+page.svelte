@@ -48,7 +48,9 @@
 	<!-- Centered inner wrapper -->
 	<div class="docs-inner">
 		<!-- Nav container -->
-		<div class="docs-nav {sidebarOpen ? '' : 'mobile-hidden'}">
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<div class="docs-nav {sidebarOpen ? '' : 'mobile-hidden'}" onclick={(e) => { if (e.target === e.currentTarget) sidebarOpen = false; }}>
 			<!-- Sidebar panel -->
 			<div class="sidebar-panel">
 				<!-- Nails -->
@@ -146,10 +148,10 @@
 	.mobile-bar {
 		display: none;
 		position: fixed;
-		left: 0;
+		left: 120px;
 		top: 0;
 		z-index: 40;
-		width: 100%;
+		width: calc(100% - 120px);
 		height: 50px;
 		align-items: center;
 		padding: 0 16px;
@@ -161,6 +163,13 @@
 	@media (max-width: 767px) {
 		.mobile-bar { display: flex; }
 		.mobile-hidden { display: none !important; }
+	}
+
+	@media (max-width: 699px) {
+		.mobile-bar {
+			left: 0;
+			width: 100%;
+		}
 	}
 
 	.mobile-menu-btn {
