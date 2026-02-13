@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { audioStore } from '$lib/stores/audio.svelte';
 
 	let audioEl: HTMLAudioElement | undefined = $state();
 	let playing = $state(false);
+
+	$effect(() => {
+		audioStore.playing = playing;
+	});
 	let volume = $state(0.5);
 	let started = $state(false);
 

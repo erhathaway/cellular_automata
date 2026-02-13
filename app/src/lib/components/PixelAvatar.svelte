@@ -3,7 +3,8 @@
   import { goto } from '$app/navigation';
   import { getAvatarById } from '$lib/avatars';
   import type { MinerConfig } from '$lib/miner/types';
-  import { renderMinerToDataURL } from '$lib/miner/renderer';
+  import { renderMinerToDataURL, renderMiner, createAnimState, advanceAnim, CANVAS_W, CANVAS_H } from '$lib/miner/renderer';
+  import { audioStore } from '$lib/stores/audio.svelte';
   import { LEVELS, aggregateByLevel } from '$lib/levels';
   import { LATTICE_REGISTRY } from '$lib-core';
   import { timeAgo } from '$lib/utils/timeAgo';
@@ -77,6 +78,50 @@
     const half = side / 2 + pad;
     return `${cx - half} ${cy - half} ${half * 2} ${half * 2}`;
   });
+
+  // ── Miner animation (active when music playing) ──
+  let animCanvas: HTMLCanvasElement | undefined = $state();
+  let animState = createAnimState();
+  let lastFrameTime = 0;
+  const ANIM_FPS = 4;
+  const ANIM_INTERVAL = 1000 / ANIM_FPS;
+  let animRafId = 0;
+
+  let parsedMinerConfig = $derived.by(() => {
+    if (!isMiner || !minerConfig) return null;
+    try {
+      return typeof minerConfig === 'string' ? JSON.parse(minerConfig) as MinerConfig : minerConfig;
+    } catch { return null; }
+  });
+
+  let animScale = $derived(Math.max(1, Math.ceil(size / 48)));
+
+  function animDraw() {
+    if (!animCanvas || !parsedMinerConfig) return;
+    const ctx = animCanvas.getContext('2d');
+    if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
+    renderMiner(ctx, parsedMinerConfig, animState, animScale);
+  }
+
+  function animLoop(time: number) {
+    animRafId = requestAnimationFrame(animLoop);
+    if (time - lastFrameTime < ANIM_INTERVAL) return;
+    lastFrameTime = time;
+    animState = advanceAnim(animState);
+    animDraw();
+  }
+
+  $effect(() => {
+    if (!animCanvas || !audioStore.playing || !isMiner || !cropUpper) return;
+    animState = createAnimState();
+    lastFrameTime = 0;
+    animDraw();
+    animRafId = requestAnimationFrame(animLoop);
+    return () => cancelAnimationFrame(animRafId);
+  });
+
+  let showAnimated = $derived(audioStore.playing && isMiner && cropUpper);
 
   // ── Popup state ──
   const hasPopup = $derived(!!userId);
@@ -294,11 +339,20 @@
 >
   {#if isMiner && minerDataUrl && cropUpper}
     <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;{bgColor ? ` background: ${bgColor};` : ''}">
-      <img
-        src={minerDataUrl}
-        alt="Miner avatar"
-        style="image-rendering: pixelated; width: 100%; height: auto; display: block; transform: translateX(6%) translateY(8%);"
-      />
+      {#if showAnimated}
+        <canvas
+          bind:this={animCanvas}
+          width={CANVAS_W * animScale}
+          height={CANVAS_H * animScale}
+          style="image-rendering: pixelated; width: 100%; height: auto; display: block; transform: translateX(6%) translateY(8%);"
+        ></canvas>
+      {:else}
+        <img
+          src={minerDataUrl}
+          alt="Miner avatar"
+          style="image-rendering: pixelated; width: 100%; height: auto; display: block; transform: translateX(6%) translateY(8%);"
+        />
+      {/if}
     </div>
   {:else if isMiner && minerDataUrl}
     <img
