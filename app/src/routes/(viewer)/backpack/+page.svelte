@@ -235,7 +235,7 @@
             </p>
           </div>
         {:else}
-          <ExploreGrid {items} {loading} {hasMore} {currentUserId} onload={handleLoad} onloadmore={loadMore} />
+          <ExploreGrid {items} {loading} {hasMore} {currentUserId} dense onload={handleLoad} onloadmore={loadMore} />
         {/if}
       {/if}
     </SignedIn>

@@ -9,10 +9,12 @@
   let {
     item,
     hideOwner = false,
+    dense = false,
     fullRules = [],
   }: {
     item: any;
     hideOwner?: boolean;
+    dense?: boolean;
     fullRules?: Array<{ label: string; born: number[]; survive: number[] }>;
   } = $props();
 
@@ -120,7 +122,7 @@
   }
 </script>
 
-<div class="details-wrap" class:no-avatar={hideOwner}>
+<div class="details-wrap" class:no-avatar={hideOwner} class:dense>
   {#if !hideOwner}
     <div class="owner-avatar-label">
       <div class="owner-content">

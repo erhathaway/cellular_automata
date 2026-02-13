@@ -1,8 +1,10 @@
 <script lang="ts">
   import LoadingIcon from './LoadingIcon.svelte';
+
+  let { dense = false }: { dense?: boolean } = $props();
 </script>
 
-<div class="card">
+<div class="card" class:dense>
   <div class="containment-frame">
     <span class="corner tl"></span>
     <span class="corner tr"></span>
@@ -13,7 +15,7 @@
     <span class="edge left"></span>
     <span class="edge right"></span>
     <div class="thumb-placeholder">
-      <LoadingIcon size={64} mode="dark" />
+      <LoadingIcon size={dense ? 32 : 64} mode="dark" />
       <span class="loading-text">loading<span class="dots"></span></span>
     </div>
   </div>
@@ -186,5 +188,46 @@
   @keyframes skeleton-shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+
+  /* Dense mode */
+  .card.dense {
+    padding: 3px 3px 4px;
+  }
+
+  .card.dense .corner {
+    width: 10px;
+    height: 10px;
+  }
+
+  .card.dense .edge.top, .card.dense .edge.bottom {
+    left: 10px;
+    right: 10px;
+  }
+
+  .card.dense .edge.left, .card.dense .edge.right {
+    top: 10px;
+    bottom: 10px;
+  }
+
+  .card.dense .thumb-placeholder {
+    gap: 8px;
+  }
+
+  .card.dense .info-row {
+    margin-top: 4px;
+  }
+
+  .card.dense .meta-row {
+    margin-top: 3px;
+  }
+
+  .card.dense .bar {
+    height: 8px;
+  }
+
+  .card.dense .avatar-dot {
+    width: 12px;
+    height: 12px;
   }
 </style>

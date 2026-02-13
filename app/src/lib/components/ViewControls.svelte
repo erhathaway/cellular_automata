@@ -60,7 +60,9 @@
   );
 
   let progressPercent = $derived(
-    automataStore.keyframeCount > 1 ? 100 : 0
+    automataStore.peakKeyframeCount > 1
+      ? ((automataStore.keyframeCount - 1) / (automataStore.peakKeyframeCount - 1)) * 100
+      : 0
   );
 
   // Always use the 2D-2D blue for the progress bar

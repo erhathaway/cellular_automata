@@ -139,6 +139,7 @@ class AutomataStore {
 
   // Keyframe tracking for progress bar
   keyframeCount = $state(0);
+  peakKeyframeCount = $state(0);
   absoluteGeneration = $state(0);
   keyframeSeekTarget: number | null = $state(null);
 
@@ -413,6 +414,7 @@ class AutomataStore {
     this.totalGenerations = 0;
     this.seekTarget = null;
     this.keyframeCount = 0;
+    this.peakKeyframeCount = 0;
     this.absoluteGeneration = 0;
     this.keyframeSeekTarget = null;
     this.stableDetected = false;
@@ -744,6 +746,7 @@ class AutomataStore {
 
   updateKeyframeInfo(count: number, absGen: number) {
     this.keyframeCount = count;
+    if (count > this.peakKeyframeCount) this.peakKeyframeCount = count;
     this.absoluteGeneration = absGen;
   }
 

@@ -8,6 +8,7 @@
     loading = false,
     hasMore = false,
     currentUserId = '',
+    dense = false,
     onload,
     onloadmore
   }: {
@@ -15,6 +16,7 @@
     loading?: boolean;
     hasMore?: boolean;
     currentUserId?: string;
+    dense?: boolean;
     onload?: (item: any) => void;
     onloadmore?: () => void;
   } = $props();
@@ -45,14 +47,14 @@
     <p class="empty-text">No items yet</p>
   </div>
 {:else}
-  <div class="grid grid-cols-2 gap-6">
+  <div class={dense ? 'grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6' : 'grid grid-cols-2 gap-6'}>
     {#each items as item (item.id)}
-      <CompactCard {item} onclick={onload} interactive {currentUserId} />
+      <CompactCard {item} onclick={onload} interactive {currentUserId} {dense} />
     {/each}
 
     {#if loading}
-      {#each { length: 6 } as _}
-        <SkeletonCard />
+      {#each { length: dense ? 12 : 6 } as _}
+        <SkeletonCard {dense} />
       {/each}
     {/if}
   </div>

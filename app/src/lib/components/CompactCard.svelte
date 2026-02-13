@@ -7,12 +7,14 @@
     item,
     onclick,
     interactive = false,
-    currentUserId = ''
+    currentUserId = '',
+    dense = false
   }: {
     item: any;
     onclick?: (item: any) => void;
     interactive?: boolean;
     currentUserId?: string;
+    dense?: boolean;
   } = $props();
 
   let hideOwner = $derived(!!currentUserId && item.userId === currentUserId);
@@ -63,7 +65,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="card">
+<div class="card" class:dense>
   <!-- Containment field — just the image -->
   <div class="containment-frame" onclick={() => onclick?.(item)}>
     <!-- Corner brackets: black outer + white inner -->
@@ -385,6 +387,64 @@
     font-family: 'Space Mono', monospace;
     font-size: 12px;
     color: #78716c;
+  }
+
+  /* Dense mode */
+  .card.dense {
+    padding: 3px 3px 4px;
+  }
+
+  .card.dense .containment-frame {
+    padding: 5px;
+    margin-bottom: 3px;
+  }
+
+  .card.dense .corner {
+    width: 10px;
+    height: 10px;
+  }
+
+  .card.dense .corner.tl { border-width: 3px 0 0 3px; }
+  .card.dense .corner.tr { border-width: 3px 3px 0 0; }
+  .card.dense .corner.bl { border-width: 0 0 3px 3px; }
+  .card.dense .corner.br { border-width: 0 3px 3px 0; }
+
+  .card.dense .corner-inner {
+    width: 14px;
+    height: 14px;
+  }
+
+  .card.dense .corner-inner.tl { border-width: 2px 0 0 2px; }
+  .card.dense .corner-inner.tr { border-width: 2px 2px 0 0; }
+  .card.dense .corner-inner.bl { border-width: 0 0 2px 2px; }
+  .card.dense .corner-inner.br { border-width: 0 2px 2px 0; }
+
+  .card.dense .edge.top, .card.dense .edge.bottom {
+    left: 10px;
+    right: 10px;
+  }
+
+  .card.dense .edge.left, .card.dense .edge.right {
+    top: 10px;
+    bottom: 10px;
+  }
+
+  .card.dense .chip-stack {
+    margin-top: 4px;
+  }
+
+  .card.dense .info-row {
+    gap: 4px;
+  }
+
+  .card.dense .like-static {
+    font-size: 10px;
+    gap: 2px;
+  }
+
+  .card.dense .like-static svg {
+    width: 10px;
+    height: 10px;
   }
 
 </style>
