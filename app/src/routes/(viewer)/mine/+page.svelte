@@ -80,33 +80,33 @@
     <div class="controls-row">
       <div class="controls-far-left pointer-events-auto">
         <HistoryNavButton direction="back" disabled={!canGoBack} onclick={handleHistoryBack} />
-        <Pipe variant="glow" color="cyan" width="6px" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="6px" height="14px" backdrop
           style="position: absolute; left: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-left pointer-events-auto">
         <MiningLevelButton disabled={advancedOpen} />
-        <Pipe variant="glow" color="cyan" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
           style="position: absolute; left: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
-        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+        <Pipe variant="joint" color="yellow" width="4px" height="20px"
           style="position: absolute; left: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
-        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+        <Pipe variant="joint" color="yellow" width="4px" height="20px"
           style="position: absolute; left: clamp(-22px, -1.8vw, -14px); top: 50%; transform: translateY(-50%); z-index: 2;" />
-        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+        <Pipe variant="joint" color="yellow" width="4px" height="20px"
           style="position: absolute; right: clamp(-22px, -1.8vw, -14px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-right pointer-events-auto">
         <LatticePickerButton disabled={advancedOpen} />
-        <Pipe variant="glow" color="cyan" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
           style="position: absolute; right: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
-        <Pipe variant="joint" color="cyan" width="4px" height="20px"
+        <Pipe variant="joint" color="yellow" width="4px" height="20px"
           style="position: absolute; right: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-far-right pointer-events-auto">
         <HistoryNavButton direction="forward" disabled={!canGoForward} onclick={handleHistoryForward} />
-        <Pipe variant="glow" color="cyan" width="6px" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="6px" height="14px" backdrop
           style="position: absolute; right: calc(100% + 1px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
     </div>
@@ -122,7 +122,7 @@
 <section class="relative z-10 bg-black">
   <!-- Advanced toggle button + panel -->
   <div class="advanced-toggle">
-    <Pipe variant="metal" direction="vertical" color="cyan" width="14px" height="80px" flanges />
+    <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="80px" flanges />
     <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
       <div class="adv-btn">
         <span class="adv-pretitle">Mode</span>
