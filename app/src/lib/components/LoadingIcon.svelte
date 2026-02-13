@@ -75,13 +75,14 @@
       const el = svgEl.querySelector(`[data-node="${nodeIdx}"]`);
       if (!el) return;
 
-      smil(el, 'r', `${NODE_R};2.1;${NODE_R}`, '0.25s', {
-        keyTimes: '0;0.3;1'
+      // explode big on impact, then slowly shrink back
+      smil(el, 'r', `${NODE_R};${CHARGE_R};${CHARGE_R};${NODE_R}`, '0.5s', {
+        keyTimes: '0;0.08;0.3;1'
       });
 
-      // hit gold hard, hold, then slowly fade back
+      // strong gold on hit, hold, then fade back to base
       smil(el, 'fill', `${GOLD};${GOLD};${nodeColor_}`, '0.5s', {
-        keyTimes: '0;0.35;1'
+        keyTimes: '0;0.3;1'
       });
     }
 

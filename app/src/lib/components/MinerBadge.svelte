@@ -218,7 +218,7 @@
           <span class="date">{timeAgo(discoveryInfo.discoveredAt)}</span>
         {/if}
       </div>
-    {:else if discoveryInfo === null || automataStore.isMining}
+    {:else if discoveryInfo === null || automataStore.isMining || gemArriving}
       <div class="icon-placeholder">
         <svg class="search-sweep" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
