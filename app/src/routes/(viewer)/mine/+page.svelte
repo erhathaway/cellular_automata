@@ -33,6 +33,7 @@
       neighborhoodRadius: entry.neighborhoodRadius,
     };
     if (entry.lattice) settings.lattice = entry.lattice;
+    if (entry.trailConfig) settings.trailConfig = { ...entry.trailConfig };
 
     automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
     automataStore.hydrateActive(entry.dimension, entry.viewer);

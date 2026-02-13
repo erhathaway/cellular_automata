@@ -5,7 +5,8 @@
 	import HistoryPanel from '$lib/components/HistoryPanel.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import AchievementNotification from '$lib/components/achievements/AchievementNotification.svelte';
-	import { ClerkProvider, SignedIn, useClerkContext } from 'svelte-clerk';
+	import { ClerkProvider, SignedIn, SignedOut, useClerkContext } from 'svelte-clerk';
+	import SignUpNudge from '$lib/components/SignUpNudge.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { automataStore } from '$lib/stores/automata.svelte';
@@ -71,6 +72,7 @@
 			neighborhoodRadius: entry.neighborhoodRadius,
 		};
 		if (entry.lattice) settings.lattice = entry.lattice;
+		if (entry.trailConfig) settings.trailConfig = { ...entry.trailConfig };
 
 		automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
 		automataStore.hydrateActive(entry.dimension, entry.viewer);
@@ -125,6 +127,10 @@
 		<OnboardingModal {userProfile} onprofileupdated={(p) => { userProfile = p; }} />
 		<AchievementNotification />
 	</SignedIn>
+
+	<SignedOut>
+		<SignUpNudge />
+	</SignedOut>
 </ClerkProvider>
 
 <style>

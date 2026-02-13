@@ -1,6 +1,9 @@
 <script lang="ts">
   import LoadingIcon from '$lib/components/LoadingIcon.svelte';
   import SkeletonCard from '$lib/components/SkeletonCard.svelte';
+  import SignUpNudge from '$lib/components/SignUpNudge.svelte';
+
+  let showNudge = $state(false);
 </script>
 
 <div class="page">
@@ -65,6 +68,15 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <section>
+    <h2>SignUpNudge</h2>
+    <p class="desc">Sign-up CTA modal shown to unauthenticated users after 3 min of activity. Click to preview.</p>
+    <button class="preview-btn" onclick={() => { showNudge = true; }}>Show modal</button>
+    {#if showNudge}
+      <SignUpNudge forceShow onclose={() => { showNudge = false; }} />
+    {/if}
   </section>
 
   <section>
