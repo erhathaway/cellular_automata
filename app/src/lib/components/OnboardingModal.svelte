@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api } from '$lib/api';
+  import { invalidateAll } from '$app/navigation';
   import { randomConfig } from '$lib/miner/parts/index';
   import type { MinerConfig } from '$lib/miner/types';
   import MinerPreview from './miner/MinerPreview.svelte';
@@ -30,6 +31,15 @@
   let editing = $state(false);
 
   let canSubmit = $derived(displayName.trim().length >= 1 && nameAvailable !== false);
+
+  // When mounted inside <SignedIn> with no profile data, re-run server load
+  let invalidated = false;
+  $effect(() => {
+    if (userProfile === null && !invalidated) {
+      invalidated = true;
+      invalidateAll();
+    }
+  });
 
   // Auto-suggest a name on first show
   let hasSuggested = false;

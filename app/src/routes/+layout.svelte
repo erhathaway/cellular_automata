@@ -5,8 +5,8 @@
 	import HistoryPanel from '$lib/components/HistoryPanel.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import AchievementNotification from '$lib/components/achievements/AchievementNotification.svelte';
-	import { ClerkProvider, SignedIn } from 'svelte-clerk';
-	import { goto } from '$app/navigation';
+	import { ClerkProvider, SignedIn, useClerkContext } from 'svelte-clerk';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { automataStore } from '$lib/stores/automata.svelte';
 	import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
@@ -18,6 +18,11 @@
 	type UserProfile = { displayName: string | null; avatarId: string | null; minerConfig: string | null; email: string | null } | null;
 	// svelte-ignore state_referenced_locally
 	let userProfile: UserProfile = $state(data.userProfile);
+
+	// Sync server data into local state (handles post-sign-in invalidation)
+	$effect(() => {
+		userProfile = data.userProfile;
+	});
 
 	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));
 	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/learning') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners/') || $page.url.pathname.startsWith('/user'));

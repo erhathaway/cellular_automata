@@ -225,6 +225,11 @@
       automataManager!.populationShape = shape;
       if (automataStore.savedSeed && automataStore.useSavedSeed) {
         automataManager!.setSeedPopulation(automataStore.savedSeed);
+        // Skip the initial fast ramp — start at post-100 generation speed
+        if (!viewer.updateRateInMS) {
+          viewer.updateRateInMS = 100;
+          viewerDefaultUpdateRateMs = 100;
+        }
       } else {
         automataManager!.getSeedPopulation();
       }

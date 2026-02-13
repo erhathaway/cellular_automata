@@ -13,7 +13,13 @@ function parseRole(raw: unknown): UserRole {
 }
 
 export async function syncUser(clerkUserId: string) {
-	const clerkUser = await clerkClient.users.getUser(clerkUserId);
+	let clerkUser;
+	try {
+		clerkUser = await clerkClient.users.getUser(clerkUserId);
+	} catch {
+		// User may not exist in Clerk yet (e.g. during sign-up flow)
+		return;
+	}
 	const email =
 		clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)
 			?.emailAddress ?? '';
