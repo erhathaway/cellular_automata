@@ -67,7 +67,7 @@
         rgba(68, 64, 60, 0.12) 8px,
         rgba(68, 64, 60, 0.12) 9px
       );
-    border: var(--sp-bw) solid #44403c;
+    border: 3px solid blue;
     border-radius: var(--sp-r);
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
     transition: border-color 0.15s, background-color 0.15s;
@@ -130,7 +130,7 @@
   }
 
   .steel-panel.is-disabled {
-    border-color: #292524;
+    border-color: blue;
   }
 
   .steel-panel.is-disabled .sp-nail {
