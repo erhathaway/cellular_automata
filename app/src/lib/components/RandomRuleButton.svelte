@@ -122,7 +122,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <SteelPanel variant="muted" borderRadius="8px" borderWidth={2} style="overflow: visible; z-index: 1; width: clamp(200px, 35vw, 460px); padding: 14px 14px 18px;">
+  <SteelPanel variant="muted" borderRadius="8px" borderWidth={2} style="overflow: visible; z-index: 1; width: var(--mine-width); padding: var(--mine-pad);">
     <!-- Raised button -->
     <div class="mine-btn {mining ? 'mining' : ''}" bind:this={btnEl} onclick={handleClick}>
       <svg xmlns="http://www.w3.org/2000/svg" class="pickaxe {mining ? 'pickaxe-strike' : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -164,6 +164,8 @@
 <style>
   .mine-root {
     position: relative;
+    --mine-width: clamp(200px, 35vw, 460px);
+    --mine-pad: 14px 14px 18px;
   }
 
   .mine-btn {
@@ -305,5 +307,30 @@
     background: #facc15;
     border-radius: 2px;
     animation: fill 3s linear forwards;
+  }
+
+  @media (max-width: 1400px) {
+    .mine-root {
+      --mine-width: clamp(200px, calc(50vw - 240px), 460px);
+      --mine-pad: clamp(8px, calc(1.5vw - 7px), 14px) clamp(8px, calc(1.5vw - 7px), 14px) clamp(10px, calc(2vw - 10px), 18px);
+    }
+
+    .mine-btn {
+      padding: clamp(12px, calc(1.5vw - 3px), 18px) clamp(14px, calc(4.5vw - 31px), 32px);
+      gap: clamp(8px, calc(1.5vw - 7px), 14px);
+    }
+
+    .pickaxe {
+      width: clamp(20px, calc(5.5vw - 35px), 42px);
+      height: clamp(20px, calc(5.5vw - 35px), 42px);
+    }
+
+    .label {
+      font-size: clamp(10px, calc(3vw - 20px), 22px);
+    }
+
+    .label-found {
+      font-size: clamp(8px, calc(2vw - 12px), 16px);
+    }
   }
 </style>

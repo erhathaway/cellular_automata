@@ -57,6 +57,10 @@
 <audio bind:this={audioEl} src="/toejam-jammin.mp3" loop preload="auto" onended={() => { if (audioEl && started) { audioEl.currentTime = 0; audioEl.play(); } }}></audio>
 
 <div class="boombox" class:boombox-inline={inline}>
+	<!-- Corner nails -->
+	<div class="nails"><div class="nail"></div><div class="nail"></div></div>
+	<div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+
 	<!-- Left speaker -->
 	<div class="speaker-zone">
 		{#if playing}
@@ -64,18 +68,18 @@
 			<div class="wave wave-2"></div>
 			<div class="wave wave-3"></div>
 		{/if}
-		<svg class="speaker-svg" viewBox="0 0 44 44" width="44" height="44">
-			<!-- Outer ring -->
-			<circle cx="22" cy="22" r="20" fill="none" stroke="#44403c" stroke-width="1.5" />
+		<svg class="speaker-svg" viewBox="0 0 44 44" width="64" height="64">
+			<!-- Outer chrome ring -->
+			<circle cx="22" cy="22" r="20" fill="none" stroke="#facc15" stroke-width="1.5" opacity="0.6" />
 			<!-- Surround -->
-			<circle cx="22" cy="22" r="17" fill="#1a1816" stroke="#292524" stroke-width="1" />
-			<!-- Cone ridges -->
-			<circle cx="22" cy="22" r="14" fill="none" stroke="#292524" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="10.5" fill="none" stroke="#292524" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="7" fill="none" stroke="#292524" stroke-width="0.5" />
+			<circle cx="22" cy="22" r="17" fill="#0c0a09" stroke="#3b82f6" stroke-width="0.75" opacity="0.5" />
+			<!-- Cone ridges — gold tinted -->
+			<circle cx="22" cy="22" r="14" fill="none" stroke="#facc15" stroke-width="0.4" opacity="0.3" />
+			<circle cx="22" cy="22" r="10.5" fill="none" stroke="#60a5fa" stroke-width="0.4" opacity="0.35" />
+			<circle cx="22" cy="22" r="7" fill="none" stroke="#facc15" stroke-width="0.4" opacity="0.3" />
 			<!-- Dust cap -->
-			<circle cx="22" cy="22" r="4.5" fill="#292524" stroke="#44403c" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="1.5" fill="#44403c" />
+			<circle cx="22" cy="22" r="4.5" fill="#1c1917" stroke="#facc15" stroke-width="0.5" opacity="0.5" />
+			<circle cx="22" cy="22" r="1.5" fill="#facc15" opacity="0.7" />
 		</svg>
 	</div>
 
@@ -83,21 +87,22 @@
 	<div class="controls">
 		<button class="play-btn" onclick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
 			{#if playing}
-				<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+				<svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
 					<rect x="3" y="2" width="4" height="12" rx="1" />
 					<rect x="9" y="2" width="4" height="12" rx="1" />
 				</svg>
 			{:else}
-				<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+				<svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
 					<path d="M4 2.5v11l9-5.5z" />
 				</svg>
 			{/if}
 		</button>
 
+		<span class="track-label">Now Playing</span>
 		<span class="track-name">ToeJam Jammin'</span>
 
 		<div class="vol-group">
-			<svg class="vol-icon" width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+			<svg class="vol-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
 				<path d="M2 5.5h2.5L8 2v12L4.5 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1z" />
 				{#if volume > 0}
 					<path d="M10 5.5a3.5 3.5 0 0 1 0 5" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" />
@@ -126,14 +131,14 @@
 			<div class="wave wave-2"></div>
 			<div class="wave wave-3"></div>
 		{/if}
-		<svg class="speaker-svg" viewBox="0 0 44 44" width="44" height="44">
-			<circle cx="22" cy="22" r="20" fill="none" stroke="#44403c" stroke-width="1.5" />
-			<circle cx="22" cy="22" r="17" fill="#1a1816" stroke="#292524" stroke-width="1" />
-			<circle cx="22" cy="22" r="14" fill="none" stroke="#292524" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="10.5" fill="none" stroke="#292524" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="7" fill="none" stroke="#292524" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="4.5" fill="#292524" stroke="#44403c" stroke-width="0.5" />
-			<circle cx="22" cy="22" r="1.5" fill="#44403c" />
+		<svg class="speaker-svg" viewBox="0 0 44 44" width="64" height="64">
+			<circle cx="22" cy="22" r="20" fill="none" stroke="#facc15" stroke-width="1.5" opacity="0.6" />
+			<circle cx="22" cy="22" r="17" fill="#0c0a09" stroke="#3b82f6" stroke-width="0.75" opacity="0.5" />
+			<circle cx="22" cy="22" r="14" fill="none" stroke="#facc15" stroke-width="0.4" opacity="0.3" />
+			<circle cx="22" cy="22" r="10.5" fill="none" stroke="#60a5fa" stroke-width="0.4" opacity="0.35" />
+			<circle cx="22" cy="22" r="7" fill="none" stroke="#facc15" stroke-width="0.4" opacity="0.3" />
+			<circle cx="22" cy="22" r="4.5" fill="#1c1917" stroke="#facc15" stroke-width="0.5" opacity="0.5" />
+			<circle cx="22" cy="22" r="1.5" fill="#facc15" opacity="0.7" />
 		</svg>
 	</div>
 </div>
@@ -148,19 +153,28 @@
 		display: flex;
 		align-items: center;
 		gap: 0;
-		height: 56px;
-		background: linear-gradient(180deg, #1c1917 0%, #0c0a09 100%);
-		backdrop-filter: blur(12px);
-		border: 2px solid #44403c;
+		height: 80px;
+		background-color: #1c1917;
+		background-image:
+			repeating-linear-gradient(
+				0deg,
+				transparent,
+				transparent 10px,
+				rgba(68, 64, 60, 0.1) 10px,
+				rgba(68, 64, 60, 0.1) 11px
+			);
+		border: 1px solid rgba(250, 204, 21, 0.25);
 		border-bottom: none;
-		border-radius: 14px 14px 0 0;
+		border-radius: 8px 8px 0 0;
 		font-family: 'Space Mono', monospace;
 		font-size: 12px;
 		color: #a8a29e;
 		width: fit-content;
 		box-shadow:
-			0 -2px 16px rgba(0, 0, 0, 0.5),
-			inset 0 1px 0 rgba(255, 255, 255, 0.04);
+			0 -2px 20px rgba(0, 0, 0, 0.6),
+			0 -1px 12px rgba(59, 130, 246, 0.08),
+			0 0 20px rgba(250, 204, 21, 0.06),
+			inset 0 1px 0 rgba(250, 204, 21, 0.08);
 	}
 
 	.boombox-inline {
@@ -175,59 +189,89 @@
 		justify-content: center;
 	}
 
+	/* Corner nails */
+	.nails {
+		position: absolute;
+		top: 8px;
+		left: 10px;
+		right: 10px;
+		display: flex;
+		justify-content: space-between;
+		pointer-events: none;
+		z-index: 5;
+	}
+
+	.nails-bottom {
+		top: auto;
+		bottom: 8px;
+	}
+
+	.nail {
+		width: 4px;
+		height: 4px;
+		background: #facc15;
+		border-radius: 50%;
+		opacity: 0.5;
+		box-shadow: 0 0 3px rgba(250, 204, 21, 0.4);
+	}
+
 	/* Speaker zones */
 	.speaker-zone {
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0 10px 0 14px;
+		padding: 0 14px 0 20px;
 		flex-shrink: 0;
 	}
 
 	.speaker-right {
-		padding: 0 14px 0 10px;
+		padding: 0 20px 0 14px;
 	}
 
 	.speaker-svg {
 		position: relative;
 		z-index: 1;
-		filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+		filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.15)) drop-shadow(0 0 8px rgba(59, 130, 246, 0.1));
 	}
 
 	/* Sound waves */
 	.wave {
 		position: absolute;
-		width: 44px;
-		height: 44px;
+		width: 64px;
+		height: 64px;
 		border-radius: 50%;
-		border: 1.5px solid rgba(250, 204, 21, 0.35);
 		z-index: 0;
-		animation: pulse 1.6s ease-out infinite;
+		animation: pulse 1.4s ease-out infinite;
 		pointer-events: none;
 	}
 
-	.speaker-right .wave {
-		/* waves go right */
-	}
-
 	.wave-1 {
+		border: 2px solid rgba(250, 204, 21, 0.6);
+		box-shadow: 0 0 10px rgba(250, 204, 21, 0.3), inset 0 0 6px rgba(250, 204, 21, 0.1);
 		animation-delay: 0s;
 	}
 	.wave-2 {
-		animation-delay: 0.4s;
+		border: 2px solid rgba(96, 165, 250, 0.55);
+		box-shadow: 0 0 10px rgba(59, 130, 246, 0.3), inset 0 0 6px rgba(59, 130, 246, 0.1);
+		animation-delay: 0.35s;
 	}
 	.wave-3 {
-		animation-delay: 0.8s;
+		border: 2px solid rgba(250, 204, 21, 0.5);
+		box-shadow: 0 0 10px rgba(250, 204, 21, 0.25), inset 0 0 6px rgba(250, 204, 21, 0.08);
+		animation-delay: 0.7s;
 	}
 
 	@keyframes pulse {
 		0% {
 			transform: scale(1);
-			opacity: 0.5;
+			opacity: 0.7;
+		}
+		60% {
+			opacity: 0.35;
 		}
 		100% {
-			transform: scale(2);
+			transform: scale(2.4);
 			opacity: 0;
 		}
 	}
@@ -236,10 +280,10 @@
 	.controls {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 0 8px;
-		border-left: 1px solid #292524;
-		border-right: 1px solid #292524;
+		gap: 14px;
+		padding: 0 16px;
+		border-left: 1px solid rgba(250, 204, 21, 0.12);
+		border-right: 1px solid rgba(250, 204, 21, 0.12);
 		height: 100%;
 	}
 
@@ -247,29 +291,42 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 30px;
-		height: 30px;
-		border: 1.5px solid #44403c;
+		width: 38px;
+		height: 38px;
+		border: 1.5px solid rgba(250, 204, 21, 0.4);
 		border-radius: 50%;
 		background: transparent;
 		color: #facc15;
 		cursor: pointer;
 		flex-shrink: 0;
-		transition: border-color 0.15s, box-shadow 0.15s;
+		transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+		box-shadow: 0 0 6px rgba(250, 204, 21, 0.1);
 	}
 
 	.play-btn:hover {
 		border-color: #facc15;
-		box-shadow: 0 0 8px rgba(250, 204, 21, 0.25);
+		color: #fef08a;
+		box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+	}
+
+	.track-label {
+		font-family: 'Space Mono', monospace;
+		font-size: 10px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #60a5fa;
+		white-space: nowrap;
+		text-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
 	}
 
 	.track-name {
-		color: #d6d3d1;
+		color: #fde68a;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		letter-spacing: 0.03em;
-		font-size: 11px;
+		font-size: 13px;
+		text-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
 	}
 
 	.vol-group {
@@ -280,15 +337,16 @@
 
 	.vol-icon {
 		flex-shrink: 0;
-		color: #78716c;
+		color: #60a5fa;
+		opacity: 0.7;
 	}
 
 	.vol-slider {
-		width: 64px;
-		height: 3px;
+		width: 80px;
+		height: 4px;
 		-webkit-appearance: none;
 		appearance: none;
-		background: #292524;
+		background: rgba(59, 130, 246, 0.2);
 		border-radius: 2px;
 		outline: none;
 		flex-shrink: 0;
@@ -297,20 +355,22 @@
 	.vol-slider::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		appearance: none;
-		width: 10px;
-		height: 10px;
+		width: 12px;
+		height: 12px;
 		border-radius: 50%;
 		background: #facc15;
 		cursor: pointer;
 		border: none;
+		box-shadow: 0 0 4px rgba(250, 204, 21, 0.4);
 	}
 
 	.vol-slider::-moz-range-thumb {
-		width: 10px;
-		height: 10px;
+		width: 12px;
+		height: 12px;
 		border-radius: 50%;
 		background: #facc15;
 		cursor: pointer;
 		border: none;
+		box-shadow: 0 0 4px rgba(250, 204, 21, 0.4);
 	}
 </style>

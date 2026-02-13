@@ -320,6 +320,22 @@
     white-space: nowrap;
   }
 
+  @media (max-width: 1400px) {
+    .lattice-btn {
+      padding: clamp(10px, calc(2vw - 10px), 18px) clamp(12px, calc(2.5vw - 13px), 22px);
+      gap: clamp(6px, calc(1.5vw - 9px), 12px);
+    }
+
+    .grid-icon {
+      width: clamp(24px, calc(4vw - 16px), 40px);
+      height: clamp(24px, calc(4vw - 16px), 40px);
+    }
+
+    .label {
+      font-size: clamp(9px, calc(1vw - 1px), 13px);
+    }
+  }
+
   @media (max-width: 700px) {
     .label {
       display: none;
