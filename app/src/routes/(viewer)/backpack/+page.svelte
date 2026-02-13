@@ -134,29 +134,49 @@
 </script>
 
 <div class="chest-bg">
-  <div class="mx-auto max-w-7xl px-6 py-8">
-    <div class="backpack-header">
-      <h1 class="backpack-title">Backpack</h1>
-      <div class="capacity-section">
-        <span class="capacity-text">
-          Claim Capacity
-          <span class="capacity-count">{totalClaims}</span>
-          <span class="capacity-sep">/</span>
-          <span class="capacity-max">{MAX_SLOTS}</span>
-        </span>
-        <div class="capacity-blocks">
-          {#each Array(10) as _, i}
-            {@const perBlock = MAX_SLOTS / 10}
-            {@const blockClaims = Math.min(Math.max(totalClaims - i * perBlock, 0), perBlock)}
-            <div class="cap-block" class:cap-block-full={blockClaims >= perBlock}>
-              <div
-                class="cap-block-fill"
-                style="height: {(blockClaims / perBlock) * 100}%"
-              ></div>
-            </div>
-          {/each}
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="sticky-top sticky top-0 z-20 pb-4 pt-8">
+      <div class="backpack-header">
+        <h1 class="backpack-title">Backpack</h1>
+        <div class="capacity-section">
+          <span class="capacity-text">
+            Claim Capacity
+            <span class="capacity-count">{totalClaims}</span>
+            <span class="capacity-sep">/</span>
+            <span class="capacity-max">{MAX_SLOTS}</span>
+          </span>
+          <div class="capacity-blocks">
+            {#each Array(10) as _, i}
+              {@const perBlock = MAX_SLOTS / 10}
+              {@const blockClaims = Math.min(Math.max(totalClaims - i * perBlock, 0), perBlock)}
+              <div class="cap-block" class:cap-block-full={blockClaims >= perBlock}>
+                <div
+                  class="cap-block-fill"
+                  style="height: {(blockClaims / perBlock) * 100}%"
+                ></div>
+              </div>
+            {/each}
+          </div>
         </div>
       </div>
+
+      <SignedIn>
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          {#each TABS as tab}
+            <button
+              class="tab"
+              class:active={activeTab === tab.id}
+              onclick={() => switchTab(tab.id)}
+            >
+              {tab.label}
+              {#if tab.id === 'achievements' && achievementsStore.unseenCount > 0}
+                <span class="badge">{achievementsStore.unseenCount}</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+      </SignedIn>
     </div>
 
     <SignedOut>
@@ -174,21 +194,6 @@
     </SignedOut>
 
     <SignedIn>
-      <!-- Tab bar -->
-      <div class="tab-bar">
-        {#each TABS as tab}
-          <button
-            class="tab"
-            class:active={activeTab === tab.id}
-            onclick={() => switchTab(tab.id)}
-          >
-            {tab.label}
-            {#if tab.id === 'achievements' && achievementsStore.unseenCount > 0}
-              <span class="badge">{achievementsStore.unseenCount}</span>
-            {/if}
-          </button>
-        {/each}
-      </div>
 
       <!-- Tab content -->
       {#if activeTab === 'achievements'}
@@ -238,11 +243,18 @@
 </div>
 
 <style>
+  .sticky-top {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    mask-image: linear-gradient(to bottom, black calc(100% - 8px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 8px), transparent);
+  }
+
   .backpack-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
   }
 
   .capacity-section {
@@ -331,7 +343,6 @@
   .tab-bar {
     display: flex;
     gap: 0;
-    margin-bottom: 24px;
     border-bottom: 1px solid #292524;
     overflow-x: auto;
     scrollbar-width: none;
