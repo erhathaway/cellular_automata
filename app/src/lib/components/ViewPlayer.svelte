@@ -210,8 +210,9 @@
     };
 
     if (viewer) {
-      // Set cell state colors
+      // Set cell state colors + trail config
       viewer.states = automataStore.cellStates;
+      viewer.trailConfig = automataStore.trailConfig;
 
       // Set rule on automata manager
       setRule();
