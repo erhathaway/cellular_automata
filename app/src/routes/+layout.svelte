@@ -8,6 +8,7 @@
 	import { ClerkProvider, SignedIn, SignedOut, useClerkContext } from 'svelte-clerk';
 	import SignUpNudge from '$lib/components/SignUpNudge.svelte';
 	import SeizureWarningModal from '$lib/components/SeizureWarningModal.svelte';
+	import AudioBar from '$lib/components/AudioBar.svelte';
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -225,6 +226,8 @@
 		<SignUpNudge />
 	</SignedOut>
 </ClerkProvider>
+
+<AudioBar />
 
 <style>
 	.history-backdrop {
