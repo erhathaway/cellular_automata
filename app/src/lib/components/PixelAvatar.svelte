@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import { goto } from '$app/navigation';
   import { getAvatarById } from '$lib/avatars';
   import type { MinerConfig } from '$lib/miner/types';
   import { renderMinerToDataURL } from '$lib/miner/renderer';
@@ -273,9 +274,11 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="pixel-avatar-wrap"
+  class:clickable={hasPopup}
   bind:this={containerEl}
   onmouseenter={onAvatarEnter}
   onmouseleave={onAvatarLeave}
+  onclick={hasPopup ? () => goto(`/miners/detail/${userId}`) : undefined}
 >
   {#if isMiner && minerDataUrl && cropUpper}
     <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;">
@@ -404,6 +407,10 @@
   .pixel-avatar-wrap {
     display: inline-flex;
     position: relative;
+  }
+
+  .pixel-avatar-wrap.clickable {
+    cursor: pointer;
   }
 
   :global(.avatar-popup) {
