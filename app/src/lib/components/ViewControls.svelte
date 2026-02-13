@@ -207,28 +207,61 @@
 
     const states = automataStore.previewCellStates ?? automataStore.cellStates;
     const deadState = states.find((s: any) => s.role === 'dead');
-    const aliveState = states.find((s: any) => s.role === 'alive');
     const bg = deadState?.color ?? { h: 0, s: 1, l: 1, a: 1 };
-    const alive = aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 };
     const shape = automataStore.populationShape;
     const w = shape.x ?? 1;
     const h = shape.y ?? 1;
 
-    const pop = getPopAt(idx) as number[][] | null;
-    if (!pop) return;
+    const tc = automataStore.previewTrailConfig ?? automataStore.trailConfig;
+    const trailSize = Math.min(tc.size, idx + 1);
+    const startIdx = idx - trailSize + 1;
+
+    // Collect trail populations (oldest first)
+    const pops: (number[][] | null)[] = [];
+    for (let i = startIdx; i <= idx; i++) {
+      pops.push(getPopAt(i) as number[][] | null);
+    }
 
     previewCanvas.width = w;
     previewCanvas.height = h;
     ctx.fillStyle = automataStore.hslString(bg);
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = automataStore.hslString(alive);
 
-    for (let x = 0; x < w; x++) {
-      const col = pop[x];
-      if (!col) continue;
-      for (let y = 0; y < h; y++) {
-        if (col[y] === 1) {
-          ctx.fillRect(x, y, 1, 1);
+    const deadH = bg.h;
+    const deadS = bg.s * 100;
+    const deadL = bg.l * 100;
+    const trailH = tc.color.h;
+    const trailS = tc.color.s * 100;
+    const trailL = tc.color.l * 100;
+    const last = pops.length - 1;
+
+    for (let layer = 0; layer <= last; layer++) {
+      const pop = pops[layer];
+      if (!pop) continue;
+
+      let fillColor: string;
+      if (layer === last) {
+        fillColor = 'hsl(0, 0%, 0%)';
+      } else {
+        const tRaw = last > 1 ? layer / (last - 1) : 0;
+        let t: number;
+        if (tc.stepFn === 'exponential') t = tRaw * tRaw;
+        else if (tc.stepFn === 'none') t = 1;
+        else t = tRaw;
+        const ch = Math.floor(deadH + t * (trailH - deadH));
+        const cs = Math.floor(deadS + t * (trailS - deadS));
+        const cl = Math.floor(deadL + t * (trailL - deadL));
+        fillColor = `hsl(${ch}, ${cs}%, ${cl}%)`;
+      }
+
+      ctx.fillStyle = fillColor;
+      for (let x = 0; x < w; x++) {
+        const col = pop[x];
+        if (!col) continue;
+        for (let y = 0; y < h; y++) {
+          if (col[y] === 1) {
+            ctx.fillRect(x, y, 1, 1);
+          }
         }
       }
     }
@@ -247,21 +280,29 @@
     const bg = states[0]?.color;
     const fg = states[1]?.color;
 
-    // Single keyframe snapshot for 1D
-    const pop = getPopAt(idx);
-    if (!pop) return;
-    const cells = pop as number[];
-    const w = cells.length;
+    // Collect all keyframe rows from 0 to hovered index
+    const rows: number[][] = [];
+    for (let i = 0; i <= idx; i++) {
+      const pop = getPopAt(i) as number[] | null;
+      if (pop) rows.push(pop);
+    }
+    if (rows.length === 0) return;
+
+    const w = rows[0].length;
+    const h = rows.length;
 
     previewCanvas.width = w;
-    previewCanvas.height = 1;
+    previewCanvas.height = h;
     ctx.fillStyle = automataStore.hslString(bg);
-    ctx.fillRect(0, 0, w, 1);
+    ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = automataStore.hslString(fg);
 
-    for (let x = 0; x < w; x++) {
-      if (cells[x] === 1) {
-        ctx.fillRect(x, 0, 1, 1);
+    for (let y = 0; y < h; y++) {
+      const cells = rows[y];
+      for (let x = 0; x < w; x++) {
+        if (cells[x] === 1) {
+          ctx.fillRect(x, y, 1, 1);
+        }
       }
     }
   }
@@ -286,7 +327,7 @@
       return { width: maxW, height: Math.round(h * scale) };
     }
     if (dim === 1) {
-      return { width: maxW, height: 20 * previewScale };
+      return { width: maxW, height: maxW };
     }
     if (dim === 3) {
       return { width: maxW, height: maxW };
