@@ -61,12 +61,13 @@
 		const rule = deserializeRule(entry.ruleDefinition);
 		if (!rule) return;
 
-		const settings = {
+		const settings: Record<string, any> = {
 			populationShape: { ...entry.populationShape },
 			rule,
 			cellStates: entry.cellStates.map((s) => ({ ...s })),
 			neighborhoodRadius: entry.neighborhoodRadius,
 		};
+		if (entry.lattice) settings.lattice = entry.lattice;
 
 		automataStore.hydrateCombo(entry.dimension, entry.viewer, settings);
 		automataStore.hydrateActive(entry.dimension, entry.viewer);
@@ -76,7 +77,7 @@
 		automataStore.reset();
 
 		const params = buildURLParams(entry.dimension, entry.viewer, settings);
-		goto(`/?${params.toString()}`);
+		goto(`/?${params.toString()}`, { replaceState: true });
 
 		historyOpen = false;
 		animateResize();

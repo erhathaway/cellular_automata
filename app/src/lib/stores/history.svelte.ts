@@ -58,7 +58,8 @@ class HistoryStore {
   }
 
   get canGoBack(): boolean {
-    this.load();
+    // Don't call load() here — writing $state during $derived evaluation is unsafe.
+    // Rely on ensureLoaded() being called from PersistenceManager.onMount.
     // Touch _version to establish reactive dependency on entries changes
     void this._version;
     // At live (-1): need at least 2 entries (entry 0 is current, entry 1 is previous)
