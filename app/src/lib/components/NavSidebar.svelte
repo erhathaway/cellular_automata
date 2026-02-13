@@ -169,17 +169,23 @@
       </a>
     </SignedIn>
     <SignedOut>
-      <a href="/sign-in" class="nav-item">
-        <div class="icon-frame">
-          <div class="nails"><div class="nail"></div><div class="nail"></div></div>
-          <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </div>
-        <span class="nav-label">Sign in</span>
-      </a>
+      <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/mine'} asChild>
+        {#snippet children({ signIn })}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="nav-item" onclick={signIn}>
+            <div class="icon-frame">
+              <div class="nails"><div class="nail"></div><div class="nail"></div></div>
+              <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <span class="nav-label">Sign in</span>
+          </div>
+        {/snippet}
+      </SignInButton>
     </SignedOut>
   </div>
 </nav>

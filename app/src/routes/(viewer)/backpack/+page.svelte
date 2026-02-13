@@ -9,7 +9,7 @@
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import AchievementGrid from '$lib/components/achievements/AchievementGrid.svelte';
   import AchievementCard from '$lib/components/achievements/AchievementCard.svelte';
-  import { SignedIn, SignedOut } from 'svelte-clerk/client';
+  import { SignedIn, SignedOut, SignInButton } from 'svelte-clerk/client';
   import { achievementsStore } from '$lib/stores/achievements.svelte';
 
   const PAGE_SIZE = 20;
@@ -160,7 +160,13 @@
     <SignedOut>
       <div class="flex h-40 items-center justify-center">
         <p style="font-family: 'Space Mono', monospace; font-size: 13px; color: #a8a29e; letter-spacing: 0.04em;">
-          <a href="/sign-in" style="color: #facc15; text-decoration: underline; text-underline-offset: 2px;">Sign in</a> to save configurations
+          <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/mine'} asChild>
+            {#snippet children({ signIn })}
+              <!-- svelte-ignore a11y_click_events_have_key_events -->
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <span onclick={signIn} style="color: #facc15; text-decoration: underline; text-underline-offset: 2px; cursor: pointer;">Sign in</span>
+            {/snippet}
+          </SignInButton> to save configurations
         </p>
       </div>
     </SignedOut>

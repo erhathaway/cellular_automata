@@ -7,7 +7,7 @@ import { eq, sql } from 'drizzle-orm';
 export const load: PageServerLoad = async ({ locals }) => {
 	const auth = locals.auth();
 	if (!auth.userId) {
-		throw redirect(302, '/sign-in');
+		throw redirect(302, '/mine');
 	}
 
 	const userId = auth.userId;
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.limit(1);
 
 	if (!profile) {
-		throw redirect(302, '/sign-in');
+		throw redirect(302, '/mine');
 	}
 
 	// Fetch per-miner discovery stats (radius + lattice)
