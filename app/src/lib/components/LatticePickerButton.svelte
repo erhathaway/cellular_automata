@@ -133,7 +133,7 @@
     align-items: center;
     gap: 12px;
     cursor: pointer;
-    padding: 18px 22px;
+    padding: clamp(10px, 2vw, 18px) clamp(12px, 2vw, 22px);
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -148,7 +148,7 @@
     color: #67e8f9;
     transition: border-color 0.15s, background-color 0.15s;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-    min-height: 64px;
+    min-height: 0;
   }
 
   .lattice-btn:hover:not(.is-disabled),
@@ -191,8 +191,8 @@
   }
 
   .grid-icon {
-    width: 40px;
-    height: 40px;
+    width: clamp(24px, 4vw, 40px);
+    height: clamp(24px, 4vw, 40px);
     flex-shrink: 0;
     filter: drop-shadow(0 0 7px rgba(103, 232, 249, 0.6));
   }
@@ -223,7 +223,7 @@
 
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 13px;
+    font-size: clamp(9px, 1.5vw, 13px);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #cffafe;

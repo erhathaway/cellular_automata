@@ -255,12 +255,12 @@
 
   .controls-far-left {
     position: relative;
-    margin-right: 20px;
+    margin-right: clamp(8px, 1.5vw, 20px);
   }
 
   .controls-left {
     position: relative;
-    margin-right: 38px;
+    margin-right: clamp(16px, 3vw, 38px);
   }
 
   .controls-center {
@@ -269,12 +269,12 @@
 
   .controls-right {
     position: relative;
-    margin-left: 38px;
+    margin-left: clamp(16px, 3vw, 38px);
   }
 
   .controls-far-right {
     position: relative;
-    margin-left: 20px;
+    margin-left: clamp(8px, 1.5vw, 20px);
   }
 
   /* --- Far-left: back button → level button pipe --- */
@@ -284,7 +284,7 @@
     left: calc(100% + 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 18px;
+    width: 6px;
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -308,7 +308,7 @@
     left: calc(100% - 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 24px;
+    width: 10px;
     height: 18px;
     border-radius: 3px;
     background: #1c1917;
@@ -324,10 +324,10 @@
   .controls-left::after {
     content: '';
     position: absolute;
-    left: calc(100% - 4px);
+    left: calc(100% - 3px);
     top: calc(50% - 8px);
     transform: translateY(-50%);
-    width: 42px;
+    width: clamp(20px, 3vw, 42px);
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -349,7 +349,7 @@
   .controls-left::before {
     content: '';
     position: absolute;
-    left: calc(100% + 38px);
+    left: calc(100% + clamp(16px, 3vw, 38px));
     top: calc(50% - 8px);
     transform: translateY(-50%);
     width: 4px;
@@ -364,10 +364,10 @@
 
   .controls-left .pipe-backdrop {
     position: absolute;
-    left: calc(100% - 5px);
+    left: calc(100% - 1px);
     top: calc(50% - 8px);
     transform: translateY(-50%);
-    width: 50px;
+    width: clamp(20px, 3.5vw, 46px);
     height: 18px;
     border-radius: 3px;
     background: #1c1917;
@@ -383,10 +383,10 @@
   .controls-right::after {
     content: '';
     position: absolute;
-    right: calc(100% - 4px);
+    right: calc(100% - 3px);
     top: calc(50% - 8px);
     transform: translateY(-50%);
-    width: 42px;
+    width: clamp(20px, 3vw, 42px);
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -408,7 +408,7 @@
   .controls-right::before {
     content: '';
     position: absolute;
-    right: calc(100% + 38px);
+    right: calc(100% + clamp(16px, 3vw, 38px));
     top: calc(50% - 8px);
     transform: translateY(-50%);
     width: 4px;
@@ -423,10 +423,10 @@
 
   .controls-right .pipe-backdrop-right {
     position: absolute;
-    right: calc(100% - 5px);
+    right: calc(100% - 1px);
     top: calc(50% - 8px);
     transform: translateY(-50%);
-    width: 50px;
+    width: clamp(20px, 3.5vw, 46px);
     height: 18px;
     border-radius: 3px;
     background: #1c1917;
@@ -441,7 +441,7 @@
     right: calc(100% + 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 18px;
+    width: 6px;
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -465,7 +465,7 @@
     right: calc(100% - 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 24px;
+    width: 10px;
     height: 18px;
     border-radius: 3px;
     background: #1c1917;
@@ -490,11 +490,11 @@
   }
 
   .controls-center::before {
-    left: -22px;
+    left: clamp(-22px, -1.8vw, -14px);
   }
 
   .controls-center::after {
-    right: -22px;
+    right: clamp(-22px, -1.8vw, -14px);
   }
 
   /* Advanced toggle button */

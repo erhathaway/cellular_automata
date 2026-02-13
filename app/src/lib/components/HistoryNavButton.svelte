@@ -43,8 +43,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
-    height: 64px;
+    width: clamp(40px, 5.5vw, 64px);
+    height: clamp(40px, 5.5vw, 64px);
     border-radius: 50%;
     cursor: pointer;
     background-color: #1c1917;
@@ -90,16 +90,16 @@
   }
 
   .chevron {
-    width: 26px;
-    height: 26px;
+    width: clamp(16px, 2.5vw, 26px);
+    height: clamp(16px, 2.5vw, 26px);
     filter: drop-shadow(0 0 5px rgba(103, 232, 249, 0.5));
   }
 
   .nails {
     position: absolute;
-    top: 14px;
-    left: 18px;
-    right: 18px;
+    top: 10px;
+    left: 12px;
+    right: 12px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
@@ -107,7 +107,7 @@
 
   .nails-bottom {
     top: auto;
-    bottom: 14px;
+    bottom: 10px;
   }
 
   .nail {
