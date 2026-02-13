@@ -266,8 +266,10 @@
     }
   }
 
+  let previewScale = $derived(barWidth > 800 ? 3 : 2);
+
   let tooltipLeft = $derived.by(() => {
-    const tooltipWidth = 328;
+    const tooltipWidth = 160 * previewScale + 8;
     const half = tooltipWidth / 2;
     if (barWidth <= 0) return hoverX;
     return Math.max(half, Math.min(barWidth - half, hoverX));
@@ -276,7 +278,7 @@
   let previewDisplaySize = $derived.by(() => {
     const dim = automataStore.dimension;
     const shape = automataStore.populationShape;
-    const maxW = 320;
+    const maxW = 160 * previewScale;
     if (dim === 2) {
       const w = shape.x ?? 1;
       const h = shape.y ?? 1;
@@ -284,7 +286,7 @@
       return { width: maxW, height: Math.round(h * scale) };
     }
     if (dim === 1) {
-      return { width: maxW, height: 40 };
+      return { width: maxW, height: 20 * previewScale };
     }
     if (dim === 3) {
       return { width: maxW, height: maxW };
