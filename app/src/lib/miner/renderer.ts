@@ -16,10 +16,14 @@ const HEAD_LAYERS: CategoryId[] = [
 	'headgear'
 ];
 
-/** Upper body layers (torso/arms) */
+/** Upper body layers (torso) */
 const UPPER_BODY_LAYERS: CategoryId[] = [
 	'bodyShape',
-	'upperClothes',
+	'upperClothes'
+];
+
+/** Arm layers */
+const ARM_LAYERS: CategoryId[] = [
 	'gloves'
 ];
 
@@ -30,17 +34,17 @@ const LEG_LAYERS: CategoryId[] = [
 ];
 
 /** Groove pattern — 8-beat funk cycle (offsets in pixels at sprite scale)
- *  Each beat: [headX, headY, torsoX, torsoY, legsX, legsY]
+ *  Each beat: [headX, headY, torsoX, torsoY, legsX, legsY, armsX, armsY]
  */
-const GROOVE_BEATS: [number, number, number, number, number, number][] = [
-	[ 0, -2,  0,  0,  0,  0],  // 1 — head up
-	[ 1,  1,  1,  2,  0, -2],  // 2 — lean right, dip, knees bend
-	[ 0, -3,  0,  0,  0,  0],  // 3 — head bounce
-	[-1,  1, -1,  2,  0, -2],  // 4 — lean left, dip, knees bend
-	[ 0, -2,  0,  0,  0,  0],  // 5 — head up
-	[ 2,  2,  1,  3,  0, -3],  // 6 — lean right, deep dip, big bend
-	[ 0, -3,  0,  0,  0,  0],  // 7 — head bounce
-	[-2,  2, -1,  3,  0, -3],  // 8 — lean left, deep dip, big bend
+const GROOVE_BEATS: [number, number, number, number, number, number, number, number][] = [
+	[ 0, -2,  0,  0,  0,  0,   2, -3],  // 1 — head up, arms up right
+	[ 1,  1,  1,  2,  0, -2,  -1,  1],  // 2 — lean right, dip, arms down left
+	[ 0, -3,  0,  0,  0,  0,  -2, -3],  // 3 — head bounce, arms up left
+	[-1,  1, -1,  2,  0, -2,   1,  1],  // 4 — lean left, dip, arms down right
+	[ 0, -2,  0,  0,  0,  0,   2, -2],  // 5 — head up, arms up right
+	[ 2,  2,  1,  3,  0, -3,  -2,  2],  // 6 — deep dip, arms swing down left
+	[ 0, -3,  0,  0,  0,  0,  -3, -4],  // 7 — head bounce, arms way up left
+	[-2,  2, -1,  3,  0, -3,   2,  2],  // 8 — deep dip, arms swing down right
 ];
 
 /** Resolve a sprite palette char to a CSS color */
@@ -150,9 +154,12 @@ export function renderMiner(
 			} else if (LEG_LAYERS.includes(catId)) {
 				xOffset = beat[4];
 				yOffset = beat[5];
+			} else if (ARM_LAYERS.includes(catId)) {
+				xOffset = beat[6];
+				yOffset = beat[7];
 			} else if (catId === 'tool') {
-				xOffset = beat[2];
-				yOffset = beat[3];
+				xOffset = beat[6];
+				yOffset = beat[7];
 			}
 		} else {
 			// Idle — subtle head bob
