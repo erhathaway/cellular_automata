@@ -12,6 +12,7 @@
     compact = false,
     showLabels = true,
     loading = false,
+    vertical = false,
     onlikechange,
     onbookmarkchange,
   }: {
@@ -25,6 +26,7 @@
     compact?: boolean;
     showLabels?: boolean;
     loading?: boolean;
+    vertical?: boolean;
     onlikechange?: (liked: boolean) => void;
     onbookmarkchange?: (bookmarked: boolean) => void;
   } = $props();
@@ -126,96 +128,178 @@
   }
 </script>
 
-<div class="action-buttons" class:compact>
-  <!-- Copy link -->
-  {#if copyUrl}
-    <div class="action-col">
+<div class="action-buttons" class:compact class:vertical>
+  {#if vertical}
+    <!-- Vertical order: Bookmark, Like, Link -->
+
+    <!-- Bookmark -->
+    <div class="action-col" class:has-tooltip={!ready && !loading}>
       <button
-        class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
-        aria-label="Copy link"
-        onclick={copyLink}
+        class="action-btn {bookmarked ? 'active' : ''} {bookmarkAnimating ? 'action-pop' : ''}"
+        class:checking={loading}
+        class:unavailable={!ready && !loading}
+        aria-label={bookmarked ? 'Remove from chest' : 'Add to chest'}
+        onclick={toggleBookmark}
+        disabled={!ready}
       >
-          <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
         <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
-        {#if copied}
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 6 9 17l-5-5" />
+        {#if loading}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
         {:else}
           <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+            <line x1="4" y1="13" x2="20" y2="13" />
+            <rect x="10" y="11" width="4" height="4" rx="1" />
           </svg>
         {/if}
       </button>
+    </div>
+
+    <!-- Like -->
+    <div class="action-col" class:has-tooltip={!ready && !loading}>
+      <button
+        class="action-btn {liked ? 'active' : ''} {likeAnimating ? 'action-pop' : ''}"
+        class:checking={loading}
+        class:unavailable={!ready && !loading}
+        aria-label={liked ? 'Unlike' : 'Like'}
+        onclick={toggleLike}
+        disabled={!ready}
+      >
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        {#if loading}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        {:else}
+          <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+          </svg>
+        {/if}
+      </button>
+    </div>
+
+    <!-- Copy link -->
+    {#if copyUrl}
+      <div class="action-col">
+        <button
+          class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
+          aria-label="Copy link"
+          onclick={copyLink}
+        >
+          <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+          <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+          {#if copied}
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          {:else}
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          {/if}
+        </button>
+      </div>
+    {/if}
+
+  {:else}
+    <!-- Horizontal order: Link, Like, Bookmark -->
+
+    <!-- Copy link -->
+    {#if copyUrl}
+      <div class="action-col">
+        <button
+          class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
+          aria-label="Copy link"
+          onclick={copyLink}
+        >
+          <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+          <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+          {#if copied}
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          {:else}
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          {/if}
+        </button>
+        {#if showLabels}
+          <span class="action-label">{copied ? 'Copied!' : 'Link'}</span>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- Like -->
+    <div class="action-col" class:has-tooltip={!ready && !loading}>
+      <button
+        class="action-btn {liked ? 'active' : ''} {likeAnimating ? 'action-pop' : ''}"
+        class:checking={loading}
+        class:unavailable={!ready && !loading}
+        aria-label={liked ? 'Unlike' : 'Like'}
+        onclick={toggleLike}
+        disabled={!ready}
+      >
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        {#if loading}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        {:else}
+          <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+          </svg>
+        {/if}
+      </button>
+      {#if !ready && !loading}
+        <span class="tooltip">Claim this automata first</span>
+      {/if}
       {#if showLabels}
-        <span class="action-label">{copied ? 'Copied!' : 'Link'}</span>
+        <span class="action-label">{currentLikeCount || ''}</span>
+      {/if}
+    </div>
+
+    <!-- Bookmark -->
+    <div class="action-col" class:has-tooltip={!ready && !loading}>
+      <button
+        class="action-btn {bookmarked ? 'active' : ''} {bookmarkAnimating ? 'action-pop' : ''}"
+        class:checking={loading}
+        class:unavailable={!ready && !loading}
+        aria-label={bookmarked ? 'Remove from chest' : 'Add to chest'}
+        onclick={toggleBookmark}
+        disabled={!ready}
+      >
+        <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
+        {#if loading}
+          <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+        {:else}
+          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
+            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
+            <line x1="4" y1="13" x2="20" y2="13" />
+            <rect x="10" y="11" width="4" height="4" rx="1" />
+          </svg>
+        {/if}
+      </button>
+      {#if !ready && !loading}
+        <span class="tooltip">Claim this automata first</span>
+      {/if}
+      {#if showLabels}
+        <span class="action-label">{bookmarkCount || ''}</span>
       {/if}
     </div>
   {/if}
-
-  <!-- Like -->
-  <div class="action-col" class:has-tooltip={!ready && !loading}>
-    <button
-      class="action-btn {liked ? 'active' : ''} {likeAnimating ? 'action-pop' : ''}"
-      class:checking={loading}
-      class:unavailable={!ready && !loading}
-      aria-label={liked ? 'Unlike' : 'Like'}
-      onclick={toggleLike}
-      disabled={!ready}
-    >
-      <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
-      <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
-      {#if loading}
-        <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
-      {:else}
-        <svg class="action-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-        </svg>
-      {/if}
-    </button>
-    {#if !ready && !loading}
-      <span class="tooltip">Claim this automata first</span>
-    {/if}
-    {#if showLabels}
-      <span class="action-label">{currentLikeCount || ''}</span>
-    {/if}
-  </div>
-
-  <!-- Bookmark -->
-  <div class="action-col" class:has-tooltip={!ready && !loading}>
-    <button
-      class="action-btn {bookmarked ? 'active' : ''} {bookmarkAnimating ? 'action-pop' : ''}"
-      class:checking={loading}
-      class:unavailable={!ready && !loading}
-      aria-label={bookmarked ? 'Remove from chest' : 'Add to chest'}
-      onclick={toggleBookmark}
-      disabled={!ready}
-    >
-      <div class="btn-nails"><div class="btn-nail"></div><div class="btn-nail"></div></div>
-      <div class="btn-nails btn-nails-bottom"><div class="btn-nail"></div><div class="btn-nail"></div></div>
-      {#if loading}
-        <svg class="action-icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
-      {:else}
-        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-          <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-          <line x1="4" y1="13" x2="20" y2="13" />
-          <rect x="10" y="11" width="4" height="4" rx="1" />
-        </svg>
-      {/if}
-    </button>
-    {#if !ready && !loading}
-      <span class="tooltip">Claim this automata first</span>
-    {/if}
-    {#if showLabels}
-      <span class="action-label">{bookmarkCount || ''}</span>
-    {/if}
-  </div>
 </div>
 
 <style>
@@ -228,6 +312,10 @@
 
   .action-buttons.compact {
     gap: 6px;
+  }
+
+  .action-buttons.vertical {
+    flex-direction: column;
   }
 
   .action-col {
@@ -274,6 +362,14 @@
   .action-btn.active {
     border-color: #facc15;
     color: #facc15;
+  }
+
+  .compact .action-btn.active {
+    border-color: #44403c;
+  }
+
+  .compact .action-btn.active:hover {
+    border-color: #facc15;
   }
 
   .action-btn.active:hover {

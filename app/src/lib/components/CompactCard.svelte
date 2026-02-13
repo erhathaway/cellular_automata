@@ -84,30 +84,8 @@
       <!-- Scanline overlay -->
       <div class="scanlines"></div>
 
-      <!-- Persistent status badges (always visible) -->
-      {#if isLiked || isBookmarked}
-        <div class="status-badges">
-          {#if isLiked}
-            <span class="status-badge liked">
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-              </svg>
-            </span>
-          {/if}
-          {#if isBookmarked}
-            <span class="status-badge bookmarked">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-                <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-                <line x1="4" y1="13" x2="20" y2="13" />
-              </svg>
-            </span>
-          {/if}
-        </div>
-      {/if}
-
       {#if interactive}
-        <div class="hover-actions">
+        <div class="hover-actions" class:always-visible={isLiked || isBookmarked}>
           <ActionButtons
             entityType={item.entityType}
             entityId={item.id}
@@ -116,6 +94,7 @@
             likeCount={item.likeCount ?? 0}
             {copyUrl}
             compact
+            vertical
             showLabels={false}
             onlikechange={(v) => { isLiked = v; }}
             onbookmarkchange={(v) => { isBookmarked = v; }}
@@ -347,50 +326,17 @@
     );
   }
 
-  /* Persistent status badges */
-  .status-badges {
+  .hover-actions {
     position: absolute;
     top: 6px;
     right: 6px;
-    display: flex;
-    gap: 4px;
-    z-index: 5;
-    pointer-events: none;
-  }
-
-  .status-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 5px;
-    backdrop-filter: blur(6px);
-  }
-
-  .status-badge.liked {
-    background: rgba(251, 113, 133, 0.2);
-    color: #fb7185;
-    box-shadow: 0 0 6px rgba(251, 113, 133, 0.3);
-  }
-
-  .status-badge.bookmarked {
-    background: rgba(234, 88, 12, 0.2);
-    color: #f97316;
-    box-shadow: 0 0 6px rgba(234, 88, 12, 0.3);
-  }
-
-  .hover-actions {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.2s ease;
     z-index: 5;
   }
 
-  .card:hover .hover-actions {
+  .card:hover .hover-actions,
+  .hover-actions.always-visible {
     opacity: 1;
   }
 
