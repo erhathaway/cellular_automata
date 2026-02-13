@@ -108,6 +108,7 @@
     animRafId = requestAnimationFrame(animLoop);
     if (time - lastFrameTime < ANIM_INTERVAL) return;
     lastFrameTime = time;
+    animState.grooving = true;
     animState = advanceAnim(animState);
     animDraw();
   }
