@@ -10,7 +10,7 @@
     ThreeDimensionInThreeDimensions,
   } from '$lib-core';
 
-  let { open = $bindable(false) }: { open: boolean } = $props();
+  let open = $derived(automataStore.gifStudioOpen);
 
   // Internal state
   let startMode: 'current' | 'seed' = $state('current');
@@ -305,7 +305,7 @@
     await new Promise(r => requestAnimationFrame(r));
 
     const { width, height } = capturedFrames[0];
-    const blob = encodeGif(capturedFrames, width, height, frameDelay);
+    const blob = await encodeGif(capturedFrames, width, height, frameDelay);
 
     if (gifUrl) URL.revokeObjectURL(gifUrl);
     gifBlob = blob;
@@ -322,7 +322,7 @@
   async function copyGif() {
     if (!gifBlob && capturedFrames.length > 0) {
       const { width, height } = capturedFrames[0];
-      gifBlob = encodeGif(capturedFrames, width, height, frameDelay);
+      gifBlob = await encodeGif(capturedFrames, width, height, frameDelay);
       if (gifUrl) URL.revokeObjectURL(gifUrl);
       gifUrl = URL.createObjectURL(gifBlob);
     }
@@ -402,7 +402,7 @@
 
   function closeStudio() {
     destroyStudio();
-    open = false;
+    automataStore.gifStudioOpen = false;
   }
 
   // Handle Escape key

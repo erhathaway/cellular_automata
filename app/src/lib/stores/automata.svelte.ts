@@ -198,6 +198,9 @@ class AutomataStore {
   savedSeed: Uint8Array | null = $state(null);
   useSavedSeed: boolean = $state(true);
 
+  // GIF Studio open state (global so any ActionButtons can trigger it)
+  gifStudioOpen = $state(false);
+
   // Generation run ID — links to a specific claimed snapshot for reproducible URLs
   generationRunId: string | null = $state(null);
 

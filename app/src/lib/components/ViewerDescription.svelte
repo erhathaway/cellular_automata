@@ -6,11 +6,8 @@
   import MinerBadge from './MinerBadge.svelte';
   import AutomataDetails from './AutomataDetails.svelte';
   import ActionButtons from './ActionButtons.svelte';
-  import GifStudio from './GifStudio.svelte';
 
   let { compact = false }: { compact?: boolean } = $props();
-
-  let gifStudioOpen = $state(false);
 
   let detailsItem = $derived.by(() => ({
     ruleDefinition: serializeRule(automataStore.rule),
@@ -164,7 +161,7 @@
         likeCount={discoveryInfo?.totalLikes ?? 0}
         bookmarkCount={discoveryInfo?.totalBookmarks ?? 0}
         copyUrl={typeof window !== 'undefined' ? window.location.href : ''}
-        ongifstudio={() => { gifStudioOpen = true; }}
+
       />
     </div>
   </div>
@@ -204,8 +201,6 @@
   </div>
 </div>
 {/if}
-
-<GifStudio bind:open={gifStudioOpen} />
 
 <style>
   .desc-root {

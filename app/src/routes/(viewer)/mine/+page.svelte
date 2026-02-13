@@ -111,18 +111,14 @@
       </div>
     </div>
   </div>
-</div>
-
-{#if innerWidth < 1000}
-  <div class="inline-analysis">
-    <AnalysisOverlayContent />
-  </div>
-{/if}
-
-<section class="relative z-10 bg-black">
-  <!-- Advanced toggle button + panel -->
-  <div class="advanced-toggle">
-    <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="80px" flanges />
+  <!-- Advanced toggle button (top-right corner) -->
+  <div class="advanced-toggle pointer-events-auto">
+    <!-- Vertical pipe: top of button → top of viewer -->
+    <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="40px" flanges
+      style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);" />
+    <!-- Horizontal pipe: right of button → right of viewer -->
+    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges
+      style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%);" />
     <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
       <div class="adv-btn">
         <span class="adv-pretitle">Mode</span>
@@ -142,7 +138,15 @@
       </div>
     </SteelPanel>
   </div>
+</div>
 
+{#if innerWidth < 1000}
+  <div class="inline-analysis">
+    <AnalysisOverlayContent />
+  </div>
+{/if}
+
+<section class="relative z-10 bg-black">
   {#if advancedOpen}
     <div class="advanced-panel-slot">
       <AdvancedPanel onclose={() => automataStore.setAdvancedMode(false)} />
@@ -294,12 +298,12 @@
     transform: translateX(2px);
   }
 
-  /* Advanced toggle button */
+  /* Advanced toggle button — top-right of viewer */
   .advanced-toggle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 1rem;
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    z-index: 50;
   }
 
 

@@ -1,12 +1,16 @@
-import pkg from 'gifenc';
-const { GIFEncoder, quantize, applyPalette } = pkg;
-
-export function encodeGif(
+export async function encodeGif(
   frames: ImageData[],
   width: number,
   height: number,
   delay: number
-): Blob {
+): Promise<Blob> {
+  const gifenc = await import('gifenc');
+  // Handle CJS interop: named exports may be on module or on module.default
+  const mod = (gifenc as any).default ?? gifenc;
+  const GIFEncoder = typeof mod === 'function' ? mod : mod.GIFEncoder;
+  const quantize = mod.quantize ?? gifenc.quantize;
+  const applyPalette = mod.applyPalette ?? gifenc.applyPalette;
+
   const gif = GIFEncoder();
 
   for (let i = 0; i < frames.length; i++) {

@@ -3,6 +3,7 @@
   import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
   import GalleryStats from '$lib/components/explore/GalleryStats.svelte';
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
+  import GifStudio from '$lib/components/GifStudio.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { scrollPositionStore } from '$lib/stores/scroll-position.svelte';
@@ -90,6 +91,7 @@
 
 <svelte:window bind:innerWidth={innerWidth} />
 <PersistenceManager />
+<GifStudio />
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
