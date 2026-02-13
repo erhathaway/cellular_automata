@@ -56,10 +56,10 @@
 
         <!-- Avatar -->
         <div class="avatar-area">
-          <div style="position: absolute; left: calc(50% + 20px); top: 50%; transform: translate(-50%, -50%);">
+          <div style="position: absolute; left: calc(50% + 10px); top: 50%; transform: translate(-50%, -50%);">
             <PixelAvatar
               avatarId={entry.avatarId}
-              size={360}
+              size={200}
               fallbackInitials={(entry.displayName ?? '?')[0]}
               minerConfig={entry.minerConfig}
               userId={entry.userId}
@@ -224,7 +224,7 @@
     margin-bottom: -20px;
     position: relative;
     width: 100%;
-    height: 280px;
+    height: 250px;
   }
 
   .miner-name {
