@@ -77,6 +77,10 @@
     }, 0);
   }
 
+  const SLOWDOWN_START = 25;
+  const SLOWDOWN_END = 50;
+  const SLOW_RATE_MS = 100;
+
   function retrieveNextGeneration() {
     const pop = automataManager!.run();
     automataStore.observePopulationForIntervention(pop);
@@ -89,6 +93,19 @@
       automataManager!.keyframeCount,
       automataManager!.absoluteGeneration
     );
+
+    const gen = automataManager!.absoluteGeneration;
+
+    // Ease into slow rate between step 40-50, then hold
+    if (gen >= SLOWDOWN_START && viewer) {
+      const baseRate = viewerDefaultUpdateRateMs ?? 0;
+      if (gen >= SLOWDOWN_END) {
+        viewer.updateRateInMS = SLOW_RATE_MS;
+      } else {
+        const t = (gen - SLOWDOWN_START) / (SLOWDOWN_END - SLOWDOWN_START);
+        viewer.updateRateInMS = baseRate + t * t * (SLOW_RATE_MS - baseRate);
+      }
+    }
 
     // Check for stability every 10 generations
     if (automataManager!.totalGenerations % 10 === 0) {
