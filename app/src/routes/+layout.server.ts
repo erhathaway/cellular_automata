@@ -21,7 +21,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			.where(eq(user.id, auth.userId))
 			.get();
 
-		return { ...buildClerkProps(auth), userProfile: profile ?? null };
+		return { ...buildClerkProps(auth), userProfile: profile ?? null, userId: auth.userId };
 	}
-	return { ...buildClerkProps(auth), userProfile: null };
+	return { ...buildClerkProps(auth), userProfile: null, userId: null };
 };

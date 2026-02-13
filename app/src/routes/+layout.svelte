@@ -8,8 +8,10 @@
 	import { ClerkProvider, SignedIn, SignedOut, useClerkContext } from 'svelte-clerk';
 	import SignUpNudge from '$lib/components/SignUpNudge.svelte';
 	import SeizureWarningModal from '$lib/components/SeizureWarningModal.svelte';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { initPosthog, posthog } from '$lib/analytics';
 	import { automataStore } from '$lib/stores/automata.svelte';
 	import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
 	import { deserializeRule, buildURLParams } from '$lib/stores/persistence';
@@ -88,6 +90,29 @@
 	// Sync server data into local state (handles post-sign-in invalidation)
 	$effect(() => {
 		userProfile = data.userProfile;
+	});
+
+	// PostHog analytics
+	onMount(() => {
+		initPosthog();
+	});
+
+	afterNavigate(() => {
+		posthog.capture('$pageview');
+	});
+
+	let prevUserId: string | null = null;
+	$effect(() => {
+		const uid = data.userId;
+		if (uid && uid !== prevUserId) {
+			posthog.identify(uid, {
+				displayName: data.userProfile?.displayName,
+				email: data.userProfile?.email
+			});
+		} else if (!uid && prevUserId) {
+			posthog.reset();
+		}
+		prevUserId = uid;
 	});
 
 	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
