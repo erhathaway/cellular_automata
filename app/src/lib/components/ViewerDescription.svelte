@@ -208,7 +208,7 @@
     gap: 32px;
     max-width: 56rem;
     margin: 0 auto;
-    padding: 40px 24px 40px;
+    padding: 120px 24px 40px;
   }
 
   .badge-col {
@@ -244,6 +244,7 @@
   .desc-compact {
     flex-direction: column;
     gap: 16px;
+    padding-top: 40px;
   }
 
   .desc-compact .title {
