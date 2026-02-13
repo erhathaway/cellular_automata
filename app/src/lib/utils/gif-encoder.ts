@@ -1,4 +1,5 @@
-import { GIFEncoder, quantize, applyPalette } from 'gifenc';
+import pkg from 'gifenc';
+const { GIFEncoder, quantize, applyPalette } = pkg;
 
 export function encodeGif(
   frames: ImageData[],
