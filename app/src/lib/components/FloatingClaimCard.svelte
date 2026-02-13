@@ -75,26 +75,12 @@
 
   let userProfile = $derived(($page.data as any)?.userProfile as { displayName?: string | null; avatarId?: string | null; minerConfig?: string | null } | null);
 
-  // Visibility: show when unclaimed (and stay visible through claiming → claimed)
-  let visible = $state(false);
-  let wasUnclaimed = false;
-
-  $effect(() => {
-    const unclaimed = discoveryStore.isUnclaimed;
-    const saving = discoveryStore.saving;
-    const saved = discoveryStore.saved;
-    const gemExit = discoveryStore.gemExiting;
-
-    if (unclaimed && !wasUnclaimed) {
-      // Newly unclaimed — show
-      visible = true;
-    } else if (!unclaimed && !saving && !saved && !gemExit && !gemArriving) {
-      // No longer unclaimed and not in claim flow — hide
-      visible = false;
-      wasUnclaimed = false;
-    }
-    if (unclaimed) wasUnclaimed = true;
-  });
+  // Visibility: show when we have a discovery result (unclaimed or claimed) and not surveying/not-viable
+  let visible = $derived(
+    discoveryStore.discoveryInfo !== null &&
+    !discoveryStore.isSurveying &&
+    !discoveryStore.notViable
+  );
 
   // Register/unregister gemAreaEl on automataStore
   $effect(() => {

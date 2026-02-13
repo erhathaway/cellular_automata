@@ -374,7 +374,7 @@
 
   .floating-claim-slot {
     position: absolute;
-    top: 120px;
+    top: 150px;
     right: 40px;
     z-index: 50;
   }
