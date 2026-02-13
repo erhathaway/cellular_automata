@@ -724,7 +724,7 @@ class AutomataStore {
     this.interventionTaken = true;
     this.interventionTitle = 'Emergency intervention taken';
     this.interventionReason =
-      'Explosive automata detected: slowing simulation to prevent harm to equiepemnt';
+      'Explosive automata detected: slowing simulation to prevent harm to equipment';
     this.interventionUpdateRateMs = 3000;
   }
 
