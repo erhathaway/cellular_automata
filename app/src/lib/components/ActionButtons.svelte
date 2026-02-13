@@ -523,4 +523,46 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  @media (max-width: 999px) {
+    .action-buttons {
+      gap: 6px;
+    }
+
+    .action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 5px;
+    }
+
+    .compact .action-btn {
+      width: 42px;
+      height: 42px;
+    }
+
+    .btn-nails {
+      top: 2px;
+      left: 3px;
+      right: 3px;
+    }
+
+    .btn-nails-bottom {
+      bottom: 2px;
+    }
+
+    .btn-nail {
+      width: 3px;
+      height: 3px;
+    }
+
+    .action-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .compact .action-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
 </style>
