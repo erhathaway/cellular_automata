@@ -29,6 +29,7 @@
   let previewFrameIndex = $state(0);
   let studioGeneration = $state(0);
   let isEncoding = $state(false);
+  let isPreviewPlaying = $state(false);
 
   let bgColor = $derived.by(() => {
     const states = automataStore.gifTargetConfig?.cellStates ?? automataStore.cellStates;
@@ -355,6 +356,7 @@
   function startPreview() {
     stopPreview();
     if (frameThumbnails.length === 0) return;
+    isPreviewPlaying = true;
     previewTimer = setInterval(() => {
       previewFrameIndex = (previewFrameIndex + 1) % frameThumbnails.length;
     }, frameDelay);
@@ -365,6 +367,27 @@
       clearInterval(previewTimer);
       previewTimer = undefined;
     }
+    isPreviewPlaying = false;
+  }
+
+  function togglePreview() {
+    if (isPreviewPlaying) {
+      stopPreview();
+    } else {
+      startPreview();
+    }
+  }
+
+  function previewStepForward() {
+    if (frameThumbnails.length === 0) return;
+    stopPreview();
+    previewFrameIndex = (previewFrameIndex + 1) % frameThumbnails.length;
+  }
+
+  function previewStepBackward() {
+    if (frameThumbnails.length === 0) return;
+    stopPreview();
+    previewFrameIndex = (previewFrameIndex - 1 + frameThumbnails.length) % frameThumbnails.length;
   }
 
   async function encodeAndDownload() {
@@ -610,6 +633,26 @@
               </div>
             {/if}
           </div>
+
+          <!-- Preview Controls -->
+          {#if frameThumbnails.length > 0 && !gifUrl}
+            <div class="preview-controls">
+              <button class="ctrl-btn" onclick={previewStepBackward} disabled={isPreviewPlaying} aria-label="Previous frame">
+                <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="3" width="3" height="18" /><polygon points="20,3 9,12 20,21" /></svg>
+              </button>
+              <button class="ctrl-btn" onclick={togglePreview} aria-label={isPreviewPlaying ? 'Pause preview' : 'Play preview'}>
+                {#if isPreviewPlaying}
+                  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                {:else}
+                  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21" /></svg>
+                {/if}
+              </button>
+              <button class="ctrl-btn" onclick={previewStepForward} disabled={isPreviewPlaying} aria-label="Next frame">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="4,3 15,12 4,21" /><rect x="16" y="3" width="3" height="18" /></svg>
+              </button>
+              <span class="preview-frame-info">{previewFrameIndex + 1} / {frameThumbnails.length}</span>
+            </div>
+          {/if}
 
           <!-- Settings -->
           <div class="settings-area">
@@ -931,6 +974,20 @@
     font-size: 12px;
     text-align: center;
     padding: 40px 20px;
+  }
+
+  .preview-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .preview-frame-info {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #78716c;
+    margin-left: 4px;
   }
 
   .settings-area {
