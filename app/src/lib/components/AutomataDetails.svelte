@@ -389,7 +389,7 @@
   }
 
   .pill.dim {
-    color: #57534e;
+    color: #a8a29e;
     background: #1c1917;
     border: 1px solid #44403c;
   }
@@ -407,7 +407,7 @@
   }
 
   .pill.neighbors {
-    color: #78716c;
+    color: #8c877d;
     background: #1c1917;
     border: 1px solid #44403c;
   }

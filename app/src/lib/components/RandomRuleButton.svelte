@@ -268,7 +268,7 @@
     border: 1.5px solid #57534e;
     border-top-color: #78716c;
     border-bottom-color: #44403c;
-    border-radius: 2px;
+    border-radius: 3px;
     color: #facc15;
     transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
     box-shadow:
