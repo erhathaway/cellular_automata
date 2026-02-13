@@ -16,27 +16,31 @@ const HEAD_LAYERS: CategoryId[] = [
 	'headgear'
 ];
 
-/** Layers affected by body groove sway */
-const BODY_LAYERS: CategoryId[] = [
+/** Upper body layers (torso/arms) */
+const UPPER_BODY_LAYERS: CategoryId[] = [
 	'bodyShape',
 	'upperClothes',
+	'gloves'
+];
+
+/** Leg layers */
+const LEG_LAYERS: CategoryId[] = [
 	'lowerClothes',
-	'gloves',
 	'shoes'
 ];
 
 /** Groove pattern — 8-beat funk cycle (offsets in pixels at sprite scale)
- *  Each beat: [headX, headY, bodyX, bodyY]
+ *  Each beat: [headX, headY, torsoX, torsoY, legsX, legsY]
  */
-const GROOVE_BEATS: [number, number, number, number][] = [
-	[ 0, -2,  0,  0],  // 1 — head up
-	[ 1,  0,  1,  1],  // 2 — lean right, dip
-	[ 0, -3,  0,  0],  // 3 — head bounce
-	[-1,  0, -1,  1],  // 4 — lean left, dip
-	[ 0, -2,  0,  0],  // 5 — head up
-	[ 2,  1,  1,  1],  // 6 — lean right, dip harder
-	[ 0, -3,  0,  0],  // 7 — head bounce
-	[-2,  1, -1,  1],  // 8 — lean left, dip harder
+const GROOVE_BEATS: [number, number, number, number, number, number][] = [
+	[ 0, -2,  0,  0,  0,  0],  // 1 — head up, standing
+	[ 1,  1,  1,  2,  0, -2],  // 2 — lean right, dip, knees bend
+	[ 0, -3,  0,  0,  0,  0],  // 3 — head bounce, standing
+	[-1,  1, -1,  2,  0, -2],  // 4 — lean left, dip, knees bend
+	[ 0, -2,  0,  0,  0,  0],  // 5 — head up, standing
+	[ 2,  2,  1,  3,  0, -3],  // 6 — lean right, deep dip, big bend
+	[ 0, -3,  0,  0,  0,  0],  // 7 — head bounce, standing
+	[-2,  2, -1,  3,  0, -3],  // 8 — lean left, deep dip, big bend
 ];
 
 /** Resolve a sprite palette char to a CSS color */
@@ -140,9 +144,12 @@ export function renderMiner(
 			if (HEAD_LAYERS.includes(catId)) {
 				xOffset = beat[0];
 				yOffset = beat[1];
-			} else if (BODY_LAYERS.includes(catId)) {
+			} else if (UPPER_BODY_LAYERS.includes(catId)) {
 				xOffset = beat[2];
 				yOffset = beat[3];
+			} else if (LEG_LAYERS.includes(catId)) {
+				xOffset = beat[4];
+				yOffset = beat[5];
 			} else if (catId === 'tool') {
 				xOffset = beat[2];
 				yOffset = beat[3];
