@@ -39,6 +39,8 @@
     gemEl?: HTMLElement | undefined;
     gemAreaEl?: HTMLElement | undefined;
   } = $props();
+
+  let avatarSize = $derived(typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72);
 </script>
 
 <div class="claim">
@@ -71,7 +73,7 @@
       <PixelAvatar
         avatarId={discoveryInfo.discoveredByAvatarId ?? null}
         minerConfig={discoveryInfo.discoveredByMinerConfig ?? null}
-        size={72}
+        size={avatarSize}
         fallbackInitials={discoveryInfo.discoveredBy?.[0]?.toUpperCase() ?? '?'}
         cropUpper
       />
@@ -84,25 +86,25 @@
       </div>
     {:else if isSurveying || gemArriving}
       <div class="icon-placeholder">
-        <svg class="search-sweep" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="search-sweep icon-svg" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
         </svg>
       </div>
       <div class="info">
-        <span class="label surveying-text" style="font-size: 13px;"><span>Surveying</span><span class="ellipsis"></span></span>
+        <span class="label surveying-text label-lg"><span>Surveying</span><span class="ellipsis"></span></span>
       </div>
     {:else if notViable}
       <div class="icon-placeholder">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10" />
           <path d="m15 9-6 6" />
           <path d="m9 9 6 6" />
         </svg>
       </div>
       <div class="info">
-        <span class="label" style="font-size: 13px; margin-bottom: 12px;">No viable automata found</span>
-        <span class="date" style="font-size: 12px;">Mine again to search</span>
+        <span class="label label-lg" style="margin-bottom: 8px;">No viable automata found</span>
+        <span class="date date-lg">Mine again to search</span>
       </div>
     {:else if isUnclaimed && saved}
       <!-- Claimed: show avatar animating in -->
@@ -110,7 +112,7 @@
         <PixelAvatar
           avatarId={userProfile?.avatarId ?? null}
           minerConfig={userProfile?.minerConfig ?? null}
-          size={72}
+          size={avatarSize}
           fallbackInitials={userProfile?.displayName?.[0]?.toUpperCase() ?? '?'}
           cropUpper
         />
@@ -126,7 +128,7 @@
         <div class="unclaimed-action" onclick={onclaim}>
           {#if saving}
             <div class="icon-placeholder">
-              <svg class="spin" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="spin spinner-svg" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56" />
               </svg>
             </div>
@@ -135,7 +137,7 @@
             </div>
           {:else if saveError}
             <div class="gem" bind:this={gemEl}>
-              <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="gem-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
                 <path d="M2 9h20" />
@@ -156,7 +158,7 @@
             </div>
           {:else}
             <div class="gem" bind:this={gemEl}>
-              <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="gem-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9Z" />
                 <path d="M11 3 8 9l4 13 4-13-3-6" />
                 <path d="M2 9h20" />
@@ -164,8 +166,8 @@
               <div class="gem-glow"></div>
             </div>
             <div class="info">
-              <span class="label" style="font-size: 16px;">Unclaimed automata</span>
-              <span class="date claim-cta claim-flash" style="font-size: 14px;">Stake your claim!</span>
+              <span class="label label-title">Unclaimed automata</span>
+              <span class="date claim-cta claim-flash date-title">Stake your claim!</span>
             </div>
           {/if}
         </div>
@@ -177,7 +179,7 @@
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="unclaimed-action" onclick={signIn}>
               <div class="gem">
-                <svg class="gem-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="gem-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M6 3h12l4 6-10 13L2 9Z" />
                   <path d="M11 3 8 9l4 13 4-13-3-6" />
                   <path d="M2 9h20" />
@@ -185,8 +187,8 @@
                 <div class="gem-glow"></div>
               </div>
               <div class="info">
-                <span class="label" style="font-size: 16px;">Unclaimed automata</span>
-                <span class="date claim-cta" style="font-size: 14px;">Sign in to claim</span>
+                <span class="label label-title">Unclaimed automata</span>
+                <span class="date claim-cta date-title">Sign in to claim</span>
               </div>
             </div>
           {/snippet}
@@ -199,7 +201,7 @@
 <style>
   .claim {
     position: relative;
-    width: 280px;
+    width: clamp(180px, 20vw, 280px);
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -211,7 +213,7 @@
       );
     border: 2px solid #44403c;
     border-radius: 6px;
-    padding: 24px 16px 28px;
+    padding: clamp(14px, 2vw, 24px) clamp(10px, 1.2vw, 16px) clamp(16px, 2.2vw, 28px);
     text-align: center;
   }
 
@@ -231,8 +233,8 @@
   }
 
   .nail {
-    width: 6px;
-    height: 6px;
+    width: clamp(4px, 0.5vw, 6px);
+    height: clamp(4px, 0.5vw, 6px);
     background: #78716c;
     border-radius: 50%;
     box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
@@ -242,20 +244,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: clamp(4px, 0.5vw, 6px);
+    margin-bottom: clamp(4px, 0.5vw, 6px);
   }
 
   .pickaxe {
-    width: 20px;
-    height: 20px;
+    width: clamp(14px, 1.5vw, 20px);
+    height: clamp(14px, 1.5vw, 20px);
     color: #facc15;
     flex-shrink: 0;
   }
 
   .header-text {
     font-family: 'Space Mono', monospace;
-    font-size: 14px;
+    font-size: clamp(9px, 1.1vw, 14px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -265,14 +267,14 @@
   .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, #44403c 20%, #44403c 80%, transparent);
-    margin-bottom: 12px;
+    margin-bottom: clamp(8px, 1vw, 12px);
   }
 
   .body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: clamp(8px, 1vw, 14px);
   }
 
   .info {
@@ -284,7 +286,7 @@
 
   .label {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: clamp(8px, 0.9vw, 10px);
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -292,33 +294,54 @@
     line-height: 1.2;
   }
 
+  .label-lg {
+    font-size: clamp(9px, 1vw, 13px);
+  }
+
+  .label-title {
+    font-size: clamp(11px, 1.3vw, 16px);
+  }
+
   .name {
     font-family: 'Space Grotesk Variable', sans-serif;
-    font-size: 15px;
+    font-size: clamp(11px, 1.2vw, 15px);
     font-weight: 600;
     color: #fafaf9;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 240px;
+    max-width: clamp(150px, 18vw, 240px);
     line-height: 1.3;
-    margin: 6px 0;
+    margin: clamp(3px, 0.4vw, 6px) 0;
   }
 
   .date {
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: clamp(8px, 0.9vw, 10px);
     color: #a8a29e;
     line-height: 1.2;
+  }
+
+  .date-lg {
+    font-size: clamp(9px, 1vw, 12px);
+  }
+
+  .date-title {
+    font-size: clamp(10px, 1.1vw, 14px);
   }
 
   .icon-placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
+    width: clamp(48px, 5.5vw, 72px);
+    height: clamp(48px, 5.5vw, 72px);
     color: rgba(255, 255, 255, 0.25);
+  }
+
+  .icon-svg {
+    width: clamp(32px, 3.5vw, 48px);
+    height: clamp(32px, 3.5vw, 48px);
   }
 
   .search-sweep {
@@ -359,11 +382,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
+    width: clamp(48px, 5.5vw, 72px);
+    height: clamp(48px, 5.5vw, 72px);
   }
 
   .gem-icon {
+    width: clamp(28px, 3vw, 40px);
+    height: clamp(28px, 3vw, 40px);
     color: #facc15;
     filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.6));
     animation: gem-spin 3s linear infinite;
@@ -390,6 +415,11 @@
     background: radial-gradient(circle, rgba(250, 204, 21, 0.7) 0%, transparent 70%);
     animation: flash-burst 0.4s ease-out forwards;
     pointer-events: none;
+  }
+
+  .spinner-svg {
+    width: clamp(16px, 1.8vw, 24px);
+    height: clamp(16px, 1.8vw, 24px);
   }
 
   @keyframes gem-spin {
@@ -437,7 +467,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: clamp(4px, 0.6vw, 8px);
     cursor: pointer;
   }
 

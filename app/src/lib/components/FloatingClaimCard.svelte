@@ -60,12 +60,10 @@
     const thisRun = gemRunId;
 
     // Use the stable slot element (no transform) to calculate target position.
-    // The card (280px) is the only child — target its center.
+    // Read actual rendered size — card width is responsive via clamp().
     const slotRect = slotEl.getBoundingClientRect();
-    const cardWidth = 280; // ClaimCardContent fixed width
-    const cardHeight = slotRect.height || 200; // fallback if not yet measured
-    const targetX = slotRect.left + cardWidth / 2;
-    const targetY = slotRect.top + cardHeight / 2;
+    const targetX = slotRect.left + slotRect.width / 2;
+    const targetY = slotRect.top + slotRect.height / 2;
 
     const origin = automataStore.mineGemOrigin;
     const startX = origin?.x ?? window.innerWidth / 2;
