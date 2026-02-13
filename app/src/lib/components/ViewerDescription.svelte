@@ -164,13 +164,11 @@
       />
     </div>
   </div>
-  <div class="compact-row">
-    <div class="badge-col">
-      <MinerBadge />
-    </div>
-    <div class="content-col">
-      <AutomataDetails item={detailsItem} hideOwner {fullRules} />
-    </div>
+  <div class="compact-details-row">
+    <AutomataDetails item={detailsItem} hideOwner {fullRules} />
+  </div>
+  <div class="compact-badge-row">
+    <MinerBadge />
   </div>
 </div>
 {:else}
@@ -266,12 +264,13 @@
     margin-right: 24px;
   }
 
-  .compact-row {
+  .compact-details-row {
     display: flex;
-    gap: 24px;
+    justify-content: center;
   }
 
-  .compact-row .content-col {
-    padding-top: 28px;
+  .compact-badge-row {
+    display: flex;
+    justify-content: center;
   }
 </style>
