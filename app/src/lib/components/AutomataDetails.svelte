@@ -33,6 +33,22 @@
 
   let counts = $derived(getRuleCounts(item.ruleDefinition));
 
+  interface HSLColor { h: number; s: number; l: number; a: number }
+
+  function parseCellStates(): HSLColor[] {
+    const raw = item.cellStates;
+    if (!raw) return [];
+    const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr)) return [];
+    return arr.map((s: any) => s.color as HSLColor);
+  }
+
+  let stateColors = $derived(parseCellStates());
+
+  function hslToCSS(c: HSLColor): string {
+    return `hsla(${c.h}, ${Math.round(c.s * 100)}%, ${Math.round(c.l * 100)}%, ${c.a})`;
+  }
+
   function parsedRule(rule: string): { born: string; survive: string } | null {
     const match = rule.match(/^B([0-9,]*)S([0-9,]*)$/);
     if (!match) return null;
@@ -101,6 +117,14 @@
       <span class="pill lattice">{latticeLabel()}</span>
       <span class="pill radius">r={item.neighborhoodRadius ?? 1}</span>
       <span class="pill neighbors">{neighborCount(item.dimension ?? 2, item.neighborhoodRadius ?? 1)} neighbors</span>
+      {#if stateColors.length > 0}
+        <span class="pill state-colors">
+          <span class="swatch-label">colors</span>
+          {#each stateColors as color}
+            <span class="color-swatch" style="background: {hslToCSS(color)};"></span>
+          {/each}
+        </span>
+      {/if}
     </div>
     {#if !hideOwner}
       <div class="owner-meta">
@@ -306,5 +330,27 @@
     color: #78716c;
     background: rgba(120, 113, 108, 0.08);
     border: 1px solid rgba(120, 113, 108, 0.15);
+  }
+
+  .pill.state-colors {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    background: #292524;
+    border: 1px solid rgba(120, 113, 108, 0.2);
+  }
+
+  .swatch-label {
+    color: #78716c;
+  }
+
+  .color-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid #44403c;
+    flex-shrink: 0;
+    box-sizing: border-box;
   }
 </style>
