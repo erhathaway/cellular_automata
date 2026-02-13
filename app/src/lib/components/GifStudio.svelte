@@ -411,6 +411,41 @@
     previewFrameIndex = (previewFrameIndex - 1 + frameThumbnails.length) % frameThumbnails.length;
   }
 
+  function hslToHex(c: { h: number; s: number; l: number }): string {
+    const h = c.h, s = c.s, l = c.l;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * Math.max(0, Math.min(1, color)))
+        .toString(16)
+        .padStart(2, '0');
+    };
+    return `${f(0)}${f(8)}${f(4)}`;
+  }
+
+  function exportFilename(ext: string): string {
+    const c = cfg();
+    const date = new Date().toISOString().slice(0, 10);
+    const dimViewer = `${c.dimension}d-${c.viewer}dv-${c.lattice}`;
+    const radius = `r${c.neighborhoodRadius}`;
+    const neighbors = `n${c.neighbors.length}`;
+
+    let rules: string;
+    if (c.rule.type === 'wolfram') {
+      rules = `w${c.rule.rule}`;
+    } else {
+      rules = `B${c.rule.born.join('')}S${c.rule.survive.join('')}`;
+    }
+    if (c.shapeRules) {
+      rules += '_' + c.shapeRules.map(r => `B${r.born.join('')}S${r.survive.join('')}`).join('_');
+    }
+
+    const colors = c.cellStates.map(cs => hslToHex(cs.color)).join('-');
+
+    return `${date}--${dimViewer}--${radius}--${neighbors}--${rules}--${colors}.${ext}`;
+  }
+
   async function encodeAndDownload() {
     if (capturedFrames.length === 0) return;
     isEncoding = true;
@@ -430,7 +465,7 @@
     // Auto-download
     const a = document.createElement('a');
     a.href = gifUrl;
-    a.download = 'automata.gif';
+    a.download = exportFilename('gif');
     a.click();
   }
 
@@ -479,7 +514,7 @@
 
     const a = document.createElement('a');
     a.href = mp4Url;
-    a.download = 'automata.mp4';
+    a.download = exportFilename('mp4');
     a.click();
   }
 
