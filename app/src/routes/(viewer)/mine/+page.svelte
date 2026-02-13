@@ -149,7 +149,7 @@
     </div>
   {/if}
 
-  <ViewerDescription />
+  <ViewerDescription compact={innerWidth < 1000} />
   <ViewerComments />
 </section>
 </div>

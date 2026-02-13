@@ -7,6 +7,8 @@
   import AutomataDetails from './AutomataDetails.svelte';
   import ActionButtons from './ActionButtons.svelte';
 
+  let { compact = false }: { compact?: boolean } = $props();
+
   let detailsItem = $derived.by(() => ({
     ruleDefinition: serializeRule(automataStore.rule),
     dimension: automataStore.dimension,
@@ -145,6 +147,46 @@
 
 </script>
 
+{#if compact}
+<div class="desc-root desc-compact">
+  <div class="compact-title-row">
+    <h1 class="title" title={title}>{title}</h1>
+    <div class="action-buttons-col">
+      <ActionButtons
+        loading={discoveryInfo === null}
+        entityType={discoveryInfo?.entityType ?? ''}
+        entityId={discoveryInfo?.entityId ?? ''}
+        isLikedByMe={discoveryInfo?.isLikedByMe ?? false}
+        isBookmarkedByMe={discoveryInfo?.isBookmarkedByMe ?? false}
+        likeCount={discoveryInfo?.totalLikes ?? 0}
+        bookmarkCount={discoveryInfo?.totalBookmarks ?? 0}
+        copyUrl={typeof window !== 'undefined' ? window.location.href : ''}
+      />
+    </div>
+  </div>
+  <div class="compact-row">
+    <div class="badge-col">
+      <MinerBadge />
+    </div>
+    <div class="content-col">
+      <AutomataDetails item={detailsItem} hideOwner />
+      {#if fullRules.length > 0}
+        <div class="full-rules">
+          {#each fullRules as shape}
+            <div class="shape-rule">
+              {#if fullRules.length > 1}
+                <span class="shape-label">{shape.label}</span>
+              {/if}
+              <span class="rule-born">B<span class="rule-suffix">orn</span><span class="rule-sep">:</span> {shape.born.join(', ')}</span>
+              <span class="rule-survive">S<span class="rule-suffix">urvive</span><span class="rule-sep">:</span> {shape.survive.join(', ')}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </div>
+</div>
+{:else}
 <div class="desc-root">
   <!-- Left column: Miner badge -->
   <div class="badge-col">
@@ -185,6 +227,7 @@
     />
   </div>
 </div>
+{/if}
 
 <style>
   .desc-root {
@@ -262,5 +305,34 @@
   .action-buttons-col {
     flex-shrink: 0;
     padding-top: 4px;
+  }
+
+  .desc-compact {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .desc-compact .title {
+    margin-bottom: 0;
+  }
+
+  .compact-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .compact-title-row .title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .compact-title-row .action-buttons-col {
+    padding-top: 0;
+  }
+
+  .compact-row {
+    display: flex;
+    gap: 24px;
   }
 </style>
