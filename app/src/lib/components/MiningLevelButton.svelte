@@ -14,10 +14,10 @@
     range: string;
     note: string;
   }> = [
-    { key: 'random', label: 'Random', range: 'r: 1-6', note: 'Mine picks randomly' },
-    { key: 'easy', label: 'Easy', range: 'r: 1', note: 'Calmer patterns' },
-    { key: 'medium', label: 'Medium', range: 'r: 2-3', note: 'Balanced chaos' },
-    { key: 'hard', label: 'Hard', range: 'r: 4-6', note: 'High volatility' },
+    { key: 'random', label: 'Random', range: '', note: '' },
+    { key: 'easy', label: 'Easy', range: '', note: '' },
+    { key: 'medium', label: 'Medium', range: '', note: '' },
+    { key: 'hard', label: 'Hard', range: '', note: '' },
   ];
 
   const current = $derived.by(
