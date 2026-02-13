@@ -203,6 +203,8 @@ class HistoryStore {
 
   updateLatestThumbnail(thumbnail: string) {
     if (this._entries.length === 0) return;
+    // Don't overwrite entry 0's thumbnail while navigating history
+    if (this.cursorIndex >= 0) return;
     this._entries[0].thumbnail = thumbnail;
     // No bump needed — thumbnail changes don't need to trigger UI re-renders
   }
