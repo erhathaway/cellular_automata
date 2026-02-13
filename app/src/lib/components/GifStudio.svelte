@@ -523,6 +523,7 @@
     const _start = startMode;
     const _frames = frameCount;
     const _fps = fps;
+    const _crop = cropRect;
 
     // Skip the initial run (initStudio handles that)
     if (!hasInitialized) return;
@@ -854,7 +855,9 @@
 
   .crop-selection {
     position: absolute;
-    border: 2px dashed #facc15;
+    border: 3px dashed #facc15;
+    outline: 2px solid rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.8);
     background: rgba(250, 204, 21, 0.08);
     pointer-events: none;
   }
