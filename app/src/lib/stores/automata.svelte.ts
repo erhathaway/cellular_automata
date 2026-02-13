@@ -404,26 +404,39 @@ class AutomataStore {
     const skipSurvive = this.advancedMode && this.lockSurvive;
     const skipColors = this.advancedMode && this.lockColors;
 
+    // Without advanced mode, constrain to 1D/2D cells and 2D viewer only
+    const allow3D = this.advancedMode;
+    if (!allow3D) {
+      if (this.dimension === 3) this.setDimension(2); // cascades viewer to 2
+      else if (this.viewer === 3) this.setViewer(2);
+    }
+
     // Phase 1: Dimensions + Lattice
     if (!skipCell && !skipLattice) {
       // Both free — full randomization
-      if (this.miningLattice !== 'random') {
-        const latticeDim = getLattice(this.miningLattice).dimension as 1 | 2 | 3;
+      // Determine effective mining lattice (ignore 3D lattices when !allow3D)
+      const effectiveLattice = this.miningLattice !== 'random' && (!allow3D && getLattice(this.miningLattice).dimension === 3)
+        ? 'random'
+        : this.miningLattice;
+
+      if (effectiveLattice !== 'random') {
+        const latticeDim = getLattice(effectiveLattice).dimension as 1 | 2 | 3;
         if (latticeDim !== this.dimension) {
           this.setDimension(latticeDim as 1 | 2 | 3);
         }
-        if (this.miningLattice !== this.lattice) {
-          this.setLattice(this.miningLattice);
+        if (effectiveLattice !== this.lattice) {
+          this.setLattice(effectiveLattice);
         }
       } else {
-        if (this.viewer === 2 && this.dimension <= 2) {
+        if (this.dimension <= 2) {
           const newDim = Math.random() < 0.5 ? 1 : 2;
           if (newDim !== this.dimension) {
             this.setDimension(newDim as 1 | 2);
           }
         }
         if (this.dimension >= 2) {
-          const available = latticesForDimension(this.dimension as 2 | 3);
+          const latticeDim = allow3D ? (this.dimension as 2 | 3) : 2;
+          const available = latticesForDimension(latticeDim);
           const randomLattice = available[Math.floor(Math.random() * available.length)];
           if (randomLattice.type !== this.lattice) {
             this.setLattice(randomLattice.type);
@@ -432,12 +445,17 @@ class AutomataStore {
       }
     } else if (skipCell && !skipLattice) {
       // Dimension locked, randomize lattice within current dimension
-      if (this.miningLattice !== 'random') {
-        if (this.miningLattice !== this.lattice) {
-          this.setLattice(this.miningLattice);
+      const effectiveLattice = this.miningLattice !== 'random' && (!allow3D && getLattice(this.miningLattice).dimension === 3)
+        ? 'random'
+        : this.miningLattice;
+
+      if (effectiveLattice !== 'random') {
+        if (effectiveLattice !== this.lattice) {
+          this.setLattice(effectiveLattice);
         }
       } else if (this.dimension >= 2) {
-        const available = latticesForDimension(this.dimension as 2 | 3);
+        const latticeDim = allow3D ? (this.dimension as 2 | 3) : 2;
+        const available = latticesForDimension(latticeDim);
         const randomLattice = available[Math.floor(Math.random() * available.length)];
         if (randomLattice.type !== this.lattice) {
           this.setLattice(randomLattice.type);

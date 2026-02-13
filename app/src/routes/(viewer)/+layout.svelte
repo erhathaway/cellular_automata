@@ -115,7 +115,7 @@
     style:border-left="1px solid #44403c"
   >
     <div class="relative h-full" style:width="{RIGHT_WIDTH}px">
-      {#if $page.url.pathname === '/explore'}
+      {#if $page.url.pathname === '/gallery'}
         <div class="gallery-stats-panel">
           <div class="gallery-stats-header">
             <span class="gallery-stats-title">Mine Productivity</span>

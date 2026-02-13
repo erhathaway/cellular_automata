@@ -19,7 +19,7 @@
 
 			<span class="text-sm text-gray-500">or</span>
 
-			<a href="/docs" class="text-sm text-gray-400 underline transition hover:text-white">
+			<a href="/learning" class="text-sm text-gray-400 underline transition hover:text-white">
 				Learn More
 			</a>
 		</div>

@@ -25,12 +25,12 @@
 
   const topItems = [
     { href: '/', label: 'Mine', icon: 'pickaxe' },
-    { href: '/explore', label: 'Gallery', icon: 'compass' },
-    { href: '/bookmarks', label: 'My Chest', icon: 'chest' },
+    { href: '/gallery', label: 'Gallery', icon: 'compass' },
+    { href: '/my-chest', label: 'My Chest', icon: 'chest' },
   ];
 
   const bottomItems = [
-    { href: '/docs', label: 'Learning', icon: 'book-open' },
+    { href: '/learning', label: 'Learning', icon: 'book-open' },
   ];
 
   function isActive(pathname: string, href: string): boolean {
@@ -417,7 +417,7 @@
     color: #facc15;
   }
 
-  /* Black mode (docs) — dimmer inactive icons */
+  /* Black mode (learning) — dimmer inactive icons */
   .black .icon-frame:not(.active) {
     background: #1a1a1a;
   }

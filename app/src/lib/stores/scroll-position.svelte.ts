@@ -1,6 +1,6 @@
 /** Tracks scroll positions for pages that should restore on back-navigation from the viewer. */
 
-const TRACKED_PATHS = new Set(['/explore', '/bookmarks']);
+const TRACKED_PATHS = new Set(['/gallery', '/my-chest']);
 const VIEWER_PATH = '/';
 
 class ScrollPositionStore {

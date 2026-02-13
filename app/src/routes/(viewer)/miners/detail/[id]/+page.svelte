@@ -124,7 +124,7 @@
 <div class="miner-page">
   <div class="mx-auto max-w-7xl px-6 pt-8 pb-16">
     <!-- Back link -->
-    <a href="/explore" class="back-link">
+    <a href="/gallery" class="back-link">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 12H5" />
         <path d="M12 19l-7-7 7-7" />
