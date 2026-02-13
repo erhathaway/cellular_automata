@@ -186,6 +186,7 @@
 		height: auto;
 		border-radius: 0;
 		border: none;
+		border-top: 3px solid blue;
 		border-bottom: 1px solid #292524;
 		justify-content: space-between;
 	}
