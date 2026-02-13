@@ -1,5 +1,7 @@
 <script lang="ts">
   import { api } from '$lib/api';
+  import { automataStore } from '$lib/stores/automata.svelte';
+  import { buildURLParams } from '$lib/stores/persistence';
 
   let {
     entityType = '',
@@ -114,11 +116,28 @@
     }
   }
 
+  function buildCurrentUrl(): string {
+    if (typeof window === 'undefined') return '';
+    // On /mine, build URL fresh from the store to avoid debounce staleness
+    if (window.location.pathname === '/mine') {
+      const dim = automataStore.dimension;
+      const viewer = automataStore.viewer;
+      const allCombos = automataStore.getAllComboSettings();
+      const settings = allCombos[`${dim}-${viewer}`];
+      if (settings) {
+        const params = buildURLParams(dim, viewer, settings, automataStore.totalGenerations);
+        return `${window.location.origin}/mine?${params.toString()}`;
+      }
+    }
+    return window.location.href;
+  }
+
   async function copyLink(e: MouseEvent) {
     e.stopPropagation();
-    if (!copyUrl) return;
+    const url = copyUrl || buildCurrentUrl();
+    if (!url) return;
     try {
-      await navigator.clipboard.writeText(copyUrl);
+      await navigator.clipboard.writeText(url);
       copied = true;
       clearTimeout(copiedTimer);
       copiedTimer = setTimeout(() => { copied = false; }, 1500);
