@@ -86,10 +86,10 @@
       </div>
       <div class="controls-left pointer-events-auto">
         <MiningLevelButton disabled={advancedOpen} />
-        <Pipe variant="glow" color="yellow" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="var(--pipe-glow-w)" height="14px" backdrop
           style="position: absolute; left: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
         <Pipe variant="joint" color="yellow" width="4px" height="20px"
-          style="position: absolute; left: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
+          style="position: absolute; left: calc(100% + var(--ctrl-gap)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-center pointer-events-auto">
         <RandomRuleButton />
@@ -100,10 +100,10 @@
       </div>
       <div class="controls-right pointer-events-auto">
         <LatticePickerButton disabled={advancedOpen} />
-        <Pipe variant="glow" color="yellow" width="clamp(20px, 3vw, 42px)" height="14px" backdrop
+        <Pipe variant="glow" color="yellow" width="var(--pipe-glow-w)" height="14px" backdrop
           style="position: absolute; right: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
         <Pipe variant="joint" color="yellow" width="4px" height="20px"
-          style="position: absolute; right: calc(100% + clamp(16px, 3vw, 38px)); top: 50%; transform: translateY(-50%); z-index: 2;" />
+          style="position: absolute; right: calc(100% + var(--ctrl-gap)); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
       <div class="controls-far-right pointer-events-auto">
         <HistoryNavButton direction="forward" disabled={!canGoForward} onclick={handleHistoryForward} />
@@ -270,6 +270,8 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    --pipe-glow-w: clamp(20px, 3vw, 42px);
+    --ctrl-gap: clamp(16px, 3vw, 38px);
   }
 
   .controls-far-left {
@@ -279,7 +281,7 @@
 
   .controls-left {
     position: relative;
-    margin-right: clamp(16px, 3vw, 38px);
+    margin-right: var(--ctrl-gap);
   }
 
   .controls-center {
@@ -288,7 +290,7 @@
 
   .controls-right {
     position: relative;
-    margin-left: clamp(16px, 3vw, 38px);
+    margin-left: var(--ctrl-gap);
   }
 
   .controls-far-right {
@@ -383,6 +385,13 @@
 
   .floating-claim-slot {
     position: relative;
+  }
+
+  @media (max-width: 1600px) {
+    .controls-row {
+      --pipe-glow-w: clamp(10px, calc(7vw - 70px), 42px);
+      --ctrl-gap: clamp(10px, calc(6vw - 58px), 38px);
+    }
   }
 
   @media (max-width: 629px) {
