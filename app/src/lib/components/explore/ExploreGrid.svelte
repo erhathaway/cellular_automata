@@ -7,12 +7,14 @@
     items = [],
     loading = false,
     hasMore = false,
+    currentUserId = '',
     onload,
     onloadmore
   }: {
     items: any[];
     loading?: boolean;
     hasMore?: boolean;
+    currentUserId?: string;
     onload?: (item: any) => void;
     onloadmore?: () => void;
   } = $props();
@@ -45,7 +47,7 @@
 {:else}
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
     {#each items as item (item.id)}
-      <CompactCard {item} onclick={onload} interactive />
+      <CompactCard {item} onclick={onload} interactive {currentUserId} />
     {/each}
 
     {#if loading}

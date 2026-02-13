@@ -7,7 +7,7 @@
 
   <section>
     <h2>LoadingIcon</h2>
-    <p class="desc">Spinning gem icon. Accepts <code>size</code> and <code>class</code> props.</p>
+    <p class="desc">Gem wireframe with sphere nodes and random edge pulses. Accepts <code>size</code> and <code>class</code> props. Inherits <code>currentColor</code>.</p>
 
     <div class="demo-row">
       <div class="demo-item">

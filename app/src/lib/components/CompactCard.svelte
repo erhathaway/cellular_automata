@@ -10,12 +10,16 @@
   let {
     item,
     onclick,
-    interactive = false
+    interactive = false,
+    currentUserId = ''
   }: {
     item: any;
     onclick?: (item: any) => void;
     interactive?: boolean;
+    currentUserId?: string;
   } = $props();
+
+  let hideOwner = $derived(!!currentUserId && item.userId === currentUserId);
 
   // svelte-ignore state_referenced_locally
   let isLiked = $state(item.isLikedByMe ?? false);
@@ -163,14 +167,16 @@
 
   </div>
 
-  <div class="chip-stack">
-    <div class="owner-avatar-label">
-      <div class="owner-content">
-        <div class="owner-avatar-wrap">
-          <PixelAvatar avatarId={item.userAvatarId} size={96} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} cropUpper />
+  <div class="chip-stack" class:no-avatar={hideOwner}>
+    {#if !hideOwner}
+      <div class="owner-avatar-label">
+        <div class="owner-content">
+          <div class="owner-avatar-wrap">
+            <PixelAvatar avatarId={item.userAvatarId} size={96} fallbackInitials={(item.userName ?? 'A')[0]} minerConfig={item.userMinerConfig} cropUpper />
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
     <div class="chip-info">
       <p class="rule-text">
         {displayTitle()}
@@ -185,12 +191,16 @@
           <span class="pill radius">r={item.neighborhoodRadius}</span>
         {/if}
       </div>
-      <div class="owner-meta">
-        <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
-        {#if item.createdAt}
-          <span class="time-ago">{timeAgo(item.createdAt)}</span>
-        {/if}
-      </div>
+      {#if !hideOwner}
+        <div class="owner-meta">
+          <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
+          {#if item.createdAt}
+            <span class="time-ago">{timeAgo(item.createdAt)}</span>
+          {/if}
+        </div>
+      {:else if item.createdAt}
+        <span class="time-ago">{timeAgo(item.createdAt)}</span>
+      {/if}
     </div>
   </div>
 
@@ -490,6 +500,11 @@
     min-width: 0;
     margin-top: -11px;
     margin-left: -4px;
+  }
+
+  .no-avatar .chip-info {
+    margin-top: 0;
+    margin-left: 0;
   }
 
   .owner-avatar-label {

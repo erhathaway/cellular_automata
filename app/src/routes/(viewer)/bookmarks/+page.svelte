@@ -28,6 +28,7 @@
   let items: any[] = $state([]);
   let loading = $state(true);
   let hasMore = $state(false);
+  let currentUserId = $state('');
 
   // Read initial tab from URL query param
   onMount(() => {
@@ -55,12 +56,13 @@
     items = [];
     hasMore = false;
     try {
-      const result = await api<{ items: any[]; hasMore: boolean }>(
+      const result = await api<{ items: any[]; hasMore: boolean; currentUserId?: string }>(
         'GET',
         `/api/my-chest?filter=${filter}&limit=${PAGE_SIZE}&offset=0`
       );
       items = result.items;
       hasMore = result.hasMore;
+      if (result.currentUserId) currentUserId = result.currentUserId;
     } catch {
       items = [];
     } finally {
@@ -189,7 +191,7 @@
             </p>
           </div>
         {:else}
-          <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
+          <ExploreGrid {items} {loading} {hasMore} {currentUserId} onload={handleLoad} onloadmore={loadMore} />
         {/if}
       {/if}
     </SignedIn>

@@ -165,5 +165,5 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	});
 
 	const items = all.slice(offset, offset + limit);
-	return json({ items, hasMore: offset + limit < all.length });
+	return json({ items, hasMore: offset + limit < all.length, currentUserId: auth.userId });
 };
