@@ -49,6 +49,16 @@
   }
 
   let copyUrl = $derived(buildCopyUrl());
+
+  let deadBg = $derived.by(() => {
+    try {
+      const raw = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
+      const states = Array.isArray(raw) ? raw : raw?.states;
+      const dead = states?.[0]?.color;
+      if (dead) return `hsl(${dead.h}, ${dead.s * 100}%, ${dead.l * 100}%)`;
+    } catch {}
+    return '#0c0a09';
+  });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -72,7 +82,7 @@
     <span class="edge left"></span>
     <span class="edge right"></span>
 
-    <div class="thumb-inner">
+    <div class="thumb-inner" style:background={deadBg}>
       {#if thumbnailUrl && !thumbError}
         <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
       {:else}
