@@ -370,17 +370,17 @@
   }
 
   .pill.level-hard {
-    color: #dc2626;
+    color: #f59e0b;
     background: #1c1917;
     border: 1px solid #44403c;
   }
 
   .more-toggle {
     color: #78716c;
-    background: #1c1917;
-    border: 1px solid #44403c;
+    background: transparent;
+    border: none;
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s;
+    transition: color 0.15s;
   }
 
   .more-toggle:hover {
@@ -495,13 +495,13 @@
   }
 
   .details-wrap.dense .pill {
-    font-size: 9px;
-    padding: 1px 5px;
-    line-height: 1.2;
+    font-size: 13px;
+    padding: 3px 8px;
+    line-height: 1.3;
   }
 
   .details-wrap.dense .pills-row {
-    gap: 2px;
+    gap: 3px;
     margin-top: 1px;
   }
 

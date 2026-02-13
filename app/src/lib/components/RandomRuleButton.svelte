@@ -264,11 +264,11 @@
     gap: clamp(8px, 2vw, 14px);
     cursor: pointer;
     padding: 18px clamp(14px, 3vw, 32px);
-    background: linear-gradient(180deg, #44403c 0%, #292524 40%, #1c1917 100%);
+    background: black;
     border: 1.5px solid #57534e;
     border-top-color: #78716c;
     border-bottom-color: #44403c;
-    border-radius: 6px;
+    border-radius: 2px;
     color: #facc15;
     transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
     box-shadow:
@@ -280,7 +280,7 @@
   .mine-btn:hover {
     border-color: #facc15;
     border-top-color: #fde047;
-    background: linear-gradient(180deg, #57534e 0%, #44403c 40%, #292524 100%);
+    background: black;
     box-shadow:
       0 4px 0 #0c0a09,
       0 6px 12px rgba(0,0,0,0.5),
