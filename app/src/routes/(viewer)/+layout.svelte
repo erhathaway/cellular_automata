@@ -5,9 +5,12 @@
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
+  import { scrollPositionStore } from '$lib/stores/scroll-position.svelte';
+  import { beforeNavigate, afterNavigate } from '$app/navigation';
   import { page } from '$app/stores';
 
   let { children } = $props();
+  let mainEl: HTMLElement | undefined = $state();
 
   let rightOpen = $state(true);
   let prevMining = $state(automataStore.isMining);
@@ -63,13 +66,29 @@
       animateResize();
     }
   });
+
+  beforeNavigate(({ from }) => {
+    if (from?.url && mainEl) {
+      scrollPositionStore.save(from.url.pathname, mainEl.scrollTop);
+    }
+  });
+
+  afterNavigate(({ to }) => {
+    if (to?.url && mainEl) {
+      const scrollTop = scrollPositionStore.restore(to.url.pathname);
+      // Use rAF to ensure the DOM has rendered before scrolling
+      requestAnimationFrame(() => {
+        mainEl!.scrollTop = scrollTop;
+      });
+    }
+  });
 </script>
 
 <PersistenceManager />
 
 <div class="flex h-full w-full">
   <!-- Center: viewer content -->
-  <main class="viewer-main relative h-full min-w-0 flex-1 overflow-y-auto">
+  <main class="viewer-main relative h-full min-w-0 flex-1 overflow-y-auto" bind:this={mainEl}>
     {@render children()}
 
     <!-- Right toggle tab -->

@@ -36,6 +36,7 @@ class HistoryStore {
   entries: HistoryEntry[] = $state([]);
   cursorIndex = $state(-1);
   private loaded = false;
+  private hydratingFromLoad = false;
 
   get canGoBack(): boolean {
     this.load();
@@ -102,13 +103,16 @@ class HistoryStore {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           this.entries = parsed.slice(0, MAX_ENTRIES);
+          if (this.entries.length > 0) {
+            this.hydratingFromLoad = true;
+          }
         }
       }
     } catch {
       // localStorage unavailable or corrupt — start empty
     }
     try {
-      const cursor = sessionStorage.getItem(CURSOR_KEY);
+      const cursor = localStorage.getItem(CURSOR_KEY);
       if (cursor !== null) {
         const idx = parseInt(cursor, 10);
         if (!isNaN(idx) && idx >= -1 && idx < this.entries.length) {
@@ -116,7 +120,7 @@ class HistoryStore {
         }
       }
     } catch {
-      // sessionStorage unavailable
+      // cursor restore failed
     }
   }
 
@@ -126,6 +130,17 @@ class HistoryStore {
       const truncated = this.entries.slice(0, MAX_ENTRIES);
       if (truncated.length !== this.entries.length) {
         this.entries = truncated;
+      }
+      // Safety: never overwrite a larger stored history with a smaller one
+      // (guards against persist being called before entries are fully loaded)
+      const existing = localStorage.getItem(STORAGE_KEY);
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          if (Array.isArray(parsed) && parsed.length > truncated.length) {
+            return;
+          }
+        } catch { /* corrupt — ok to overwrite */ }
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(truncated));
     } catch {
@@ -137,9 +152,9 @@ class HistoryStore {
   private persistCursor() {
     if (typeof window === 'undefined') return;
     try {
-      sessionStorage.setItem(CURSOR_KEY, String(this.cursorIndex));
+      localStorage.setItem(CURSOR_KEY, String(this.cursorIndex));
     } catch {
-      // sessionStorage unavailable
+      // cursor persist failed
     }
   }
 
@@ -147,6 +162,13 @@ class HistoryStore {
     this.load();
     // Don't record while navigating history
     if (this.cursorIndex >= 0) return;
+
+    // Skip the first recording after page load — it's just hydration from URL/localStorage,
+    // not a genuine new config from mining
+    if (this.hydratingFromLoad) {
+      this.hydratingFromLoad = false;
+      return;
+    }
 
     // Deduplicate: skip if identical to most recent
     if (this.entries.length > 0 && entriesMatch(this.entries[0], entry)) {
@@ -163,6 +185,7 @@ class HistoryStore {
   }
 
   flush() {
+    this.load();
     this.persist();
   }
 

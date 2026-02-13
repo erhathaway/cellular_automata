@@ -118,9 +118,9 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="card" onclick={() => onclick?.(item)}>
+<div class="card">
   <!-- Containment field — just the image -->
-  <div class="containment-frame">
+  <div class="containment-frame" onclick={() => onclick?.(item)}>
     <!-- Corner brackets: black outer + white inner -->
     <span class="corner tl"></span>
     <span class="corner tr"></span>

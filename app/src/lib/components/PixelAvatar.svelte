@@ -266,6 +266,16 @@
     }
   });
 
+  function navigateToProfile() {
+    dismissPopup();
+    goto(`/miners/detail/${userId}`).then(() => {
+      // The scroll container is .viewer-main, not window
+      const main = document.querySelector('.viewer-main');
+      if (main) main.scrollTop = 0;
+      window.scrollTo(0, 0);
+    });
+  }
+
   onDestroy(() => {
     dismissPopup();
   });
@@ -278,7 +288,7 @@
   bind:this={containerEl}
   onmouseenter={onAvatarEnter}
   onmouseleave={onAvatarLeave}
-  onclick={hasPopup ? () => goto(`/miners/detail/${userId}`) : undefined}
+  onclick={hasPopup ? (e: MouseEvent) => { e.stopPropagation(); navigateToProfile(); } : undefined}
 >
   {#if isMiner && minerDataUrl && cropUpper}
     <div style="width: {size}px; height: {size}px; overflow: hidden; border-radius: 50%; flex-shrink: 0;">
@@ -398,7 +408,8 @@
         <div class="popup-joined">Joined {timeAgo(activeData.createdAt)}</div>
       {/if}
 
-      <a href="/miners/detail/{userId}" class="popup-profile-link">View profile &rarr;</a>
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <a href="/miners/detail/{userId}" class="popup-profile-link" onclick={(e: MouseEvent) => { e.preventDefault(); navigateToProfile(); }}>View profile &rarr;</a>
     {/if}
   </div>
 {/if}
