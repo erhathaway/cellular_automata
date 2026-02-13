@@ -43,7 +43,41 @@
     return arr.map((s: any) => s.color as HSLColor);
   }
 
-  let stateColors = $derived(parseCellStates());
+  interface LabeledColor {
+    label: string;
+    color: HSLColor;
+  }
+
+  let labeledColors = $derived.by((): LabeledColor[] => {
+    const colors = parseCellStates();
+    if (colors.length === 0) return [];
+
+    const result: LabeledColor[] = [];
+
+    // State 1 = alive (index 1)
+    if (colors.length >= 2) {
+      result.push({ label: 'alive', color: colors[1] });
+    }
+
+    // Additional alive states (index 2+)
+    for (let i = 2; i < colors.length; i++) {
+      result.push({ label: `alive ${i}`, color: colors[i] });
+    }
+
+    // State 0 = dead (index 0)
+    result.push({ label: 'dead', color: colors[0] });
+
+    // Trail = complementary hue of alive color
+    if (colors.length >= 2) {
+      const alive = colors[1];
+      result.push({
+        label: 'trail',
+        color: { h: (alive.h + 180) % 360, s: 1, l: 0.65, a: 1 },
+      });
+    }
+
+    return result;
+  });
 
   function hslToCSS(c: HSLColor): string {
     return `hsla(${c.h}, ${Math.round(c.s * 100)}%, ${Math.round(c.l * 100)}%, ${c.a})`;
@@ -117,15 +151,17 @@
       <span class="pill lattice">{latticeLabel()}</span>
       <span class="pill radius">r={item.neighborhoodRadius ?? 1}</span>
       <span class="pill neighbors">{neighborCount(item.dimension ?? 2, item.neighborhoodRadius ?? 1)} neighbors</span>
-      {#if stateColors.length > 0}
-        <span class="pill state-colors">
-          <span class="swatch-label">colors</span>
-          {#each stateColors as color}
-            <span class="color-swatch" style="background: {hslToCSS(color)};"></span>
-          {/each}
-        </span>
-      {/if}
     </div>
+    {#if labeledColors.length > 0}
+      <div class="colors-row">
+        {#each labeledColors as { label, color }}
+          <span class="pill state-colors">
+            <span class="swatch-label">{label}</span>
+            <span class="color-swatch" style="background: {hslToCSS(color)};"></span>
+          </span>
+        {/each}
+      </div>
+    {/if}
     {#if !hideOwner}
       <div class="owner-meta">
         <p class="username-inline">{item.userName ?? 'Anonymous'}</p>
@@ -272,6 +308,13 @@
 
   /* ── Pills row ── */
   .pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .colors-row {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
