@@ -1,3 +1,7 @@
+<script lang="ts">
+  import LoadingIcon from './LoadingIcon.svelte';
+</script>
+
 <div class="card">
   <div class="containment-frame">
     <span class="corner tl"></span>
@@ -8,7 +12,9 @@
     <span class="edge bottom"></span>
     <span class="edge left"></span>
     <span class="edge right"></span>
-    <div class="thumb-placeholder"></div>
+    <div class="thumb-placeholder">
+      <LoadingIcon size={40} mode="dark" />
+    </div>
   </div>
   <div class="info-row">
     <div class="bar w60"></div>
@@ -108,9 +114,10 @@
     width: 100%;
     aspect-ratio: 1;
     border-radius: 4px;
-    background: linear-gradient(110deg, #1c1917 30%, #292524 50%, #1c1917 70%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    background: #0c0a09;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .info-row {

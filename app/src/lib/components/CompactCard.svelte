@@ -142,7 +142,7 @@
         <img src={thumbnailUrl} alt={displayTitle()} class="thumb-img" loading="lazy" onerror={() => { thumbError = true; }} />
       {:else}
         <div class="thumb-fallback">
-          <LoadingIcon size={40} />
+          <LoadingIcon size={40} mode="dark" />
         </div>
       {/if}
 

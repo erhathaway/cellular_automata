@@ -7,9 +7,7 @@
   let miningKey = $state(0);
   let hasCompletedMine = $state(false);
   let btnEl = $state<HTMLElement>();
-  let noLivingAutomata = $derived(
-    hasCompletedMine && automataStore.stableKind === 'exact' && automataStore.stablePeriod <= 1
-  );
+  let notViable = $derived(hasCompletedMine && !automataStore.isViableAutomata);
 
   // Mini 1D cellular automata that runs inside the button while mining
   const COLS = 18;
@@ -68,12 +66,12 @@
     miningTimer = setTimeout(() => {
       automataStore.isMining = false;
       hasCompletedMine = true;
-      // Fire gem animation from button top to MinerBadge
-      if (btnEl) {
+      // Only fire gem animation if automata is viable (not extinct/frozen/intervention)
+      if (automataStore.isViableAutomata && btnEl) {
         const rect = btnEl.getBoundingClientRect();
         automataStore.mineGemOrigin = { x: rect.left + rect.width / 2, y: rect.top };
+        automataStore.mineGemAnimationCounter++;
       }
-      automataStore.mineGemAnimationCounter++;
     }, 3000);
   }
 </script>
@@ -120,7 +118,7 @@
 
       <div class="label-wrap" class:label-hidden={mining}>
         {#if hasCompletedMine}
-          <span class="label label-found">{noLivingAutomata ? 'No living automata found' : 'Automata found!'}</span>
+          <span class="label label-found">{notViable ? 'No viable automata found' : 'Automata found!'}</span>
           <span class="sub-label">Click again to find new ones</span>
         {:else}
           <span class="label">Mine for automata</span>

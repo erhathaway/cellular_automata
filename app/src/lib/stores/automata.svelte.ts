@@ -139,6 +139,14 @@ class AutomataStore {
   interventionUpdateRateMs: number | null = $state(null);
   allAutomataDied = $state(false);
 
+  /** True when the current automata is in a healthy, claimable state (not extinct, frozen, or under intervention) */
+  get isViableAutomata(): boolean {
+    if (this.allAutomataDied) return false;
+    if (this.stableKind === 'exact' && this.stablePeriod <= 1) return false;
+    if (this.interventionTaken) return false;
+    return true;
+  }
+
   // Per-shape rules for multi-shape lattices (null = single-shape)
   shapeRules: { survive: number[]; born: number[] }[] | null = $state(null);
 

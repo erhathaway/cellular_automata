@@ -38,52 +38,69 @@
 
   onMount(() => {
     const ns = 'http://www.w3.org/2000/svg';
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let spawnTimeout: ReturnType<typeof setTimeout>;
     let alive = true;
     const pulsesGroup = svgEl.querySelector('.pulses')!;
-    const nodeColor_ = mode === 'light' ? '#1c1917' : '#e7e5e4';
+    const baseColor = mode === 'light' ? '#1c1917' : '#e7e5e4';
 
-    function smil(el: Element, attr: string, values: string, dur: string, extra?: Record<string, string>) {
-      const a = document.createElementNS(ns, 'animate');
-      a.setAttribute('attributeName', attr);
-      a.setAttribute('values', values);
-      a.setAttribute('dur', dur);
-      a.setAttribute('begin', 'indefinite');
-      a.setAttribute('fill', 'remove');
-      if (extra) for (const [k, v] of Object.entries(extra)) a.setAttribute(k, v);
-      a.addEventListener('end', () => a.remove());
-      el.appendChild(a);
-      (a as any).beginElement();
-      return a;
+    // --- lerp a hex color ---
+    function lerpColor(a: string, b: string, t: number): string {
+      const pa = parseInt(a.slice(1), 16);
+      const pb = parseInt(b.slice(1), 16);
+      const r = Math.round(((pa >> 16) & 0xff) * (1 - t) + ((pb >> 16) & 0xff) * t);
+      const g = Math.round(((pa >> 8) & 0xff) * (1 - t) + ((pb >> 8) & 0xff) * t);
+      const bl = Math.round((pa & 0xff) * (1 - t) + (pb & 0xff) * t);
+      return `#${((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1)}`;
+    }
+
+    // --- animate a node's r and fill over time via rAF ---
+    function animateNode(
+      nodeIdx: number,
+      durMs: number,
+      rCurve: (t: number) => number,
+      colorCurve: (t: number) => string
+    ) {
+      const el = svgEl.querySelector(`[data-node="${nodeIdx}"]`);
+      if (!el) return;
+      const start = performance.now();
+      function tick() {
+        const t = Math.min((performance.now() - start) / durMs, 1);
+        el!.setAttribute('r', String(rCurve(t)));
+        el!.setAttribute('fill', colorCurve(t));
+        if (t < 1 && alive) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
     }
 
     function chargeNode(nodeIdx: number) {
-      const el = svgEl.querySelector(`[data-node="${nodeIdx}"]`);
-      if (!el) return;
-
-      smil(el, 'r', `${NODE_R};${CHARGE_R};${CHARGE_R};${NODE_R}`, '0.28s', {
-        keyTimes: '0;0.35;0.55;1'
-      });
-
-      // ramp base → gold during growth, hold at peak, snap back on release
-      smil(el, 'fill', `${nodeColor_};${GOLD};${GOLD};${nodeColor_}`, '0.28s', {
-        keyTimes: '0;0.35;0.55;1'
-      });
+      // 280ms: grow base→gold, hold at peak, shrink+snap back
+      animateNode(nodeIdx, 280,
+        (t) => {
+          if (t < 0.35) return NODE_R + (CHARGE_R - NODE_R) * (t / 0.35);
+          if (t < 0.55) return CHARGE_R;
+          return CHARGE_R + (NODE_R - CHARGE_R) * ((t - 0.55) / 0.45);
+        },
+        (t) => {
+          if (t < 0.35) return lerpColor(baseColor, GOLD, t / 0.35);
+          if (t < 0.55) return GOLD;
+          return lerpColor(GOLD, baseColor, (t - 0.55) / 0.45);
+        }
+      );
     }
 
     function impactNode(nodeIdx: number) {
-      const el = svgEl.querySelector(`[data-node="${nodeIdx}"]`);
-      if (!el) return;
-
-      // explode big on impact, then slowly shrink back
-      smil(el, 'r', `${NODE_R};${CHARGE_R};${CHARGE_R};${NODE_R}`, '0.5s', {
-        keyTimes: '0;0.08;0.3;1'
-      });
-
-      // strong gold on hit, hold, then fade back to base
-      smil(el, 'fill', `${GOLD};${GOLD};${nodeColor_}`, '0.5s', {
-        keyTimes: '0;0.3;1'
-      });
+      // 500ms: snap big + gold fast, hold, then slowly shrink + fade back
+      animateNode(nodeIdx, 500,
+        (t) => {
+          if (t < 0.08) return NODE_R + (CHARGE_R - NODE_R) * (t / 0.08);
+          if (t < 0.3) return CHARGE_R;
+          return CHARGE_R + (NODE_R - CHARGE_R) * ((t - 0.3) / 0.7);
+        },
+        (t) => {
+          if (t < 0.3) return GOLD;
+          return lerpColor(GOLD, baseColor, (t - 0.3) / 0.7);
+        }
+      );
     }
 
     function spawnPulse() {
@@ -94,9 +111,11 @@
       const [x1, y1] = nodes[fi];
       const [x2, y2] = nodes[ti];
       const travelDur = 0.35 + Math.random() * 0.4;
+      const travelMs = travelDur * 1000;
 
       chargeNode(fi);
 
+      // bullet launches at peak of charge
       setTimeout(() => {
         if (!alive) return;
 
@@ -111,24 +130,25 @@
         motion.setAttribute('fill', 'freeze');
         motion.setAttribute('begin', 'indefinite');
 
-        motion.addEventListener('end', () => {
-          bullet.remove();
-          impactNode(ti);
-        });
-
         bullet.appendChild(motion);
         pulsesGroup.appendChild(bullet);
         (motion as any).beginElement();
+
+        // impact triggered by timeout, not SMIL event
+        setTimeout(() => {
+          bullet.remove();
+          if (alive) impactNode(ti);
+        }, travelMs);
       }, 100);
 
-      timeoutId = setTimeout(spawnPulse, 250 + Math.random() * 400);
+      spawnTimeout = setTimeout(spawnPulse, 250 + Math.random() * 400);
     }
 
     spawnPulse();
 
     return () => {
       alive = false;
-      clearTimeout(timeoutId);
+      clearTimeout(spawnTimeout);
     };
   });
 </script>

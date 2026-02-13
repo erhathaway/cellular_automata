@@ -47,7 +47,7 @@
   });
 
   function triggerMineGemAnimation() {
-    if (!gemAreaEl) return;
+    if (!gemAreaEl || !automataStore.isViableAutomata) return;
     const rect = gemAreaEl.getBoundingClientRect();
     const targetX = rect.left + rect.width / 2;
     const targetY = rect.top + rect.height / 2;
@@ -172,8 +172,9 @@
     }
   }
 
+  let notViable = $derived(!automataStore.isViableAutomata && !automataStore.isMining);
   let isUnclaimed = $derived(
-    discoveryInfo !== null && !discoveryInfo.found && !automataStore.isMining && !gemArriving
+    discoveryInfo !== null && !discoveryInfo.found && !automataStore.isMining && !gemArriving && !notViable
   );
 </script>
 
@@ -227,6 +228,18 @@
       </div>
       <div class="info">
         <span class="label">Surveying...</span>
+      </div>
+    {:else if notViable}
+      <div class="icon-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="m15 9-6 6" />
+          <path d="m9 9 6 6" />
+        </svg>
+      </div>
+      <div class="info">
+        <span class="label" style="font-size: 13px; margin-bottom: 12px;">No viable automata found</span>
+        <span class="date" style="font-size: 12px;">Mine again to search</span>
       </div>
     {:else if isUnclaimed && saved}
       <!-- Claimed: show avatar animating in -->
@@ -288,8 +301,8 @@
               <div class="gem-glow"></div>
             </div>
             <div class="info">
-              <span class="label">Unclaimed territory</span>
-              <span class="date claim-cta">Stake your claim!</span>
+              <span class="label" style="font-size: 16px;">Unclaimed automata</span>
+              <span class="date claim-cta claim-flash" style="font-size: 14px;">Stake your claim!</span>
             </div>
           {/if}
         </div>
@@ -309,8 +322,8 @@
                 <div class="gem-glow"></div>
               </div>
               <div class="info">
-                <span class="label">Unclaimed territory</span>
-                <span class="date claim-cta">Sign in to claim</span>
+                <span class="label" style="font-size: 16px;">Unclaimed automata</span>
+                <span class="date claim-cta" style="font-size: 14px;">Sign in to claim</span>
               </div>
             </div>
           {/snippet}
@@ -563,6 +576,16 @@
 
   .claim-cta {
     transition: color 0.15s ease;
+  }
+
+  .claim-flash {
+    color: #facc15;
+    animation: gold-flash 1.5s ease-in-out infinite;
+  }
+
+  @keyframes gold-flash {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
   }
 
   .spin {

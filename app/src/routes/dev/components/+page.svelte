@@ -1,5 +1,6 @@
 <script lang="ts">
   import LoadingIcon from '$lib/components/LoadingIcon.svelte';
+  import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 </script>
 
 <div class="page">
@@ -63,6 +64,17 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>SkeletonCard</h2>
+    <p class="desc">Loading placeholder for compact automata cards. Shows LoadingIcon in the thumbnail area with shimmer bars below.</p>
+
+    <div class="skeleton-grid">
+      <SkeletonCard />
+      <SkeletonCard />
+      <SkeletonCard />
     </div>
   </section>
 </div>
@@ -166,5 +178,11 @@
 
   .light-text {
     color: #a8a29e;
+  }
+
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 180px);
+    gap: 12px;
   }
 </style>
