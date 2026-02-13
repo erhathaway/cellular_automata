@@ -217,17 +217,17 @@
 
   .controls-far-right {
     position: relative;
-    margin-left: 38px;
+    margin-left: 20px;
   }
 
   /* --- Far-left: back button → level button pipe --- */
   .controls-far-left::after {
     content: '';
     position: absolute;
-    left: calc(100% - 4px);
+    left: calc(100% + 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 42px;
+    width: 18px;
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -248,10 +248,10 @@
 
   .controls-far-left .pipe-backdrop-far-left {
     position: absolute;
-    left: calc(100% - 5px);
+    left: calc(100% - 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
+    width: 24px;
     height: 18px;
     border-radius: 3px;
     background: #1c1917;
@@ -381,10 +381,10 @@
   .controls-far-right::before {
     content: '';
     position: absolute;
-    right: calc(100% - 4px);
+    right: calc(100% + 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 42px;
+    width: 18px;
     height: 14px;
     border-radius: 3px;
     border: 2px solid #0e7490;
@@ -405,10 +405,10 @@
 
   .controls-far-right .pipe-backdrop-far-right {
     position: absolute;
-    right: calc(100% - 5px);
+    right: calc(100% - 1px);
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
+    width: 24px;
     height: 18px;
     border-radius: 3px;
     background: #1c1917;

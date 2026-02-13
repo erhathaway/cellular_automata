@@ -28,7 +28,7 @@
     <div class="nail"></div>
     <div class="nail"></div>
   </div>
-  <svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     {#if direction === 'back'}
       <path d="M12 4L6 10L12 16" />
     {:else}
@@ -56,7 +56,7 @@
         #201e1b 8px,
         #201e1b 9px
       );
-    border: 1px solid #44403c;
+    border: 2px solid #44403c;
     color: #67e8f9;
     transition: border-color 0.15s, background-color 0.15s;
     box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
@@ -64,8 +64,13 @@
   }
 
   .hist-nav-btn:hover:not(.is-disabled) {
-    border-color: #67e8f9;
     background-color: #292524;
+    border-color: #facc15;
+  }
+
+  .hist-nav-btn:hover:not(.is-disabled) .chevron {
+    color: #facc15;
+    filter: drop-shadow(0 0 7px rgba(250, 204, 21, 0.6));
   }
 
   .hist-nav-btn.is-disabled {
