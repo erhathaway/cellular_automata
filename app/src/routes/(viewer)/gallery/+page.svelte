@@ -180,6 +180,11 @@
     flex: 0 0 auto;
   }
 
+  .inline-stats :global(.section-label) {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
   .sticky-filters {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(12px);
