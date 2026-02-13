@@ -73,6 +73,7 @@
 		"@libsql/client": "^0.17.0",
 		"drizzle-orm": "^0.45.1",
 		"gifenc": "^1.0.3",
+		"mp4-muxer": "^5.2.2",
 		"posthog-js": "^1.347.1",
 		"svelte-clerk": "^0.20.5",
 		"three": "^0.182.0"

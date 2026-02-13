@@ -2,6 +2,7 @@
   import { onMount, onDestroy, tick } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
   import { encodeGif } from '$lib/utils/gif-encoder';
+  import { encodeMp4, isWebCodecsSupported } from '$lib/utils/mp4-encoder';
   import {
     AutomataManager,
     OneDimensionInTwoDimensions,
@@ -25,10 +26,18 @@
   let markedStartSnapshot: Uint8Array | null = $state(null);
   let gifBlob: Blob | null = $state(null);
   let gifUrl: string | null = $state(null);
+  let mp4Blob: Blob | null = $state(null);
+  let mp4Url: string | null = $state(null);
   let previewFrameIndex = $state(0);
   let studioGeneration = $state(0);
   let isEncoding = $state(false);
+  let isEncodingMp4 = $state(false);
   let isPreviewPlaying = $state(false);
+  let canEncodeMp4 = $state(false);
+
+  onMount(() => {
+    canEncodeMp4 = isWebCodecsSupported();
+  });
 
   let bgColor = $derived.by(() => {
     const states = automataStore.gifTargetConfig?.cellStates ?? automataStore.cellStates;
@@ -243,6 +252,11 @@
       gifUrl = null;
     }
     gifBlob = null;
+    if (mp4Url) {
+      URL.revokeObjectURL(mp4Url);
+      mp4Url = null;
+    }
+    mp4Blob = null;
   }
 
   // Play/pause the studio viewer
@@ -309,6 +323,11 @@
       gifUrl = null;
     }
     gifBlob = null;
+    if (mp4Url) {
+      URL.revokeObjectURL(mp4Url);
+      mp4Url = null;
+    }
+    mp4Blob = null;
 
     // Reset to marked start if we have one
     if (markedStartSnapshot) {
@@ -442,6 +461,26 @@
         }
       }
     }
+  }
+
+  async function encodeAndDownloadMp4() {
+    if (capturedFrames.length === 0) return;
+    isEncodingMp4 = true;
+    await tick();
+    await new Promise(r => requestAnimationFrame(r));
+
+    const { width, height } = capturedFrames[0];
+    const blob = await encodeMp4(capturedFrames, width, height, fps);
+
+    if (mp4Url) URL.revokeObjectURL(mp4Url);
+    mp4Blob = blob;
+    mp4Url = URL.createObjectURL(blob);
+    isEncodingMp4 = false;
+
+    const a = document.createElement('a');
+    a.href = mp4Url;
+    a.download = 'automata.mp4';
+    a.click();
   }
 
   // Crop overlay handlers
@@ -725,6 +764,15 @@
                 Copy
               </button>
             </div>
+            {#if canEncodeMp4}
+              <button
+                class="action-secondary full-width"
+                onclick={encodeAndDownloadMp4}
+                disabled={capturedFrames.length === 0 || isEncodingMp4}
+              >
+                {isEncodingMp4 ? 'Encoding...' : 'Download MP4'}
+              </button>
+            {/if}
           </div>
         </div>
       </div>
@@ -1136,6 +1184,10 @@
   .action-secondary:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+
+  .action-secondary.full-width {
+    width: 100%;
   }
 
   /* Timeline */

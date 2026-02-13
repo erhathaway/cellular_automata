@@ -344,10 +344,26 @@
   let showCanvas = $derived(showTooltip && !!automataStore.getKeyframePopulation);
 
   let asideEl: HTMLElement;
+  let isFullscreen = $state(false);
+
+  function toggleFullscreen() {
+    const section = asideEl?.closest('section');
+    if (!section) return;
+    if (!document.fullscreenElement) {
+      section.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function handleFullscreenChange() {
+    isFullscreen = !!document.fullscreenElement;
+  }
 
   onMount(() => {
     window.addEventListener('mousemove', handleWindowMouseMove);
     window.addEventListener('mouseup', handleWindowMouseUp);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     // Attach hover/click listeners to the parent viewer section
     const parentSection = asideEl?.closest('section');
@@ -361,6 +377,7 @@
     return () => {
       window.removeEventListener('mousemove', handleWindowMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
       if (parentSection) {
         parentSection.removeEventListener('mouseenter', handleParentMouseEnter);
         parentSection.removeEventListener('mouseleave', handleParentMouseLeave);
@@ -483,7 +500,7 @@
   {/if}
 
   <!-- Buttons Row -->
-  <div class="absolute bottom-0 left-0 right-0 flex items-center">
+  <div class="absolute bottom-0 left-0 right-0 flex items-center justify-between">
     <div class="flex items-center gap-2">
       <!-- Play Button -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -525,6 +542,42 @@
         </div>
       {/if}
     </div>
+
+    <!-- Fullscreen Button -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <div
+      class="flex cursor-pointer items-center justify-center"
+      style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
+      onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.85)'; }}
+      onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.7)'; }}
+      onclick={toggleFullscreen}
+    >
+      {#if isFullscreen}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="height: 18px; width: 18px;">
+          <polyline points="4 14 10 14 10 20"/>
+          <polyline points="20 10 14 10 14 4"/>
+          <line x1="14" y1="10" x2="21" y2="3"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      {:else}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="height: 18px; width: 18px;">
+          <polyline points="15 3 21 3 21 9"/>
+          <polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      {/if}
+    </div>
   </div>
 </aside>
+
+<style>
+  :global(section:fullscreen) {
+    border: none !important;
+    border-radius: 0 !important;
+    background: #000;
+  }
+</style>
 
