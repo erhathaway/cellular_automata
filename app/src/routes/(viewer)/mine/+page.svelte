@@ -112,36 +112,37 @@
       </div>
     </div>
   </div>
-  <!-- Advanced toggle button (top-right corner) -->
-  <div class="advanced-toggle pointer-events-auto">
-    <!-- Vertical pipe: top of button → top of viewer -->
-    <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="40px" flanges
-      style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);" />
-    <!-- Horizontal pipe: right of button → right of viewer -->
-    <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges
-      style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%);" />
-    <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
-      <div class="adv-btn">
-        <span class="adv-pretitle">Mode</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="21" x2="4" y2="14" />
-          <line x1="4" y1="10" x2="4" y2="3" />
-          <line x1="12" y1="21" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12" y2="3" />
-          <line x1="20" y1="21" x2="20" y2="16" />
-          <line x1="20" y1="12" x2="20" y2="3" />
-          <line x1="1" y1="14" x2="7" y2="14" />
-          <line x1="9" y1="8" x2="15" y2="8" />
-          <line x1="17" y1="16" x2="23" y2="16" />
-        </svg>
-        <span class="adv-label">Advanced</span>
-        <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
-      </div>
-    </SteelPanel>
-  </div>
-  <!-- Floating claim card (slides in when unclaimed) -->
-  <div class="floating-claim-slot pointer-events-auto">
-    <FloatingClaimCard />
+  <!-- Advanced toggle + floating claim card column (top-right corner) -->
+  <div class="right-column pointer-events-auto">
+    <div class="advanced-toggle">
+      <!-- Vertical pipe: top of button → top of viewer -->
+      <Pipe variant="metal" direction="vertical" color="yellow" width="14px" height="40px" flanges
+        style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);" />
+      <!-- Horizontal pipe: right of button → right of viewer -->
+      <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges
+        style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%);" />
+      <SteelPanel variant="cyan" active={advancedOpen} onclick={() => automataStore.setAdvancedMode(!automataStore.advancedMode)}>
+        <div class="adv-btn">
+          <span class="adv-pretitle">Mode</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="adv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14" />
+            <line x1="4" y1="10" x2="4" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12" y2="3" />
+            <line x1="20" y1="21" x2="20" y2="16" />
+            <line x1="20" y1="12" x2="20" y2="3" />
+            <line x1="1" y1="14" x2="7" y2="14" />
+            <line x1="9" y1="8" x2="15" y2="8" />
+            <line x1="17" y1="16" x2="23" y2="16" />
+          </svg>
+          <span class="adv-label">Advanced</span>
+          <span class="adv-status" class:adv-off={!advancedOpen}>{advancedOpen ? 'On' : 'Off'}</span>
+        </div>
+      </SteelPanel>
+    </div>
+    <div class="floating-claim-slot">
+      <FloatingClaimCard />
+    </div>
   </div>
 </div>
 
@@ -303,12 +304,20 @@
     transform: translateX(2px);
   }
 
-  /* Advanced toggle button — top-right of viewer */
-  .advanced-toggle {
+  /* Right column: Advanced button + floating claim card */
+  .right-column {
     position: absolute;
     top: 40px;
     right: 40px;
     z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .advanced-toggle {
+    position: relative;
   }
 
 
@@ -373,10 +382,7 @@
   }
 
   .floating-claim-slot {
-    position: absolute;
-    top: 150px;
-    right: 40px;
-    z-index: 50;
+    position: relative;
   }
 
 </style>
