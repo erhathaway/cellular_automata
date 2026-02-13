@@ -156,7 +156,7 @@
 
 <style>
   .inline-analysis {
-    padding: 16px 1rem 0;
+    padding: 72px 1rem 0;
     background: #000;
   }
 
@@ -193,18 +193,12 @@
     font-size: 14px;
   }
 
-  .inline-analysis :global(.hist-wrap),
-  .inline-analysis :global(.spectral-wrap) {
-    max-height: 126px;
-    overflow: hidden;
+  .inline-analysis :global(.bar-track) {
+    height: 50px;
   }
 
-  .inline-analysis :global(.hist-wrap .hist-scroll),
-  .inline-analysis :global(.spectral-wrap .hist-scroll) {
-    max-height: 72px;
-  }
-
-  .inline-analysis :global(.peaks) {
+  .inline-analysis :global(.peaks),
+  .inline-analysis :global(.section-subtitle) {
     display: none;
   }
 
