@@ -393,7 +393,7 @@
 <aside
   bind:this={asideEl}
   class="absolute z-20 transition-opacity duration-500"
-  style="bottom: 20px; left: 20px; right: 20px; height: 76px; opacity: {controlsVisible ? 1 : 0}; pointer-events: {controlsVisible ? 'auto' : 'none'};"
+  style="bottom: 36px; left: 20px; right: 20px; height: 76px; opacity: {controlsVisible ? 1 : 0}; pointer-events: {controlsVisible ? 'auto' : 'none'};"
 >
   <!-- Progress Bar Hit Area -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -401,7 +401,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     bind:this={progressBarEl}
-    class="absolute top-0 w-full cursor-pointer"
+    class="progress-bar absolute w-full cursor-pointer"
     style="height: 20px;"
     onmousedown={handleMouseDown}
     onmouseenter={handleBarMouseEnter}
@@ -574,6 +574,16 @@
 </aside>
 
 <style>
+  .progress-bar {
+    top: 0;
+  }
+
+  @media (max-width: 599px) {
+    .progress-bar {
+      top: 12px;
+    }
+  }
+
   :global(section:fullscreen) {
     border: none !important;
     border-radius: 0 !important;
