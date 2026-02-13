@@ -144,8 +144,9 @@
 
   .miner-card {
     position: relative;
-    flex-shrink: 0;
-    width: 340px;
+    flex: 0 0 calc((100% - 24px) / 3);
+    max-width: 340px;
+    min-width: 160px;
     background-color: #1c1917;
     background-image:
       repeating-linear-gradient(
@@ -224,12 +225,12 @@
     margin-bottom: -20px;
     position: relative;
     width: 100%;
-    height: 250px;
+    height: 180px;
   }
 
   .miner-name {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: #d6d3d1;
     text-align: center;
@@ -258,7 +259,7 @@
 
   .claim-count {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     line-height: 1;
     color: #fef08a;
@@ -290,14 +291,14 @@
 
   .bucket-count {
     font-family: 'Space Mono', monospace;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
     color: #a8a29e;
   }
 
   .bucket-track {
-    width: 40px;
-    height: 60px;
+    width: 32px;
+    height: 48px;
     border-radius: 3px;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid #292524;
@@ -327,4 +328,27 @@
   .level-text-easy { color: #4ade80; }
   .level-text-medium { color: #fde047; }
   .level-text-hard { color: #f87171; }
+
+  @media (min-width: 1200px) {
+    .avatar-area {
+      height: 250px;
+    }
+
+    .miner-name {
+      font-size: 20px;
+    }
+
+    .claim-count {
+      font-size: 22px;
+    }
+
+    .bucket-count {
+      font-size: 18px;
+    }
+
+    .bucket-track {
+      width: 40px;
+      height: 60px;
+    }
+  }
 </style>

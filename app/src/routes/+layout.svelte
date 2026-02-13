@@ -119,6 +119,9 @@
 	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
 	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
 
+	let layoutWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
+	let isMobile = $derived(layoutWidth < 700);
+
 	let leftOpen = $state(true);
 	let historyOpen = $state(false);
 
@@ -181,6 +184,7 @@
 	}
 </script>
 
+<svelte:window bind:innerWidth={layoutWidth} />
 <svelte:head>
 	<link rel="icon" href={favicon} />
 	<title>Cellular Automata</title>
@@ -189,20 +193,22 @@
 <SeizureWarningModal />
 
 <ClerkProvider {...data} appearance={clerkAppearance}>
-	<div class="flex h-screen w-screen overflow-hidden">
-		<!-- Nav rail -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<div
-			class="relative z-10 h-full shrink-0"
-			style="width: {NAV_WIDTH}px; background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};"
-			onclick={() => { if (historyOpen) { historyOpen = false; animateResize(); } }}
-		>
-			<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onhistoryclick={toggleHistory} />
-		</div>
+	<div class="flex h-screen w-screen overflow-hidden" class:flex-col={isMobile}>
+		<!-- Nav rail (desktop) -->
+		{#if !isMobile}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<div
+				class="relative z-10 h-full shrink-0"
+				style="width: {NAV_WIDTH}px; background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-right: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};"
+				onclick={() => { if (historyOpen) { historyOpen = false; animateResize(); } }}
+			>
+				<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onhistoryclick={toggleHistory} />
+			</div>
+		{/if}
 
 		<!-- Main content -->
-		<div class="relative h-full min-w-0 flex-1 overflow-hidden">
+		<div class="relative min-w-0 flex-1 overflow-hidden" class:h-full={!isMobile}>
 			{@render children()}
 
 			<!-- History overlay — scoped to main content area -->
@@ -215,6 +221,14 @@
 				</div>
 			{/if}
 		</div>
+
+		<!-- Bottom bar (mobile) -->
+		{#if isMobile}
+			<div class="bottom-bar" style="background: {blackNav ? '#000000' : darkNav ? '#1c1917' : '#f5f5f4'}; border-top: 1px solid {darkNav ? '#44403c' : '#d6d3d1'};">
+				<AudioBar inline />
+				<NavSidebar {userProfile} {historyOpen} dark={darkNav} black={blackNav} onhistoryclick={toggleHistory} bottom />
+			</div>
+		{/if}
 	</div>
 
 	<SignedIn>
@@ -227,9 +241,17 @@
 	</SignedOut>
 </ClerkProvider>
 
-<AudioBar />
+{#if !isMobile}
+	<AudioBar />
+{/if}
 
 <style>
+	.bottom-bar {
+		display: flex;
+		flex-direction: column;
+		shrink: 0;
+	}
+
 	.history-backdrop {
 		position: absolute;
 		inset: 0;

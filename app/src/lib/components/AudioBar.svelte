@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { audioStore } from '$lib/stores/audio.svelte';
 
+	let { inline = false }: { inline?: boolean } = $props();
+
 	let audioEl: HTMLAudioElement | undefined = $state();
 	let playing = $state(false);
 
@@ -54,7 +56,7 @@
 
 <audio bind:this={audioEl} src="/toejam-jammin.mp3" loop preload="auto" onended={() => { if (audioEl && started) { audioEl.currentTime = 0; audioEl.play(); } }}></audio>
 
-<div class="audio-bar">
+<div class="audio-bar" class:audio-bar-inline={inline}>
 	<button class="play-btn" onclick={toggle} aria-label={playing ? 'Pause' : 'Play'}>
 		{#if playing}
 			<svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
@@ -113,6 +115,18 @@
 		font-size: 13px;
 		color: #a8a29e;
 		width: fit-content;
+	}
+
+	.audio-bar-inline {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		transform: none;
+		width: 100%;
+		border-radius: 0;
+		border: none;
+		border-bottom: 1px solid #292524;
+		justify-content: center;
 	}
 
 	.play-btn {

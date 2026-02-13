@@ -13,12 +13,14 @@
     historyOpen = false,
     dark = false,
     black = false,
+    bottom = false,
   }: {
     userProfile?: UserProfile;
     onhistoryclick?: () => void;
     historyOpen?: boolean;
     dark?: boolean;
     black?: boolean;
+    bottom?: boolean;
   } = $props();
 
   const topItems = [
@@ -75,6 +77,74 @@
   }
 </script>
 
+{#if bottom}
+<nav class="nav-bottom" class:dark class:black>
+  {#each topItems as item}
+    {@const active = isActive($page.url.pathname, item.href)}
+    <a href={item.href} class="bottom-item" class:active>
+      {#if item.icon === 'pickaxe'}
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
+          <path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393" />
+          <path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4Z" />
+          <path d="M19.686 8.314a12.5 12.5 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.318" />
+        </svg>
+      {:else if item.icon === 'compass'}
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none" opacity="0.3" />
+          <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" />
+        </svg>
+      {:else if item.icon === 'backpack'}
+        <div class="relative" bind:this={chestEl}>
+          <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 10a4 4 0 014-4h8a4 4 0 014 4v10a2 2 0 01-2 2H6a2 2 0 01-2-2V10z" />
+            <path d="M9 6V4a3 3 0 016 0v2" />
+            <path d="M8 21v-5a2 2 0 012-2h4a2 2 0 012 2v5" />
+            <path d="M20 10h-2" />
+            <path d="M6 10H4" />
+          </svg>
+          {#if showPlusOne}
+            <span class="plus-one">+1</span>
+          {/if}
+          {#if achievementsStore.unseenCount > 0}
+            <span class="achievement-badge">{achievementsStore.unseenCount}</span>
+          {/if}
+        </div>
+      {:else if item.icon === 'miners'}
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      {/if}
+      <span class="bottom-label" class:active>{item.label}</span>
+    </a>
+  {/each}
+  <SignedIn>
+    <a href="/user" class="bottom-item" class:active={isActive($page.url.pathname, '/user')} aria-label="Profile">
+      <PixelAvatar avatarId={userProfile?.avatarId ?? null} minerConfig={userProfile?.minerConfig ?? null} size={24} fallbackInitials="?" cropUpper bgColor="blue" />
+      <span class="bottom-label" class:active={isActive($page.url.pathname, '/user')}>Profile</span>
+    </a>
+  </SignedIn>
+  <SignedOut>
+    <SignInButton mode="modal" forceRedirectUrl={typeof window !== 'undefined' ? window.location.href : '/mine'} asChild>
+      {#snippet children({ signIn })}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="bottom-item" onclick={signIn}>
+          <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span class="bottom-label">Sign in</span>
+        </div>
+      {/snippet}
+    </SignInButton>
+  </SignedOut>
+</nav>
+{:else}
 <nav class="nav-rail" class:dark class:black>
   <!-- Top items -->
   <div class="nav-group">
@@ -197,6 +267,7 @@
     </SignedOut>
   </div>
 </nav>
+{/if}
 
 {#if showGemFly}
   <div class="gem-fly" style={gemStyle}>
@@ -212,6 +283,76 @@
 {/if}
 
 <style>
+  /* ── Bottom nav (mobile) ── */
+  .nav-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 6px 8px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+
+  .bottom-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    background: none;
+    color: #78716c;
+    transition: color 0.2s ease;
+  }
+
+  .bottom-item.active {
+    color: #facc15;
+  }
+
+  .bottom-item:hover {
+    color: #d6d3d1;
+  }
+
+  .bottom-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .bottom-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: inherit;
+  }
+
+  .dark .bottom-item {
+    color: #57534e;
+  }
+
+  .dark .bottom-item.active {
+    color: #facc15;
+  }
+
+  .dark .bottom-item:hover {
+    color: #d6d3d1;
+  }
+
+  .black .bottom-item {
+    color: #44403c;
+  }
+
+  .black .bottom-item.active {
+    color: #facc15;
+  }
+
+  .black .bottom-item:hover {
+    color: #78716c;
+  }
+
   /* ── Nav rail ── */
   .nav-rail {
     display: flex;
