@@ -11,7 +11,7 @@
       if (autoDismissTimer) clearTimeout(autoDismissTimer);
       autoDismissTimer = setTimeout(() => {
         achievementsStore.dismissNotification();
-      }, 8000);
+      }, 120000);
     }
     return () => {
       if (autoDismissTimer) clearTimeout(autoDismissTimer);
