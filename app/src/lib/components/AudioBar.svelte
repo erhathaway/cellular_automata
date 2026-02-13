@@ -148,7 +148,7 @@
 		position: fixed;
 		bottom: 0;
 		left: 50%;
-		transform: translateX(-50%);
+		transform: translateX(calc(-50% - 110px));
 		z-index: 9999;
 		display: flex;
 		align-items: center;
@@ -163,7 +163,7 @@
 				rgba(68, 64, 60, 0.1) 10px,
 				rgba(68, 64, 60, 0.1) 11px
 			);
-		border: 1px solid rgba(250, 204, 21, 0.25);
+		border: 3px solid blue;
 		border-bottom: none;
 		border-radius: 8px 8px 0 0;
 		font-family: 'Space Mono', monospace;
@@ -372,5 +372,11 @@
 		cursor: pointer;
 		border: none;
 		box-shadow: 0 0 4px rgba(250, 204, 21, 0.4);
+	}
+
+	@media (max-width: 1000px) {
+		.boombox {
+			transform: translateX(-50%);
+		}
 	}
 </style>
