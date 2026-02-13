@@ -357,10 +357,12 @@
           style="background: rgba(0,0,0,0.85); border-radius: 4px; padding: 6px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"
         >
           {#if showCanvas}
-            <canvas
-              bind:this={previewCanvas}
-              style="width: {previewDisplaySize.width}px; height: {previewDisplaySize.height}px; {automataStore.viewer === 3 ? '' : 'image-rendering: pixelated;'} border-radius: 2px;"
-            ></canvas>
+            <div style="width: {previewDisplaySize.width}px; height: {previewDisplaySize.height}px; overflow: hidden; border-radius: 2px;">
+              <canvas
+                bind:this={previewCanvas}
+                style="width: {previewDisplaySize.width * 2}px; height: {previewDisplaySize.height * 2}px; margin-left: -{previewDisplaySize.width / 2}px; margin-top: -{previewDisplaySize.height / 2}px; {automataStore.viewer === 3 ? '' : 'image-rendering: pixelated;'}"
+              ></canvas>
+            </div>
           {/if}
           <span
             style="color: rgba(255,255,255,0.8); font-size: 11px; margin-top: {showCanvas ? 4 : 0}px; font-family: monospace; white-space: nowrap;"
