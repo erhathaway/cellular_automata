@@ -120,17 +120,15 @@
   let hoveredIndexRaw = $state(-1);
   let barWidth = $state(0);
 
-  // Clamp hoveredIndex to current history bounds so it never goes stale
+  // Clamp hoveredIndex to current keyframe bounds so it never goes stale
   let hoveredIndex = $derived(
     hoveredIndexRaw < 0
       ? -1
-      : Math.min(hoveredIndexRaw, Math.max(0, automataStore.totalGenerations - 1))
+      : Math.min(hoveredIndexRaw, Math.max(0, automataStore.keyframeCount - 1))
   );
 
   let progressPercent = $derived(
-    automataStore.historyCapacity > 1
-      ? (automataStore.generationIndex / (automataStore.historyCapacity - 1)) * 100
-      : 0
+    automataStore.keyframeCount > 1 ? 100 : 0
   );
 
   // Always use the 2D-2D blue for the progress bar
@@ -142,9 +140,10 @@
     if (!progressBarEl) return 0;
     const rect = progressBarEl.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
-    // Clamp to computed range — don't allow seeking into uncomputed (black) region
-    return Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
+    return Math.min(
+      Math.round(ratio * (automataStore.keyframeCount - 1)),
+      automataStore.keyframeCount - 1
+    );
   }
 
   function updateHoverFromEvent(e: MouseEvent) {
@@ -152,29 +151,33 @@
     const rect = progressBarEl.getBoundingClientRect();
     hoverX = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
     barWidth = rect.width;
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const rawIndex = Math.round(ratio * (automataStore.historyCapacity - 1));
-    // Clamp to computed range
-    hoveredIndexRaw = Math.min(rawIndex, Math.max(0, automataStore.totalGenerations - 1));
-    // Snap hoverX to clamped index position so tooltip doesn't float over the black region
-    if (automataStore.historyCapacity > 1) {
-      hoverX = (hoveredIndex / (automataStore.historyCapacity - 1)) * rect.width;
+    const kfCount = automataStore.keyframeCount;
+    if (kfCount <= 1) {
+      hoveredIndexRaw = 0;
+      return;
     }
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    hoveredIndexRaw = Math.min(
+      Math.round(ratio * (kfCount - 1)),
+      kfCount - 1
+    );
+    // Snap hoverX to keyframe position
+    hoverX = (hoveredIndex / (kfCount - 1)) * rect.width;
   }
 
   function handleMouseDown(e: MouseEvent) {
-    if (automataStore.totalGenerations <= 1) return;
+    if (automataStore.keyframeCount <= 1) return;
     isDragging = true;
     wasPlayingBeforeDrag = automataStore.isPlaying;
     if (wasPlayingBeforeDrag) automataStore.pause();
     const index = getSeekIndexFromEvent(e);
-    automataStore.seekTo(index);
+    automataStore.seekToKeyframe(index);
   }
 
   function handleWindowMouseMove(e: MouseEvent) {
     if (!isDragging) return;
     const index = getSeekIndexFromEvent(e);
-    automataStore.seekTo(index);
+    automataStore.seekToKeyframe(index);
     updateHoverFromEvent(e);
     schedulePreviewRender();
   }
@@ -191,7 +194,7 @@
 
   function handleBarMouseMove(e: MouseEvent) {
     isHovering = true;
-    if (automataStore.totalGenerations <= 1) return;
+    if (automataStore.keyframeCount <= 1) return;
     updateHoverFromEvent(e);
     schedulePreviewRender();
   }
@@ -221,15 +224,11 @@
     // Read reactive deps
     const visible = showCanvas;
     const idx = hoveredIndex;
+    clearPreviewCanvas();  // Prevent stale image flash
     if (visible && idx >= 0) {
-      // Use tick so the canvas binding is set before we try to render
       schedulePreviewRender();
     }
   });
-
-  const PREVIEW_TRAIL_1D = 100;
-  const PREVIEW_TRAIL_2D = 15;
-  const PREVIEW_TRAIL_3D = 20;
 
   function clearPreviewCanvas() {
     if (!previewCanvas) return;
@@ -238,7 +237,7 @@
   }
 
   function renderPreview() {
-    if (!previewCanvas || hoveredIndex < 0 || !automataStore.getPopulationAtIndex) {
+    if (!previewCanvas || hoveredIndex < 0 || !automataStore.getKeyframePopulation) {
       clearPreviewCanvas();
       return;
     }
@@ -250,31 +249,24 @@
   }
 
   function renderPreview3D() {
-    const getPopAt = automataStore.getPopulationAtIndex;
+    const getPopAt = automataStore.getKeyframePopulation;
     if (!getPopAt) return;
     const idx = hoveredIndex;
     if (idx < 0) return;
 
-    // Gather trail of populations
-    const startIdx = Math.max(0, idx - PREVIEW_TRAIL_3D + 1);
-    const populations: any[] = [];
-    for (let i = startIdx; i <= idx; i++) {
-      const pop = getPopAt(i);
-      if (pop) populations.push(pop);
-    }
-    if (populations.length === 0) return;
+    const pop = getPopAt(idx);
+    if (!pop) return;
     // Set canvas to display size for WebGL rendering
     previewCanvas.width = previewDisplaySize.width;
     previewCanvas.height = previewDisplaySize.height;
-    automataStore.renderPreviewFrame?.(populations, previewCanvas);
+    automataStore.renderPreviewFrame?.([pop], previewCanvas);
   }
 
   function renderPreview2D() {
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    // Snapshot callback and index so they stay consistent across this render
-    const getPopAt = automataStore.getPopulationAtIndex;
+    const getPopAt = automataStore.getKeyframePopulation;
     if (!getPopAt) return;
     const idx = hoveredIndex;
     if (idx < 0) return;
@@ -284,59 +276,25 @@
     const aliveState = states.find((s: any) => s.role === 'alive');
     const bg = deadState?.color ?? { h: 0, s: 1, l: 1, a: 1 };
     const alive = aliveState?.color ?? { h: 0, s: 0, l: 0, a: 1 };
-    const tc = automataStore.previewTrailConfig ?? automataStore.trailConfig;
     const shape = automataStore.populationShape;
     const w = shape.x ?? 1;
     const h = shape.y ?? 1;
 
-    // Verify the target generation actually exists before drawing anything
-    const targetPop = getPopAt(idx) as number[][] | null;
-    if (!targetPop) return;
+    const pop = getPopAt(idx) as number[][] | null;
+    if (!pop) return;
 
     previewCanvas.width = w;
     previewCanvas.height = h;
     ctx.fillStyle = automataStore.hslString(bg);
     ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = automataStore.hslString(alive);
 
-    const trailSize = tc.size;
-    const startIdx = Math.max(0, idx - trailSize + 1);
-    const totalSteps = idx - startIdx + 1;
-    const deadH = bg.h;
-    const deadS = bg.s * 100;
-    const deadL = bg.l * 100;
-    const trailH = tc.color.h;
-    const trailS = tc.color.s * 100;
-    const trailL = tc.color.l * 100;
-
-    // Render oldest to newest so newest overwrites
-    for (let gi = startIdx; gi <= idx; gi++) {
-      const pop = (gi === idx ? targetPop : getPopAt(gi) as number[][] | null);
-      if (!pop) continue;
-
-      if (gi === idx) {
-        // Current generation: alive color
-        ctx.fillStyle = automataStore.hslString(alive);
-      } else {
-        // Trail: interpolate from dead (oldest) to trail color (youngest)
-        const age = idx - gi;
-        const tRaw = totalSteps > 2 ? 1 - age / (totalSteps - 2) : 1;
-        let t: number;
-        if (tc.stepFn === 'exponential') t = tRaw * tRaw;
-        else if (tc.stepFn === 'none') t = 1;
-        else t = tRaw;
-        const ch = Math.floor(deadH + t * (trailH - deadH));
-        const cs = Math.floor(deadS + t * (trailS - deadS));
-        const cl = Math.floor(deadL + t * (trailL - deadL));
-        ctx.fillStyle = `hsl(${ch}, ${cs}%, ${cl}%)`;
-      }
-
-      for (let x = 0; x < w; x++) {
-        const col = pop[x];
-        if (!col) continue;
-        for (let y = 0; y < h; y++) {
-          if (col[y] === 1) {
-            ctx.fillRect(x, y, 1, 1);
-          }
+    for (let x = 0; x < w; x++) {
+      const col = pop[x];
+      if (!col) continue;
+      for (let y = 0; y < h; y++) {
+        if (col[y] === 1) {
+          ctx.fillRect(x, y, 1, 1);
         }
       }
     }
@@ -346,7 +304,7 @@
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const getPopAt = automataStore.getPopulationAtIndex;
+    const getPopAt = automataStore.getKeyframePopulation;
     if (!getPopAt) return;
     const idx = hoveredIndex;
     if (idx < 0) return;
@@ -355,29 +313,21 @@
     const bg = states[0]?.color;
     const fg = states[1]?.color;
 
-    const startIdx = Math.max(0, idx - PREVIEW_TRAIL_1D + 1);
-    const numRows = idx - startIdx + 1;
-
-    // Get width from first population
-    const pop0 = getPopAt(startIdx);
-    if (!pop0) return;
-    const w = (pop0 as number[]).length;
+    // Single keyframe snapshot for 1D
+    const pop = getPopAt(idx);
+    if (!pop) return;
+    const cells = pop as number[];
+    const w = cells.length;
 
     previewCanvas.width = w;
-    previewCanvas.height = numRows;
+    previewCanvas.height = 1;
     ctx.fillStyle = automataStore.hslString(bg);
-    ctx.fillRect(0, 0, w, numRows);
+    ctx.fillRect(0, 0, w, 1);
     ctx.fillStyle = automataStore.hslString(fg);
 
-    // Each row is a generation, newest at bottom
-    for (let row = 0; row < numRows; row++) {
-      const pop = getPopAt(startIdx + row);
-      if (!pop) continue;
-      const cells = pop as number[];
-      for (let x = 0; x < w; x++) {
-        if (cells[x] === 1) {
-          ctx.fillRect(x, row, 1, 1);
-        }
+    for (let x = 0; x < w; x++) {
+      if (cells[x] === 1) {
+        ctx.fillRect(x, 0, 1, 1);
       }
     }
   }
@@ -400,10 +350,7 @@
       return { width: maxW, height: Math.round(h * scale) };
     }
     if (dim === 1) {
-      const w = shape.x ?? 1;
-      const numRows = Math.min(PREVIEW_TRAIL_1D, hoveredIndex + 1);
-      const h = Math.max(1, numRows);
-      return { width: maxW, height: Math.max(20, Math.round(maxW * h / w)) };
+      return { width: maxW, height: 20 };
     }
     if (dim === 3) {
       return { width: maxW, height: maxW };
@@ -412,10 +359,10 @@
   });
 
   let showTooltip = $derived(
-    active && hoveredIndex >= 0 && automataStore.totalGenerations > 1
+    active && hoveredIndex >= 0 && automataStore.keyframeCount > 1
   );
 
-  let showCanvas = $derived(showTooltip && !!automataStore.getPopulationAtIndex);
+  let showCanvas = $derived(showTooltip && !!automataStore.getKeyframePopulation);
 
   let asideEl: HTMLElement;
 
@@ -481,7 +428,7 @@
           {/if}
           <span
             style="color: rgba(255,255,255,0.8); font-size: 11px; margin-top: {showCanvas ? 4 : 0}px; font-family: monospace; white-space: nowrap;"
-          >Gen {hoveredIndex}</span>
+          >Gen {automataStore.getKeyframeGeneration?.(hoveredIndex) ?? hoveredIndex}</span>
         </div>
       </div>
     {/if}
@@ -497,7 +444,7 @@
     </div>
 
     <!-- Handle -->
-    {#if automataStore.totalGenerations > 1}
+    {#if automataStore.keyframeCount > 1}
       <div
         style="position: absolute; top: 50%; left: {progressPercent}%; transform: translate(-50%, -50%); width: 18px; height: 18px; background-color: black; border-radius: 50%; pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,0.4);"
       ></div>

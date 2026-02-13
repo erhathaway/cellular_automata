@@ -137,6 +137,11 @@ class AutomataStore {
   seekTarget: number | null = $state(null);
   targetGeneration = $state(0);
 
+  // Keyframe tracking for progress bar
+  keyframeCount = $state(0);
+  absoluteGeneration = $state(0);
+  keyframeSeekTarget: number | null = $state(null);
+
   // Mining animation state
   isMining = $state(false);
   miningDifficulty: MiningDifficulty = $state('medium');
@@ -194,6 +199,8 @@ class AutomataStore {
 
   // Preview callbacks (set by ViewPlayer, not reactive)
   getPopulationAtIndex: ((index: number) => any) | null = null;
+  getKeyframePopulation: ((index: number) => any) | null = null;
+  getKeyframeGeneration: ((index: number) => number | null) | null = null;
   renderPreviewFrame: ((populations: any[], canvas: HTMLCanvasElement) => void) | null = null;
   getCanvasDataURL: (() => string | null) | null = null;
   captureThumbnail: (() => string | null) | null = null;
@@ -402,6 +409,9 @@ class AutomataStore {
     this.generationIndex = 0;
     this.totalGenerations = 0;
     this.seekTarget = null;
+    this.keyframeCount = 0;
+    this.absoluteGeneration = 0;
+    this.keyframeSeekTarget = null;
     this.stableDetected = false;
     this.stablePeriod = 0;
     this.stableKind = 'none';
@@ -726,6 +736,19 @@ class AutomataStore {
 
   clearSeekTarget() {
     this.seekTarget = null;
+  }
+
+  updateKeyframeInfo(count: number, absGen: number) {
+    this.keyframeCount = count;
+    this.absoluteGeneration = absGen;
+  }
+
+  seekToKeyframe(index: number) {
+    this.keyframeSeekTarget = index;
+  }
+
+  clearKeyframeSeekTarget() {
+    this.keyframeSeekTarget = null;
   }
 
   // --- Hydration API ---

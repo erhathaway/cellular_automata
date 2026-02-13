@@ -17,6 +17,11 @@ import type { LatticeType } from './lattice';
 
 type GeneratorType = 'oneDimension' | 'twoDimension' | 'threeDimension';
 
+interface Keyframe {
+  generation: number;
+  snapshot: Uint8Array;
+}
+
 export default class AutomataManager {
   private _rule: any;
   private _currentPopulation: Population | undefined;
@@ -36,6 +41,12 @@ export default class AutomataManager {
   private _neighborOffsets3D: [number, number, number][] = [];
   private _bornLookup: Uint8Array = new Uint8Array(0);
   private _surviveLookup: Uint8Array = new Uint8Array(0);
+
+  // Keyframe fields
+  private _keyframes: Keyframe[] = [];
+  private _absoluteGeneration = 0;
+  private _simulationStartTime = 0;
+  private _lastKeyframeTime = 0;
 
   // Multi-shape fields
   private _latticeType: LatticeType | undefined;
@@ -193,8 +204,11 @@ export default class AutomataManager {
 
   getSeedPopulation(): Population {
     this._currentPopulation = PopulationManager.seedPopulationByShape(this._populationShape, this.seedDensity);
-    this._history = [this._snapshotPopulation(this._currentPopulation)];
+    const snapshot = this._snapshotPopulation(this._currentPopulation);
+    this._history = [snapshot];
     this._historyIndex = 0;
+    this.clearKeyframes();
+    this._keyframes.push({ generation: 0, snapshot });
     return this._currentPopulation;
   }
 
@@ -202,6 +216,8 @@ export default class AutomataManager {
     this._currentPopulation = this._restorePopulation(snapshot);
     this._history = [snapshot];
     this._historyIndex = 0;
+    this.clearKeyframes();
+    this._keyframes.push({ generation: 0, snapshot });
     return this._currentPopulation;
   }
 
@@ -564,6 +580,48 @@ export default class AutomataManager {
     this._currentPopulation = this._restorePopulation(this._history[clamped]);
   }
 
+  // --- Keyframe API ---
+
+  get keyframeCount(): number {
+    return this._keyframes.length;
+  }
+
+  get absoluteGeneration(): number {
+    return this._absoluteGeneration;
+  }
+
+  getKeyframePopulation(index: number): Population | null {
+    const kf = this._keyframes[index];
+    if (!kf) return null;
+    return this._restorePopulation(kf.snapshot);
+  }
+
+  getKeyframeGeneration(index: number): number | null {
+    const kf = this._keyframes[index];
+    if (!kf) return null;
+    return kf.generation;
+  }
+
+  seekToKeyframe(index: number) {
+    const kf = this._keyframes[index];
+    if (!kf) return;
+    this._currentPopulation = this._restorePopulation(kf.snapshot);
+    this._absoluteGeneration = kf.generation;
+    this._keyframes.length = index + 1;
+    this._history = [kf.snapshot];
+    this._historyIndex = 0;
+    this._lastKeyframeTime = performance.now();
+    // Use sparse interval going forward after seeking
+    this._simulationStartTime = performance.now() - 10_000;
+  }
+
+  clearKeyframes() {
+    this._keyframes = [];
+    this._absoluteGeneration = 0;
+    this._simulationStartTime = 0;
+    this._lastKeyframeTime = 0;
+  }
+
   generateNextPopulationFromCurrent() {
     if (this._generatorType === 'twoDimension') {
       if (this._shapeAt && this._shapeBornLookups.length > 0) {
@@ -650,6 +708,17 @@ export default class AutomataManager {
 
     const snapshot = this._snapshotPopulation(this._currentPopulation!);
     this._history.push(snapshot);
+    this._absoluteGeneration++;
+
+    // Keyframe sampling: dense (500ms) for first 10s, sparse (5s) after
+    const now = performance.now();
+    if (this._simulationStartTime === 0) this._simulationStartTime = now;
+    const elapsed = now - this._simulationStartTime;
+    const interval = elapsed < 10_000 ? 500 : 5_000;
+    if (now - this._lastKeyframeTime >= interval) {
+      this._keyframes.push({ generation: this._absoluteGeneration, snapshot });
+      this._lastKeyframeTime = now;
+    }
 
     if (this._history.length > this._generationHistorySize) {
       const excess = this._history.length - this._generationHistorySize;

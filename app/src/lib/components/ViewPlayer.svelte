@@ -84,6 +84,10 @@
       automataManager!.totalGenerations,
       automataManager!.generationHistorySize
     );
+    automataStore.updateKeyframeInfo(
+      automataManager!.keyframeCount,
+      automataManager!.absoluteGeneration
+    );
 
     // Check for stability every 10 generations
     if (automataManager!.totalGenerations % 10 === 0) {
@@ -177,6 +181,14 @@
     };
     automataStore.renderPreviewFrame = (populations: any[], canvas: HTMLCanvasElement) => {
       if (viewer?.renderPreview) viewer.renderPreview(populations, canvas);
+    };
+    automataStore.getKeyframePopulation = (index: number) => {
+      if (!automataManager) return null;
+      return automataManager.getKeyframePopulation(index);
+    };
+    automataStore.getKeyframeGeneration = (index: number) => {
+      if (!automataManager) return null;
+      return automataManager.getKeyframeGeneration(index);
     };
     automataStore.getCanvasDataURL = () => {
       if (!viewer?.renderer?.domElement) return null;
@@ -336,6 +348,8 @@
       viewTrackTimer = null;
     }
     automataStore.getPopulationAtIndex = null;
+    automataStore.getKeyframePopulation = null;
+    automataStore.getKeyframeGeneration = null;
     automataStore.renderPreviewFrame = null;
     automataStore.getCanvasDataURL = null;
     automataStore.captureThumbnail = null;
@@ -553,6 +567,39 @@
     viewer.runSimulation = wasRunning;
 
     automataStore.clearSeekTarget();
+  });
+
+  // Watch for keyframe seek target
+  $effect(() => {
+    const target = automataStore.keyframeSeekTarget;
+    if (target === null || !automataManager || !viewer) return;
+
+    const wasRunning = viewer.runSimulation;
+    viewer.runSimulation = false;
+
+    automataManager.seekToKeyframe(target);
+
+    const savedRate = viewer.updateRateInMS ?? viewerDefaultUpdateRateMs ?? 100;
+    viewer.clearGenerations();
+    viewer.updateRateInMS = savedRate;
+
+    // Add one generation so the viewer has something to show
+    viewer.addGeneration();
+
+    viewer.updateStartTime = new Date().getTime();
+
+    automataStore.updateGenerationInfo(
+      automataManager.currentGenerationIndex,
+      automataManager.totalGenerations,
+      automataManager.generationHistorySize
+    );
+    automataStore.updateKeyframeInfo(
+      automataManager.keyframeCount,
+      automataManager.absoluteGeneration
+    );
+
+    viewer.runSimulation = wasRunning;
+    automataStore.clearKeyframeSeekTarget();
   });
 
   // Background color derived from cell state 0
