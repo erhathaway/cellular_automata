@@ -12,6 +12,35 @@
   } = $props();
 
   let panelBodyEl: HTMLDivElement | undefined;
+  let aboveCount = $state(0);
+  let belowCount = $state(0);
+
+  function updateEdgeCounts() {
+    if (!panelBodyEl) return;
+    const entries = panelBodyEl.querySelectorAll('.entry');
+    if (entries.length === 0) { aboveCount = 0; belowCount = 0; return; }
+    const top = panelBodyEl.scrollTop;
+    const bottom = top + panelBodyEl.clientHeight;
+    let firstVisible = -1;
+    let lastVisible = -1;
+    for (let i = 0; i < entries.length; i++) {
+      const el = entries[i] as HTMLElement;
+      const elTop = el.offsetTop;
+      const elBottom = elTop + el.offsetHeight;
+      // Entry is visible if any part is within the viewport
+      if (elBottom > top && elTop < bottom) {
+        if (firstVisible === -1) firstVisible = i;
+        lastVisible = i;
+      }
+    }
+    if (firstVisible === -1) {
+      aboveCount = 0;
+      belowCount = 0;
+    } else {
+      aboveCount = firstVisible;
+      belowCount = entries.length - lastVisible - 1;
+    }
+  }
 
   // Scroll to the active entry when the panel mounts (drawer opens)
   $effect(() => {
@@ -21,6 +50,7 @@
       if (active) {
         active.scrollIntoView({ block: 'center' });
       }
+      updateEdgeCounts();
     });
   });
 
@@ -88,7 +118,13 @@
   </div>
 
   <!-- Entries -->
-  <div class="panel-body" bind:this={panelBodyEl}>
+  <div class="panel-body" bind:this={panelBodyEl} onscroll={updateEdgeCounts}>
+    <div class="edge-indicator edge-above" class:hidden={aboveCount === 0}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15" />
+      </svg>
+      {aboveCount} above
+    </div>
     {#if historyStore.entries.length === 0}
       <div class="empty-state">
         <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -174,6 +210,12 @@
         {/each}
       </div>
     {/if}
+    <div class="edge-indicator edge-below" class:hidden={belowCount === 0}>
+      {belowCount} below
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
   </div>
 </div>
 
@@ -245,6 +287,42 @@
   .panel-body {
     flex: 1;
     overflow-y: auto;
+    position: relative;
+  }
+
+  /* ── Edge indicators ── */
+  .edge-indicator {
+    position: sticky;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a8a29e;
+    padding: 6px 0;
+    pointer-events: none;
+  }
+
+  .edge-above {
+    top: 0;
+    background: linear-gradient(180deg, #1c1917 60%, transparent);
+  }
+
+  .edge-below {
+    bottom: 0;
+    background: linear-gradient(0deg, #1c1917 60%, transparent);
+  }
+
+  .edge-indicator.hidden {
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
   }
 
   .panel-body::-webkit-scrollbar {
