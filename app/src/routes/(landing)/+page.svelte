@@ -10,7 +10,6 @@
 	let grid: Uint8Array;
 	let nextGrid: Uint8Array;
 	let animFrame: number;
-	let mounted = false;
 
 	function initGrid() {
 		grid = new Uint8Array(COLS * ROWS);
@@ -46,10 +45,8 @@
 		if (!canvas) return;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
-
 		ctx.fillStyle = '#000000';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 		for (let y = 0; y < ROWS; y++) {
 			for (let x = 0; x < COLS; x++) {
 				if (grid[y * COLS + x]) {
@@ -70,46 +67,237 @@
 		animFrame = requestAnimationFrame(loop);
 	}
 
+	// ── Lattice renderers (canvas-based) ──
+	type Lattice = {
+		key: string;
+		label: string;
+		neighbors: string;
+		canvas: HTMLCanvasElement;
+	};
+
+	let latticeCanvases: Lattice[] = $state([
+		{ key: 'square', label: 'Square', neighbors: '8 neighbors', canvas: null! },
+		{ key: 'hex', label: 'Hexagonal', neighbors: '6 neighbors', canvas: null! },
+		{ key: 'tri', label: 'Triangular', neighbors: '6 neighbors', canvas: null! },
+		{ key: 'trunc', label: 'Octagon', neighbors: '8 + 4 neighbors', canvas: null! },
+	]);
+
+	const LW = 180;
+	const LH = 180;
+
+	// Seeded random for consistent "alive" cells
+	function seededRandom(seed: number) {
+		let s = seed;
+		return () => {
+			s = (s * 16807 + 0) % 2147483647;
+			return s / 2147483647;
+		};
+	}
+
+	function drawSquareLattice(ctx: CanvasRenderingContext2D) {
+		const size = 22;
+		const gap = 2;
+		const step = size + gap;
+		const rand = seededRandom(42);
+		ctx.fillStyle = '#000';
+		ctx.fillRect(0, 0, LW, LH);
+		const cols = Math.ceil(LW / step) + 1;
+		const rows = Math.ceil(LH / step) + 1;
+		const ox = (LW - cols * step + gap) / 2;
+		const oy = (LH - rows * step + gap) / 2;
+		for (let r = 0; r < rows; r++) {
+			for (let c = 0; c < cols; c++) {
+				const alive = rand() < 0.3;
+				ctx.fillStyle = alive ? 'rgba(250, 204, 21, 0.7)' : '#1c1917';
+				ctx.strokeStyle = '#44403c';
+				ctx.lineWidth = 0.5;
+				const x = ox + c * step;
+				const y = oy + r * step;
+				ctx.fillRect(x, y, size, size);
+				ctx.strokeRect(x, y, size, size);
+				if (alive) {
+					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+					ctx.shadowBlur = 6;
+					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+					ctx.fillRect(x, y, size, size);
+					ctx.shadowBlur = 0;
+				}
+			}
+		}
+	}
+
+	function drawHexLattice(ctx: CanvasRenderingContext2D) {
+		const size = 14;
+		const rand = seededRandom(77);
+		ctx.fillStyle = '#000';
+		ctx.fillRect(0, 0, LW, LH);
+		const w = Math.sqrt(3) * size;
+		const h = 2 * size;
+		const rows = Math.ceil(LH / (h * 0.75)) + 1;
+		const cols = Math.ceil(LW / w) + 2;
+		const ox = (LW - (cols - 1) * w) / 2;
+		const oy = (LH - (rows - 1) * h * 0.75) / 2;
+
+		for (let r = 0; r < rows; r++) {
+			for (let c = 0; c < cols; c++) {
+				const cx = ox + c * w + (r % 2 ? w / 2 : 0);
+				const cy = oy + r * h * 0.75;
+				const alive = rand() < 0.25;
+				ctx.beginPath();
+				for (let i = 0; i < 6; i++) {
+					const angle = (Math.PI / 3) * i - Math.PI / 6;
+					const px = cx + (size - 1) * Math.cos(angle);
+					const py = cy + (size - 1) * Math.sin(angle);
+					if (i === 0) ctx.moveTo(px, py);
+					else ctx.lineTo(px, py);
+				}
+				ctx.closePath();
+				if (alive) {
+					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+					ctx.shadowBlur = 6;
+					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+				} else {
+					ctx.shadowBlur = 0;
+					ctx.fillStyle = '#1c1917';
+				}
+				ctx.fill();
+				ctx.shadowBlur = 0;
+				ctx.strokeStyle = '#44403c';
+				ctx.lineWidth = 0.5;
+				ctx.stroke();
+			}
+		}
+	}
+
+	function drawTriLattice(ctx: CanvasRenderingContext2D) {
+		const size = 20;
+		const rand = seededRandom(99);
+		ctx.fillStyle = '#000';
+		ctx.fillRect(0, 0, LW, LH);
+		const halfW = size / 2;
+		const h = size * Math.sqrt(3) / 2;
+		const rows = Math.ceil(LH / h) + 1;
+		const cols = Math.ceil(LW / halfW) + 2;
+		const ox = (LW - (cols - 1) * halfW) / 2;
+		const oy = (LH - (rows - 1) * h) / 2;
+
+		for (let r = 0; r < rows; r++) {
+			for (let c = 0; c < cols; c++) {
+				const up = (c + r) % 2 === 0;
+				const cx = ox + c * halfW;
+				const cy = oy + r * h;
+				const alive = rand() < 0.25;
+
+				ctx.beginPath();
+				if (up) {
+					ctx.moveTo(cx, cy);
+					ctx.lineTo(cx + halfW, cy + h);
+					ctx.lineTo(cx - halfW, cy + h);
+				} else {
+					ctx.moveTo(cx - halfW, cy);
+					ctx.lineTo(cx + halfW, cy);
+					ctx.lineTo(cx, cy + h);
+				}
+				ctx.closePath();
+
+				if (alive) {
+					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+					ctx.shadowBlur = 6;
+					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+				} else {
+					ctx.shadowBlur = 0;
+					ctx.fillStyle = '#1c1917';
+				}
+				ctx.fill();
+				ctx.shadowBlur = 0;
+				ctx.strokeStyle = '#44403c';
+				ctx.lineWidth = 0.5;
+				ctx.stroke();
+			}
+		}
+	}
+
+	function drawTruncLattice(ctx: CanvasRenderingContext2D) {
+		const size = 16;
+		const rand = seededRandom(55);
+		ctx.fillStyle = '#000';
+		ctx.fillRect(0, 0, LW, LH);
+
+		// Truncated square: octagons + small squares
+		const s = size;
+		const a = s / (1 + Math.SQRT2); // side length of octagon edge
+		const cellStep = s;
+		const cols = Math.ceil(LW / cellStep) + 1;
+		const rows = Math.ceil(LH / cellStep) + 1;
+		const ox = (LW - (cols - 1) * cellStep) / 2;
+		const oy = (LH - (rows - 1) * cellStep) / 2;
+		const octR = cellStep / 2;
+		const sqHalf = a / 2;
+
+		for (let r = 0; r < rows; r++) {
+			for (let c = 0; c < cols; c++) {
+				const isOct = (c + r) % 2 === 0;
+				const cx = ox + c * cellStep;
+				const cy = oy + r * cellStep;
+				const alive = rand() < (isOct ? 0.25 : 0.15);
+
+				if (isOct) {
+					// Regular octagon
+					ctx.beginPath();
+					for (let i = 0; i < 8; i++) {
+						const angle = (Math.PI / 4) * i + Math.PI / 8;
+						const px = cx + (octR - 1) * Math.cos(angle);
+						const py = cy + (octR - 1) * Math.sin(angle);
+						if (i === 0) ctx.moveTo(px, py);
+						else ctx.lineTo(px, py);
+					}
+					ctx.closePath();
+				} else {
+					// Small square
+					ctx.beginPath();
+					ctx.rect(cx - sqHalf, cy - sqHalf, a, a);
+				}
+
+				if (alive) {
+					ctx.shadowColor = 'rgba(250, 204, 21, 0.4)';
+					ctx.shadowBlur = 6;
+					ctx.fillStyle = 'rgba(250, 204, 21, 0.7)';
+				} else {
+					ctx.shadowBlur = 0;
+					ctx.fillStyle = '#1c1917';
+				}
+				ctx.fill();
+				ctx.shadowBlur = 0;
+				ctx.strokeStyle = '#44403c';
+				ctx.lineWidth = 0.5;
+				ctx.stroke();
+			}
+		}
+	}
+
+	const drawFns: Record<string, (ctx: CanvasRenderingContext2D) => void> = {
+		square: drawSquareLattice,
+		hex: drawHexLattice,
+		tri: drawTriLattice,
+		trunc: drawTruncLattice,
+	};
+
 	onMount(() => {
-		mounted = true;
 		initGrid();
 		draw();
 		animFrame = requestAnimationFrame(loop);
+
+		// Draw lattice canvases
+		for (const l of latticeCanvases) {
+			if (!l.canvas) continue;
+			const ctx = l.canvas.getContext('2d');
+			if (ctx) drawFns[l.key](ctx);
+		}
+
 		return () => {
 			if (animFrame) cancelAnimationFrame(animFrame);
 		};
 	});
-
-	// ── Mine shafts (feature blocks) ──
-	const shafts = [
-		{
-			depth: 'Shaft I',
-			title: 'The Surface Vein',
-			dim: '1D',
-			desc: 'Elementary rules carved into a single seam. 256 possible veins — each one unique, each one infinite.',
-			color: '#22d660',
-			colorDim: '#0a1f10',
-			pattern: [0,1,0,0, 0,0,1,0, 1,1,1,0, 0,0,0,0],
-		},
-		{
-			depth: 'Shaft II',
-			title: 'The Deep Grid',
-			dim: '2D',
-			desc: 'Gliders, oscillators, still lifes. The richest deposits lie in two dimensions — where life itself emerges.',
-			color: '#38bdf8',
-			colorDim: '#0c1a2e',
-			pattern: [0,0,0,0, 0,1,1,0, 0,1,1,0, 0,0,0,0],
-		},
-		{
-			depth: 'Shaft III',
-			title: 'The Abyss',
-			dim: '3D',
-			desc: 'Structures crystallize in three dimensions. Rare formations grow, evolve, and collapse in the deep.',
-			color: '#c084fc',
-			colorDim: '#1a0e2e',
-			pattern: [0,1,0,0, 1,0,1,0, 0,1,0,0, 0,0,0,0],
-		},
-	];
 </script>
 
 <div class="landing">
@@ -124,7 +312,6 @@
 		<div class="hero-overlay"></div>
 
 		<div class="hero-content">
-			<!-- Title panel -->
 			<div class="title-panel">
 				<div class="nails"><div class="nail"></div><div class="nail"></div></div>
 				<div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
@@ -141,7 +328,6 @@
 				</p>
 			</div>
 
-			<!-- Pipe connector -->
 			<div class="hero-pipe">
 				<div class="pipe-outer">
 					<div class="pipe-inner"></div>
@@ -150,7 +336,6 @@
 				<div class="pipe-flange pipe-flange-bottom"></div>
 			</div>
 
-			<!-- CTA button -->
 			<a href="/mine" class="cta-btn">
 				<svg class="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M14.531 12.469 6.619 20.38a1 1 0 0 1-3-3l7.912-7.912" />
@@ -163,35 +348,24 @@
 		</div>
 	</section>
 
-	<!-- ── Mine shafts ── -->
-	<section class="features">
-		<div class="features-header">
-			<span class="section-label">Mine Shafts</span>
+	<!-- ── Mineable Lattices ── -->
+	<section class="lattices">
+		<div class="lattices-header">
+			<span class="section-label">Mineable Lattices</span>
 			<div class="section-line"></div>
 		</div>
 
-		<div class="features-grid">
-			{#each shafts as shaft}
-				<div class="feature-card">
-					<div class="nails"><div class="nail"></div><div class="nail"></div></div>
-					<div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
-
-					<!-- Ore sample -->
-					<div class="feature-pattern">
-						{#each shaft.pattern as cell}
-							<div
-								class="pattern-cell"
-								style="background: {cell ? shaft.color : shaft.colorDim}; {cell ? `box-shadow: 0 0 4px ${shaft.color}40;` : ''}"
-							></div>
-						{/each}
-					</div>
-
-					<div class="feature-body">
-						<span class="feature-depth">{shaft.depth}</span>
-						<span class="feature-dim" style="color: {shaft.color};">{shaft.dim}</span>
-						<h3 class="feature-title">{shaft.title}</h3>
-						<p class="feature-desc">{shaft.desc}</p>
-					</div>
+		<div class="lattice-row">
+			{#each latticeCanvases as lattice, i}
+				<div class="lattice-item">
+					<canvas
+						bind:this={latticeCanvases[i].canvas}
+						width={LW}
+						height={LH}
+						class="lattice-canvas"
+					></canvas>
+					<span class="lattice-label">{lattice.label}</span>
+					<span class="lattice-meta">{lattice.neighbors}</span>
 				</div>
 			{/each}
 		</div>
@@ -219,7 +393,6 @@
 		</div>
 	</section>
 
-	<!-- Footer -->
 	<div class="footer">
 		Built by Ethan Hathaway
 	</div>
@@ -477,18 +650,18 @@
 		white-space: nowrap;
 	}
 
-	/* ── Features ── */
-	.features {
+	/* ── Lattices ── */
+	.lattices {
 		width: 100%;
-		max-width: 860px;
-		padding: 0 24px 48px;
+		max-width: 900px;
+		padding: 0 24px 56px;
 	}
 
-	.features-header {
+	.lattices-header {
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		margin-bottom: 24px;
+		margin-bottom: 32px;
 	}
 
 	.section-label {
@@ -507,104 +680,62 @@
 		background: linear-gradient(90deg, #44403c, transparent);
 	}
 
-	.features-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 16px;
+	.lattice-row {
+		display: flex;
+		justify-content: center;
+		gap: 40px;
+		flex-wrap: wrap;
 	}
 
-	@media (max-width: 700px) {
-		.features-grid {
-			grid-template-columns: 1fr;
-			max-width: 360px;
-			margin: 0 auto;
-		}
+	.lattice-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
 	}
 
-	.feature-card {
-		position: relative;
-		padding: 24px 20px;
-		background-color: #1c1917;
-		background-image:
-			repeating-linear-gradient(
-				0deg,
-				transparent,
-				transparent 10px,
-				rgba(68, 64, 60, 0.1) 10px,
-				rgba(68, 64, 60, 0.1) 11px
-			);
-		border: 2px solid #44403c;
-		border-radius: 8px;
+	.lattice-canvas {
+		width: 180px;
+		height: 180px;
+		border-radius: 50%;
+		border: 2px solid #292524;
+		image-rendering: auto;
 		transition: border-color 0.2s, box-shadow 0.2s;
 	}
 
-	.feature-card:hover {
-		border-color: #57534e;
-		box-shadow: 0 0 20px rgba(0,0,0,0.3);
+	.lattice-canvas:hover {
+		border-color: #44403c;
+		box-shadow: 0 0 20px rgba(250, 204, 21, 0.08);
 	}
 
-	/* ── Mini CA pattern ── */
-	.feature-pattern {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		grid-template-rows: repeat(4, 1fr);
-		width: 48px;
-		height: 48px;
-		gap: 1px;
-		margin-bottom: 16px;
-		image-rendering: pixelated;
-	}
-
-	.pattern-cell {
-		border-radius: 1px;
-	}
-
-	.feature-body {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.feature-depth {
+	.lattice-label {
 		font-family: 'Space Mono', monospace;
-		font-size: 9px;
+		font-size: 13px;
 		font-weight: 700;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: #57534e;
-	}
-
-	.feature-dim {
-		font-family: 'Space Mono', monospace;
-		font-size: 11px;
-		font-weight: 700;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		margin-top: 2px;
-	}
-
-	.feature-title {
-		font-family: 'Space Mono', monospace;
-		font-size: 15px;
-		font-weight: 700;
-		letter-spacing: 0.06em;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: #facc15;
-		margin-top: 4px;
 	}
 
-	.feature-desc {
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: 13px;
-		line-height: 1.65;
-		letter-spacing: 0.02em;
-		color: #a8a29e;
-		margin-top: 8px;
+	.lattice-meta {
+		font-family: 'Space Mono', monospace;
+		font-size: 10px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #57534e;
+		margin-top: -6px;
+	}
+
+	@media (max-width: 700px) {
+		.lattice-row {
+			gap: 28px;
+		}
 	}
 
 	/* ── Bottom links ── */
 	.bottom-links {
 		width: 100%;
-		max-width: 860px;
+		max-width: 900px;
 		padding: 0 24px 48px;
 	}
 
