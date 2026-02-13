@@ -396,6 +396,10 @@
     if (!automataManager) return;
     if (automataStore.dimension >= 2) {
       automataManager.setLattice(lattice, radius);
+      // setLattice rebuilds per-shape lookups from lattice defaults —
+      // re-apply custom shape rules so they aren't lost.
+      const sr = automataStore.shapeRules;
+      if (sr) automataManager.setShapeRules(sr);
     } else {
       automataManager.neighbors = _neighbors;
     }

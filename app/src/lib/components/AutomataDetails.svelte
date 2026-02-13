@@ -13,24 +13,58 @@
     hideOwner?: boolean;
   } = $props();
 
+  function parseNums(s: string): string[] {
+    if (!s) return [];
+    return s.includes(',') ? s.split(',') : s.split('');
+  }
+
+  function truncateNums(s: string, max: number): string {
+    const nums = parseNums(s);
+    if (nums.length === 0) return '';
+    if (nums.length <= max) return nums.join(',');
+    return nums.slice(0, max).join(',') + '…';
+  }
+
+  function getRuleCounts(rule: string): { born: number; survive: number } | null {
+    const match = rule.match(/^B([0-9,]*)S([0-9,]*)$/);
+    if (!match) return null;
+    return { born: parseNums(match[1]).length, survive: parseNums(match[2]).length };
+  }
+
+  let counts = $derived(getRuleCounts(item.ruleDefinition));
+
+  function parsedRule(rule: string): { born: string; survive: string } | null {
+    const match = rule.match(/^B([0-9,]*)S([0-9,]*)$/);
+    if (!match) return null;
+    return { born: truncateNums(match[1], 3), survive: truncateNums(match[2], 3) };
+  }
+
+  let parsed = $derived(parsedRule(item.ruleDefinition));
+
   function displayTitle() {
     if (item.title) return item.title;
-    return `${item.ruleDefinition} (${item.dimension}D)`;
+    return null;
   }
 
   function levelLabel(): string {
     return radiusToLevel(item.neighborhoodRadius ?? 1);
   }
 
-  function latticeLabel(): string | null {
+  function neighborCount(dim: number, radius: number): number {
+    if (dim === 1) return 2;
+    return (2 * radius + 1) ** dim - 1;
+  }
+
+  function latticeLabel(): string {
     const lat = item.latticeType as LatticeType | undefined | null;
-    if (!lat) return null;
-    const dim = (item.dimension ?? 2) as 2 | 3;
-    if (lat === defaultLattice(dim)) return null;
+    if (!lat) {
+      const dim = (item.dimension ?? 2) as 2 | 3;
+      return getLattice(defaultLattice(dim)).label;
+    }
     try {
       return getLattice(lat).label;
     } catch {
-      return null;
+      return lat;
     }
   }
 </script>
@@ -46,18 +80,27 @@
     </div>
   {/if}
   <div class="chip-info">
-    <p class="rule-text">
-      {displayTitle()}
-    </p>
+    <div class="rule-row">
+      <p class="rule-text">
+        {#if displayTitle()}
+          {displayTitle()}
+        {:else if parsed}
+          B<span class="eq">:</span>{parsed.born} <span class="eq">|</span> S<span class="eq">:</span>{parsed.survive}
+        {:else}
+          {item.ruleDefinition}
+        {/if}
+      </p>
+      {#if counts}
+        <span class="pill rule-count born"><span class="count-label">Count</span> B<span class="eq">=</span>{counts.born}</span>
+        <span class="pill rule-count survive"><span class="count-label">Count</span> S<span class="eq">=</span>{counts.survive}</span>
+      {/if}
+    </div>
     <div class="pills-row">
       <span class="pill level-{levelLabel()}">{levelLabel()}</span>
       <span class="pill dim">{item.dimension}D</span>
-      {#if latticeLabel()}
-        <span class="pill lattice">{latticeLabel()}</span>
-      {/if}
-      {#if (item.neighborhoodRadius ?? 1) > 1}
-        <span class="pill radius">r={item.neighborhoodRadius}</span>
-      {/if}
+      <span class="pill lattice">{latticeLabel()}</span>
+      <span class="pill radius">r={item.neighborhoodRadius ?? 1}</span>
+      <span class="pill neighbors">{neighborCount(item.dimension ?? 2, item.neighborhoodRadius ?? 1)} neighbors</span>
     </div>
     {#if !hideOwner}
       <div class="owner-meta">
@@ -140,9 +183,43 @@
     white-space: nowrap;
   }
 
+  .rule-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .rule-count {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 400;
+    padding: 1px 5px;
+  }
+
+  .rule-count.born {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.2);
+  }
+
+  .count-label {
+    font-size: 8px;
+  }
+
+  .eq {
+    color: #78716c;
+  }
+
+  .rule-count.survive {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+
   .rule-text {
     font-family: 'Space Mono', monospace;
-    font-size: 9px;
+    font-size: 13px;
     color: #facc15;
     margin: 0 0 1px;
     padding: 2px 8px 3px;
@@ -163,27 +240,28 @@
 
   .time-ago {
     font-family: 'Space Mono', monospace;
-    font-size: 9px;
+    font-size: 12px;
     color: #78716c;
     flex-shrink: 0;
+    padding-left: 6px;
   }
 
   /* ── Pills row ── */
   .pills-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
-    margin-top: 1px;
+    gap: 4px;
+    margin-top: 2px;
   }
 
   .pill {
     font-family: 'Space Mono', monospace;
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    border-radius: 3px;
-    padding: 1px 5px;
+    border-radius: 4px;
+    padding: 2px 7px;
     line-height: 1.3;
     white-space: nowrap;
   }
@@ -219,6 +297,12 @@
   }
 
   .pill.radius {
+    color: #78716c;
+    background: rgba(120, 113, 108, 0.08);
+    border: 1px solid rgba(120, 113, 108, 0.15);
+  }
+
+  .pill.neighbors {
     color: #78716c;
     background: rgba(120, 113, 108, 0.08);
     border: 1px solid rgba(120, 113, 108, 0.15);

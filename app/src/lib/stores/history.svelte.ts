@@ -36,6 +36,8 @@ class HistoryStore {
   entries: HistoryEntry[] = $state([]);
   cursorIndex = $state(-1);
   private loaded = false;
+  /** High-water mark — the most entries we've ever seen in this session */
+  private highWaterMark = 0;
 
   get canGoBack(): boolean {
     this.load();
@@ -107,6 +109,8 @@ class HistoryStore {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           this.entries = parsed.slice(0, MAX_ENTRIES);
+          this.highWaterMark = this.entries.length;
+          console.log(`[HistoryStore] load: ${this.entries.length} entries from localStorage`);
         }
       }
     } catch {
@@ -125,14 +129,37 @@ class HistoryStore {
     }
   }
 
-  private persist() {
+  private persist(allowShrink = false) {
     if (typeof window === 'undefined') return;
     try {
       const truncated = this.entries.slice(0, MAX_ENTRIES);
+
+      // Safety: never overwrite more entries with fewer unless explicitly allowed
+      // (removeEntry, removeCorrupted, clearHistory pass allowShrink=true)
+      if (!allowShrink && truncated.length < this.highWaterMark) {
+        console.warn(
+          `[HistoryStore] persist BLOCKED: would reduce ${this.highWaterMark} → ${truncated.length} entries`,
+          new Error().stack
+        );
+        // Self-heal: reload from localStorage to restore in-memory state
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              this.entries = parsed.slice(0, MAX_ENTRIES);
+              this.highWaterMark = this.entries.length;
+            }
+          }
+        } catch { /* ignore */ }
+        return;
+      }
+
       if (truncated.length !== this.entries.length) {
         this.entries = truncated;
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(truncated));
+      this.highWaterMark = Math.max(this.highWaterMark, truncated.length);
     } catch {
       // quota exceeded — silently fail
     }
@@ -158,6 +185,7 @@ class HistoryStore {
       return;
     }
 
+    console.log(`[HistoryStore] addEntry: ${this.entries.length} → ${this.entries.length + 1} entries`);
     this.entries = [entry, ...this.entries].slice(0, MAX_ENTRIES);
     this.persist();
   }
@@ -169,13 +197,15 @@ class HistoryStore {
 
   flush() {
     this.load();
+    console.log(`[HistoryStore] flush: ${this.entries.length} entries in memory`);
     this.persist();
   }
 
   removeEntry(id: string) {
     this.load();
     this.entries = this.entries.filter((e) => e.id !== id);
-    this.persist();
+    this.highWaterMark = this.entries.length;
+    this.persist(true);
   }
 
   removeCorrupted() {
@@ -200,7 +230,9 @@ class HistoryStore {
       return true;
     });
     if (this.entries.length !== before) {
-      this.persist();
+      console.log(`[HistoryStore] removeCorrupted: ${before} → ${this.entries.length} entries`);
+      this.highWaterMark = this.entries.length;
+      this.persist(true);
     }
   }
 
@@ -231,7 +263,8 @@ class HistoryStore {
     this.entries = [];
     this.cursorIndex = -1;
     this.loaded = true;
-    this.persist();
+    this.highWaterMark = 0;
+    this.persist(true);
   }
 }
 
