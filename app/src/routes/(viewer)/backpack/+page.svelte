@@ -133,18 +133,24 @@
   <div class="mx-auto max-w-7xl px-6 py-8">
     <div class="backpack-header">
       <h1 class="backpack-title">Backpack</h1>
-      <div class="capacity-indicator">
-        <div class="capacity-bar-track">
-          <div
-            class="capacity-bar-fill"
-            style="width: {Math.min(totalClaims / MAX_SLOTS * 100, 100)}%"
-          ></div>
-        </div>
-        <span class="capacity-label">
+      <div class="capacity-section">
+        <span class="capacity-text">
+          Capacity
           <span class="capacity-count">{totalClaims}</span>
           <span class="capacity-sep">/</span>
           <span class="capacity-max">{MAX_SLOTS}</span>
         </span>
+        <div class="capacity-blocks">
+          {#each Array(10) as _, i}
+            {@const blockClaims = Math.min(Math.max(totalClaims - i * 10, 0), 10)}
+            <div class="cap-block" class:cap-block-full={blockClaims >= 10}>
+              <div
+                class="cap-block-fill"
+                style="height: {blockClaims * 10}%"
+              ></div>
+            </div>
+          {/each}
+        </div>
       </div>
     </div>
 
@@ -198,7 +204,7 @@
           <div class="flex h-40 items-center justify-center">
             <p class="empty-text">
               {#if activeTab === 'all'}
-                No items yet. Start mining to fill your chest.
+                No items yet. Start mining to fill your backpack.
               {:else if activeTab === 'claimed'}
                 No claims yet. Use the save button on the viewer to claim a configuration.
               {:else if activeTab === 'liked'}
@@ -217,6 +223,91 @@
 </div>
 
 <style>
+  .backpack-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .capacity-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    margin-right: 24px;
+  }
+
+  .backpack-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .capacity-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #57534e;
+  }
+
+  .capacity-count {
+    color: #facc15;
+    margin-left: 6px;
+  }
+
+  .capacity-sep {
+    color: #44403c;
+    margin: 0 1px;
+  }
+
+  .capacity-max {
+    color: #57534e;
+  }
+
+  .capacity-blocks {
+    display: flex;
+    gap: 4px;
+    max-width: 280px;
+  }
+
+  .cap-block {
+    width: 24px;
+    height: 24px;
+    background: #1a1a1a;
+    border: 1px solid #292524;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .cap-block-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #facc15;
+    border-radius: 0 0 3px 3px;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cap-block-full {
+    border-color: #ca8a04;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
+  }
+
+  .cap-block-full .cap-block-fill {
+    border-radius: 3px;
+  }
+
   .chest-bg {
     background: #000;
     min-height: 100%;
