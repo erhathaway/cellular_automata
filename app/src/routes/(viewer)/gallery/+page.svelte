@@ -8,6 +8,9 @@
   import ExploreGrid from '$lib/components/explore/ExploreGrid.svelte';
   import ExploreFilters from '$lib/components/explore/ExploreFilters.svelte';
   import TopClaims from '$lib/components/explore/TopClaims.svelte';
+  import GalleryStats from '$lib/components/explore/GalleryStats.svelte';
+
+  let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
 
   const PAGE_SIZE = 20;
   const SESSION_KEY = 'explore-filters';
@@ -122,6 +125,7 @@
   });
 </script>
 
+<svelte:window bind:innerWidth={innerWidth} />
 <div class="gallery-bg">
   <div class="mx-auto max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
     <div class="sticky-filters sticky top-0 z-20 pb-4 pt-8">
@@ -138,6 +142,12 @@
       </div>
     </div>
 
+    {#if innerWidth < 1000}
+      <div class="inline-stats">
+        <GalleryStats />
+      </div>
+    {/if}
+
     <TopClaims onload={handleLoad} />
 
     <ExploreGrid {items} {loading} {hasMore} onload={handleLoad} onloadmore={loadMore} />
@@ -148,6 +158,26 @@
   .gallery-bg {
     background: #000;
     min-height: 100%;
+  }
+
+  .inline-stats {
+    margin-bottom: 20px;
+  }
+
+  .inline-stats :global(.stats-body) {
+    flex-direction: row;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .inline-stats :global(.panel) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .inline-stats :global(.panel:first-child) {
+    flex: 0 0 auto;
   }
 
   .sticky-filters {

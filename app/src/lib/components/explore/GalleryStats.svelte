@@ -61,7 +61,7 @@
       <div class="nails"><div class="nail"></div><div class="nail"></div></div>
       <div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
       <div class="section-label">Total Claims</div>
-      <div class="total-value">{stats.totalClaims.toLocaleString()}</div>
+      <div class="total-value">{stats.totalClaims >= 1_000_000 ? (stats.totalClaims / 1_000_000).toFixed(2) + 'm' : stats.totalClaims >= 1_000 ? (stats.totalClaims / 1_000).toFixed(2) + 'k' : stats.totalClaims}</div>
     </div>
 
     <!-- Level Distribution -->
