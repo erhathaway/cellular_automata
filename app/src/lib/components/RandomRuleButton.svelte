@@ -164,7 +164,7 @@
 <style>
   .mine-root {
     position: relative;
-    --mine-width: clamp(200px, 35vw, 460px);
+    --mine-width: clamp(200px, 35vw, 360px);
     --mine-pad: 14px 14px 18px;
   }
 
@@ -309,28 +309,28 @@
     animation: fill 3s linear forwards;
   }
 
-  @media (max-width: 1400px) {
+  @media (max-width: 1500px) {
     .mine-root {
-      --mine-width: clamp(200px, calc(50vw - 240px), 460px);
-      --mine-pad: clamp(8px, calc(1.5vw - 7px), 14px) clamp(8px, calc(1.5vw - 7px), 14px) clamp(10px, calc(2vw - 10px), 18px);
+      --mine-width: clamp(200px, calc(24vw), 360px);
+      --mine-pad: clamp(8px, calc(1.2vw - 4px), 14px) clamp(8px, calc(1.2vw - 4px), 14px) clamp(10px, calc(1.6vw - 6px), 18px);
     }
 
     .mine-btn {
-      padding: clamp(12px, calc(1.5vw - 3px), 18px) clamp(14px, calc(4.5vw - 31px), 32px);
-      gap: clamp(8px, calc(1.5vw - 7px), 14px);
+      padding: clamp(12px, calc(1.2vw), 18px) clamp(14px, calc(3.6vw - 22px), 32px);
+      gap: clamp(8px, calc(1.2vw - 4px), 14px);
     }
 
     .pickaxe {
-      width: clamp(20px, calc(5.5vw - 35px), 42px);
-      height: clamp(20px, calc(5.5vw - 35px), 42px);
+      width: clamp(20px, calc(4.4vw - 24px), 42px);
+      height: clamp(20px, calc(4.4vw - 24px), 42px);
     }
 
     .label {
-      font-size: clamp(10px, calc(3vw - 20px), 22px);
+      font-size: clamp(10px, calc(2.4vw - 14px), 22px);
     }
 
     .label-found {
-      font-size: clamp(8px, calc(2vw - 12px), 16px);
+      font-size: clamp(8px, calc(1.6vw - 8px), 16px);
     }
   }
 </style>
