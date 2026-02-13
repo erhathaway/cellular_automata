@@ -1,16 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
-  import { SignedIn } from 'svelte-clerk/client';
-  import SaveDialog from './SaveDialog.svelte';
-  import { api } from '$lib/api';
 
-  let saveDialogOpen = $state(false);
-  let savedEntityId: string | null = $state(null);
-  let savedEntityType: 'generation_run' | 'cell_population' | null = $state(null);
-  let isLiked = $state(false);
-  let isBookmarked = $state(false);
-  let likeCount = $state(0);
 
   // Auto-hide controls
   let controlsVisible = $state(false);
@@ -25,8 +16,8 @@
   function resetFadeTimer() {
     if (fadeTimer) clearTimeout(fadeTimer);
     fadeTimer = setTimeout(() => {
-      // Don't hide if dragging the progress bar or save dialog is open
-      if (!isDragging && !saveDialogOpen) {
+      // Don't hide if dragging the progress bar
+      if (!isDragging) {
         controlsVisible = false;
       }
     }, FADE_DELAY);
@@ -37,7 +28,7 @@
   }
 
   function handleParentMouseLeave() {
-    if (!isDragging && !saveDialogOpen) {
+    if (!isDragging) {
       controlsVisible = false;
       if (fadeTimer) clearTimeout(fadeTimer);
     }
@@ -51,65 +42,6 @@
     showControls();
   }
 
-  function handleSaved(info: { id: string; entityType: 'generation_run' | 'cell_population' }) {
-    savedEntityId = info.id;
-    savedEntityType = info.entityType;
-    isLiked = false;
-    isBookmarked = false;
-    likeCount = 0;
-  }
-
-  async function toggleLike() {
-    if (!savedEntityId || !savedEntityType) return;
-    const body = savedEntityType === 'generation_run'
-      ? { generationRunId: savedEntityId }
-      : { cellPopulationId: savedEntityId };
-    if (isLiked) {
-      isLiked = false;
-      likeCount = Math.max(0, likeCount - 1);
-      try {
-        await api('DELETE', '/api/likes', body);
-      } catch {
-        isLiked = true;
-        likeCount++;
-      }
-    } else {
-      isLiked = true;
-      likeCount++;
-      try {
-        await api('POST', '/api/likes', body);
-      } catch (err: any) {
-        if (!err.message?.startsWith('409')) {
-          isLiked = false;
-          likeCount = Math.max(0, likeCount - 1);
-        }
-      }
-    }
-  }
-
-  async function toggleBookmark() {
-    if (!savedEntityId || !savedEntityType) return;
-    const body = savedEntityType === 'generation_run'
-      ? { generationRunId: savedEntityId }
-      : { cellPopulationId: savedEntityId };
-    if (isBookmarked) {
-      isBookmarked = false;
-      try {
-        await api('DELETE', '/api/bookmarks', body);
-      } catch {
-        isBookmarked = true;
-      }
-    } else {
-      isBookmarked = true;
-      try {
-        await api('POST', '/api/bookmarks', body);
-      } catch (err: any) {
-        if (!err.message?.startsWith('409')) {
-          isBookmarked = false;
-        }
-      }
-    }
-  }
 
   let progressBarEl: HTMLElement;
   let previewCanvas: HTMLCanvasElement = $state(undefined as any);
@@ -530,70 +462,6 @@
 
     </div>
 
-    <!-- Right: Save + Like + Bookmark -->
-    <div class="flex items-center gap-2">
-      <!-- Save Button (signed in only) -->
-      <SignedIn>
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <div
-          class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
-          onclick={() => (saveDialogOpen = true)}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9.707 2.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L6.293 7.707a1 1 0 01-1.414-1.414l4-4z" />
-            <path d="M3 15a2 2 0 012-2h10a2 2 0 012 2v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" />
-          </svg>
-        </div>
-      </SignedIn>
-
-      <!-- Like Button (only when saved) -->
-      {#if savedEntityId}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <div
-          class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; min-width: 44px; padding: 0 8px; border-radius: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
-          onclick={toggleLike}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-          </svg>
-          {#if likeCount > 0}
-            <span class="ml-1 text-xs font-medium">{likeCount}</span>
-          {/if}
-        </div>
-      {/if}
-
-      <!-- Bookmark Button (only when saved) -->
-      {#if savedEntityId}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <div
-          class="flex cursor-pointer items-center justify-center"
-          style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4); color: white; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);"
-          onmouseenter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.85)'; }}
-          onmouseleave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,0,0,0.7)'; }}
-          onclick={toggleBookmark}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 13v6a2 2 0 002 2h12a2 2 0 002-2v-6" />
-            <path d="M20 13c0-5-3.6-8-8-8s-8 3-8 8" />
-            <line x1="4" y1="13" x2="20" y2="13" />
-            <rect x="10" y="11" width="4" height="4" rx="1" />
-          </svg>
-        </div>
-      {/if}
-    </div>
   </div>
 </aside>
 
-<SaveDialog bind:open={saveDialogOpen} onsaved={handleSaved} />
