@@ -169,20 +169,7 @@
       <MinerBadge />
     </div>
     <div class="content-col">
-      <AutomataDetails item={detailsItem} hideOwner />
-      {#if fullRules.length > 0}
-        <div class="full-rules">
-          {#each fullRules as shape}
-            <div class="shape-rule">
-              {#if fullRules.length > 1}
-                <span class="shape-label">{shape.label}</span>
-              {/if}
-              <span class="rule-born">B<span class="rule-suffix">orn</span><span class="rule-sep">:</span> {shape.born.join(', ')}</span>
-              <span class="rule-survive">S<span class="rule-suffix">urvive</span><span class="rule-sep">:</span> {shape.survive.join(', ')}</span>
-            </div>
-          {/each}
-        </div>
-      {/if}
+      <AutomataDetails item={detailsItem} hideOwner {fullRules} />
     </div>
   </div>
 </div>
@@ -196,21 +183,7 @@
   <!-- Center column: Title + Details -->
   <div class="content-col">
     <h1 class="title" title={title}>{title}</h1>
-    <AutomataDetails item={detailsItem} hideOwner />
-
-    {#if fullRules.length > 0}
-      <div class="full-rules">
-        {#each fullRules as shape}
-          <div class="shape-rule">
-            {#if fullRules.length > 1}
-              <span class="shape-label">{shape.label}</span>
-            {/if}
-            <span class="rule-born">B<span class="rule-suffix">orn</span><span class="rule-sep">:</span> {shape.born.join(', ')}</span>
-            <span class="rule-survive">S<span class="rule-suffix">urvive</span><span class="rule-sep">:</span> {shape.survive.join(', ')}</span>
-          </div>
-        {/each}
-      </div>
-    {/if}
+    <AutomataDetails item={detailsItem} hideOwner {fullRules} />
   </div>
 
   <!-- Right column: Action buttons -->
@@ -261,45 +234,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 8px;
-  }
-
-  .full-rules {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .shape-rule {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-  }
-
-  .shape-label {
-    color: #a8a29e;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    min-width: 70px;
-  }
-
-  .rule-born {
-    color: #facc15;
-  }
-
-  .rule-survive {
-    color: #38bdf8;
-  }
-
-  .rule-suffix {
-    opacity: 0.4;
-  }
-
-  .rule-sep {
-    color: #78716c;
   }
 
   .action-buttons-col {
