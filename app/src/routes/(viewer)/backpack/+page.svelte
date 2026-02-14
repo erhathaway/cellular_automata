@@ -137,7 +137,23 @@
   <div class="mx-auto max-w-2xl px-6 md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
     <div class="sticky-top sticky top-0 z-20 pb-4 pt-8">
       <div class="backpack-header">
-        <h1 class="backpack-title">Backpack</h1>
+        <div class="backpack-left">
+          <h1 class="backpack-title">Backpack</h1>
+          <a href="/handbook" class="handbook-btn">
+            <div class="handbook-spine">
+              {#each Array(6) as _}
+                <div class="coil"></div>
+              {/each}
+            </div>
+            <div class="handbook-cover">
+              <div class="bookmark-ribbon">
+                <div class="ribbon-tail"></div>
+                <div class="ribbon-fold"></div>
+              </div>
+              <span class="handbook-label">Miner's Handbook</span>
+            </div>
+          </a>
+        </div>
         <div class="capacity-section">
           <span class="capacity-text">
             Claim Capacity
@@ -256,6 +272,110 @@
     align-items: center;
     justify-content: space-between;
   }
+
+  .backpack-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .handbook-btn {
+    display: inline-flex;
+    align-items: stretch;
+    color: #d6d3d1;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    height: 52px;
+  }
+
+  .handbook-btn:hover {
+    color: #facc15;
+  }
+
+  .handbook-btn:hover .handbook-cover {
+    background: #292524;
+    border-color: #facc15;
+  }
+
+  .handbook-btn:hover .coil {
+    border-color: #facc15;
+  }
+
+  .handbook-spine {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    width: 10px;
+    flex-shrink: 0;
+    padding: 4px 0;
+  }
+
+  .coil {
+    width: 8px;
+    height: 5px;
+    border: 1.5px solid #57534e;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    transition: border-color 0.2s ease;
+  }
+
+  .handbook-cover {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1a1a1a;
+    border: 1px solid #44403c;
+    border-radius: 0 6px 6px 0;
+    padding: 0 14px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    overflow: visible;
+  }
+
+  .bookmark-ribbon {
+    position: absolute;
+    top: -8px;
+    right: 14px;
+    width: 14px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  }
+
+  .ribbon-tail {
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%);
+  }
+
+  .ribbon-fold {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+    border-radius: 0 0 1px 1px;
+  }
+
+  .handbook-btn:hover .ribbon-tail {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  .handbook-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
 
   .capacity-section {
     display: flex;
