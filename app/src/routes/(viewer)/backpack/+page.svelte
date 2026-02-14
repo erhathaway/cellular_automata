@@ -398,7 +398,7 @@
 
   .backpack-title {
     font-family: 'Space Mono', monospace;
-    font-size: 20px;
+    font-size: clamp(14px, 3vw, 20px);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
