@@ -5,7 +5,13 @@
   import SteelPanel from '$lib/components/SteelPanel.svelte';
   import type { LatticeType } from '$lib-core';
 
-  let { disabled = false }: { disabled?: boolean } = $props();
+  let {
+    disabled = false,
+    onselect,
+  }: {
+    disabled?: boolean;
+    onselect?: (key: LatticeType | 'random') => void;
+  } = $props();
 
   let open = $state(false);
   let rootEl = $state<HTMLDivElement>();
@@ -38,6 +44,7 @@
 
   function selectLattice(key: LatticeType | 'random') {
     automataStore.setMiningLattice(key);
+    onselect?.(key);
     open = false;
   }
 

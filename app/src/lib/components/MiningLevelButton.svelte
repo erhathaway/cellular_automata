@@ -4,7 +4,13 @@
   import SteelPanel from '$lib/components/SteelPanel.svelte';
   import type { MiningDifficulty } from '$lib/stores/automata.svelte';
 
-  let { disabled = false }: { disabled?: boolean } = $props();
+  let {
+    disabled = false,
+    onselect,
+  }: {
+    disabled?: boolean;
+    onselect?: (key: MiningDifficulty) => void;
+  } = $props();
 
   let open = $state(false);
   let rootEl = $state<HTMLDivElement>();
@@ -32,6 +38,7 @@
 
   function selectDifficulty(key: MiningDifficulty) {
     automataStore.setMiningDifficulty(key);
+    onselect?.(key);
     open = false;
   }
 
