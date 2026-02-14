@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { audioStore } from '$lib/stores/audio.svelte';
 
-	let { inline = false }: { inline?: boolean } = $props();
+	let { inline = false, centered = false }: { inline?: boolean; centered?: boolean } = $props();
 
 	let audioEl: HTMLAudioElement | undefined = $state();
 	let playing = $state(false);
@@ -56,7 +56,7 @@
 
 <audio bind:this={audioEl} src="/toejam-jammin.mp3" loop preload="auto" onended={() => { if (audioEl && started) { audioEl.currentTime = 0; audioEl.play(); } }}></audio>
 
-<div class="boombox" class:boombox-inline={inline}>
+<div class="boombox" class:boombox-inline={inline} class:boombox-centered={centered}>
 	<!-- Corner nails -->
 	<div class="nails"><div class="nail"></div><div class="nail"></div></div>
 	<div class="nails nails-bottom"><div class="nail"></div><div class="nail"></div></div>
@@ -175,6 +175,11 @@
 			0 -1px 12px rgba(59, 130, 246, 0.08),
 			0 0 20px rgba(250, 204, 21, 0.06),
 			inset 0 1px 0 rgba(250, 204, 21, 0.08);
+	}
+
+	.boombox-centered {
+		left: 50%;
+		transform: translateX(-50%);
 	}
 
 	.boombox-inline {

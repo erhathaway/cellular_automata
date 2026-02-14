@@ -246,7 +246,7 @@
 </ClerkProvider>
 
 {#if !isMobile}
-	<AudioBar />
+	<AudioBar centered={isErrorPage} />
 {/if}
 
 <style>
