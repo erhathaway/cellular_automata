@@ -213,7 +213,7 @@
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.45);
     padding: 8px;
-    z-index: 40;
+    z-index: 140;
     max-height: 400px;
     overflow-y: auto;
   }
