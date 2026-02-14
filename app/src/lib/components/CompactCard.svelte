@@ -35,23 +35,6 @@
     return `${item.ruleDefinition} (${item.dimension}D)`;
   }
 
-  function buildCopyUrl(): string {
-    if (typeof window === 'undefined') return '';
-    const params = new URLSearchParams();
-    params.set('d', String(item.dimension ?? 2));
-    params.set('v', String(item.viewer ?? item.dimension ?? 2));
-    params.set('r', item.ruleDefinition ?? '');
-    if (item.neighborhoodRadius && item.neighborhoodRadius > 1) {
-      params.set('nr', String(item.neighborhoodRadius));
-    }
-    if (item.latticeType) {
-      params.set('lt', item.latticeType);
-    }
-    return `${window.location.origin}/mine?${params.toString()}`;
-  }
-
-  let copyUrl = $derived(buildCopyUrl());
-
   let deadBg = $derived.by(() => {
     try {
       const raw = typeof item.cellStates === 'string' ? JSON.parse(item.cellStates) : item.cellStates;
@@ -104,7 +87,6 @@
             isLikedByMe={item.isLikedByMe ?? false}
             isBookmarkedByMe={item.isBookmarkedByMe ?? false}
             likeCount={item.likeCount ?? 0}
-            {copyUrl}
             compact
             {dense}
             vertical

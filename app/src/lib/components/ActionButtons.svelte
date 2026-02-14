@@ -1,7 +1,7 @@
 <script lang="ts">
   import { api } from '$lib/api';
   import { automataStore } from '$lib/stores/automata.svelte';
-  import { buildURLParams, deserializeRule } from '$lib/stores/persistence';
+  import { buildURLParams, deserializeRule, migrateCellStatesData } from '$lib/stores/persistence';
   import { defaultShape, defaultCellStates, defaultRule, defaultTrailConfig } from '$lib/stores/automata.svelte';
   import { defaultLattice, getLattice } from '$lib-core';
   import type { LatticeType } from '$lib-core';
@@ -13,7 +13,6 @@
     isBookmarkedByMe = false,
     likeCount = 0,
     bookmarkCount = 0,
-    copyUrl = '',
     compact = false,
     dense = false,
     showLabels = true,
@@ -29,7 +28,6 @@
     isBookmarkedByMe?: boolean;
     likeCount?: number;
     bookmarkCount?: number;
-    copyUrl?: string;
     compact?: boolean;
     dense?: boolean;
     showLabels?: boolean;
@@ -213,9 +211,10 @@
     }
   }
 
-  function buildCurrentUrl(): string {
+  function buildCopyUrl(): string {
     if (typeof window === 'undefined') return '';
-    // On /mine, build URL fresh from the store to avoid debounce staleness
+
+    // On /mine, build URL fresh from the live store (avoids debounce staleness)
     if (window.location.pathname === '/mine') {
       const dim = automataStore.dimension;
       const viewer = automataStore.viewer;
@@ -226,12 +225,58 @@
         return `${window.location.origin}/mine?${params.toString()}`;
       }
     }
+
+    // From a card item — build full URL from DB data (mirrors GIF studio logic)
+    if (gifItem) {
+      const dim = gifItem.dimension ?? 2;
+      const viewer = gifItem.viewer ?? dim;
+      const lat = (gifItem.latticeType ?? defaultLattice(dim)) as LatticeType;
+      const rule = deserializeRule(gifItem.ruleDefinition) ?? defaultRule(dim, lat);
+      const nr = gifItem.neighborhoodRadius ?? 1;
+
+      let cellStates = defaultCellStates(dim, viewer);
+      let trailConfig = defaultTrailConfig(cellStates[1]?.color ?? { h: 0, s: 0, l: 0, a: 1 });
+      try {
+        const raw = typeof gifItem.cellStates === 'string' ? JSON.parse(gifItem.cellStates) : gifItem.cellStates;
+        const migrated = migrateCellStatesData(raw);
+        cellStates = migrated.states;
+        if (migrated.trail) trailConfig = migrated.trail;
+      } catch {}
+
+      const config = getLattice(lat);
+      let shapeRules: { survive: number[]; born: number[] }[] | undefined = undefined;
+      if (config.shapes && gifItem.shapeRulesDefinition) {
+        shapeRules = gifItem.shapeRulesDefinition.split(';').map((s: string) => {
+          const bm = s.match(/B([\d,]*)S([\d,]*)/);
+          return bm
+            ? { born: bm[1] ? bm[1].split(',').map(Number) : [], survive: bm[2] ? bm[2].split(',').map(Number) : [] }
+            : { born: [], survive: [] };
+        });
+      }
+
+      const populationShape = gifItem.populationShape
+        ? (typeof gifItem.populationShape === 'string' ? JSON.parse(gifItem.populationShape) : gifItem.populationShape)
+        : defaultShape(dim, viewer);
+
+      const generationRunId = gifItem.entityType === 'generation_run' ? gifItem.id : undefined;
+      const params = buildURLParams(dim, viewer, {
+        populationShape: populationShape,
+        rule,
+        cellStates,
+        trailConfig,
+        neighborhoodRadius: nr,
+        lattice: lat,
+        shapeRules,
+      }, undefined, generationRunId);
+      return `${window.location.origin}/mine?${params.toString()}`;
+    }
+
     return '';
   }
 
   async function copyLink(e: MouseEvent) {
     e.stopPropagation();
-    const url = copyUrl || buildCurrentUrl();
+    const url = buildCopyUrl();
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
@@ -297,7 +342,7 @@
     </div>
 
     <!-- Copy link -->
-    {#if copyUrl || buildCurrentUrl()}
+    {#if gifItem || (typeof window !== 'undefined' && window.location.pathname === '/mine')}
       <div class="action-col">
         <button
           class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
@@ -335,7 +380,7 @@
     <!-- Horizontal order: Link, Like, Bookmark -->
 
     <!-- Copy link -->
-    {#if copyUrl || buildCurrentUrl()}
+    {#if gifItem || (typeof window !== 'undefined' && window.location.pathname === '/mine')}
       <div class="action-col">
         <button
           class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
