@@ -29,16 +29,44 @@
   let canGoForward = $derived(historyStore.canGoForward);
   let mining = $derived(automataStore.isMining);
   let showMineHint = $state(false);
+  let showLevelHint = $state(false);
+  let showLatticeHint = $state(false);
+  let hasMinedOnce = $state(false);
+  let levelHintDismissed = $state(false);
+  let latticeHintDismissed = $state(false);
+  let wasMining = $state(false);
+  let postMineHintTimer: ReturnType<typeof setTimeout> | undefined;
 
   onMount(() => {
     showMineHint = true;
+    return () => clearTimeout(postMineHintTimer);
   });
 
   $effect(() => {
-    if (mining) {
+    if (mining && !wasMining) {
       showMineHint = false;
+      hasMinedOnce = true;
+
+      clearTimeout(postMineHintTimer);
+      if (!levelHintDismissed || !latticeHintDismissed) {
+        postMineHintTimer = setTimeout(() => {
+          if (!levelHintDismissed) showLevelHint = true;
+          if (!latticeHintDismissed) showLatticeHint = true;
+        }, 4000);
+      }
     }
+    wasMining = mining;
   });
+
+  function handleLevelHintDismiss() {
+    levelHintDismissed = true;
+    showLevelHint = false;
+  }
+
+  function handleLatticeHintDismiss() {
+    latticeHintDismissed = true;
+    showLatticeHint = false;
+  }
 
   function loadHistoryEntry(entry: HistoryEntry) {
     const rule = deserializeRule(entry.ruleDefinition);
@@ -90,14 +118,24 @@
     <div class="pointer-events-none absolute inset-0 z-10 rounded-2xl" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.15), inset 0 0 2px rgba(0,0,0,0.1);"></div>
     <ViewControls />
   </section>
-  <div class="pointer-events-none absolute bottom-0 left-0 right-0 z-50 translate-y-1/2">
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-1/2" style="z-index: 80;">
     <div class="controls-row">
       <div class="controls-far-left pointer-events-auto">
         <HistoryNavButton direction="back" disabled={!canGoBack} onclick={handleHistoryBack} />
         <Pipe variant="glow" color="yellow" width="clamp(8px, 1.5vw, 20px)" height="14px" backdrop
           style="position: absolute; left: 100%; top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
-      <div class="controls-left pointer-events-auto">
+      <div class="controls-left pointer-events-auto" onclick={handleLevelHintDismiss}>
+        {#if hasMinedOnce && showLevelHint}
+          <div class="guide-hand-hint guide-hand-hint-left" aria-hidden="true">
+            <div class="guide-hand-callout">
+              try setting the level to easy
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor">
+              <path d="M32 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-208-64 0 0 208zM224 320c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-64 64c17.7 0 32-14.3 32-32l0-48c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 48c0 17.7 14.3 32 32 32zm160-96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-96-88l0 .6c9.4-5.4 20.3-8.6 32-8.6c13.2 0 25.4 4 35.6 10.8c8.7-24.9 32.5-42.8 60.4-42.8c11.7 0 22.6 3.1 32 8.6l0-8.6C384 71.6 312.4 0 224 0L162.3 0C119.8 0 79.1 16.9 49.1 46.9L37.5 58.5C13.5 82.5 0 115.1 0 149l0 27c0 35.3 28.7 64 64 64l88 0c22.1 0 40-17.9 40-40s-17.9-40-40-40l-56 0c-8.8 0-16-7.2-16-16s7.2-16 16-16l56 0c39.8 0 72 32.2 72 72z"/>
+            </svg>
+          </div>
+        {/if}
         <MiningLevelButton disabled={advancedOpen} />
         <Pipe variant="glow" color="yellow" width="var(--pipe-glow-w)" height="14px" backdrop
           style="position: absolute; left: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
@@ -106,8 +144,8 @@
       </div>
       <div class="controls-center pointer-events-auto">
         {#if showMineHint}
-          <div class="mine-hand-hint" aria-hidden="true">
-            <div class="mine-hand-callout">time to get to work!</div>
+          <div class="guide-hand-hint" aria-hidden="true">
+            <div class="guide-hand-callout">time to get to work!</div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor">
               <path d="M32 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-208-64 0 0 208zM224 320c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-64 64c17.7 0 32-14.3 32-32l0-48c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 48c0 17.7 14.3 32 32 32zm160-96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-96-88l0 .6c9.4-5.4 20.3-8.6 32-8.6c13.2 0 25.4 4 35.6 10.8c8.7-24.9 32.5-42.8 60.4-42.8c11.7 0 22.6 3.1 32 8.6l0-8.6C384 71.6 312.4 0 224 0L162.3 0C119.8 0 79.1 16.9 49.1 46.9L37.5 58.5C13.5 82.5 0 115.1 0 149l0 27c0 35.3 28.7 64 64 64l88 0c22.1 0 40-17.9 40-40s-17.9-40-40-40l-56 0c-8.8 0-16-7.2-16-16s7.2-16 16-16l56 0c39.8 0 72 32.2 72 72z"/>
             </svg>
@@ -119,7 +157,15 @@
         <Pipe variant="joint" color="yellow" width="4px" height="20px"
           style="position: absolute; right: clamp(-22px, -1.8vw, -14px); top: 50%; transform: translateY(-50%); z-index: 2;" />
       </div>
-      <div class="controls-right pointer-events-auto">
+      <div class="controls-right pointer-events-auto" onclick={handleLatticeHintDismiss}>
+        {#if hasMinedOnce && showLatticeHint}
+          <div class="guide-hand-hint guide-hand-hint-right" aria-hidden="true">
+            <div class="guide-hand-callout">try setting the latice to triangle</div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor">
+              <path d="M32 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-208-64 0 0 208zM224 320c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-64 64c17.7 0 32-14.3 32-32l0-48c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 48c0 17.7 14.3 32 32 32zm160-96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64zm-96-88l0 .6c9.4-5.4 20.3-8.6 32-8.6c13.2 0 25.4 4 35.6 10.8c8.7-24.9 32.5-42.8 60.4-42.8c11.7 0 22.6 3.1 32 8.6l0-8.6C384 71.6 312.4 0 224 0L162.3 0C119.8 0 79.1 16.9 49.1 46.9L37.5 58.5C13.5 82.5 0 115.1 0 149l0 27c0 35.3 28.7 64 64 64l88 0c22.1 0 40-17.9 40-40s-17.9-40-40-40l-56 0c-8.8 0-16-7.2-16-16s7.2-16 16-16l56 0c39.8 0 72 32.2 72 72z"/>
+            </svg>
+          </div>
+        {/if}
         <LatticePickerButton disabled={advancedOpen} />
         <Pipe variant="glow" color="yellow" width="var(--pipe-glow-w)" height="14px" backdrop
           style="position: absolute; right: calc(100% - 3px); top: 50%; transform: translateY(-50%); z-index: 2;" />
@@ -309,7 +355,7 @@
     position: relative;
   }
 
-  .mine-hand-hint {
+  .guide-hand-hint {
     position: absolute;
     left: 50%;
     bottom: calc(100% - 12px);
@@ -323,13 +369,21 @@
     animation: mine-hand-float 1s ease-in-out infinite;
   }
 
-  .mine-hand-hint svg {
+  .guide-hand-hint svg {
     width: clamp(90px, 11vw, 145px);
     height: auto;
     display: block;
   }
 
-  .mine-hand-callout {
+  .guide-hand-hint-left {
+    left: 52%;
+  }
+
+  .guide-hand-hint-right {
+    left: 48%;
+  }
+
+  .guide-hand-callout {
     position: absolute;
     left: 50%;
     bottom: calc(100% + 6px);
@@ -344,11 +398,14 @@
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    white-space: nowrap;
+    width: min(260px, 42vw);
+    white-space: normal;
+    line-height: 1.25;
+    text-align: center;
     box-shadow: 0 4px 0 #111827;
   }
 
-  .mine-hand-callout::after {
+  .guide-hand-callout::after {
     content: '';
     position: absolute;
     left: 50%;
@@ -361,7 +418,7 @@
     border-top: 9px solid #111827;
   }
 
-  .mine-hand-callout::before {
+  .guide-hand-callout::before {
     content: '';
     position: absolute;
     left: 50%;
