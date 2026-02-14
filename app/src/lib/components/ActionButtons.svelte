@@ -231,7 +231,7 @@
 
   async function copyLink(e: MouseEvent) {
     e.stopPropagation();
-    const url = copyUrl || buildCurrentUrl();
+    const url = buildCurrentUrl() || copyUrl;
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
@@ -297,7 +297,7 @@
     </div>
 
     <!-- Copy link -->
-    {#if copyUrl}
+    {#if copyUrl || buildCurrentUrl()}
       <div class="action-col">
         <button
           class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"
@@ -335,7 +335,7 @@
     <!-- Horizontal order: Link, Like, Bookmark -->
 
     <!-- Copy link -->
-    {#if copyUrl}
+    {#if copyUrl || buildCurrentUrl()}
       <div class="action-col">
         <button
           class="action-btn {copied ? 'active' : ''} {copied ? 'action-pop' : ''}"

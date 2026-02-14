@@ -87,8 +87,6 @@
         isBookmarkedByMe={discoveryInfo?.isBookmarkedByMe ?? false}
         likeCount={discoveryInfo?.totalLikes ?? 0}
         bookmarkCount={discoveryInfo?.totalBookmarks ?? 0}
-        copyUrl={typeof window !== 'undefined' ? window.location.href : ''}
-
       />
     </div>
   </div>
@@ -114,7 +112,6 @@
       isBookmarkedByMe={discoveryInfo?.isBookmarkedByMe ?? false}
       likeCount={discoveryInfo?.totalLikes ?? 0}
       bookmarkCount={discoveryInfo?.totalBookmarks ?? 0}
-      copyUrl={typeof window !== 'undefined' ? window.location.href : ''}
     />
   </div>
 </div>
