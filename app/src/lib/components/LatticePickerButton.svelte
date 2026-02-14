@@ -64,7 +64,7 @@
   });
 </script>
 
-<div class="lattice-root" bind:this={rootEl}>
+<div class="lattice-root" class:open bind:this={rootEl}>
   <SteelPanel variant="cyan" active={open} {disabled} onclick={toggle}>
     <div class="lattice-btn" class:is-disabled={disabled}>
       <span class="pretitle">Lattice</span>
@@ -124,6 +124,11 @@
 <style>
   .lattice-root {
     position: relative;
+    z-index: 20;
+  }
+
+  .lattice-root.open {
+    z-index: 220;
   }
 
   .lattice-btn {

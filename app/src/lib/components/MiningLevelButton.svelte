@@ -58,7 +58,7 @@
   });
 </script>
 
-<div class="level-root" bind:this={rootEl}>
+<div class="level-root" class:open bind:this={rootEl}>
   <SteelPanel variant="cyan" active={open} {disabled} onclick={toggle}>
     <div class="level-btn" class:is-disabled={disabled}>
       <span class="pretitle">Level</span>
@@ -121,6 +121,11 @@
 <style>
   .level-root {
     position: relative;
+    z-index: 20;
+  }
+
+  .level-root.open {
+    z-index: 220;
   }
 
   .level-btn {
