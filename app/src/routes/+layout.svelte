@@ -119,8 +119,9 @@
 		prevUserId = uid;
 	});
 
-	let darkNav = $derived($page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
-	let blackNav = $derived($page.url.pathname === '/' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
+	let isErrorPage = $derived(!!$page.error);
+	let darkNav = $derived(isErrorPage || $page.url.pathname === '/' || $page.url.pathname === '/mine' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
+	let blackNav = $derived(isErrorPage || $page.url.pathname === '/' || $page.url.pathname.startsWith('/handbook') || $page.url.pathname.startsWith('/settings') || $page.url.pathname.startsWith('/gallery') || $page.url.pathname.startsWith('/backpack') || $page.url.pathname.startsWith('/miners') || $page.url.pathname.startsWith('/user'));
 
 	let layoutWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
 	let isMobile = $derived(layoutWidth < 700);
