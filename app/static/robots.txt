@@ -1,3 +1,8 @@
 # allow crawling everything by default
 User-agent: *
-Disallow:
+Disallow: /user
+Disallow: /settings/
+Disallow: /backpack
+Disallow: /dev/
+
+Sitemap: https://cellulose.studio/sitemap.xml

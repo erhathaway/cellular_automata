@@ -190,7 +190,7 @@
 <svelte:window bind:innerWidth={layoutWidth} />
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>Cellular Automata</title>
+	<title>Cellulose Studio</title>
 </svelte:head>
 
 <SeizureWarningModal />
