@@ -220,6 +220,8 @@
     };
     automataStore.captureThumbnail = () => {
       if (!viewer?.renderer?.domElement) return null;
+      const { width, height } = viewer.renderer.domElement;
+      if (!width || !height) return null;
       // Force a fresh render so the buffer is current
       if (viewer.renderer && viewer.scene && viewer.camera) {
         viewer.renderer.render(viewer.scene, viewer.camera);

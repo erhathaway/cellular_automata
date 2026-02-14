@@ -31,7 +31,9 @@
 </script>
 
 <div class="relative h-full w-full overflow-hidden">
-  <ViewPlayer />
+  <div class="pointer-events-none h-full w-full">
+    <ViewPlayer />
+  </div>
 
   <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
     <h1 class="error-title">404</h1>
