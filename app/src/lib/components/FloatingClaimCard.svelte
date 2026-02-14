@@ -7,6 +7,8 @@
   import SteelPanel from './SteelPanel.svelte';
   import Pipe from './Pipe.svelte';
 
+  let { oncardclick }: { oncardclick?: () => void } = $props();
+
   // Stable outer element (no transform) for reliable position calculation
   let slotEl = $state<HTMLElement>();
   // Inner elements for ClaimCardContent binding
@@ -116,11 +118,15 @@
   function handleClaim() {
     discoveryStore.claim();
   }
+
+  function handleCardClick() {
+    oncardclick?.();
+  }
 </script>
 
 <svelte:window bind:innerWidth={innerWidth} />
 <div class="floating-claim-outer" bind:this={slotEl}>
-  <div class="floating-claim-wrapper" class:visible>
+  <div class="floating-claim-wrapper" class:visible onclick={handleCardClick}>
     <div class="pipes-right">
       <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
       <Pipe variant="metal" color="yellow" width="40px" height="14px" flanges />
