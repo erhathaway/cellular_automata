@@ -43,6 +43,7 @@
   let pendingPostMineHints = $state(false);
   let pendingMineAgainHint = $state(false);
   let pendingNonViableMineHint = $state(false);
+  let normalMineHintsShown = $state(0);
   let nonViableMineHintsShown = $state(0);
   let wasMining = $state(false);
   let wasUnclaimed = $state(false);
@@ -50,9 +51,16 @@
   let showMineAgainTimer: ReturnType<typeof setTimeout> | undefined;
   let claimCardUnlockTimer: ReturnType<typeof setTimeout> | undefined;
 
-  onMount(() => {
+  function showNormalMineHint(): boolean {
+    if (normalMineHintsShown >= 3) return false;
     mineHintText = 'time to get to work!';
     showMineHint = true;
+    normalMineHintsShown += 1;
+    return true;
+  }
+
+  onMount(() => {
+    showNormalMineHint();
     return () => {
       clearTimeout(postMineHintTimer);
       clearTimeout(showMineAgainTimer);
@@ -124,8 +132,7 @@
     showLatticeHint = false;
     showMineAgainTimer = setTimeout(() => {
       if (automataStore.isMining) return;
-      mineHintText = 'time to get to work!';
-      showMineHint = true;
+      showNormalMineHint();
     }, 2000);
   });
 
@@ -153,8 +160,7 @@
       pendingPostMineHints = false;
 
       if (pendingMineAgainHint && hasSelectedLevel && hasSelectedLattice && !automataStore.isMining) {
-        mineHintText = 'time to get to work!';
-        showMineHint = true;
+        showNormalMineHint();
         pendingMineAgainHint = false;
       }
 
