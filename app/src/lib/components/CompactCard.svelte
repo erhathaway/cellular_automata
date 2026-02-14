@@ -47,7 +47,7 @@
     if (item.latticeType) {
       params.set('lt', item.latticeType);
     }
-    return `${window.location.origin}/?${params.toString()}`;
+    return `${window.location.origin}/mine?${params.toString()}`;
   }
 
   let copyUrl = $derived(buildCopyUrl());

@@ -226,12 +226,12 @@
         return `${window.location.origin}/mine?${params.toString()}`;
       }
     }
-    return window.location.href;
+    return '';
   }
 
   async function copyLink(e: MouseEvent) {
     e.stopPropagation();
-    const url = buildCurrentUrl() || copyUrl;
+    const url = copyUrl || buildCurrentUrl();
     if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
