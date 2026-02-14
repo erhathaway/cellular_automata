@@ -155,12 +155,14 @@
           </a>
         </div>
         <div class="capacity-section">
-          <span class="capacity-text">
-            Claim Capacity
-            <span class="capacity-count">{totalClaims}</span>
-            <span class="capacity-sep">/</span>
-            <span class="capacity-max">{MAX_SLOTS}</span>
-          </span>
+          <div class="capacity-top">
+            <span class="capacity-text">Claim Capacity</span>
+            <span class="capacity-numbers">
+              <span class="capacity-count">{totalClaims}</span>
+              <span class="capacity-sep">/</span>
+              <span class="capacity-max">{MAX_SLOTS}</span>
+            </span>
+          </div>
           <div class="capacity-blocks">
             {#each Array(10) as _, i}
               {@const perBlock = MAX_SLOTS / 10}
@@ -271,12 +273,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
   }
 
   .backpack-left {
     display: flex;
     align-items: center;
     gap: 24px;
+    flex-shrink: 0;
   }
 
   .handbook-btn {
@@ -382,7 +386,14 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 6px;
-    margin-right: 24px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .capacity-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
 
   .backpack-title {
@@ -398,16 +409,38 @@
 
   .capacity-text {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #57534e;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .capacity-numbers {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .capacity-section {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .capacity-blocks {
+      display: none;
+    }
   }
 
   .capacity-count {
     color: #facc15;
-    margin-left: 6px;
   }
 
   .capacity-sep {
@@ -421,13 +454,16 @@
 
   .capacity-blocks {
     display: flex;
-    gap: 4px;
-    max-width: 280px;
+    gap: 3px;
+    flex-wrap: nowrap;
+    width: 100%;
   }
 
   .cap-block {
-    width: 24px;
+    flex: 1 1 0;
     height: 24px;
+    min-width: 0;
+    max-width: 24px;
     background: #1a1a1a;
     border: 1px solid #292524;
     border-radius: 4px;
