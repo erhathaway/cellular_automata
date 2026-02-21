@@ -55,9 +55,12 @@
   $effect(() => {
     const mining = automataStore.isMining;
 
-    // Auto-open analysis when a new mine run starts (mine page only).
     if (mining && !prevMining && $page.url.pathname === '/mine') {
+      // Mining just started — open analysis, hide & reset grade guide
       viewerUiStore.openAnalysis();
+      viewerUiStore.gradeGuideVisible = false;
+      viewerUiStore.resetGradeGuideForTurn();
+      clearTimeout(gradeGuideTimer);
     }
 
     prevMining = mining;
@@ -86,16 +89,6 @@
     return () => {
       clearTimeout(gradeGuideTimer);
     };
-  });
-
-  // When mining starts: hide grade guide and reset the per-turn dismiss flag
-  $effect(() => {
-    const mining = automataStore.isMining;
-    if (mining && $page.url.pathname === '/mine') {
-      viewerUiStore.gradeGuideVisible = false;
-      viewerUiStore.resetGradeGuideForTurn();
-      clearTimeout(gradeGuideTimer);
-    }
   });
 
   // 2 seconds after the mining claim card appears, show grade guide

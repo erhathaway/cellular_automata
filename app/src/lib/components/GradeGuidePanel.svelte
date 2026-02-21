@@ -8,7 +8,9 @@
   let dustTimeoutReached = $state(false);
   let dustTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
+  // Only run the dust timeout effect when the panel is actually visible
   $effect(() => {
+    if (!visible) return;
     const shouldTrack = !automataStore.isMining && automataStore.isViableAutomata && automataStore.miningGrade === null;
     clearTimeout(dustTimeoutHandle);
     if (!shouldTrack) {
@@ -21,18 +23,20 @@
     return () => clearTimeout(dustTimeoutHandle);
   });
 
-  // Map the store grade to the row key used in the template
+  // Map the store grade to the row key — only compute when visible
   let activeGrade = $derived.by(() => {
+    if (!visible) return null;
     const g = automataStore.miningGrade;
     if (g === 'excellent') return 'excellent';
     if (g === 'very good') return 'very-good';
     if (g === 'fair') return 'fair';
     if (g === 'low') return 'low';
     if (g === 'poor') return 'poor';
-    // Only show dust when the timeout has actually been reached
     if (g === null && dustTimeoutReached) return 'dust';
     return null;
   });
+
+  let hasActive = $derived(activeGrade !== null);
 
   function dismiss() {
     viewerUiStore.hideGradeGuide();
@@ -42,13 +46,14 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="guide-panel" class:guide-visible={visible} onclick={dismiss}>
+  {#if visible}
   <div class="guide-scroll">
     <div class="guide-header">
       <span class="guide-title">Ore Grades</span>
       <span class="guide-sub">What does your find mean?</span>
     </div>
 
-    <div class="grade-list">
+    <div class="grade-list" class:has-active={hasActive}>
       <!-- EXCELLENT -->
       <div class="grade-row g-excellent" class:grade-active={activeGrade === 'excellent'}>
         <div class="grade-icon-wrap">
@@ -150,6 +155,7 @@
       <span class="tap-hint">tap anywhere to dismiss</span>
     </div>
   </div>
+  {/if}
 </div>
 
 <style>
@@ -162,6 +168,7 @@
     color: #fafaf9;
     overflow: hidden;
     cursor: pointer;
+    will-change: transform, opacity;
 
     /* Slide from right */
     transform: translateX(100%);
@@ -249,7 +256,7 @@
     border-radius: 8px;
     border: 1.5px solid #292524;
     background: rgba(255, 255, 255, 0.03);
-    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    transition: opacity 0.4s ease, border-color 0.3s ease, background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     animation: row-enter 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   }
 
@@ -271,12 +278,17 @@
     }
   }
 
+  /* Dim non-active rows when a grade is active — uses parent class, no :has() */
+  .has-active .grade-row:not(.grade-active) {
+    opacity: 0.35;
+  }
+
   /* ===== Active grade highlight ===== */
   .grade-active {
-    animation: grade-highlight 1.8s ease-in-out infinite !important;
     transform: scale(1.03);
     z-index: 2;
     position: relative;
+    animation: grade-highlight 1.8s ease-in-out infinite;
   }
 
   .grade-active .grade-name {
@@ -285,12 +297,6 @@
 
   .grade-active .grade-svg {
     animation: icon-bounce 1.2s ease-in-out infinite;
-  }
-
-  /* Non-active rows dim when there IS an active grade */
-  .grade-row:not(.grade-active):has(~ .grade-active),
-  .grade-active ~ .grade-row:not(.grade-active) {
-    opacity: 0.35;
   }
 
   /* Excellent */
@@ -338,11 +344,10 @@
   @keyframes grade-highlight {
     0%, 100% {
       transform: scale(1.03);
-      filter: brightness(1);
+      box-shadow: inherit;
     }
     50% {
       transform: scale(1.05);
-      filter: brightness(1.15);
     }
   }
 

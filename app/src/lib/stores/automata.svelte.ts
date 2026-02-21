@@ -279,6 +279,7 @@ class AutomataStore {
   private _noLivingStreak = 0;
   private _globalPopulationHashCounts: Map<string, number> = new Map();
   private _subframeHashCounts: Map<string, number> = new Map();
+  private _machineDetectionGenCounter = 0;
 
   constructor() {
     // Save initial state
@@ -704,6 +705,7 @@ class AutomataStore {
     this._noLivingStreak = 0;
     this._globalPopulationHashCounts.clear();
     this._subframeHashCounts.clear();
+    this._machineDetectionGenCounter = 0;
   }
 
   private _hashPopulationAndCountActive(population: any): { hash: string; active: number } {
@@ -896,51 +898,59 @@ class AutomataStore {
 
     if (this.interventionTaken) return;
 
-    const { hash: fullHash, active: fullActive } = this._hashPopulationAndCountActive(population);
-    const activeRatio = total > 0 ? fullActive / total : 0;
-    const densityEligibleForMachineDetection = activeRatio <= MACHINE_MAX_ACTIVE_RATIO_FOR_DETECTION;
-    const fullRepeats = (this._globalPopulationHashCounts.get(fullHash) ?? 0) + 1;
-    this._globalPopulationHashCounts.set(fullHash, fullRepeats);
-    const machineLikeGlobalPattern =
-      fullRepeats > MACHINE_GLOBAL_REPEAT_THRESHOLD &&
-      fullActive > MACHINE_GLOBAL_ACTIVE_CELL_THRESHOLD;
-    const possibleMachineDetected =
-      densityEligibleForMachineDetection &&
-      machineLikeGlobalPattern;
+    // Throttle expensive hashing — only run every 5th generation
+    this._machineDetectionGenCounter++;
+    if (this._machineDetectionGenCounter % 5 === 0) {
+      const { hash: fullHash, active: fullActive } = this._hashPopulationAndCountActive(population);
+      const activeRatio = total > 0 ? fullActive / total : 0;
+      const densityEligibleForMachineDetection = activeRatio <= MACHINE_MAX_ACTIVE_RATIO_FOR_DETECTION;
+      const fullRepeats = (this._globalPopulationHashCounts.get(fullHash) ?? 0) + 1;
+      this._globalPopulationHashCounts.set(fullHash, fullRepeats);
+      const machineLikeGlobalPattern =
+        fullRepeats > MACHINE_GLOBAL_REPEAT_THRESHOLD &&
+        fullActive > MACHINE_GLOBAL_ACTIVE_CELL_THRESHOLD;
+      const possibleMachineDetected =
+        densityEligibleForMachineDetection &&
+        machineLikeGlobalPattern;
 
-    const { hasLikelyMachine, likelySize, likelyCoverage } = this._collectRepeatingSubframeHashes(population);
-    if (!densityEligibleForMachineDetection && (machineLikeGlobalPattern || hasLikelyMachine)) {
-      this.interventionTaken = true;
-      this.interventionTitle = 'Your automata are flickering';
-      this.interventionReason =
-        'dense flicker is not classified as a machine.';
-      this.interventionUpdateRateMs = null;
-      this.machineDetectionKind = 'flickering';
-      this.machineSubframeCoverageRatio = null;
-      return;
-    }
+      const { hasLikelyMachine, likelySize, likelyCoverage } = this._collectRepeatingSubframeHashes(population);
+      if (!densityEligibleForMachineDetection && (machineLikeGlobalPattern || hasLikelyMachine)) {
+        this.interventionTaken = true;
+        this.interventionTitle = 'Your automata are flickering';
+        this.interventionReason =
+          'dense flicker is not classified as a machine.';
+        this.interventionUpdateRateMs = null;
+        this.machineDetectionKind = 'flickering';
+        this.machineSubframeCoverageRatio = null;
+        return;
+      }
 
-    if (densityEligibleForMachineDetection && hasLikelyMachine) {
-      this.interventionTaken = true;
-      this.interventionTitle = 'Automata machine likely detected';
-      this.interventionReason =
-        `Estimated machine size: ${likelySize ?? 'unknown'}.`;
-      this.interventionUpdateRateMs = null;
-      this.machineDetectionKind = 'subframe';
-      this.machineSubframeCoverageRatio = likelyCoverage;
-      return;
-    }
+      if (densityEligibleForMachineDetection && hasLikelyMachine) {
+        this.interventionTaken = true;
+        this.interventionTitle = 'Automata machine likely detected';
+        this.interventionReason =
+          `Estimated machine size: ${likelySize ?? 'unknown'}.`;
+        this.interventionUpdateRateMs = null;
+        this.machineDetectionKind = 'subframe';
+        this.machineSubframeCoverageRatio = likelyCoverage;
+        return;
+      }
 
-    if (possibleMachineDetected) {
-      const size = this._describeActiveBounds(population);
-      this.interventionTaken = true;
-      this.interventionTitle = 'Possible automata machine detected';
-      this.interventionReason =
-        `Estimated machine size: ${size}.`;
-      this.interventionUpdateRateMs = null;
-      this.machineDetectionKind = 'global';
-      this.machineSubframeCoverageRatio = null;
-      return;
+      if (possibleMachineDetected) {
+        const size = this._describeActiveBounds(population);
+        this.interventionTaken = true;
+        this.interventionTitle = 'Possible automata machine detected';
+        this.interventionReason =
+          `Estimated machine size: ${size}.`;
+        this.interventionUpdateRateMs = null;
+        this.machineDetectionKind = 'global';
+        this.machineSubframeCoverageRatio = null;
+        return;
+      }
+
+      // Cap hash map sizes to prevent unbounded memory growth
+      if (this._globalPopulationHashCounts.size > 500) this._globalPopulationHashCounts.clear();
+      if (this._subframeHashCounts.size > 2000) this._subframeHashCounts.clear();
     }
 
     if (this._recentLivingCounts.length < 15) return;
