@@ -1,21 +1,27 @@
 <script lang="ts">
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
+  import GradeGuidePanel from '$lib/components/GradeGuidePanel.svelte';
   import RightDrawerContent from '$lib/components/RightDrawerContent.svelte';
   import GalleryStats from '$lib/components/explore/GalleryStats.svelte';
   import PersistenceManager from '$lib/components/PersistenceManager.svelte';
   import GifStudio from '$lib/components/GifStudio.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
+  import { discoveryStore } from '$lib/stores/discovery.svelte';
   import { viewerUiStore } from '$lib/stores/viewer-ui.svelte';
   import { scrollPositionStore } from '$lib/stores/scroll-position.svelte';
   import Pipe from '$lib/components/Pipe.svelte';
   import { beforeNavigate, afterNavigate } from '$app/navigation';
   import { page } from '$app/stores';
 
+  import { onMount } from 'svelte';
+
   let { children } = $props();
   let mainEl: HTMLElement | undefined = $state();
 
   let rightOpen = $state(true);
   let prevMining = $state(automataStore.isMining);
+  let gradeGuideTimer: ReturnType<typeof setTimeout> | undefined;
+  let prevIsUnclaimed = $state(false);
 
   let innerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1440);
   let RIGHT_WIDTH = $derived(innerWidth < 1024 ? 280 : innerWidth < 1280 ? 320 : 360);
@@ -70,6 +76,44 @@
       rightOpen = true;
       animateResize();
     }
+  });
+
+  // Show grade guide on initial page load (before first mine)
+  onMount(() => {
+    if ($page.url.pathname === '/mine') {
+      viewerUiStore.showGradeGuide();
+    }
+    return () => {
+      clearTimeout(gradeGuideTimer);
+    };
+  });
+
+  // When mining starts: hide grade guide and reset the per-turn dismiss flag
+  $effect(() => {
+    const mining = automataStore.isMining;
+    if (mining && $page.url.pathname === '/mine') {
+      viewerUiStore.gradeGuideVisible = false;
+      viewerUiStore.resetGradeGuideForTurn();
+      clearTimeout(gradeGuideTimer);
+    }
+  });
+
+  // 2 seconds after the mining claim card appears, show grade guide
+  $effect(() => {
+    const unclaimed = discoveryStore.isUnclaimed;
+    if ($page.url.pathname !== '/mine') {
+      prevIsUnclaimed = unclaimed;
+      return;
+    }
+
+    // Detect claim card newly appearing
+    if (unclaimed && !prevIsUnclaimed) {
+      clearTimeout(gradeGuideTimer);
+      gradeGuideTimer = setTimeout(() => {
+        viewerUiStore.showGradeGuide();
+      }, 2000);
+    }
+    prevIsUnclaimed = unclaimed;
   });
 
   beforeNavigate(({ from }) => {
@@ -142,6 +186,7 @@
             <Pipe variant="glow" color="yellow" width="28px" height="14px" openEnd="end"
               style="position: absolute; left: -28px; top: 122px;" />
             <AnalysisOverlayContent />
+            <GradeGuidePanel />
           </div>
         {/if}
       </div>

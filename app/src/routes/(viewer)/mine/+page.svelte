@@ -12,6 +12,7 @@
   import CornerBlocks from '$lib/components/CornerBlocks.svelte';
   import AdvancedPanel from '$lib/components/AdvancedPanel.svelte';
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
+  import GradeGuidePanel from '$lib/components/GradeGuidePanel.svelte';
   import FloatingClaimCard from '$lib/components/FloatingClaimCard.svelte';
   import SteelPanel from '$lib/components/SteelPanel.svelte';
   import Pipe from '$lib/components/Pipe.svelte';
@@ -329,6 +330,7 @@
 {#if innerWidth < 1000}
   <div class="inline-analysis">
     <AnalysisOverlayContent />
+    <GradeGuidePanel />
   </div>
 {/if}
 
@@ -346,6 +348,7 @@
 
 <style>
   .inline-analysis {
+    position: relative;
     padding: 72px 1rem 0;
     background: #000;
   }
