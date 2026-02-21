@@ -14,6 +14,7 @@
   import AnalysisOverlayContent from '$lib/components/AnalysisOverlayContent.svelte';
   import GradeGuidePanel from '$lib/components/GradeGuidePanel.svelte';
   import FloatingClaimCard from '$lib/components/FloatingClaimCard.svelte';
+  import MiningKickOverlay from '$lib/components/MiningKickOverlay.svelte';
   import SteelPanel from '$lib/components/SteelPanel.svelte';
   import Pipe from '$lib/components/Pipe.svelte';
   import { automataStore } from '$lib/stores/automata.svelte';
@@ -222,6 +223,7 @@
   <section class="relative h-full overflow-hidden rounded-2xl" style="border: 14px solid #000;">
     <ViewPlayer />
     <div class="pointer-events-none absolute inset-0 z-10 rounded-2xl" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.15), inset 0 0 2px rgba(0,0,0,0.1);"></div>
+    <MiningKickOverlay />
     <ViewControls />
   </section>
   <div class="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-1/2" style="z-index: 80;">
