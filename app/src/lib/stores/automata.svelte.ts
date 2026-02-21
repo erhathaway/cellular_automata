@@ -49,6 +49,15 @@ const THREE_D_NEIGHBORS = [
   'x|y+1|z-1', 'x+1|y+1|z-1', 'x+1|y|z-1', 'x+1|y-1|z-1', 'x|y-1|z-1', 'x-1|y-1|z-1', 'x-1|y|z-1', 'x-1|y+1|z-1', 'x|y|z-1',
 ];
 
+// --- Machine detection constants (mining status heuristics) ---
+const MACHINE_GLOBAL_REPEAT_THRESHOLD = 5;
+const MACHINE_GLOBAL_ACTIVE_CELL_THRESHOLD = 3;
+const MACHINE_MAX_ACTIVE_RATIO_FOR_DETECTION = 0.25;
+const MACHINE_SUBFRAME_SIZE = 50;
+const MACHINE_SUBFRAME_STRIDE = 25;
+const MACHINE_SUBFRAME_REPEAT_THRESHOLD = 5;
+const MACHINE_SUBFRAME_ACTIVE_CELL_THRESHOLD = 6;
+
 // --- Rule types ---
 export type WolframRule = { type: 'wolfram'; rule: number };
 export type ConwayRule = { type: 'conway'; survive: number[]; born: number[] };
@@ -65,6 +74,7 @@ export interface ComboSettings {
 }
 
 export type MiningDifficulty = 'random' | 'easy' | 'medium' | 'hard';
+export type MachineDetectionKind = 'none' | 'flickering' | 'global' | 'subframe';
 
 export const VALID_COMBOS = [[1, 2], [2, 2], [2, 3], [3, 3]] as const;
 
@@ -166,6 +176,8 @@ class AutomataStore {
   interventionReason = $state('');
   interventionUpdateRateMs: number | null = $state(null);
   allAutomataDied = $state(false);
+  machineDetectionKind: MachineDetectionKind = $state('none');
+  machineSubframeCoverageRatio: number | null = $state(null);
 
   /** True when the current automata is in a healthy, claimable state (not extinct, frozen, or under intervention) */
   get isViableAutomata(): boolean {
@@ -173,6 +185,25 @@ class AutomataStore {
     if (this.stableKind === 'exact' && this.stablePeriod <= 1) return false;
     if (this.interventionTaken) return false;
     return true;
+  }
+
+  /** Hard non-viable states that should block claim UI entirely. */
+  get isHardNonViableAutomata(): boolean {
+    if (this.allAutomataDied) return true;
+    if (this.stableKind === 'exact' && this.stablePeriod <= 1) return true;
+    return false;
+  }
+
+  get miningGrade(): 'poor' | 'low' | 'fair' | 'very good' | 'excellent' | null {
+    if (this.machineDetectionKind === 'flickering') return 'poor';
+    if (this.machineDetectionKind === 'global') return 'low';
+    if (this.machineDetectionKind === 'subframe') {
+      const coverage = this.machineSubframeCoverageRatio ?? 0;
+      if (coverage < 0.25) return 'fair';
+      if (coverage <= 0.5) return 'very good';
+      return 'excellent';
+    }
+    return null;
   }
 
   // Per-shape rules for multi-shape lattices (null = single-shape)
@@ -246,6 +277,8 @@ class AutomataStore {
   private _recentLivingCounts: number[] = [];
   private _recentDeadCounts: number[] = [];
   private _noLivingStreak = 0;
+  private _globalPopulationHashCounts: Map<string, number> = new Map();
+  private _subframeHashCounts: Map<string, number> = new Map();
 
   constructor() {
     // Save initial state
@@ -664,9 +697,169 @@ class AutomataStore {
     this.interventionReason = '';
     this.interventionUpdateRateMs = null;
     this.allAutomataDied = false;
+    this.machineDetectionKind = 'none';
+    this.machineSubframeCoverageRatio = null;
     this._recentLivingCounts = [];
     this._recentDeadCounts = [];
     this._noLivingStreak = 0;
+    this._globalPopulationHashCounts.clear();
+    this._subframeHashCounts.clear();
+  }
+
+  private _hashPopulationAndCountActive(population: any): { hash: string; active: number } {
+    let hash = 2166136261 >>> 0; // FNV-1a 32-bit
+    let active = 0;
+
+    const update = (byte: number) => {
+      hash ^= byte & 0xff;
+      hash = Math.imul(hash, 16777619) >>> 0;
+    };
+
+    const walk = (node: any) => {
+      if (Array.isArray(node)) {
+        update(91); // '['
+        for (let i = 0; i < node.length; i++) walk(node[i]);
+        update(93); // ']'
+        return;
+      }
+      const bit = node === 1 ? 1 : 0;
+      if (bit === 1) active++;
+      update(bit === 1 ? 49 : 48); // '1' or '0'
+    };
+
+    walk(population);
+    return { hash: hash.toString(16).padStart(8, '0'), active };
+  }
+
+  private _describeActiveBounds(population: any): string {
+    const activeCoords: number[][] = [];
+
+    const walk = (node: any, path: number[]) => {
+      if (Array.isArray(node)) {
+        for (let i = 0; i < node.length; i++) walk(node[i], [...path, i]);
+        return;
+      }
+      if (node === 1) activeCoords.push(path);
+    };
+
+    walk(population, []);
+    if (activeCoords.length === 0) return 'size unknown';
+
+    const dim = activeCoords[0].length;
+    if (dim === 0) return `${activeCoords.length} active cells`;
+
+    const mins = new Array(dim).fill(Infinity);
+    const maxs = new Array(dim).fill(-Infinity);
+    for (let i = 0; i < activeCoords.length; i++) {
+      const coords = activeCoords[i];
+      for (let d = 0; d < dim; d++) {
+        if (coords[d] < mins[d]) mins[d] = coords[d];
+        if (coords[d] > maxs[d]) maxs[d] = coords[d];
+      }
+    }
+
+    const spans = mins.map((m, d) => (maxs[d] - m + 1));
+    return `${spans.join('x')} footprint, ${activeCoords.length} active cells`;
+  }
+
+  private _collectRepeatingSubframeHashes(population: any): { hasLikelyMachine: boolean; likelySize: string | null; likelyCoverage: number | null } {
+    if (!Array.isArray(population) || population.length === 0 || !Array.isArray(population[0])) {
+      return { hasLikelyMachine: false, likelySize: null, likelyCoverage: null };
+    }
+
+    const grid = population as any[][];
+    const width = grid.length;
+    const height = grid[0]?.length ?? 0;
+    if (height === 0) return { hasLikelyMachine: false, likelySize: null, likelyCoverage: null };
+
+    const windowSize = Math.max(1, MACHINE_SUBFRAME_SIZE);
+    const stride = Math.max(1, MACHINE_SUBFRAME_STRIDE);
+    const xStarts: number[] = [];
+    const yStarts: number[] = [];
+
+    if (width <= windowSize) {
+      xStarts.push(0);
+    } else {
+      for (let x = 0; x + windowSize <= width; x += stride) xStarts.push(x);
+      const lastX = width - windowSize;
+      if (xStarts[xStarts.length - 1] !== lastX) xStarts.push(lastX);
+    }
+
+    if (height <= windowSize) {
+      yStarts.push(0);
+    } else {
+      for (let y = 0; y + windowSize <= height; y += stride) yStarts.push(y);
+      const lastY = height - windowSize;
+      if (yStarts[yStarts.length - 1] !== lastY) yStarts.push(lastY);
+    }
+
+    const frameHashes: Map<string, { label: string; coverage: number }> = new Map();
+    let hasLikelyMachine = false;
+    let likelySize: string | null = null;
+    let likelyCoverage: number | null = null;
+
+    for (let xi = 0; xi < xStarts.length; xi++) {
+      const startX = xStarts[xi];
+      const endX = Math.min(startX + windowSize, width);
+      for (let yi = 0; yi < yStarts.length; yi++) {
+        const startY = yStarts[yi];
+        const endY = Math.min(startY + windowSize, height);
+
+        let hash = 2166136261 >>> 0; // FNV-1a 32-bit
+        let active = 0;
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (let x = startX; x < endX; x++) {
+          hash ^= 91; // '['
+          hash = Math.imul(hash, 16777619) >>> 0;
+          const col = grid[x];
+          for (let y = startY; y < endY; y++) {
+            const bit = col?.[y] === 1 ? 1 : 0;
+            if (bit === 1) {
+              active++;
+              const lx = x - startX;
+              const ly = y - startY;
+              if (lx < minX) minX = lx;
+              if (lx > maxX) maxX = lx;
+              if (ly < minY) minY = ly;
+              if (ly > maxY) maxY = ly;
+            }
+            hash ^= bit === 1 ? 49 : 48; // '1' or '0'
+            hash = Math.imul(hash, 16777619) >>> 0;
+          }
+          hash ^= 93; // ']'
+          hash = Math.imul(hash, 16777619) >>> 0;
+        }
+
+        if (active <= MACHINE_SUBFRAME_ACTIVE_CELL_THRESHOLD) continue;
+        const w = Number.isFinite(minX) ? (maxX - minX + 1) : 0;
+        const h = Number.isFinite(minY) ? (maxY - minY + 1) : 0;
+        const windowArea = (endX - startX) * (endY - startY);
+        const coverage = windowArea > 0 ? (w * h) / windowArea : 0;
+        const hashKey = hash.toString(16).padStart(8, '0');
+        if (!frameHashes.has(hashKey)) {
+          frameHashes.set(hashKey, {
+            label: `${w}x${h} footprint, ${active} active cells`,
+            coverage,
+          });
+        }
+      }
+    }
+
+    // Count each subframe hash at most once per generation so moving machines can still register.
+    for (const [h, data] of frameHashes) {
+      const next = (this._subframeHashCounts.get(h) ?? 0) + 1;
+      this._subframeHashCounts.set(h, next);
+      if (next >= MACHINE_SUBFRAME_REPEAT_THRESHOLD) {
+        hasLikelyMachine = true;
+        likelySize = data.label;
+        likelyCoverage = data.coverage;
+      }
+    }
+
+    return { hasLikelyMachine, likelySize, likelyCoverage };
   }
 
   observePopulationForIntervention(population: any) {
@@ -702,6 +895,54 @@ class AutomataStore {
     if (this._recentDeadCounts.length > WINDOW) this._recentDeadCounts.shift();
 
     if (this.interventionTaken) return;
+
+    const { hash: fullHash, active: fullActive } = this._hashPopulationAndCountActive(population);
+    const activeRatio = total > 0 ? fullActive / total : 0;
+    const densityEligibleForMachineDetection = activeRatio <= MACHINE_MAX_ACTIVE_RATIO_FOR_DETECTION;
+    const fullRepeats = (this._globalPopulationHashCounts.get(fullHash) ?? 0) + 1;
+    this._globalPopulationHashCounts.set(fullHash, fullRepeats);
+    const machineLikeGlobalPattern =
+      fullRepeats > MACHINE_GLOBAL_REPEAT_THRESHOLD &&
+      fullActive > MACHINE_GLOBAL_ACTIVE_CELL_THRESHOLD;
+    const possibleMachineDetected =
+      densityEligibleForMachineDetection &&
+      machineLikeGlobalPattern;
+
+    const { hasLikelyMachine, likelySize, likelyCoverage } = this._collectRepeatingSubframeHashes(population);
+    if (!densityEligibleForMachineDetection && (machineLikeGlobalPattern || hasLikelyMachine)) {
+      this.interventionTaken = true;
+      this.interventionTitle = 'Your automata are flickering';
+      this.interventionReason =
+        'dense flicker is not classified as a machine.';
+      this.interventionUpdateRateMs = null;
+      this.machineDetectionKind = 'flickering';
+      this.machineSubframeCoverageRatio = null;
+      return;
+    }
+
+    if (densityEligibleForMachineDetection && hasLikelyMachine) {
+      this.interventionTaken = true;
+      this.interventionTitle = 'Automata machine likely detected';
+      this.interventionReason =
+        `Estimated machine size: ${likelySize ?? 'unknown'}.`;
+      this.interventionUpdateRateMs = null;
+      this.machineDetectionKind = 'subframe';
+      this.machineSubframeCoverageRatio = likelyCoverage;
+      return;
+    }
+
+    if (possibleMachineDetected) {
+      const size = this._describeActiveBounds(population);
+      this.interventionTaken = true;
+      this.interventionTitle = 'Possible automata machine detected';
+      this.interventionReason =
+        `Estimated machine size: ${size}.`;
+      this.interventionUpdateRateMs = null;
+      this.machineDetectionKind = 'global';
+      this.machineSubframeCoverageRatio = null;
+      return;
+    }
+
     if (this._recentLivingCounts.length < 15) return;
 
     const recentLiving = this._recentLivingCounts.slice(-20);
@@ -748,6 +989,8 @@ class AutomataStore {
     this.interventionReason =
       'Explosive automata detected: slowing simulation to prevent harm to equipment';
     this.interventionUpdateRateMs = 3000;
+    this.machineDetectionKind = 'none';
+    this.machineSubframeCoverageRatio = null;
   }
 
   updateGenerationInfo(index: number, total: number, capacity?: number) {

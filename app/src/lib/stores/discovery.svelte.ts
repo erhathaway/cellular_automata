@@ -37,7 +37,7 @@ class DiscoveryStore {
   }
 
   get notViable(): boolean {
-    return !automataStore.isViableAutomata && !automataStore.isMining;
+    return automataStore.isHardNonViableAutomata && !automataStore.isMining;
   }
 
   get isUnclaimed(): boolean {

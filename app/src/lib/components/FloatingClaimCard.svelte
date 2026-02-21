@@ -94,8 +94,19 @@
 
   // Visibility: show whenever automata is viable and not actively mining
   // (includes surveying state, so the mine-gem has a target to fly to)
+  let isExplosiveNonViable = $derived(
+    automataStore.interventionTaken &&
+    automataStore.interventionTitle === 'Emergency intervention taken'
+  );
+  let isFlickeringNonViable = $derived(
+    automataStore.interventionTaken &&
+    automataStore.interventionTitle === 'Your automata are flickering'
+  );
   let visible = $derived(
-    !automataStore.isMining && !discoveryStore.notViable
+    !automataStore.isMining &&
+    !discoveryStore.notViable &&
+    !isExplosiveNonViable &&
+    !isFlickeringNonViable
   );
 
   // Register/unregister on automataStore so MinerBadge knows to skip its animation

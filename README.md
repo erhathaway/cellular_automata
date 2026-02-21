@@ -38,6 +38,23 @@ All viewers support customizable cell states (HSL colors) and trail rendering wi
 - **Comments & Likes** — Engage with community creations
 - **Bookmarks** — Save favorites for later
 
+## Mining Status Heuristics
+
+Mining now includes machine-detection status states in the analysis panel:
+
+- **Possible automata machine detected** — triggered when a full-lattice state hash repeats more than `MACHINE_GLOBAL_REPEAT_THRESHOLD` times and the frame has more than `MACHINE_GLOBAL_ACTIVE_CELL_THRESHOLD` active cells.
+- **Automata machine likely detected** — triggered when overlapping `MACHINE_SUBFRAME_SIZE x MACHINE_SUBFRAME_SIZE` subframes (stride `MACHINE_SUBFRAME_STRIDE`) produce the same hash for at least `MACHINE_SUBFRAME_REPEAT_THRESHOLD` generations with more than `MACHINE_SUBFRAME_ACTIVE_CELL_THRESHOLD` active cells.
+- **Density guard** — when active cells exceed `MACHINE_MAX_ACTIVE_RATIO_FOR_DETECTION` (default `0.25`), machine-like repeats are labeled as **Your automata are flickering** instead of machine detection.
+- **Claim grade pill** (in the mining claim panel):
+  - flickering -> **Poor**
+  - whole-lattice-only machine detection -> **Low**
+  - subframe machine with footprint coverage `< 1/4` of subframe area -> **Fair**
+  - subframe machine with footprint coverage `1/4 to 1/2` -> **Very Good**
+  - subframe machine with footprint coverage `> 1/2` -> **Excellent**
+
+Implementation location: `/Users/ethan/code/cellular_automata/app/src/lib/stores/automata.svelte.ts`.
+All thresholds are configurable via uppercase constants near the top of that file.
+
 ## Achievements
 
 Users earn achievements through exploration and mining. Achievements are grouped into four categories:

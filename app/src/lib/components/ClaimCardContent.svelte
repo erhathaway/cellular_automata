@@ -3,6 +3,7 @@
   import PixelAvatar from './PixelAvatar.svelte';
   import { timeAgo } from '$lib/utils/timeAgo';
   import type { DiscoveryInfo } from '$lib/stores/discovery.svelte';
+  import { automataStore } from '$lib/stores/automata.svelte';
 
   let {
     discoveryInfo = null,
@@ -47,6 +48,50 @@
       ? Math.round(Math.max(24, Math.min(42, (typeof window !== 'undefined' ? window.innerWidth : 900) * 0.05)))
       : (typeof window !== 'undefined' && window.innerWidth < 900 ? 48 : 72)
   );
+  let grade = $derived(automataStore.miningGrade);
+  let gradeTimeoutReached = $state(false);
+  let gradeTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  $effect(() => {
+    const shouldTrack = !isMining && !notViable && grade === null;
+    clearTimeout(gradeTimeoutHandle);
+    if (!shouldTrack) {
+      gradeTimeoutReached = false;
+      return;
+    }
+    gradeTimeoutHandle = setTimeout(() => {
+      gradeTimeoutReached = true;
+    }, 5000);
+    return () => clearTimeout(gradeTimeoutHandle);
+  });
+  let isCalculatingGrade = $derived(
+    !isMining &&
+    !notViable &&
+    grade === null &&
+    !gradeTimeoutReached
+  );
+  let isDustGrade = $derived(
+    !isMining &&
+    !notViable &&
+    grade === null &&
+    gradeTimeoutReached
+  );
+  let hasResolvedGrade = $derived(grade !== null || isDustGrade);
+  let claimableByGrade = $derived(
+    hasResolvedGrade &&
+    !isMining &&
+    !notViable &&
+    !discoveryInfo?.found
+  );
+  let gradeClass = $derived(
+    isDustGrade ? 'grade-dust'
+      : grade === 'poor' ? 'grade-poor'
+      : grade === 'low' ? 'grade-low'
+      : grade === 'fair' ? 'grade-fair'
+      : grade === 'very good' ? 'grade-very-good'
+      : grade === 'excellent' ? 'grade-excellent'
+      : ''
+  );
+  let gradeLabel = $derived(grade ? grade.toUpperCase() : '');
 </script>
 
 <div class="claim" class:compact>
@@ -73,6 +118,24 @@
 
   <div class="divider"></div>
 
+  {#if grade || isCalculatingGrade || isDustGrade}
+    <div class="grade-wrap">
+      <div class={`grade-pill ${gradeClass}`} class:grade-calculating={isCalculatingGrade}>
+        <span class="grade-k">GRADE</span>
+        <span class="grade-v">
+          {#if isCalculatingGrade}
+            CALCULATING
+            <span class="grade-dots"></span>
+          {:else if isDustGrade}
+            DUST
+          {:else}
+            {gradeLabel}
+          {/if}
+        </span>
+      </div>
+    </div>
+  {/if}
+
   <!-- Content area -->
   <div class="body" bind:this={gemAreaEl} class:gem-landed={gemLanded}>
     {#if discoveryInfo?.found && !isMining}
@@ -90,7 +153,7 @@
           <span class="date">{timeAgo(discoveryInfo.discoveredAt)}</span>
         {/if}
       </div>
-    {:else if isSurveying || gemArriving}
+    {:else if gemArriving || (isSurveying && !claimableByGrade && hasResolvedGrade)}
       <div class="icon-placeholder">
         <svg class="search-sweep icon-svg" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -127,7 +190,22 @@
         <span class="label" style="color: #22c55e;">Claimed!</span>
         <span class="date">Territory secured</span>
       </div>
-    {:else if isUnclaimed}
+    {:else if !hasResolvedGrade && !notViable && !isMining && !discoveryInfo?.found}
+      <div class="icon-placeholder">
+        <div class="gem gem-dusk">
+          <svg class="gem-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h12l4 6-10 13L2 9Z" />
+            <path d="M11 3 8 9l4 13 4-13-3-6" />
+            <path d="M2 9h20" />
+          </svg>
+          <div class="gem-glow"></div>
+        </div>
+      </div>
+      <div class="info">
+        <span class="label label-title">Calculating grade</span>
+        <span class="date date-title">Claim unlocks when grade resolves</span>
+      </div>
+    {:else if (isUnclaimed || claimableByGrade) && hasResolvedGrade}
       <SignedIn>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -276,6 +354,110 @@
     margin-bottom: clamp(8px, 1vw, 12px);
   }
 
+  .grade-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: clamp(8px, 1vw, 12px);
+  }
+
+  .grade-pill {
+    min-width: clamp(116px, 14vw, 172px);
+    padding: clamp(6px, 0.8vw, 10px) clamp(10px, 1.2vw, 14px);
+    border-radius: 999px;
+    border: 2px solid #facc15;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 45%),
+      linear-gradient(130deg, #334155 0%, #0f172a 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      0 0 0 2px rgba(0, 0, 0, 0.35),
+      0 9px 18px rgba(0, 0, 0, 0.35);
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    transform: rotate(-1.3deg);
+  }
+
+  .grade-k {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(8px, 0.8vw, 11px);
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .grade-v {
+    font-family: 'Space Grotesk Variable', sans-serif;
+    font-size: clamp(14px, 1.4vw, 19px);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    font-weight: 800;
+    color: #f8fafc;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
+  }
+
+  .grade-calculating {
+    border-color: #a3a3a3;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(214, 211, 209, 0.28), rgba(214, 211, 209, 0) 45%),
+      linear-gradient(130deg, #44403c 0%, #1c1917 100%);
+    animation: grade-pulse 1.2s ease-in-out infinite;
+  }
+
+  .grade-dots {
+    display: inline-block;
+    width: 1.3em;
+    text-align: left;
+  }
+
+  .grade-dots::after {
+    content: '';
+    animation: grade-ellipsis 1.3s steps(4, end) infinite;
+  }
+
+  .grade-poor {
+    border-color: #f43f5e;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(251, 113, 133, 0.3), rgba(251, 113, 133, 0) 45%),
+      linear-gradient(130deg, #881337 0%, #500724 100%);
+  }
+
+  .grade-low {
+    border-color: #fb923c;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(253, 186, 116, 0.3), rgba(253, 186, 116, 0) 45%),
+      linear-gradient(130deg, #9a3412 0%, #431407 100%);
+  }
+
+  .grade-fair {
+    border-color: #facc15;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(253, 230, 138, 0.3), rgba(253, 230, 138, 0) 45%),
+      linear-gradient(130deg, #854d0e 0%, #422006 100%);
+  }
+
+  .grade-very-good {
+    border-color: #34d399;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(110, 231, 183, 0.28), rgba(110, 231, 183, 0) 45%),
+      linear-gradient(130deg, #166534 0%, #052e16 100%);
+  }
+
+  .grade-excellent {
+    border-color: #38bdf8;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(125, 211, 252, 0.3), rgba(125, 211, 252, 0) 45%),
+      linear-gradient(130deg, #075985 0%, #082f49 100%);
+  }
+
+  .grade-dust {
+    border-color: #d4d4d8;
+    background:
+      radial-gradient(130% 190% at 20% 20%, rgba(228, 228, 231, 0.28), rgba(228, 228, 231, 0) 45%),
+      linear-gradient(130deg, #57534e 0%, #1c1917 100%);
+  }
+
   .body {
     display: flex;
     flex-direction: column;
@@ -414,6 +596,17 @@
     display: none;
   }
 
+  .gem-dusk .gem-icon {
+    color: #d4d4d8;
+    filter: drop-shadow(0 0 6px rgba(228, 228, 231, 0.55));
+    animation: gem-spin 1.8s linear infinite;
+  }
+
+  .gem-dusk .gem-glow {
+    background: radial-gradient(circle, rgba(228, 228, 231, 0.35) 0%, transparent 70%);
+    animation: dusk-pulse 1.1s ease-in-out infinite;
+  }
+
   .gem-flash {
     position: absolute;
     inset: -12px;
@@ -436,6 +629,11 @@
   @keyframes gem-pulse {
     0%, 100% { opacity: 0.4; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  @keyframes dusk-pulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.25); }
   }
 
   @keyframes flash-burst {
@@ -495,6 +693,30 @@
     50% { opacity: 1; }
   }
 
+  @keyframes grade-pulse {
+    0%, 100% {
+      transform: rotate(-1.3deg) scale(1);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        0 0 0 2px rgba(0, 0, 0, 0.35),
+        0 9px 18px rgba(0, 0, 0, 0.35);
+    }
+    50% {
+      transform: rotate(-1.3deg) scale(1.03);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 2px rgba(0, 0, 0, 0.35),
+        0 12px 22px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  @keyframes grade-ellipsis {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
+
   .spin {
     animation: spinner 0.8s linear infinite;
   }
@@ -542,6 +764,24 @@
 
   .compact .divider {
     margin-bottom: clamp(4px, 0.8vw, 8px);
+  }
+
+  .compact .grade-wrap {
+    margin-bottom: clamp(4px, 0.8vw, 8px);
+  }
+
+  .compact .grade-pill {
+    min-width: clamp(66px, 14vw, 116px);
+    padding: clamp(4px, 0.8vw, 7px) clamp(6px, 1vw, 10px);
+    gap: 4px;
+  }
+
+  .compact .grade-k {
+    font-size: clamp(6px, 0.9vw, 8px);
+  }
+
+  .compact .grade-v {
+    font-size: clamp(9px, 1.2vw, 13px);
   }
 
   .compact .body {
